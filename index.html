@@ -1062,24 +1062,24 @@ let nextRepartoId=1,nextClienteId=1,nextTsId=5000,nextTrId=9000;
 
 /* ── Persist (Supabase) ──────────────────────────── */
 async function loadData(){
-  const{data:tsData,error:tsErr}=await sb
-    .from('transportistas')
-    .select('id,nombre,camiones(id,descripcion,tipo,precio,last_km)')
-    .eq('activo',true)
-    .order('id');
-  if(!tsErr&&tsData&&tsData.length){
-    transportistas=tsData.map(ts=>({
-      id:ts.id,n:ts.nombre,
-      trucks:(ts.camiones||[]).map(c=>({id:c.id,d:c.descripcion,tipo:c.tipo||'km',precio:c.precio||0,lastKm:c.last_km||0}))
-    }));
+  const[tsRes,camRes,repRes]=await Promise.all([
+    sb.from('transportistas').select('id,nombre').eq('activo',true).order('id'),
+    sb.from('camiones').select('id,transportista_id,descripcion,tipo,precio,last_km').order('transportista_id,id'),
+    sb.from('repartos').select('*').order('id')
+  ]);
+  if(!tsRes.error&&tsRes.data&&tsRes.data.length){
+    const camMap={};
+    (camRes.data||[]).forEach(c=>{
+      if(!camMap[c.transportista_id])camMap[c.transportista_id]=[];
+      camMap[c.transportista_id].push({id:c.id,d:c.descripcion,tipo:c.tipo||'km',precio:c.precio||0,lastKm:c.last_km||0});
+    });
+    transportistas=tsRes.data.map(ts=>({id:ts.id,n:ts.nombre,trucks:camMap[ts.id]||[]}));
   }else if(!transportistas.length){
-    // fallback al SEED si la DB no responde y no hay datos
     transportistas=JSON.parse(JSON.stringify(SEED));
     transportistas.forEach(ts=>ts.trucks.forEach(tr=>{if(!tr.tipo)tr.tipo='km';}));
   }
-  const{data:repData,error:repErr}=await sb.from('repartos').select('*').order('id');
-  if(!repErr&&repData){
-    repartos=repData.map(r=>({
+  if(!repRes.error&&repRes.data){
+    repartos=repRes.data.map(r=>({
       id:r.id,fecha:isoToDisplay(r.fecha),
       tsId:r.transportista_id,tsNombre:r.transportista_nombre,
       trId:r.camion_id,trDesc:r.camion_descripcion,
