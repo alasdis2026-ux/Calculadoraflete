@@ -161,7 +161,11 @@ tfoot .val{font-weight:800;color:var(--gray-800);font-variant-numeric:tabular-nu
 .selector-card{flex-shrink:0;padding:20px 24px;background:var(--gray-50);border:1.5px solid var(--gray-200);border-radius:var(--radius-lg);display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap}
 .sel-group,.km-group{display:flex;flex-direction:column;gap:6px}
 .selector-card .sel-group{width:320px}
+.sel-lbl-row{display:flex;align-items:center;justify-content:space-between;gap:6px}
 .sel-lbl{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--gray-400);transition:color var(--fast)}
+.sel-clear-btn{display:none;background:none;border:none;cursor:pointer;color:var(--gray-300);font-size:15px;line-height:1;padding:1px 4px;border-radius:4px;transition:color .15s,background .15s}
+.sel-clear-btn:hover{color:var(--danger);background:var(--danger-soft)}
+.sel-group.is-set .sel-clear-btn{display:flex;align-items:center;justify-content:center}
 .sel-group:focus-within .sel-lbl,.km-group:focus-within .sel-lbl{color:var(--accent)}
 .sel-group.is-set .sel-lbl,.km-group.is-set .sel-lbl{color:var(--primary)}
 
@@ -614,12 +618,22 @@ tfoot .val{font-weight:800;color:var(--gray-800);font-variant-numeric:tabular-nu
       <div class="selector-card">
 
         <div class="sel-group" id="selTsGroup">
-          <span class="sel-lbl">Transportista</span>
+          <div class="sel-lbl-row">
+            <span class="sel-lbl">Transportista</span>
+            <button class="sel-clear-btn" id="btnClearTs" type="button" title="Quitar transportista">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="13" height="13"><path stroke-linecap="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+          </div>
           <select id="selTs"><option value="">— Elegir transportista —</option></select>
         </div>
 
         <div class="sel-group" id="selTrGroup">
-          <span class="sel-lbl">Camión</span>
+          <div class="sel-lbl-row">
+            <span class="sel-lbl">Camión</span>
+            <button class="sel-clear-btn" id="btnClearTr" type="button" title="Quitar camión">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="13" height="13"><path stroke-linecap="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+          </div>
           <select id="selTr" disabled><option value="">— Primero elegí TS —</option></select>
         </div>
 
@@ -646,6 +660,10 @@ tfoot .val{font-weight:800;color:var(--gray-800);font-variant-numeric:tabular-nu
         <button class="btn btn-sm btn-outline" type="button" id="btnAddCliente">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
           Agregar cliente
+        </button>
+        <button class="btn btn-sm btn-ghost" type="button" id="btnLimpiarClientes" style="display:none">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14"><path stroke-linecap="round" stroke-width="2.2" d="M6 18L18 6M6 6l12 12"/></svg>
+          Limpiar
         </button>
       </div>
 
@@ -1354,6 +1372,25 @@ selTr.addEventListener('change',()=>{
 });
 inpKm.addEventListener('input',()=>{currentReparto.km=parseFloat(inpKm.value)||0;updateFleteInfo();updateSelIcons();});
 
+document.getElementById('btnClearTs').addEventListener('click',()=>{
+  selTs.value='';
+  selTs.dispatchEvent(new Event('change'));
+  if(sselTs)sselTs.sync();
+});
+document.getElementById('btnClearTr').addEventListener('click',()=>{
+  selTr.value='';
+  selTr.dispatchEvent(new Event('change'));
+  if(sselTr)sselTr.sync();
+});
+document.getElementById('btnLimpiarClientes').addEventListener('click',()=>{
+  if(!currentReparto.clientes.length)return;
+  currentReparto.clientes=[];
+  nextClienteId=1;
+  renderClientesTable();
+  updateResultCard();
+  updateSelIcons();
+});
+
 document.getElementById('btnGoConfig').addEventListener('click',()=>{
   if(currentReparto.tsId)selectedTsId=currentReparto.tsId;
   showView('trans');
@@ -1369,6 +1406,8 @@ function renderClientesTable(){
   const tfoot=document.getElementById('clientesTfoot');
   const empty=document.getElementById('clientesEmpty');
   document.getElementById('clienteCount').textContent=c.clientes.length;
+  const btnLimp=document.getElementById('btnLimpiarClientes');
+  if(btnLimp)btnLimp.style.display=c.clientes.length?'':'none';
   const isKm=c.tipo==='km'&&!!c.tr;
   thead.innerHTML=
     `<th style="width:32px">#</th>`+
