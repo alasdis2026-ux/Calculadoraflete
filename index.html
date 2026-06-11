@@ -290,10 +290,9 @@ tfoot .val{font-weight:800;color:var(--gray-800);font-variant-numeric:tabular-nu
 .incid-col.warn{color:var(--orange)}
 .incid-col.bad{color:var(--danger)}
 .incid-col.na{color:var(--gray-300)}
-.dif-col{font-variant-numeric:tabular-nums;font-weight:700;font-size:12.5px;text-align:right}
-.dif-col.good{color:var(--accent)}
-.dif-col.bad{color:var(--danger)}
-.dif-col.na{color:var(--gray-300)}
+.dif-col{text-align:right}
+.chip-dif{display:inline-flex;align-items:center;padding:3px 10px;border-radius:999px;background:#FEE2E2;color:#DC2626;font-size:11px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap;letter-spacing:.1px}
+.chip-gan{display:inline-flex;align-items:center;padding:3px 10px;border-radius:999px;background:#DCFCE7;color:#16A34A;font-size:11px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap;letter-spacing:.1px}
 .gasto-col{font-variant-numeric:tabular-nums;font-size:13px;font-weight:600;color:var(--gray-600);text-align:right}
 .gasto-col.zero{color:var(--gray-300)}
 .pct-col{font-size:11.5px;font-weight:600;color:var(--gray-400);text-align:right}
@@ -959,11 +958,12 @@ const stateOf = p => {
 };
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 function difFmt(v){
-  if(v===null||v===undefined)return'—';
+  if(v===null||v===undefined)return'<span style="color:var(--gray-300)">—</span>';
   const abs=Math.abs(Math.round(v));
-  if(v>0)return'+ Gs. '+formatMoney(abs);
-  if(v<0)return'- Gs. '+formatMoney(abs);
-  return'Gs. 0';
+  const amt='Gs. '+formatMoney(abs);
+  if(v>0)return`<span class="chip-dif">+${amt}</span>`;
+  if(v<0)return`<span class="chip-gan">${amt}</span>`;
+  return'<span style="color:var(--gray-300)">—</span>';
 }
 function showToast(msg,ms=2400){
   const t=document.getElementById('toast');
@@ -1446,7 +1446,7 @@ function renderClientesTable(){
       <td class="r pct-col" data-col="pct">${cl.pct>0?cl.pct.toFixed(1)+'%':'—'}</td>
       <td class="r gasto-col${cl.gasto===0?' zero':''}" data-col="gasto">${cl.gasto>0?fmtGs(cl.gasto):'—'}</td>
       <td class="r incid-col ${incClass}" data-col="incid">${cl.inc!==null?fmtPct(cl.inc):'—'}</td>
-      <td class="r dif-col ${cl.dif===null?'na':cl.dif<=0?'good':'bad'}" data-col="dif">${cl.dif!==null?difFmt(cl.dif):'—'}</td>
+      <td class="r dif-col" data-col="dif">${difFmt(cl.dif)}</td>
       <td style="padding:8px 8px;text-align:center"><button class="del-cl-btn" type="button" data-delcl="${cl.id}"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg></button></td>
     </tr>`;
   }).join('');
@@ -1457,7 +1457,7 @@ function renderClientesTable(){
     <td class="val r">100%</td>
     <td class="val r" data-col="tot-flete">${c.totalFlete>0?fmtGs(c.totalFlete):'—'}</td>
     <td class="val r" data-col="tot-inc">${c.incTotal!==null?fmtPct(c.incTotal):'—'}</td>
-    <td class="val r dif-col ${c.diferencia===null?'na':c.diferencia<=0?'good':'bad'}" data-col="tot-dif">${c.diferencia!==null?difFmt(c.diferencia):'—'}</td>
+    <td class="val r dif-col" data-col="tot-dif">${difFmt(c.diferencia)}</td>
     <td></td>
   </tr>`;
 }
@@ -1580,7 +1580,7 @@ function _updateCalcCells(comp){
     if(gEl){gEl.textContent=clc.gasto>0?fmtGs(clc.gasto):'—';gEl.className='r gasto-col'+(clc.gasto===0?' zero':'');}
     if(iEl){iEl.textContent=clc.inc!==null?fmtPct(clc.inc):'—';iEl.className='r incid-col '+incClass;}
     const dEl=row.querySelector('[data-col="dif"]');
-    if(dEl){const dc=clc.dif===null?'na':clc.dif<=0?'good':'bad';dEl.textContent=clc.dif!==null?difFmt(clc.dif):'—';dEl.className='r dif-col '+dc;}
+    if(dEl){dEl.innerHTML=difFmt(clc.dif);dEl.className='r dif-col';}
   });
   const tf=document.getElementById('clientesTfoot');
   const tm=tf.querySelector('[data-col="tot-monto"]');
@@ -1590,7 +1590,7 @@ function _updateCalcCells(comp){
   if(tfl)tfl.textContent=comp.totalFlete>0?fmtGs(comp.totalFlete):'—';
   if(ti)ti.textContent=comp.incTotal!==null?fmtPct(comp.incTotal):'—';
   const td=tf.querySelector('[data-col="tot-dif"]');
-  if(td){td.textContent=comp.diferencia!==null?difFmt(comp.diferencia):'—';td.className='val r dif-col '+(comp.diferencia===null?'na':comp.diferencia<=0?'good':'bad');}
+  if(td){td.innerHTML=difFmt(comp.diferencia);td.className='val r dif-col';}
 }
 
 /* Client table: nombre + monto inline listeners */
