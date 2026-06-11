@@ -895,6 +895,11 @@ tfoot .val{font-weight:800;color:var(--gray-800);font-variant-numeric:tabular-nu
 
 <div class="toast" id="toast"></div>
 
+<div id="appLoader" style="position:fixed;inset:0;z-index:9000;background:rgba(255,255,255,.92);backdrop-filter:blur(5px);display:none;flex-direction:column;align-items:center;justify-content:center;gap:18px">
+  <div style="width:52px;height:52px;border:4.5px solid #DBEAFE;border-top-color:#3B82F6;border-radius:50%;animation:spin-arc .7s linear infinite"></div>
+  <div style="font-family:Sora,Inter,sans-serif;font-size:15px;font-weight:800;color:#64748B;letter-spacing:-.2px">Cargando datos...</div>
+</div>
+
 <script>
 /* ════════════════════════════════════════════════════
    ALAS — Calculadora de Flete v5.1
@@ -2165,11 +2170,6 @@ function showSaveAnim(){
 }
 </script>
 
-<!-- Loading overlay — visible mientras initApp() carga desde Supabase -->
-<div id="appLoader" style="position:fixed;inset:0;z-index:9000;background:rgba(255,255,255,.92);backdrop-filter:blur(5px);display:none;flex-direction:column;align-items:center;justify-content:center;gap:18px">
-  <div style="width:52px;height:52px;border:4.5px solid #DBEAFE;border-top-color:#3B82F6;border-radius:50%;animation:spin-arc .7s linear infinite"></div>
-  <div style="font-family:Sora,Inter,sans-serif;font-size:15px;font-weight:800;color:#64748B;letter-spacing:-.2px">Cargando datos...</div>
-</div>
 
 <div class="save-overlay" id="saveOverlay">
   <div class="save-ring">
