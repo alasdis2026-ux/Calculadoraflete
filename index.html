@@ -434,6 +434,7 @@ tfoot .val{font-weight:800;color:var(--gray-800);font-variant-numeric:tabular-nu
 .tr-inp{height:36px;padding:0 8px 0 32px;border:1.5px solid var(--gray-200);border-radius:10px;background:#fff;color:var(--gray-800);font-size:14px;font-weight:700;outline:none;transition:border-color var(--fast),box-shadow var(--fast);width:140px;font-variant-numeric:tabular-nums}
 .tr-inp:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(59,130,246,.12)}
 .tr-inp:hover:not(:focus){border-color:var(--gray-300)}
+.tr-inp[readonly]{background:#F8FAFC;color:var(--gray-300);cursor:not-allowed;pointer-events:none;border-color:var(--gray-100)}
 .no-precio-tag{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:8px;background:var(--orange-soft);color:var(--orange);font-size:11px;font-weight:700;flex-shrink:0}
 .detail-empty{padding:60px 24px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:14px}
 .detail-empty svg{width:52px;height:52px;color:var(--gray-200)}
@@ -1797,7 +1798,8 @@ function renderDetailBody(ts){
           <span class="tr-pfx">Gs.</span>
           <input class="tr-inp money-tr" type="text" inputmode="numeric" data-field="precio"
             value="${tr.precio>0?formatMoney(tr.precio):''}"
-            placeholder="${tr.tipo==='fijo'?'por salida':'por km'}">
+            placeholder="${tr.tipo==='fijo'?'por salida':'por km'}"
+            ${!window._alasIsAdmin?'readonly title="Solo administradores pueden modificar el precio"':''}>
         </div>
       </div>
     </td>
@@ -1817,6 +1819,7 @@ document.getElementById('detailBody').addEventListener('focusin',e=>{
 
 document.getElementById('detailBody').addEventListener('focusout',e=>{
   if(!e.target.classList.contains('money-tr'))return;
+  if(!window._alasIsAdmin)return;
   const row=e.target.closest('[data-trid]');if(!row)return;
   const trId=+row.dataset.trid,tsId=+row.dataset.tsid;
   const ts=transportistas.find(t=>t.id===tsId),tr=ts?.trucks.find(t=>t.id===trId);if(!tr)return;
@@ -1833,6 +1836,7 @@ document.getElementById('detailBody').addEventListener('focusout',e=>{
 /* Input: only allow digits while typing */
 document.getElementById('detailBody').addEventListener('input',e=>{
   if(!e.target.classList.contains('money-tr'))return;
+  if(!window._alasIsAdmin)return;
   const pos=e.target.selectionStart;
   const cleaned=e.target.value.replace(/[^\d]/g,'');
   if(e.target.value!==cleaned){const diff=e.target.value.length-cleaned.length;e.target.value=cleaned;e.target.setSelectionRange(Math.max(0,pos-diff),Math.max(0,pos-diff));}
@@ -1927,7 +1931,7 @@ document.getElementById('mTrCancel').addEventListener('click',()=>modalTr.classL
 modalTr.addEventListener('click',e=>{if(e.target===modalTr)modalTr.classList.remove('is-open');});
 document.getElementById('mTrConfirm').addEventListener('click',async()=>{
   const d=mTrDesc.value.trim();if(!d){mTrDesc.focus();return;}
-  const precio=parseMoney(mTrPrecio.value);
+  const precio=window._alasIsAdmin?parseMoney(mTrPrecio.value):0;
   const ts=transportistas.find(t=>t.id===pendingTsId);if(!ts)return;
   try{
     const id=await dbAddTruck(ts.id,d,precio,mTrTipoActual);
@@ -2066,6 +2070,14 @@ function waitForAlasAuth(maxMs){
   });
 }
 
+function applyPriceRestrictions(){
+  if(window._alasIsAdmin)return;
+  const p=document.getElementById('mTrPrecio');
+  if(p){p.disabled=true;p.placeholder='Solo admins';p.style.opacity='.45';p.style.cursor='not-allowed';}
+  const lbl=document.getElementById('mTrPrecioLbl');
+  if(lbl)lbl.innerHTML='Precio (Gs.) <span style="font-size:10px;background:#FEF3C7;color:#D97706;padding:2px 6px;border-radius:4px;font-weight:600;vertical-align:middle;margin-left:4px;">Solo admin</span>';
+}
+
 async function initApp(){
   showLoading();
   await loadData();
@@ -2075,6 +2087,8 @@ async function initApp(){
     window.location.replace(url);
     return;
   }
+  window._alasIsAdmin=(ssoUser.role==='admin');
+  applyPriceRestrictions();
   const nameEl=document.getElementById('ssoUserName');
   const chipEl=document.getElementById('ssoUserChip');
   if(nameEl)nameEl.textContent=ssoUser.name||ssoUser.email||'Usuario';
