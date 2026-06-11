@@ -7,6 +7,13 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+  (function(){
+    var hasToken=new URLSearchParams(window.location.search).has('alas_token');
+    var hasSession=!!localStorage.getItem('alas.sso.session');
+    window.__alasSSOExpected=hasToken||hasSession;
+  })();
+</script>
 <style>
 :root{
   --primary:#0B5F8D;--primary-dark:#08486A;
@@ -36,7 +43,7 @@ svg{display:block;flex-shrink:0}
 body{min-height:100vh;overflow:hidden;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--gray-700);background:linear-gradient(160deg,#8fa0b0 0%,#b8c4ce 50%,#dde3e9 100%);-webkit-font-smoothing:antialiased}
 
 /* ── Layout ── */
-.layout{min-height:100vh;padding:16px;display:flex;align-items:stretch}
+.layout{min-height:100vh;padding:16px;display:flex;align-items:stretch;overflow:hidden}
 .system-shell{position:relative;flex:1;display:flex;height:calc(100vh - 32px);max-height:calc(100vh - 32px);overflow:hidden;background:var(--white);border-radius:var(--radius-xl);box-shadow:0 12px 50px rgba(0,0,0,.14)}
 .stage{flex:1;margin-left:60px;padding:24px 32px 26px;display:none;flex-direction:column;gap:16px;overflow-y:auto;overflow-x:hidden}
 .stage.is-active{display:flex}
@@ -52,6 +59,10 @@ body{min-height:100vh;overflow:hidden;font-family:Inter,system-ui,-apple-system,
 .sidebar-item.is-active{background:rgba(255,255,255,.18);color:#fff}
 .sidebar-item .label{font-size:13.5px;font-weight:600;letter-spacing:.1px;opacity:0;transform:translateX(-8px);transition:opacity var(--alas-dur-normal) var(--alas-ease) 60ms,transform var(--alas-dur-normal) var(--alas-ease) 60ms;pointer-events:none}
 .sidebar:hover .sidebar-item .label{opacity:1;transform:translateX(0)}
+.sidebar-user{width:100%;padding:6px 12px;display:none;align-items:center;gap:13px;color:rgba(255,255,255,.55);white-space:nowrap;overflow:hidden;flex-shrink:0;margin-bottom:4px}
+.sidebar-user svg{width:21px;height:21px;stroke-width:1.6;flex-shrink:0}
+.sidebar-user .label{font-size:12px;font-weight:600;letter-spacing:.1px;opacity:0;transform:translateX(-8px);transition:opacity var(--alas-dur-normal) var(--alas-ease) 60ms,transform var(--alas-dur-normal) var(--alas-ease) 60ms}
+.sidebar:hover .sidebar-user .label{opacity:1;transform:translateX(0)}
 
 /* ── Buttons ── */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:40px;padding:9px 18px;border-radius:10px;font-size:13.5px;font-weight:700;white-space:nowrap;transition:background var(--fast),box-shadow var(--alas-dur-normal) var(--alas-ease-spring),transform var(--alas-dur-normal) var(--alas-ease-spring),border-color var(--fast),color var(--fast),opacity var(--fast)}
@@ -543,7 +554,7 @@ tfoot .val{font-weight:800;color:var(--gray-800);font-variant-numeric:tabular-nu
 </style>
 </head>
 <body>
-<div class="layout">
+<div class="layout" id="alas-root">
 <main class="system-shell">
 
 <!-- SIDEBAR -->
@@ -566,6 +577,10 @@ tfoot .val{font-weight:800;color:var(--gray-800);font-variant-numeric:tabular-nu
       <span class="label">Dashboard</span>
     </button>
     <div class="sidebar-spacer"></div>
+    <div class="sidebar-user" id="ssoUserChip">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-7 8-7s8 3 8 7"/></svg>
+      <span class="label" id="ssoUserName">Usuario</span>
+    </div>
     <button class="sidebar-item" type="button" id="btnBack">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 15l-3-3m0 0l3-3m-3 3h8M3 12a9 9 0 1118 0 9 9 0 01-18 0z"/></svg>
       <span class="label">Volver al Menú</span>
@@ -1991,10 +2006,51 @@ document.addEventListener('keydown',e=>{
 /* ── Init ────────────────────────────────────────── */
 function updateEstimador(){}  // reservado para futuras versiones
 
+function waitForAlasAuth(maxMs){
+  maxMs=maxMs||8000;
+  return new Promise(function(resolve){
+    var start=Date.now();
+    function check(){
+      if(window.__alasAuthReady!==undefined){
+        window.__alasAuthReady.then(function(){
+          var c=window.AlasAuthClient;
+          resolve((c&&c.isAuthenticated)?c.user:null);
+        });
+      }else if(Date.now()-start>maxMs){
+        resolve(null);
+      }else{
+        setTimeout(check,50);
+      }
+    }
+    check();
+  });
+}
+
 async function initApp(){
   showLoading();
   await loadData();
+  const ssoUser=await waitForAlasAuth();
+  if(!ssoUser){
+    const url=(window.ALAS_SSO_CONFIG||{}).launcherUrl||'https://launcher-tawny.vercel.app';
+    window.location.replace(url);
+    return;
+  }
+  const nameEl=document.getElementById('ssoUserName');
+  const chipEl=document.getElementById('ssoUserChip');
+  if(nameEl)nameEl.textContent=ssoUser.name||ssoUser.email||'Usuario';
+  if(chipEl)chipEl.style.display='flex';
+  const btnBack=document.getElementById('btnBack');
+  if(btnBack)btnBack.addEventListener('click',function(e){
+    e.preventDefault();
+    const url=(window.ALAS_SSO_CONFIG||{}).launcherUrl||'https://launcher-tawny.vercel.app';
+    if(window.ALASTransition)window.ALASTransition.exitToLauncher(url);
+    else window.location.replace(url);
+  });
   hideLoading();
+  if(!window._alasEntered&&window.ALASTransition){
+    window._alasEntered=true;
+    window.ALASTransition.enterProject();
+  }
   populateTsSelect();
   const _bldgIco='<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16"><path d="M3 21V7l9-4 9 4v14"/><path d="M9 21v-6h6v6"/><rect x="9" y="11" width="2" height="2"/><rect x="13" y="11" width="2" height="2"/></svg>';
   sselTs=makeSsel('selTs',{
@@ -2170,6 +2226,20 @@ function showSaveAnim(){
 }
 </script>
 
+
+<script src="alas-transition.js"></script>
+<script>
+  ALASTransition.init({ root: '#alas-root' });
+  setTimeout(function(){
+    if(!window._alasEntered){
+      var url=(window.ALAS_SSO_CONFIG||{}).launcherUrl||'https://launcher-tawny.vercel.app';
+      window.location.replace(url);
+    }
+  },10000);
+</script>
+<script src="alas-sso-config.js"></script>
+<script src="alas-auth-client.js"></script>
+<script src="ui-protection.js" defer></script>
 
 <div class="save-overlay" id="saveOverlay">
   <div class="save-ring">
