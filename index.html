@@ -515,19 +515,26 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .hc-kpi-val{font-size:13px;font-weight:800;color:var(--gray-700);font-variant-numeric:tabular-nums}
 .hc-kpi-val.ok{color:#047857}
 .hc-kpi-val.over{color:#DC2626}
-.hc-clients{border-radius:9px;border:1px solid var(--gray-200);overflow:hidden}
-.hc-clients>summary{display:flex;align-items:center;gap:7px;padding:8px 12px;font-size:12px;font-weight:700;color:var(--gray-600);cursor:pointer;list-style:none;user-select:none;background:var(--gray-50);transition:background var(--fast)}
-.hc-clients>summary::-webkit-details-marker{display:none}
-.hc-clients>summary::before{content:"▶";font-size:9px;color:var(--gray-400);transition:transform var(--fast)}
-.hc-clients[open]>summary::before{transform:rotate(90deg)}
-.hc-clients>summary:hover{background:var(--gray-100)}
-.hc-client-list{display:flex;flex-direction:column}
-.hc-client-row{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:8px;padding:7px 12px;font-size:12px;border-top:1px solid var(--gray-100)}
-.hc-cl-name{font-weight:600;color:var(--gray-700);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.hc-cl-monto{font-weight:700;color:var(--gray-600);font-variant-numeric:tabular-nums;white-space:nowrap}
-.hc-cl-inc{font-size:11px;font-weight:700;padding:2px 7px;border-radius:999px;white-space:nowrap}
-.hc-cl-inc.ok{background:var(--success-soft);color:#065f46}
-.hc-cl-inc.over{background:var(--danger-soft);color:var(--danger-dark)}
+/* ── Ver detalles — botón chip + tabla animada ── */
+.hc-detail-wrap{border-radius:10px;border:1.5px solid var(--gray-200);overflow:hidden;background:var(--gray-50)}
+.hc-detail-btn{width:100%;display:flex;align-items:center;gap:8px;padding:10px 14px;background:transparent;border:none;cursor:pointer;font-size:12.5px;font-weight:700;color:var(--gray-600);text-align:left;transition:background var(--fast),color var(--fast)}
+.hc-detail-btn:hover{background:var(--gray-100);color:var(--primary)}
+.hc-detail-btn .chevron{width:14px;height:14px;flex-shrink:0;transition:transform var(--alas-dur-normal) var(--alas-ease);color:var(--gray-400)}
+.hc-detail-btn.open .chevron{transform:rotate(90deg)}
+.hc-detail-btn:hover .chevron{color:var(--primary)}
+.hc-detail-count{margin-left:auto;font-size:11px;font-weight:800;padding:2px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.hc-detail-panel{max-height:0;overflow:hidden;opacity:0;transition:max-height .38s var(--alas-ease),opacity .25s ease}
+.hc-detail-panel.open{max-height:600px;opacity:1}
+.hc-detail-table{width:100%;border-collapse:collapse;font-size:12px}
+.hc-detail-table thead tr{border-top:1.5px solid var(--gray-200)}
+.hc-detail-table th{padding:8px 14px 6px;font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--gray-400);text-align:left;background:var(--gray-50)}
+.hc-detail-table th:not(:first-child){text-align:right}
+.hc-detail-table td{padding:9px 14px;border-top:1px solid var(--gray-100);color:var(--gray-700);font-weight:600;vertical-align:middle;background:#fff}
+.hc-detail-table td:not(:first-child){text-align:right;font-variant-numeric:tabular-nums}
+.hc-detail-table tbody tr{animation:rowIn .28s var(--alas-ease) both;animation-delay:calc(var(--i,0)*45ms)}
+.hc-detail-table .cell-inc{font-weight:800}
+.hc-detail-table .cell-inc.ok{color:#047857}
+.hc-detail-table .cell-inc.over{color:#DC2626}
 /* ── Modal estado banner ── */
 .cal-modal-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:2px}
 .cal-modal-estado{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px}
@@ -2325,14 +2332,15 @@ function renderCard(r,opts={}){
   const incOk=r.incTotal!==null&&r.incTotal<3;
   const clList=r.clientes||[];
   const anim=opts.noAnim?'style="animation:none"':'';
-  const clientRows=clList.map(c=>{
+  const clientRows=clList.map((c,i)=>{
     const hasInc=c.inc!==null&&c.inc!==undefined;
     const clOk=hasInc&&c.inc<3;
-    return`<div class="hc-client-row">
-      <span class="hc-cl-name">${esc(c.nombre||'—')}</span>
-      <span class="hc-cl-monto">${fmtGs(c.monto||0)}</span>
-      ${hasInc?`<span class="hc-cl-inc ${clOk?'ok':'over'}">${c.inc.toFixed(2)}%</span>`:''}
-    </div>`;
+    return`<tr style="--i:${i}">
+      <td>${esc(c.nombre||'—')}</td>
+      <td>${fmtGs(c.monto||0)}</td>
+      <td>${c.gasto?fmtGs(c.gasto):'—'}</td>
+      <td class="cell-inc ${hasInc?(clOk?'ok':'over'):''}">${hasInc?c.inc.toFixed(2)+'%':'—'}</td>
+    </tr>`;
   }).join('');
   return`<div class="hist-card" ${anim}>
     <div class="hc-head">
@@ -2363,10 +2371,19 @@ function renderCard(r,opts={}){
         <span class="hc-kpi-val">${r.tipo==='fijo'?'Fijo':r.km+' km'}</span>
       </div>
     </div>
-    ${clList.length?`<details class="hc-clients">
-      <summary>Ver ${clList.length} cliente${clList.length!==1?'s':''}</summary>
-      <div class="hc-client-list">${clientRows}</div>
-    </details>`:''}
+    ${clList.length?`<div class="hc-detail-wrap">
+      <button class="hc-detail-btn" type="button" data-toggledetail>
+        <svg class="chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 18l6-6-6-6"/></svg>
+        Ver detalles
+        <span class="hc-detail-count">${clList.length} clientes</span>
+      </button>
+      <div class="hc-detail-panel">
+        <table class="hc-detail-table">
+          <thead><tr><th>Cliente</th><th>Monto</th><th>Gasto flete</th><th>Incidencia</th></tr></thead>
+          <tbody>${clientRows}</tbody>
+        </table>
+      </div>
+    </div>`:''}
     <div class="hist-dif ${over?'over':'ok'}">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="${over?'M13 17h8m0 0V9m0 8l-8-8-4 4-6-6':'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6'}"/></svg>
       ${over?'+ '+fmtGs(r.diferencia)+' sobre el objetivo (3%)':'✓ '+fmtGs(Math.abs(r.diferencia))+' dentro del objetivo (3%)'}
@@ -2545,6 +2562,22 @@ document.getElementById('calModalBody').addEventListener('click',async e=>{
 // Navegación
 document.getElementById('calModalClose').addEventListener('click',closeCalModal);
 document.getElementById('calModalBd').addEventListener('click',e=>{if(e.target===e.currentTarget)closeCalModal();});
+
+/* Toggle "Ver detalles" — delegado global para historial y modal */
+document.addEventListener('click',e=>{
+  const btn=e.target.closest('[data-toggledetail]');
+  if(!btn)return;
+  const isOpen=btn.classList.toggle('open');
+  const panel=btn.nextElementSibling;
+  if(!panel)return;
+  if(isOpen){
+    panel.classList.add('open');
+  }else{
+    panel.classList.remove('open');
+    // re-trigger row animations al volver a abrir
+    panel.querySelectorAll('tbody tr').forEach(tr=>{ tr.style.animation='none'; tr.offsetHeight; tr.style.animation=''; });
+  }
+});
 
 document.getElementById('calPrev').addEventListener('click',()=>{
   calMonth--;if(calMonth<0){calMonth=11;calYear--;}
