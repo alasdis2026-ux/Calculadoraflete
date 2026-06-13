@@ -986,10 +986,7 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
       <div class="cal-modal-hd">
         <div class="cal-modal-title-wrap">
           <span class="cal-modal-title" id="calModalTitle"></span>
-          <div class="cal-modal-meta">
-            <span class="cal-modal-badge" id="calModalBadge"></span>
-            <span class="cal-modal-estado" id="calModalEstado"></span>
-          </div>
+          <span class="cal-modal-badge" id="calModalBadge"></span>
         </div>
         <button class="cal-modal-close" id="calModalClose" type="button">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14"><path stroke-linecap="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -2482,19 +2479,6 @@ function openCalModal(iso,list){
   document.getElementById('calModalBadge').textContent=`${list.length} reparto${list.length!==1?'s':''}`;
 
   // Chip de estado global del día
-  const dayStatus=calDayStatus(list);
-  const estadoEl=document.getElementById('calModalEstado');
-  if(dayStatus==='ok'){
-    estadoEl.className='cal-modal-estado ok';
-    estadoEl.innerHTML=`<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="11" height="11"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Dentro del objetivo`;
-  }else if(dayStatus==='over'){
-    estadoEl.className='cal-modal-estado over';
-    estadoEl.innerHTML=`<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="11" height="11"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>Sobre el objetivo`;
-  }else{
-    estadoEl.className='cal-modal-estado mix';
-    estadoEl.innerHTML=`<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="11" height="11"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Resultados mixtos`;
-  }
-
   // KPIs del día
   const totMonto=list.reduce((a,r)=>a+(r.totalMonto||0),0);
   const totFlete=list.reduce((a,r)=>a+(r.totalFlete||0),0);
