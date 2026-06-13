@@ -1650,7 +1650,7 @@ async function buscarClientes(q){
   if(s.length<2)return[];
   const params=new URLSearchParams({
     select:'cod_cliente,nom_cliente',
-    or:`nom_cliente.ilike.*${s}*,cod_cliente.ilike.*${s}*`,
+    or:`(nom_cliente.ilike.*${s}*,cod_cliente.ilike.*${s}*)`,
     order:'nom_cliente',
     limit:'50',
   });
