@@ -499,6 +499,41 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .hist-dif.ok{background:var(--success-soft);color:#065f46}
 .hist-dif svg{width:13px;height:13px;flex-shrink:0}
 .hist-actions{display:flex;gap:8px}
+/* ── Hist card v2 ── */
+.hc-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.hc-head-left{display:flex;align-items:center;gap:8px}
+.hc-status{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:4px 10px;border-radius:999px;white-space:nowrap;flex-shrink:0}
+.hc-status.ok{background:var(--success-soft);color:#065f46}
+.hc-status.over{background:var(--danger-soft);color:var(--danger-dark)}
+.hc-status svg{width:11px;height:11px;flex-shrink:0}
+.hc-carrier-row{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
+.hc-ts{font-family:Sora,Inter,sans-serif;font-size:16px;font-weight:800;color:var(--primary)}
+.hc-tr{font-size:13px;font-weight:500;color:var(--gray-500)}
+.hc-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:6px 8px;background:var(--gray-50);border-radius:10px;padding:10px 12px}
+.hc-kpi{display:flex;flex-direction:column;gap:2px;align-items:center;text-align:center}
+.hc-kpi-lbl{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--gray-400)}
+.hc-kpi-val{font-size:13px;font-weight:800;color:var(--gray-700);font-variant-numeric:tabular-nums}
+.hc-kpi-val.ok{color:#047857}
+.hc-kpi-val.over{color:#DC2626}
+.hc-clients{border-radius:9px;border:1px solid var(--gray-200);overflow:hidden}
+.hc-clients>summary{display:flex;align-items:center;gap:7px;padding:8px 12px;font-size:12px;font-weight:700;color:var(--gray-600);cursor:pointer;list-style:none;user-select:none;background:var(--gray-50);transition:background var(--fast)}
+.hc-clients>summary::-webkit-details-marker{display:none}
+.hc-clients>summary::before{content:"▶";font-size:9px;color:var(--gray-400);transition:transform var(--fast)}
+.hc-clients[open]>summary::before{transform:rotate(90deg)}
+.hc-clients>summary:hover{background:var(--gray-100)}
+.hc-client-list{display:flex;flex-direction:column}
+.hc-client-row{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:8px;padding:7px 12px;font-size:12px;border-top:1px solid var(--gray-100)}
+.hc-cl-name{font-weight:600;color:var(--gray-700);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hc-cl-monto{font-weight:700;color:var(--gray-600);font-variant-numeric:tabular-nums;white-space:nowrap}
+.hc-cl-inc{font-size:11px;font-weight:700;padding:2px 7px;border-radius:999px;white-space:nowrap}
+.hc-cl-inc.ok{background:var(--success-soft);color:#065f46}
+.hc-cl-inc.over{background:var(--danger-soft);color:var(--danger-dark)}
+/* ── Modal estado banner ── */
+.cal-modal-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:2px}
+.cal-modal-estado{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px}
+.cal-modal-estado.ok{background:var(--success-soft);color:#065f46}
+.cal-modal-estado.over{background:var(--danger-soft);color:var(--danger-dark)}
+.cal-modal-estado.mix{background:var(--accent-soft);color:#1D4ED8}
 .hist-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:70px 20px;gap:14px;text-align:center;grid-column:1/-1}
 .hist-empty svg{width:52px;height:52px;color:var(--gray-200)}
 .hist-empty p{font-size:14.5px;font-weight:700;color:var(--gray-400)}
@@ -950,7 +985,10 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
       <div class="cal-modal-hd">
         <div class="cal-modal-title-wrap">
           <span class="cal-modal-title" id="calModalTitle"></span>
-          <span class="cal-modal-badge" id="calModalBadge"></span>
+          <div class="cal-modal-meta">
+            <span class="cal-modal-badge" id="calModalBadge"></span>
+            <span class="cal-modal-estado" id="calModalEstado"></span>
+          </div>
         </div>
         <button class="cal-modal-close" id="calModalClose" type="button">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14"><path stroke-linecap="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -2277,6 +2315,73 @@ function getFilteredRepartos(){
   });
 }
 
+function renderCard(r,opts={}){
+  const over=r.diferencia>0;
+  const inc=r.incTotal!==null?r.incTotal.toFixed(2)+'%':'—';
+  const incOk=r.incTotal!==null&&r.incTotal<3;
+  const clList=r.clientes||[];
+  const anim=opts.noAnim?'style="animation:none"':'';
+  const clientRows=clList.map(c=>{
+    const hasInc=c.inc!==null&&c.inc!==undefined;
+    const clOk=hasInc&&c.inc<3;
+    return`<div class="hc-client-row">
+      <span class="hc-cl-name">${esc(c.nombre||'—')}</span>
+      <span class="hc-cl-monto">${fmtGs(c.monto||0)}</span>
+      ${hasInc?`<span class="hc-cl-inc ${clOk?'ok':'over'}">${c.inc.toFixed(2)}%</span>`:''}
+    </div>`;
+  }).join('');
+  return`<div class="hist-card" ${anim}>
+    <div class="hc-head">
+      <div class="hc-head-left">
+        <span class="hist-date">${r.fecha}</span>
+        <span class="hist-id">#${String(r.id).padStart(4,'0')}</span>
+      </div>
+      <span class="hc-status ${over?'over':'ok'}">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="${over?'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z':'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'}"/></svg>
+        ${over?'Sobre objetivo':'Dentro del objetivo'}
+      </span>
+    </div>
+    <div class="hc-carrier-row">
+      <span class="hc-ts">${esc(r.tsNombre)}</span>
+      <span class="hc-tr">— ${esc(r.trDesc)}</span>
+    </div>
+    <div class="hc-kpis">
+      <div class="hc-kpi">
+        <span class="hc-kpi-lbl">Monto</span>
+        <span class="hc-kpi-val">${fmtGs(r.totalMonto)}</span>
+      </div>
+      <div class="hc-kpi">
+        <span class="hc-kpi-lbl">Flete</span>
+        <span class="hc-kpi-val">${fmtGs(r.totalFlete)}</span>
+      </div>
+      <div class="hc-kpi">
+        <span class="hc-kpi-lbl">Incidencia</span>
+        <span class="hc-kpi-val ${r.incTotal!==null?(incOk?'ok':'over'):''}">${inc}</span>
+      </div>
+      <div class="hc-kpi">
+        <span class="hc-kpi-lbl">${r.tipo==='fijo'?'Tarifa':'Distancia'}</span>
+        <span class="hc-kpi-val">${r.tipo==='fijo'?'Fijo':r.km+' km'}</span>
+      </div>
+    </div>
+    ${clList.length?`<details class="hc-clients">
+      <summary>Ver ${clList.length} cliente${clList.length!==1?'s':''}</summary>
+      <div class="hc-client-list">${clientRows}</div>
+    </details>`:''}
+    <div class="hist-dif ${over?'over':'ok'}">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="${over?'M13 17h8m0 0V9m0 8l-8-8-4 4-6-6':'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6'}"/></svg>
+      ${over?'+ '+fmtGs(r.diferencia)+' sobre el objetivo (3%)':'✓ '+fmtGs(Math.abs(r.diferencia))+' dentro del objetivo (3%)'}
+    </div>
+    <div class="hist-actions">
+      <button class="btn btn-sm btn-outline" type="button" data-editr="${r.id}">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>Editar
+      </button>
+      <button class="btn btn-sm btn-ghost" type="button" data-delr="${r.id}">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>Eliminar
+      </button>
+    </div>
+  </div>`;
+}
+
 function renderHistorial(){
   const grid=document.getElementById('histGrid');
   const filtered=getFilteredRepartos();
@@ -2289,37 +2394,7 @@ function renderHistorial(){
     grid.innerHTML=`<div class="hist-empty"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg><p>Sin resultados</p><span>No hay repartos en el período seleccionado</span></div>`;
     return;
   }
-  grid.innerHTML=filtered.map(r=>{
-    const over=r.diferencia>0;
-    const inc=r.incTotal!==null?r.incTotal.toFixed(2)+'%':'—';
-    return`<div class="hist-card">
-      <div class="hist-card__top">
-        <span class="hist-date">${r.fecha}</span>
-        <span class="hist-id">#${r.id.toString().padStart(4,'0')}</span>
-      </div>
-      <div class="hist-carrier">${esc(r.tsNombre)} <span>— ${esc(r.trDesc)}</span></div>
-      <div class="hist-stats">
-        <span>${(r.clientes||[]).length} clientes</span>
-        <span>${fmtGs(r.totalMonto)}</span>
-        <span>${inc} incidencia</span>
-        <span>${r.tipo==='fijo'?'Fijo':r.km+' km'} · ${fmtGs(r.totalFlete)}</span>
-      </div>
-      <div class="hist-dif ${over?'over':'ok'}">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="${over?'M13 17h8m0 0V9m0 8l-8-8-4 4-6-6':'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6'}"/></svg>
-        ${over?'+ '+fmtGs(r.diferencia)+' sobre el objetivo (3%)':'✓ '+fmtGs(Math.abs(r.diferencia))+' dentro del objetivo (3%)'}
-      </div>
-      <div class="hist-actions">
-        <button class="btn btn-sm btn-outline" type="button" data-editr="${r.id}">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-          Editar
-        </button>
-        <button class="btn btn-sm btn-ghost" type="button" data-delr="${r.id}">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-          Eliminar
-        </button>
-      </div>
-    </div>`;
-  }).join('');
+  grid.innerHTML=filtered.map(r=>renderCard(r)).join('');
 }
 document.getElementById('histGrid').addEventListener('click',async e=>{
   const editBtn=e.target.closest('[data-editr]');
@@ -2402,6 +2477,20 @@ function openCalModal(iso,list){
   document.getElementById('calModalTitle').textContent=`${d} de ${MESES_LARGO[m-1]} de ${y}`;
   document.getElementById('calModalBadge').textContent=`${list.length} reparto${list.length!==1?'s':''}`;
 
+  // Chip de estado global del día
+  const dayStatus=calDayStatus(list);
+  const estadoEl=document.getElementById('calModalEstado');
+  if(dayStatus==='ok'){
+    estadoEl.className='cal-modal-estado ok';
+    estadoEl.innerHTML=`<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="11" height="11"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Dentro del objetivo`;
+  }else if(dayStatus==='over'){
+    estadoEl.className='cal-modal-estado over';
+    estadoEl.innerHTML=`<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="11" height="11"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>Sobre el objetivo`;
+  }else{
+    estadoEl.className='cal-modal-estado mix';
+    estadoEl.innerHTML=`<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="11" height="11"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Resultados mixtos`;
+  }
+
   // KPIs del día
   const totMonto=list.reduce((a,r)=>a+(r.totalMonto||0),0);
   const totFlete=list.reduce((a,r)=>a+(r.totalFlete||0),0);
@@ -2422,36 +2511,7 @@ function openCalModal(iso,list){
       <span class="cal-kpi-val ${incOk?'ok':'over'}">${incProm.toFixed(2)}%</span>
     </div>`:''}`;
 
-  // Tarjetas de repartos
-  document.getElementById('calModalBody').innerHTML=list.map(r=>{
-    const over=r.diferencia>0;
-    const inc=r.incTotal!==null?r.incTotal.toFixed(2)+'%':'—';
-    return`<div class="hist-card" style="animation:none">
-      <div class="hist-card__top">
-        <span class="hist-date">${r.fecha}</span>
-        <span class="hist-id">#${r.id.toString().padStart(4,'0')}</span>
-      </div>
-      <div class="hist-carrier">${esc(r.tsNombre)} <span>— ${esc(r.trDesc)}</span></div>
-      <div class="hist-stats">
-        <span>${(r.clientes||[]).length} clientes</span>
-        <span>${fmtGs(r.totalMonto)}</span>
-        <span>${inc} incidencia</span>
-        <span>${r.tipo==='fijo'?'Fijo':r.km+' km'} · ${fmtGs(r.totalFlete)}</span>
-      </div>
-      <div class="hist-dif ${over?'over':'ok'}">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="${over?'M13 17h8m0 0V9m0 8l-8-8-4 4-6-6':'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6'}"/></svg>
-        ${over?'+ '+fmtGs(r.diferencia)+' sobre el objetivo (3%)':'✓ '+fmtGs(Math.abs(r.diferencia))+' dentro del objetivo (3%)'}
-      </div>
-      <div class="hist-actions">
-        <button class="btn btn-sm btn-outline" type="button" data-editr="${r.id}">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>Editar
-        </button>
-        <button class="btn btn-sm btn-ghost" type="button" data-delr="${r.id}">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>Eliminar
-        </button>
-      </div>
-    </div>`;
-  }).join('');
+  document.getElementById('calModalBody').innerHTML=list.map(r=>renderCard(r,{noAnim:true})).join('');
   document.getElementById('calModalBd').classList.add('open');
 }
 
