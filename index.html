@@ -638,7 +638,7 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 
 /* KPI cards */
 .dash-kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-.dash-kpi{background:#fff;border:1.5px solid var(--gray-200);border-radius:var(--radius-lg);padding:18px 20px 16px;display:flex;flex-direction:column;gap:10px;box-shadow:0 2px 8px rgba(0,0,0,.05);transition:box-shadow var(--alas-dur-normal) var(--alas-ease),transform var(--alas-dur-normal) var(--alas-ease)}
+.dash-kpi{background:#fff;border:1.5px solid var(--gray-200);border-radius:var(--radius-lg);padding:18px 20px 16px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;box-shadow:0 2px 8px rgba(0,0,0,.05);transition:box-shadow var(--alas-dur-normal) var(--alas-ease),transform var(--alas-dur-normal) var(--alas-ease)}
 .dash-kpi:hover{box-shadow:0 8px 24px rgba(0,0,0,.09);transform:translateY(-2px)}
 .dash-kpi__lbl{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--gray-400)}
 .dash-kpi__inc{font-family:Sora,Inter,sans-serif;font-size:36px;font-weight:900;line-height:1;letter-spacing:-1.5px;color:var(--primary)}
@@ -653,8 +653,8 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .dash-kpi__badge.elevado{background:#fff7ed;color:#c2410c}
 .dash-kpi__badge.critico{background:#fef2f2;color:#b91c1c}
 .dash-kpi__badge.na{background:var(--gray-100);color:var(--gray-400)}
-.dash-kpi__meta{display:flex;flex-direction:column;gap:4px;border-top:1px solid var(--gray-100);padding-top:10px}
-.dash-kpi__meta span{font-size:12px;color:var(--gray-500);font-weight:600;display:flex;justify-content:space-between}
+.dash-kpi__meta{display:flex;flex-direction:column;gap:4px;border-top:1px solid var(--gray-100);padding-top:10px;width:100%}
+.dash-kpi__meta span{font-size:12px;color:var(--gray-500);font-weight:600;display:flex;justify-content:space-between;gap:8px}
 .dash-kpi__meta span b{font-weight:800;color:var(--gray-700)}
 
 /* Trend chart */
@@ -670,18 +670,25 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .dash-chart-wrap::-webkit-scrollbar{height:4px}
 .dash-chart-wrap::-webkit-scrollbar-thumb{background:var(--gray-200);border-radius:99px}
 
-/* Recent list */
-.dash-recent-card{background:#fff;border:1.5px solid var(--gray-200);border-radius:var(--radius-lg);padding:20px 22px;box-shadow:0 2px 8px rgba(0,0,0,.05)}
-.dash-recent-card h3{font-family:Sora,Inter,sans-serif;font-size:14px;font-weight:800;color:var(--primary);margin-bottom:14px}
-.dash-recent-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--gray-100)}
-.dash-recent-row:last-child{border-bottom:none;padding-bottom:0}
-.drr-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
-.drr-dot.optimo{background:var(--accent)}.drr-dot.aceptable{background:#0891b2}.drr-dot.elevado{background:var(--orange)}.drr-dot.critico{background:var(--danger)}.drr-dot.na{background:var(--gray-300)}
-.drr-info{flex:1;min-width:0}
-.drr-carrier{font-size:13px;font-weight:700;color:var(--gray-800);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.drr-date{font-size:11px;color:var(--gray-400);font-weight:600}
-.drr-inc{font-size:14px;font-weight:900;font-variant-numeric:tabular-nums;flex-shrink:0}
-.drr-inc.optimo{color:var(--accent)}.drr-inc.aceptable{color:#0891b2}.drr-inc.elevado{color:var(--orange)}.drr-inc.critico{color:var(--danger)}.drr-inc.na{color:var(--gray-300)}
+/* Zona chart */
+.dash-zona-card{background:#fff;border:1.5px solid var(--gray-200);border-radius:var(--radius-lg);padding:20px 22px;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.dash-zona-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.dash-zona-hd h3{font-family:Sora,Inter,sans-serif;font-size:14px;font-weight:800;color:var(--primary)}
+.dash-zona-hd .dz-count-badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.dz-chart{display:flex;flex-direction:column;gap:10px}
+.dz-row{display:grid;grid-template-columns:110px 1fr 110px;align-items:center;gap:12px;animation:rowIn .28s var(--alas-ease) both;animation-delay:calc(var(--i,0)*60ms)}
+.dz-name{font-size:12.5px;font-weight:700;color:var(--gray-700);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dz-bar-wrap{height:26px;background:var(--gray-100);border-radius:8px;overflow:hidden}
+.dz-bar{height:100%;border-radius:8px;min-width:6px;transition:width .7s var(--alas-ease)}
+.dz-stats{display:flex;flex-direction:column;align-items:flex-end;gap:1px}
+.dz-pct{font-size:13px;font-weight:900;font-variant-numeric:tabular-nums;line-height:1}
+.dz-pct.optimo{color:var(--accent)}.dz-pct.aceptable{color:#0891b2}.dz-pct.elevado{color:var(--orange)}.dz-pct.critico{color:var(--danger)}.dz-pct.na{color:var(--gray-300)}
+.dz-rep-count{font-size:10.5px;font-weight:600;color:var(--gray-400)}
+/* Zona field en formulario */
+.zona-row{display:flex;flex-direction:column;gap:6px;align-self:flex-start;min-width:260px}
+.zona-inp{height:42px;border:1.5px solid var(--gray-200);border-radius:10px;padding:0 14px;font-size:13.5px;font-weight:600;color:var(--gray-700);background:#fff;transition:border-color var(--fast),box-shadow var(--fast),background var(--fast);outline:none}
+.zona-inp:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.12);background:linear-gradient(135deg,#f8fbff,#fff)}
+.zona-inp::placeholder{color:var(--gray-300);font-weight:400}
 .dash-no-data{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 20px;gap:10px;text-align:center}
 .dash-no-data svg{width:44px;height:44px;color:var(--gray-200)}
 .dash-no-data p{font-size:14px;font-weight:700;color:var(--gray-400)}
@@ -800,6 +807,12 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
       <span id="fbFijoPrecio" style="display:none"></span>
       <span id="fbRate" style="display:none"></span>
       <button type="button" id="btnGoConfig" style="display:none"></button>
+
+      <!-- Zona -->
+      <div class="zona-row">
+        <div class="sel-lbl-row"><span class="sel-lbl">Zona de reparto</span></div>
+        <input type="text" id="inpZona" class="zona-inp" placeholder="Ej: Centro, Norte, Sur…" autocomplete="off">
+      </div>
 
       <!-- Clientes -->
       <div class="clients-hd">
@@ -1053,9 +1066,12 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
       </div>
       <div class="dash-chart-wrap" id="dashChart"></div>
     </div>
-    <div class="dash-recent-card">
-      <h3>Últimos registros</h3>
-      <div id="dashRecent"></div>
+    <div class="dash-zona-card">
+      <div class="dash-zona-hd">
+        <h3>Zonas por Incidencia</h3>
+        <span class="dz-count-badge" id="dashZonaBadge"></span>
+      </div>
+      <div class="dz-chart" id="dashZonaChart"></div>
     </div>
   </div>
 </section>
@@ -1255,7 +1271,7 @@ async function dbSaveReparto(snap){
     km:snap.km||0,precio:snap.precio||0,tipo:snap.tipo,
     total_flete:snap.totalFlete||0,total_monto:snap.totalMonto||0,
     inc_total:snap.incTotal,gasto_permitido:snap.gastoPermitido||0,
-    diferencia:snap.diferencia||0,clientes:snap.clientes
+    diferencia:snap.diferencia||0,zona:snap.zona||null,clientes:snap.clientes
   };
   if(snap.id!==null){
     const{error}=await sb.from('repartos').update(row).eq('id',snap.id);
@@ -1314,7 +1330,7 @@ SEED.forEach(ts=>ts.trucks.forEach(tr=>{if(!tr.precio)tr.precio=0;if(!tr.tipo)tr
 
 /* ── State ───────────────────────────────────────── */
 let transportistas=[],repartos=[],search='',selectedTsId=null,pendingTsId=null,editingClienteId=null;
-let currentReparto={id:null,tsId:null,trId:null,km:0,clientes:[]};
+let currentReparto={id:null,tsId:null,trId:null,km:0,zona:'',clientes:[]};
 let nextRepartoId=1,nextClienteId=1,nextTsId=5000,nextTrId=9000;
 
 /* ── Persist (Supabase) ──────────────────────────── */
@@ -1344,7 +1360,7 @@ async function loadData(){
       totalFlete:r.total_flete||0,totalMonto:r.total_monto||0,
       incTotal:r.inc_total!==null?Number(r.inc_total):null,
       gastoPermitido:r.gasto_permitido||0,diferencia:r.diferencia||0,
-      clientes:r.clientes||[]
+      zona:r.zona||'',clientes:r.clientes||[]
     }));
   }
   const maxCid=repartos.flatMap(r=>r.clientes||[]).reduce((m,c)=>Math.max(m,c.id||0),0);
@@ -1596,6 +1612,7 @@ selTr.addEventListener('change',()=>{
   updateSelIcons();
 });
 inpKm.addEventListener('input',()=>{currentReparto.km=parseFloat(inpKm.value)||0;updateFleteInfo();updateSelIcons();});
+document.getElementById('inpZona').addEventListener('input',e=>{currentReparto.zona=e.target.value;});
 
 document.getElementById('btnClearTs').addEventListener('click',()=>{
   selTs.value='';
@@ -2019,6 +2036,7 @@ document.getElementById('btnGuardar').addEventListener('click',async()=>{
     km:currentReparto.km,precio:c.precio,tipo:c.tipo,totalFlete:c.totalFlete,
     totalMonto:c.totalMonto,incTotal:c.incTotal,
     gastoPermitido:c.gastoPermitido,diferencia:c.diferencia,
+    zona:currentReparto.zona||'',
     clientes:c.clientes.map(cl=>({id:cl.id,nombre:cl.nombre,monto:cl.monto,gasto:cl.gasto,inc:cl.inc,pct:cl.pct})),
   };
   try{
@@ -2043,9 +2061,10 @@ document.getElementById('btnGuardar').addEventListener('click',async()=>{
 });
 
 function clearCurrentReparto(){
-  currentReparto={id:null,tsId:null,trId:null,km:0,clientes:[]};
+  currentReparto={id:null,tsId:null,trId:null,km:0,zona:'',clientes:[]};
   selTs.value='';selTr.innerHTML='<option value="">— Primero elegí TS —</option>';selTr.disabled=true;
   inpKm.value='0';
+  document.getElementById('inpZona').value='';
   document.getElementById('editChip').style.display='none';
   document.getElementById('btnNewReparto').style.display='none';
   updateFleteInfo();
@@ -2056,11 +2075,12 @@ document.getElementById('btnNewReparto').addEventListener('click',clearCurrentRe
 
 function loadForEdit(id){
   const r=repartos.find(x=>x.id===id);if(!r)return;
-  currentReparto={id:r.id,tsId:r.tsId,trId:r.trId,km:r.km,
+  currentReparto={id:r.id,tsId:r.tsId,trId:r.trId,km:r.km,zona:r.zona||'',
     clientes:r.clientes.map(c=>({id:c.id,nombre:c.nombre,monto:c.monto,km:c.km||0}))};
   const maxCid=currentReparto.clientes.reduce((m,c)=>Math.max(m,c.id),0);
   if(maxCid>=nextClienteId)nextClienteId=maxCid+1;
   inpKm.value=r.km||0;
+  document.getElementById('inpZona').value=r.zona||'';
   showView('calc');
   populateTsSelect();populateTrSelect(r.tsId);
   document.getElementById('editChip').style.display='';
@@ -2755,54 +2775,99 @@ function renderDashboard(){
     </div>`;
   }).join('');
 
-  // — Gráfico de barras SVG
+  // — Gráfico de tendencia SVG (más grande, con gradientes)
   const chartEl=document.getElementById('dashChart');
   const last15=[...repartos].slice(-15).reverse();
   if(!last15.length){
     chartEl.innerHTML=`<div class="dash-no-data"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg><p>Sin datos</p><span>Guardá repartos para ver la tendencia</span></div>`;
   } else {
-    const W=54,GAP=10,H=140,PAD=28;
+    const W=68,GAP=10,H=220,PAD=32;
     const maxInc=Math.max(10,...last15.filter(r=>r.incTotal!==null).map(r=>r.incTotal));
     const svgW=last15.length*(W+GAP)+PAD*2;
-    const barColor=inc=>inc===null?'#e2e8f0':inc<=3?'#3b82f6':inc<=8?'#f97316':'#ef4444';
-    const yFor=v=>(H-(v/maxInc)*H)+4;
+    const svgH=H+48;
+    const barGradId=inc=>inc===null?'grad-na':inc<=3?'grad-ok':inc<=8?'grad-warn':'grad-over';
+    const barStroke=inc=>inc===null?'#cbd5e1':inc<=3?'#2563eb':inc<=8?'#ea7316':'#dc2626';
+    const yFor=v=>Math.max(4,(H-(v/maxInc)*H)+4);
     const line3=yFor(3);
-    let bars='',labels='',values='';
+    let defs=`<defs>
+      <linearGradient id="grad-ok" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d4ed8" stop-opacity=".75"/></linearGradient>
+      <linearGradient id="grad-warn" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fb923c"/><stop offset="100%" stop-color="#ea7316" stop-opacity=".75"/></linearGradient>
+      <linearGradient id="grad-over" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f87171"/><stop offset="100%" stop-color="#dc2626" stop-opacity=".75"/></linearGradient>
+      <linearGradient id="grad-na" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e2e8f0"/><stop offset="100%" stop-color="#cbd5e1"/></linearGradient>
+    </defs>`;
+    let bars='',labels='',values='',shadows='';
     last15.forEach((r,i)=>{
       const x=PAD+i*(W+GAP);
       const inc=r.incTotal;
-      const bh=inc!==null?Math.max(4,(inc/maxInc)*H):4;
+      const bh=inc!==null?Math.max(8,(inc/maxInc)*H):8;
       const by=H-bh+4;
-      const col=barColor(inc);
-      bars+=`<rect x="${x}" y="${by}" width="${W}" height="${bh}" rx="6" fill="${col}" opacity=".9"/>`;
-      const short=r.tsNombre.split(' ')[0].substring(0,6);
-      labels+=`<text x="${x+W/2}" y="${H+22}" text-anchor="middle" font-size="9" fill="#94a3b8" font-family="Inter,sans-serif">${esc(short)}</text>`;
-      if(inc!==null)values+=`<text x="${x+W/2}" y="${by-5}" text-anchor="middle" font-size="9.5" font-weight="700" fill="${col}" font-family="Inter,sans-serif">${inc.toFixed(1)}%</text>`;
+      const gid=barGradId(inc);
+      const stroke=barStroke(inc);
+      shadows+=`<rect x="${x+2}" y="${by+4}" width="${W}" height="${bh}" rx="8" fill="${stroke}" opacity=".12"/>`;
+      bars+=`<rect x="${x}" y="${by}" width="${W}" height="${bh}" rx="8" fill="url(#${gid})"/>`;
+      const short=r.tsNombre.split(' ')[0].substring(0,7);
+      labels+=`<text x="${x+W/2}" y="${H+34}" text-anchor="middle" font-size="9.5" fill="#94a3b8" font-family="Inter,sans-serif">${esc(short)}</text>`;
+      if(inc!==null)values+=`<text x="${x+W/2}" y="${by-7}" text-anchor="middle" font-size="11" font-weight="800" fill="${stroke}" font-family="Inter,sans-serif">${inc.toFixed(1)}%</text>`;
     });
-    chartEl.innerHTML=`<svg width="${svgW}" height="${H+36}" viewBox="0 0 ${svgW} ${H+36}">
-      <line x1="${PAD-8}" y1="${line3}" x2="${svgW-PAD+8}" y2="${line3}" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="5,4" opacity=".6"/>
-      <text x="${svgW-PAD+10}" y="${line3+4}" font-size="9" fill="#ef4444" font-family="Inter,sans-serif" opacity=".8">3%</text>
-      ${bars}${values}${labels}
+    chartEl.innerHTML=`<svg width="${svgW}" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}" style="overflow:visible">
+      ${defs}
+      <line x1="${PAD-10}" y1="${line3}" x2="${svgW-PAD+10}" y2="${line3}" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="6,4" opacity=".5"/>
+      <text x="${svgW-PAD+14}" y="${line3+4}" font-size="10" fill="#ef4444" font-family="Inter,sans-serif" font-weight="700" opacity=".75">3%</text>
+      ${shadows}${bars}${values}${labels}
     </svg>`;
   }
 
-  // — Últimos 8 registros
-  const recentEl=document.getElementById('dashRecent');
-  const last8=[...repartos].reverse().slice(0,8);
-  if(!last8.length){
-    recentEl.innerHTML=`<div class="dash-no-data" style="padding:24px"><p>Sin repartos aún</p></div>`;
+  // — Gráfico Zonas por Incidencia
+  const zonaEl=document.getElementById('dashZonaChart');
+  const badgeEl=document.getElementById('dashZonaBadge');
+  const conZona=repartos.filter(r=>r.zona&&r.zona.trim());
+  if(!conZona.length){
+    if(badgeEl)badgeEl.textContent='0 zonas';
+    zonaEl.innerHTML=`<div class="dash-no-data" style="padding:20px"><p>Sin datos de zona</p><span>Completá el campo "Zona de reparto" al guardar repartos</span></div>`;
   } else {
-    recentEl.innerHTML=last8.map(r=>{
-      const st=stateOf(r.incTotal);
-      const cls=st?st.key:'na';
-      const inc=r.incTotal!==null?r.incTotal.toFixed(2)+'%':'—';
-      return`<div class="dash-recent-row">
-        <div class="drr-dot ${cls}"></div>
-        <div class="drr-info">
-          <div class="drr-carrier">${esc(r.tsNombre)} — ${esc(r.trDesc)}</div>
-          <div class="drr-date">${r.fecha} · ${(r.clientes||[]).length} clientes · ${fmtGs(r.totalMonto)}</div>
+    const zonaMap={};
+    conZona.forEach(r=>{
+      const z=r.zona.trim();
+      if(!zonaMap[z])zonaMap[z]={nombre:z,reps:[],incs:[]};
+      zonaMap[z].reps.push(r);
+      if(r.incTotal!==null)zonaMap[z].incs.push(r.incTotal);
+    });
+    const zonas=Object.values(zonaMap).map(z=>{
+      const avgInc=z.incs.length?z.incs.reduce((a,b)=>a+b,0)/z.incs.length:null;
+      return{...z,avgInc};
+    }).sort((a,b)=>{
+      if(a.avgInc===null&&b.avgInc===null)return 0;
+      if(a.avgInc===null)return 1;
+      if(b.avgInc===null)return -1;
+      return b.avgInc-a.avgInc;
+    });
+    if(badgeEl)badgeEl.textContent=`${zonas.length} zona${zonas.length!==1?'s':''}`;
+    const maxAvg=Math.max(1,...zonas.filter(z=>z.avgInc!==null).map(z=>z.avgInc));
+    const dzState=avg=>{
+      if(avg===null)return{cls:'na',label:'Sin datos'};
+      if(avg<=3)return{cls:'optimo',label:'Óptimo'};
+      if(avg<=6)return{cls:'aceptable',label:'Aceptable'};
+      if(avg<=12)return{cls:'elevado',label:'Elevado'};
+      return{cls:'critico',label:'Crítico'};
+    };
+    const barCol=avg=>{
+      if(avg===null)return'#e2e8f0';
+      if(avg<=3)return'linear-gradient(90deg,#3b82f6,#1d4ed8)';
+      if(avg<=6)return'linear-gradient(90deg,#06b6d4,#0891b2)';
+      if(avg<=12)return'linear-gradient(90deg,#fb923c,#ea7316)';
+      return'linear-gradient(90deg,#f87171,#dc2626)';
+    };
+    zonaEl.innerHTML=zonas.map((z,i)=>{
+      const st=dzState(z.avgInc);
+      const pct=z.avgInc!==null?Math.min(100,(z.avgInc/maxAvg)*100):0;
+      const incTxt=z.avgInc!==null?z.avgInc.toFixed(1)+'%':'—';
+      return`<div class="dz-row" style="--i:${i}">
+        <div class="dz-name" title="${esc(z.nombre)}">${esc(z.nombre)}</div>
+        <div class="dz-bar-wrap"><div class="dz-bar" style="width:${pct}%;background:${barCol(z.avgInc)}"></div></div>
+        <div class="dz-stats">
+          <span class="dz-pct ${st.cls}">${incTxt}</span>
+          <span class="dz-rep-count">${z.reps.length} rep${z.reps.length!==1?'s':''}</span>
         </div>
-        <div class="drr-inc ${cls}">${inc}</div>
       </div>`;
     }).join('');
   }
