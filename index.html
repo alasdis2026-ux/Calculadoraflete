@@ -587,11 +587,12 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 /* Seleccionado */
 .cal-day.selected{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.2),0 4px 14px rgba(59,130,246,.18);transform:scale(1.028)}
 /* Chip de incidencia dentro de la celda */
-.cal-day-info{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:5px 12px;border-radius:999px;white-space:nowrap}
-.cal-day.rep-ok .cal-day-info{background:linear-gradient(135deg,#10B981,#059669);color:#fff;box-shadow:0 3px 10px rgba(16,185,129,.45)}
-.cal-day.rep-mix .cal-day-info{background:linear-gradient(135deg,#3B82F6,#1D4ED8);color:#fff;box-shadow:0 3px 10px rgba(59,130,246,.45)}
-.cal-day.rep-over .cal-day-info{background:linear-gradient(135deg,#EF4444,#DC2626);color:#fff;box-shadow:0 3px 10px rgba(239,68,68,.45)}
-.cal-day.today .cal-day-info{background:rgba(255,255,255,.22);color:#fff}
+.cal-day-info{position:absolute;bottom:10px;left:0;right:0;display:flex;align-items:center;justify-content:center;gap:5px;pointer-events:none}
+.cal-day-info-inner{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:999px;white-space:nowrap}
+.cal-day.rep-ok .cal-day-info-inner{background:linear-gradient(135deg,#10B981,#059669);color:#fff;box-shadow:0 3px 10px rgba(16,185,129,.45)}
+.cal-day.rep-mix .cal-day-info-inner{background:linear-gradient(135deg,#3B82F6,#1D4ED8);color:#fff;box-shadow:0 3px 10px rgba(59,130,246,.45)}
+.cal-day.rep-over .cal-day-info-inner{background:linear-gradient(135deg,#EF4444,#DC2626);color:#fff;box-shadow:0 3px 10px rgba(239,68,68,.45)}
+.cal-day.today .cal-day-info-inner{background:rgba(255,255,255,.22);color:#fff}
 .cal-day-icon{width:14px;height:14px;flex-shrink:0}
 .cal-day-inc{font-size:12.5px;font-weight:800;line-height:1;letter-spacing:-.2px}
 /* Leyenda */
@@ -2455,7 +2456,7 @@ function calDayCell(dayNum,iso,list,isToday,isSelected){
       ?'M8 12h.01M12 12h.01M16 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
       :'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z';
     const incStr=avgInc!==null?avgInc.toFixed(1)+'%':'—';
-    info=`<div class="cal-day-info"><svg class="cal-day-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="${iconPath}"/></svg><span class="cal-day-inc">Incidencia ${incStr}</span></div>`;
+    info=`<div class="cal-day-info"><div class="cal-day-info-inner"><svg class="cal-day-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="${iconPath}"/></svg><span class="cal-day-inc">Incidencia ${incStr}</span></div></div>`;
   }
   return`<div class="${cls}" ${attr}><span class="day-num">${dayNum}</span>${info}</div>`;
 }
