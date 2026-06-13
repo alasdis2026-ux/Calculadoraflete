@@ -1629,32 +1629,30 @@ document.getElementById('clientesTbody').addEventListener('input',e=>{
   }
 });
 
-/* ════════ AUTOCOMPLETE CLIENTES ════════════════════════════════ */
-let _clientes=null,_clientesLoading=false;
-async function loadClientes(){
-  if(_clientes)return _clientes;
-  if(_clientesLoading)return new Promise(res=>{const t=setInterval(()=>{if(_clientes){clearInterval(t);res(_clientes);}},50);});
-  _clientesLoading=true;
-  try{const r=await fetch('clientes.json');_clientes=await r.json();}catch(e){_clientes=[];}
-  _clientesLoading=false;
-  return _clientes;
+/* ════════ AUTOCOMPLETE CLIENTES (Supabase) ═════════════════════ */
+const FLETE_URL='https://cxsyayunvyinfqxpjjzc.supabase.co';
+const FLETE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN4c3lheXVudnlpbmZxeHBqanpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExOTc4ODQsImV4cCI6MjA5Njc3Mzg4NH0.3QilTeulwlWmMzHFC8bRRe0PVYBM9vDX6XBnHQHwxNk';
+
+async function buscarClientes(q){
+  const s=q.trim();
+  if(s.length<2)return[];
+  const params=new URLSearchParams({
+    select:'cod_cliente,nom_cliente',
+    or:`nom_cliente.ilike.*${s}*,cod_cliente.ilike.*${s}*`,
+    order:'nom_cliente',
+    limit:'50',
+  });
+  try{
+    const r=await fetch(`${FLETE_URL}/rest/v1/clientes?${params}`,{
+      headers:{'apikey':FLETE_KEY,'Authorization':'Bearer '+FLETE_KEY},
+    });
+    if(!r.ok)return[];
+    return await r.json();
+  }catch{return[];}
 }
 
 const acEl=document.getElementById('clienteAC');
-let acActiveInp=null,acIdx=-1,acFiltered=[];
-
-function acFilter(q,all){
-  const s=q.toLowerCase().trim();
-  if(s.length<2)return[];
-  const starts=[],contains=[];
-  for(const cl of all){
-    const n=cl[1].toLowerCase();
-    if(n.startsWith(s)||cl[0].startsWith(s))starts.push(cl);
-    else if(n.includes(s)||cl[0].includes(s))contains.push(cl);
-    if(starts.length+contains.length>=200)break;
-  }
-  return [...starts,...contains].slice(0,50);
-}
+let acActiveInp=null,acIdx=-1,acFiltered=[],acDebounce=null;
 
 function acRender(list,inp){
   const rect=inp.getBoundingClientRect();
@@ -1664,8 +1662,8 @@ function acRender(list,inp){
   if(!list.length){acEl.innerHTML='<div class="ac-empty">Sin resultados</div>';acEl.style.display='block';return;}
   acEl.innerHTML=list.map((cl,i)=>
     `<div class="ac-item" data-i="${i}">
-       <span class="ac-name">${esc(cl[1])}</span>
-       <span class="ac-cod">${esc(cl[0])}</span>
+       <span class="ac-name">${esc(cl.nom_cliente)}</span>
+       <span class="ac-cod">${esc(cl.cod_cliente)}</span>
      </div>`
   ).join('');
   acEl.style.display='block';
@@ -1676,26 +1674,31 @@ function acHide(){acEl.style.display='none';acIdx=-1;acActiveInp=null;acFiltered
 
 function acSelect(cl){
   if(!acActiveInp)return;
-  acActiveInp.value=cl[1];
+  acActiveInp.value=cl.nom_cliente;
   acActiveInp.dispatchEvent(new Event('input',{bubbles:true}));
   acHide();
 }
 
-/* Focus en campo nombre → precargar lista */
-document.getElementById('clientesTbody').addEventListener('focus',async e=>{
+/* Focus en campo nombre */
+document.getElementById('clientesTbody').addEventListener('focus',e=>{
   if(!e.target.classList.contains('cl-txt-inp'))return;
   acActiveInp=e.target;
-  loadClientes(); // precarga en background
 },true);
 
-/* Tipeo en campo nombre → filtrar */
-document.getElementById('clientesTbody').addEventListener('input',async e=>{
+/* Tipeo → debounce 300ms → buscar en Supabase */
+document.getElementById('clientesTbody').addEventListener('input',e=>{
   if(!e.target.classList.contains('cl-txt-inp'))return;
   acActiveInp=e.target;
   const q=e.target.value;
-  if(q.length<2){acEl.style.display='none';return;}
-  const all=await loadClientes();
-  acRender(acFilter(q,all),e.target);
+  if(q.length<2){acEl.style.display='none';clearTimeout(acDebounce);return;}
+  clearTimeout(acDebounce);
+  acEl.innerHTML='<div class="ac-empty">Buscando...</div>';
+  acEl.style.display='block';
+  const inp=e.target;
+  acDebounce=setTimeout(async()=>{
+    const list=await buscarClientes(q);
+    if(acActiveInp===inp)acRender(list,inp);
+  },300);
 },true);
 
 /* Click en item del dropdown */
