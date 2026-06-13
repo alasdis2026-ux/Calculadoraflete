@@ -161,7 +161,9 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .selector-card{flex-shrink:0;padding:20px 24px;background:var(--gray-50);border:1.5px solid var(--gray-200);border-radius:var(--radius-lg);display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap}
 .sel-group,.km-group{display:flex;flex-direction:column;gap:6px}
 .selector-card .sel-group{width:320px}
-#selTrGroup{width:400px}
+#selTsGroup{width:240px}
+#selTrGroup{width:340px}
+#selZonaGroup{width:200px}
 .sel-lbl-row{display:flex;align-items:center;justify-content:space-between;gap:6px}
 .sel-lbl{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--gray-400);transition:color var(--fast)}
 .sel-clear-btn{display:none;background:var(--gray-100);border:1px solid var(--gray-200);cursor:pointer;color:var(--gray-600);font-size:15px;line-height:1;padding:3px 6px;border-radius:5px;transition:color .15s,background .15s,border-color .15s}
@@ -1423,7 +1425,7 @@ document.querySelectorAll('[data-nav]').forEach(b=>b.addEventListener('click',()
 const selTs=document.getElementById('selTs');
 const selTr=document.getElementById('selTr');
 const inpKm=document.getElementById('inpKm');
-var sselTs=null,sselTr=null;
+var sselTs=null,sselTr=null,sselZona=null;
 
 function populateTsSelect(){
   selTs.innerHTML='<option value="">— Elegir transportista —</option>'+
@@ -1598,6 +1600,7 @@ function updateSelIcons(){
   document.getElementById('kmGroup').classList.toggle('is-set',currentReparto.km>0);
   if(sselTs)sselTs.sync();
   if(sselTr)sselTr.sync();
+  if(sselZona)sselZona.sync();
 }
 
 selTs.addEventListener('change',()=>{
@@ -1618,7 +1621,10 @@ selTr.addEventListener('change',()=>{
   updateSelIcons();
 });
 inpKm.addEventListener('input',()=>{currentReparto.km=parseFloat(inpKm.value)||0;updateFleteInfo();updateSelIcons();});
-document.getElementById('selZona').addEventListener('change',e=>{currentReparto.zona=e.target.value;if(e.target.value)document.getElementById('selZonaGroup').classList.add('is-set');else document.getElementById('selZonaGroup').classList.remove('is-set');});
+document.getElementById('selZona').addEventListener('change',e=>{
+  currentReparto.zona=e.target.value;
+  document.getElementById('selZonaGroup').classList.toggle('is-set',!!e.target.value);
+});
 
 document.getElementById('btnClearTs').addEventListener('click',()=>{
   selTs.value='';
@@ -2072,6 +2078,7 @@ function clearCurrentReparto(){
   inpKm.value='0';
   document.getElementById('selZona').value='';
   document.getElementById('selZonaGroup').classList.remove('is-set');
+  if(sselZona)sselZona.sync();
   document.getElementById('editChip').style.display='none';
   document.getElementById('btnNewReparto').style.display='none';
   updateFleteInfo();
@@ -2090,6 +2097,7 @@ function loadForEdit(id){
   const selZona=document.getElementById('selZona');
   selZona.value=r.zona||'';
   document.getElementById('selZonaGroup').classList.toggle('is-set',!!r.zona);
+  if(sselZona)sselZona.sync();
   showView('calc');
   populateTsSelect();populateTrSelect(r.tsId);
   document.getElementById('editChip').style.display='';
@@ -2732,6 +2740,15 @@ async function initApp(){
     }
   });
   sselTr.setDisabled(selTr.disabled);
+  const _pinIco='<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16"><path d="M17.657 16.657L13.414 20.9a2 2 0 01-2.827 0l-4.244-4.244a8 8 0 1111.314 0z"/><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>';
+  sselZona=makeSsel('selZona',{
+    placeholder:'— Zona —',
+    defaultIcon:_pinIco,
+    iconFn:function(v,lbl){
+      if(!v)return _pinIco;
+      return'<div style="width:100%;height:100%;border-radius:8px;background:linear-gradient(135deg,#ECFDF5,#D1FAE5);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#065F46">'+lbl.substring(0,3).toUpperCase()+'</div>';
+    }
+  });
   renderClientesTable();
   updateResultCard();
   updateSelIcons();
