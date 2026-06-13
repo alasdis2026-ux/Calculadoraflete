@@ -565,6 +565,7 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .cal-day.today{background:linear-gradient(135deg,var(--primary) 0%,#2175a8 100%);box-shadow:0 6px 20px rgba(11,95,141,.38);border-color:transparent}
 .cal-day.today:hover{transform:scale(1.028);box-shadow:0 8px 24px rgba(11,95,141,.45)}
 .cal-day.today .day-num{color:#fff;font-weight:800;font-size:18px}
+.cal-day.is-sunday:not(.today):not(.rep-ok):not(.rep-mix):not(.rep-over){background:#EEF2F7;border-color:var(--gray-200)}
 .cal-day.is-sunday:not(.today):not(.rep-ok):not(.rep-mix):not(.rep-over) .day-num{color:var(--gray-600)}
 /* Días con repartos — dentro del objetivo → verde */
 .cal-day.rep-ok{background:linear-gradient(135deg,#d1fae5 0%,#a7f3d0 100%);border-color:rgba(16,185,129,.35);box-shadow:0 2px 10px rgba(16,185,129,.18)}
