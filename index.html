@@ -556,16 +556,25 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .cal-legend{display:flex;gap:16px;padding:10px 4px 0;justify-content:center;flex-wrap:wrap}
 .cal-legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--gray-400);font-weight:500}
 .cal-legend-dot{width:10px;height:10px;border-radius:4px;border:1.5px solid}
-/* Panel detalle inline */
-.cal-detail-panel{background:#fff;border-radius:16px;border:1.5px solid var(--gray-200);overflow:hidden;animation:rowIn var(--alas-dur-normal) var(--alas-ease) both;box-shadow:0 2px 8px rgba(0,0,0,.05)}
-.cal-detail-hd{padding:16px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:1.5px solid var(--gray-100);background:var(--gray-50)}
-.cal-detail-title{font-family:Sora,Inter,sans-serif;font-size:15px;font-weight:700;color:var(--primary);display:flex;align-items:center;gap:8px}
-.cal-detail-title .dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
-.cal-detail-body{padding:16px 20px;display:flex;flex-direction:column;gap:12px}
-.cal-empty-panel{text-align:center;padding:40px 20px;background:#fff;border-radius:16px;border:1.5px solid var(--gray-200)}
-.cal-empty-panel svg{color:var(--gray-200);width:44px;height:44px;margin-bottom:10px}
-.cal-empty-panel p{color:var(--gray-400);font-size:13px;font-weight:600}
-.cal-empty-panel span{font-size:11.5px;color:var(--gray-300);display:block;margin-top:4px}
+/* Modal día calendario */
+.cal-modal-bd{position:fixed;inset:0;z-index:8500;background:rgba(15,23,42,.5);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:20px}
+.cal-modal-bd.open{display:flex}
+.cal-modal-box{background:#fff;border-radius:22px;width:100%;max-width:680px;max-height:86vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 28px 72px rgba(15,23,42,.28);animation:slideUp .3s var(--alas-ease) both}
+.cal-modal-hd{padding:20px 24px 16px;border-bottom:1.5px solid var(--gray-100);display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-shrink:0;background:linear-gradient(135deg,#f8fbff,#fff)}
+.cal-modal-title-wrap{display:flex;flex-direction:column;gap:4px}
+.cal-modal-title{font-family:Sora,Inter,sans-serif;font-size:18px;font-weight:800;color:var(--primary);letter-spacing:-.2px;text-transform:capitalize}
+.cal-modal-badge{font-size:11px;font-weight:700;color:var(--accent);background:var(--accent-soft);padding:3px 10px;border-radius:999px;align-self:flex-start}
+.cal-modal-close{width:32px;height:32px;border-radius:9px;border:1.5px solid var(--gray-200);background:#fff;color:var(--gray-400);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all var(--fast);flex-shrink:0;margin-top:2px}
+.cal-modal-close:hover{background:#FEF2F2;color:#DC2626;border-color:#FCA5A5}
+/* KPIs del día */
+.cal-modal-kpis{display:flex;gap:10px;padding:14px 24px;border-bottom:1.5px solid var(--gray-100);background:var(--gray-50);flex-shrink:0}
+.cal-kpi{flex:1;display:flex;flex-direction:column;gap:3px;padding:12px 14px;background:#fff;border-radius:12px;border:1.5px solid var(--gray-100)}
+.cal-kpi-lbl{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--gray-400)}
+.cal-kpi-val{font-size:15px;font-weight:800;color:var(--primary);font-variant-numeric:tabular-nums;letter-spacing:-.3px}
+.cal-kpi-val.ok{color:#047857}
+.cal-kpi-val.over{color:#DC2626}
+/* Body */
+.cal-modal-body{padding:16px 24px;overflow-y:auto;display:flex;flex-direction:column;gap:12px;flex:1}
 
 /* ════════════════════════════════════════
    VIEW 4 — DASHBOARD
@@ -925,10 +934,26 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
         <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#D1FAE5;border-color:#10B981"></div>Dentro del objetivo</div>
         <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#DBEAFE;border-color:#3B82F6"></div>Mixto</div>
         <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#FEE2E2;border-color:#EF4444"></div>Sobre el objetivo</div>
-        <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--accent-soft);border-color:var(--accent)"></div>Seleccionado</div>
       </div>
     </div>
-    <div id="calDayDetail"></div>
+  </div>
+
+  <!-- Modal día calendario -->
+  <div class="cal-modal-bd" id="calModalBd">
+    <div class="cal-modal-box">
+      <div class="cal-modal-hd">
+        <div class="cal-modal-title-wrap">
+          <span class="cal-modal-title" id="calModalTitle"></span>
+          <span class="cal-modal-badge" id="calModalBadge"></span>
+        </div>
+        <button class="cal-modal-close" id="calModalClose" type="button">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14"><path stroke-linecap="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <!-- KPIs del día -->
+      <div class="cal-modal-kpis" id="calModalKpis"></div>
+      <div class="cal-modal-body" id="calModalBody"></div>
+    </div>
   </div>
 
   <!-- Vista lista (filtros + grid) -->
@@ -2366,37 +2391,33 @@ function renderCalendar(){
   document.getElementById('calGrid').innerHTML=html;
 }
 
-function selectCalDate(iso){
-  const byDate=repByDate();
-  const list=byDate.get(iso)||[];
-  if(!list.length){
-    // Deselect if clicking empty
-    calSelectedDate=null;
-    renderCalendar();
-    renderEmptyCalDetail();
-    return;
-  }
-  if(calSelectedDate===iso){
-    // Toggle off
-    calSelectedDate=null;
-    renderCalendar();
-    renderEmptyCalDetail();
-    return;
-  }
-  calSelectedDate=iso;
-  renderCalendar();
-  renderCalDayDetail(iso,list);
-  // scroll suave al detalle
-  requestAnimationFrame(()=>{
-    const el=document.getElementById('calDayDetail');
-    if(el)el.scrollIntoView({behavior:'smooth',block:'nearest'});
-  });
-}
-
-function renderCalDayDetail(iso,list){
+function openCalModal(iso,list){
   const [y,m,d]=iso.split('-').map(Number);
-  const titulo=`${d} de ${MESES_LARGO[m-1]} de ${y}`;
-  const cardsHtml=list.map(r=>{
+  document.getElementById('calModalTitle').textContent=`${d} de ${MESES_LARGO[m-1]} de ${y}`;
+  document.getElementById('calModalBadge').textContent=`${list.length} reparto${list.length!==1?'s':''}`;
+
+  // KPIs del día
+  const totMonto=list.reduce((a,r)=>a+(r.totalMonto||0),0);
+  const totFlete=list.reduce((a,r)=>a+(r.totalFlete||0),0);
+  const incs=list.filter(r=>r.incTotal!==null).map(r=>r.incTotal);
+  const incProm=incs.length?incs.reduce((a,b)=>a+b,0)/incs.length:null;
+  const incOk=incProm!==null&&incProm<3;
+  document.getElementById('calModalKpis').innerHTML=`
+    <div class="cal-kpi">
+      <span class="cal-kpi-lbl">Total monto</span>
+      <span class="cal-kpi-val">${fmtGs(totMonto)}</span>
+    </div>
+    <div class="cal-kpi">
+      <span class="cal-kpi-lbl">Total flete</span>
+      <span class="cal-kpi-val">${fmtGs(totFlete)}</span>
+    </div>
+    ${incProm!==null?`<div class="cal-kpi">
+      <span class="cal-kpi-lbl">Incidencia promedio</span>
+      <span class="cal-kpi-val ${incOk?'ok':'over'}">${incProm.toFixed(2)}%</span>
+    </div>`:''}`;
+
+  // Tarjetas de repartos
+  document.getElementById('calModalBody').innerHTML=list.map(r=>{
     const over=r.diferencia>0;
     const inc=r.incTotal!==null?r.incTotal.toFixed(2)+'%':'—';
     return`<div class="hist-card" style="animation:none">
@@ -2425,59 +2446,57 @@ function renderCalDayDetail(iso,list){
       </div>
     </div>`;
   }).join('');
-  document.getElementById('calDayDetail').innerHTML=`
-    <div class="cal-detail-panel">
-      <div class="cal-detail-hd">
-        <div class="cal-detail-title"><span class="dot"></span>Repartos del ${titulo}</div>
-        <div style="font-size:12px;font-weight:700;color:var(--accent);background:var(--accent-soft);padding:3px 10px;border-radius:999px">${list.length} reparto${list.length!==1?'s':''}</div>
-      </div>
-      <div class="cal-detail-body">${cardsHtml}</div>
-    </div>`;
+  document.getElementById('calModalBd').classList.add('open');
 }
 
-function renderEmptyCalDetail(){
-  document.getElementById('calDayDetail').innerHTML=`
-    <div class="cal-empty-panel">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5"/></svg>
-      <p>Seleccioná un día para ver los repartos</p>
-      <span>Los días marcados tienen repartos guardados</span>
-    </div>`;
+function closeCalModal(){
+  document.getElementById('calModalBd').classList.remove('open');
+  calSelectedDate=null;
+  renderCalendar();
 }
 
 // Click en día
 document.getElementById('calGrid').addEventListener('click',e=>{
   const day=e.target.closest('[data-calday]');
-  if(day)selectCalDate(day.dataset.calday);
+  if(!day)return;
+  const iso=day.dataset.calday;
+  const list=(repByDate().get(iso)||[]);
+  if(!list.length)return;
+  calSelectedDate=iso;
+  renderCalendar();
+  openCalModal(iso,list);
 });
 
-// Editar/eliminar desde detalle inline
-document.getElementById('calDayDetail').addEventListener('click',async e=>{
+// Editar/eliminar desde modal
+document.getElementById('calModalBody').addEventListener('click',async e=>{
   const editBtn=e.target.closest('[data-editr]');
   const delBtn=e.target.closest('[data-delr]');
-  if(editBtn)loadForEdit(+editBtn.dataset.editr);
+  if(editBtn){closeCalModal();loadForEdit(+editBtn.dataset.editr);}
   if(delBtn){
     const id=+delBtn.dataset.delr;
     if(confirm('¿Eliminar este reparto del historial?')){
       repartos=repartos.filter(r=>r.id!==id);
-      calSelectedDate=null;
-      renderCalendar();renderEmptyCalDetail();renderHistorial();
+      closeCalModal();renderHistorial();
       dbDeleteReparto(id).catch(()=>showToast('Error al eliminar reparto'));
     }
   }
 });
 
 // Navegación
+document.getElementById('calModalClose').addEventListener('click',closeCalModal);
+document.getElementById('calModalBd').addEventListener('click',e=>{if(e.target===e.currentTarget)closeCalModal();});
+
 document.getElementById('calPrev').addEventListener('click',()=>{
   calMonth--;if(calMonth<0){calMonth=11;calYear--;}
-  calSelectedDate=null;renderCalendar();renderEmptyCalDetail();
+  calSelectedDate=null;renderCalendar();
 });
 document.getElementById('calNext').addEventListener('click',()=>{
   calMonth++;if(calMonth>11){calMonth=0;calYear++;}
-  calSelectedDate=null;renderCalendar();renderEmptyCalDetail();
+  calSelectedDate=null;renderCalendar();
 });
 document.getElementById('calTodayBtn').addEventListener('click',()=>{
   calYear=new Date().getFullYear();calMonth=new Date().getMonth();
-  calSelectedDate=null;renderCalendar();renderEmptyCalDetail();
+  calSelectedDate=null;renderCalendar();
 });
 
 // Toggle vistas
@@ -2487,7 +2506,7 @@ function setHistView(mode){
   document.getElementById('histListWrap').style.display=mode==='list'?'flex':'none';
   document.getElementById('btnViewCal').classList.toggle('active',mode==='cal');
   document.getElementById('btnViewList').classList.toggle('active',mode==='list');
-  if(mode==='cal'){renderCalendar();renderEmptyCalDetail();}
+  if(mode==='cal'){calSelectedDate=null;renderCalendar();}
   else renderHistorial();
   document.getElementById('histCount').textContent=mode==='list'?(getFilteredRepartos().length+' de '+repartos.length):repartos.length+' total';
 }
@@ -2497,6 +2516,7 @@ document.getElementById('btnViewList').addEventListener('click',()=>setHistView(
 /* ── Global ──────────────────────────────────────── */
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){
+    closeCalModal();
     [modalTs,modalTr,document.getElementById('modalCliente')].forEach(m=>m.classList.remove('is-open'));
   }
 });
