@@ -552,37 +552,42 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .cal-nav-month{font-family:Sora,Inter,sans-serif;font-size:16px;font-weight:700;color:var(--primary);min-width:180px;text-align:center;text-transform:capitalize}
 .cal-today-btn{font-size:12px;font-weight:600;color:var(--accent);background:var(--accent-soft);border:none;padding:6px 14px;border-radius:8px;cursor:pointer;transition:all var(--fast);margin-left:8px}
 .cal-today-btn:hover{background:var(--accent);color:#fff}
-.cal-panel{background:#fff;border:1.5px solid var(--gray-200);border-radius:18px;padding:18px 22px;box-shadow:0 2px 8px rgba(0,0,0,.05);display:flex;flex-direction:column;flex:1;min-height:0}
-.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);grid-auto-rows:1fr;gap:8px;flex:1;min-height:0;padding:4px 2px 10px;align-content:stretch}
-.cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;padding:0 2px;flex-shrink:0}
-.cal-header-cell{text-align:center;font-size:11px;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:.6px;padding:6px 0 4px}
-.cal-day{border-radius:11px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:var(--gray-500);cursor:pointer;position:relative;border:2px solid transparent;background:transparent;gap:4px;min-height:0;padding:8px 4px;transition:background var(--fast),color var(--fast),transform var(--alas-dur-normal) var(--alas-ease-spring),border-color var(--fast),box-shadow var(--fast)}
-.cal-day .day-num{font-size:14px;line-height:1;font-weight:500}
-.cal-day:hover{background:var(--gray-100);transform:scale(1.025);color:var(--primary)}
+.cal-panel{background:linear-gradient(145deg,#f8fbff 0%,#fff 100%);border:1.5px solid var(--gray-200);border-radius:20px;padding:20px 24px 16px;box-shadow:0 4px 20px rgba(0,0,0,.06);display:flex;flex-direction:column;flex:1;min-height:0}
+.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);grid-auto-rows:1fr;gap:10px;flex:1;min-height:0;padding:4px 0 8px;align-content:stretch}
+.cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:10px;padding:0;margin-bottom:2px;flex-shrink:0}
+.cal-header-cell{text-align:center;font-size:12.5px;font-weight:700;color:var(--gray-500);padding:6px 2px 8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:.1px}
+.cal-day{border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;position:relative;border:2px solid transparent;background:transparent;gap:8px;min-height:0;padding:14px 4px;transition:background var(--fast),color var(--fast),transform var(--alas-dur-normal) var(--alas-ease-spring),border-color var(--fast),box-shadow var(--fast)}
+.cal-day .day-num{font-size:20px;line-height:1;font-weight:700;color:var(--gray-500);transition:color var(--fast)}
+.cal-day:hover{background:var(--gray-100);transform:scale(1.025)}
+.cal-day:hover .day-num{color:var(--primary)}
 .cal-day.empty{cursor:default}
 .cal-day.empty:hover{transform:none;background:transparent;box-shadow:none}
-.cal-day.today{background:var(--primary);color:#fff;font-weight:700;box-shadow:0 4px 14px rgba(11,95,141,.35);border-color:var(--primary)}
-.cal-day.today:hover{background:var(--primary-light,#2C7EAA);transform:scale(1.028)}
-.cal-day.today .day-num{color:#fff;font-weight:800}
+.cal-day.today{background:linear-gradient(135deg,var(--primary) 0%,#2175a8 100%);box-shadow:0 6px 20px rgba(11,95,141,.38);border-color:transparent}
+.cal-day.today:hover{transform:scale(1.028);box-shadow:0 8px 24px rgba(11,95,141,.45)}
+.cal-day.today .day-num{color:#fff;font-weight:800;font-size:22px}
 /* Días con repartos — dentro del objetivo → verde */
-.cal-day.rep-ok{background:#D1FAE5;color:#047857;border-color:rgba(16,185,129,.3)}
-.cal-day.rep-ok:hover{background:#A7F3D0;border-color:#10B981}
+.cal-day.rep-ok{background:linear-gradient(135deg,#d1fae5 0%,#a7f3d0 100%);border-color:rgba(16,185,129,.35);box-shadow:0 2px 10px rgba(16,185,129,.18)}
+.cal-day.rep-ok .day-num{color:#047857;font-weight:800}
+.cal-day.rep-ok:hover{background:linear-gradient(135deg,#a7f3d0 0%,#6ee7b7 100%);border-color:#10B981;transform:scale(1.028)}
 /* Días con repartos — mixto → azul */
-.cal-day.rep-mix{background:#DBEAFE;color:#1D4ED8;border-color:rgba(59,130,246,.3)}
-.cal-day.rep-mix:hover{background:#BFDBFE;border-color:#3B82F6}
+.cal-day.rep-mix{background:linear-gradient(135deg,#dbeafe 0%,#bfdbfe 100%);border-color:rgba(59,130,246,.35);box-shadow:0 2px 10px rgba(59,130,246,.18)}
+.cal-day.rep-mix .day-num{color:#1D4ED8;font-weight:800}
+.cal-day.rep-mix:hover{background:linear-gradient(135deg,#bfdbfe 0%,#93c5fd 100%);border-color:#3B82F6;transform:scale(1.028)}
 /* Días con repartos — sobre el objetivo → rojo */
-.cal-day.rep-over{background:#FEE2E2;color:#DC2626;border-color:rgba(220,38,38,.3)}
-.cal-day.rep-over:hover{background:#FECACA;border-color:#EF4444}
+.cal-day.rep-over{background:linear-gradient(135deg,#fee2e2 0%,#fecaca 100%);border-color:rgba(220,38,38,.35);box-shadow:0 2px 10px rgba(220,38,38,.18)}
+.cal-day.rep-over .day-num{color:#DC2626;font-weight:800}
+.cal-day.rep-over:hover{background:linear-gradient(135deg,#fecaca 0%,#fca5a5 100%);border-color:#EF4444;transform:scale(1.028)}
 /* Today + estados */
-.cal-day.today.rep-ok{background:linear-gradient(135deg,#10B981,#059669);box-shadow:0 4px 16px rgba(16,185,129,.4)}
-.cal-day.today.rep-mix{background:linear-gradient(135deg,#3B82F6,#1D4ED8);box-shadow:0 4px 16px rgba(59,130,246,.4)}
-.cal-day.today.rep-over{background:linear-gradient(135deg,#EF4444,#DC2626);box-shadow:0 4px 16px rgba(239,68,68,.4)}
+.cal-day.today.rep-ok{background:linear-gradient(135deg,#10B981 0%,#059669 100%);box-shadow:0 6px 20px rgba(16,185,129,.42)}
+.cal-day.today.rep-mix{background:linear-gradient(135deg,#3B82F6 0%,#1D4ED8 100%);box-shadow:0 6px 20px rgba(59,130,246,.42)}
+.cal-day.today.rep-over{background:linear-gradient(135deg,#EF4444 0%,#DC2626 100%);box-shadow:0 6px 20px rgba(239,68,68,.42)}
+.cal-day.today.rep-ok .day-num,.cal-day.today.rep-mix .day-num,.cal-day.today.rep-over .day-num{color:#fff}
 /* Seleccionado */
-.cal-day.selected{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.18);transform:scale(1.028)}
-/* Dots */
-.cal-day-info{display:flex;align-items:center;justify-content:center;gap:3px;margin-top:2px}
-.cal-day-icon{width:11px;height:11px;flex-shrink:0}
-.cal-day-inc{font-size:10.5px;font-weight:800;line-height:1;letter-spacing:-.2px}
+.cal-day.selected{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.2),0 4px 14px rgba(59,130,246,.18);transform:scale(1.028)}
+/* Incidencia dentro de la celda */
+.cal-day-info{display:flex;align-items:center;justify-content:center;gap:5px}
+.cal-day-icon{width:17px;height:17px;flex-shrink:0}
+.cal-day-inc{font-size:14px;font-weight:800;line-height:1;letter-spacing:-.3px}
 /* Leyenda */
 .cal-legend{display:flex;gap:16px;padding:10px 4px 0;justify-content:center;flex-wrap:wrap}
 .cal-legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--gray-400);font-weight:500}
@@ -960,9 +965,9 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
     </div>
     <div class="cal-panel">
       <div class="cal-weekdays">
-        <div class="cal-header-cell">Lu</div><div class="cal-header-cell">Ma</div><div class="cal-header-cell">Mi</div>
-        <div class="cal-header-cell">Ju</div><div class="cal-header-cell">Vi</div><div class="cal-header-cell">Sa</div>
-        <div class="cal-header-cell">Do</div>
+        <div class="cal-header-cell">Lunes</div><div class="cal-header-cell">Martes</div><div class="cal-header-cell">Miércoles</div>
+        <div class="cal-header-cell">Jueves</div><div class="cal-header-cell">Viernes</div><div class="cal-header-cell">Sábado</div>
+        <div class="cal-header-cell">Domingo</div>
       </div>
       <div class="calendar-grid" id="calGrid"></div>
       <div class="cal-legend">
@@ -2405,7 +2410,7 @@ let calYear=new Date().getFullYear(), calMonth=new Date().getMonth();
 let calSelectedDate=null;
 
 const MESES_LARGO=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
-const DIAS_CAL=['Lu','Ma','Mi','Ju','Vi','Sa','Do'];
+const DIAS_CAL=['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
 
 function repByDate(){
   const map=new Map();
