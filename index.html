@@ -250,16 +250,29 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .cl-km-inp{height:36px;width:72px;padding:0 8px;border:1.5px solid var(--gray-200);border-radius:8px;background:#fff;color:var(--gray-800);font-size:13px;font-weight:700;outline:none;text-align:right;font-variant-numeric:tabular-nums;transition:border-color var(--fast);-moz-appearance:textfield}
 .cl-km-inp::-webkit-outer-spin-button,.cl-km-inp::-webkit-inner-spin-button{-webkit-appearance:none}
 .cl-km-inp:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(59,130,246,.1)}
-.cl-txt-inp{height:36px;width:100%;min-width:120px;padding:0 10px;border:1.5px solid var(--gray-200);border-radius:8px;background:#fff;font-size:14px;font-weight:600;color:var(--gray-800);outline:none;transition:border-color var(--fast)}
-.cl-txt-inp:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(59,130,246,.1)}
-.cl-txt-inp::placeholder{color:var(--gray-300)}
-#clienteAC{position:fixed;z-index:9500;background:#fff;border:1.5px solid var(--gray-200);border-radius:12px;box-shadow:0 10px 32px rgba(0,0,0,0.13);max-height:260px;overflow-y:auto;display:none;flex-direction:column}
-.ac-item{padding:10px 14px;cursor:pointer;display:flex;flex-direction:column;gap:2px;border-bottom:1px solid var(--gray-100)}
-.ac-item:last-child{border-bottom:none}
-.ac-item:hover,.ac-item.on{background:#EBF5FF}
-.ac-name{font-size:13.5px;font-weight:600;color:var(--gray-800)}
-.ac-cod{font-size:11px;color:var(--gray-400);font-variant-numeric:tabular-nums}
-.ac-empty{padding:14px;font-size:13px;color:var(--gray-400);text-align:center}
+/* ── Combobox cliente en tabla ── */
+.cl-combo{display:flex;align-items:center;gap:8px;width:100%;min-width:140px;height:36px;padding:0 10px;border:1.5px solid var(--gray-200);border-radius:8px;background:#fff;cursor:pointer;font-size:13.5px;font-weight:500;color:var(--gray-300);transition:border-color var(--fast),box-shadow var(--fast),background var(--fast);outline:none;font-family:inherit;text-align:left}
+.cl-combo:hover{border-color:var(--gray-300);box-shadow:0 2px 6px rgba(0,0,0,.06)}
+.cl-combo.is-open{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.12)}
+.cl-combo.is-set{color:var(--gray-800);font-weight:600;border-color:rgba(11,95,141,.22);background:linear-gradient(135deg,#f5faff,#fff)}
+.cl-combo-lbl{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cl-combo-arrow{color:var(--gray-300);flex-shrink:0;transition:transform var(--fast)}
+.cl-combo.is-open .cl-combo-arrow{transform:rotate(180deg)}
+/* ── Dropdown ── */
+#clienteAC{position:fixed;z-index:9500;background:rgba(255,255,255,.98);border:1.5px solid var(--gray-200);border-radius:16px;box-shadow:0 20px 52px rgba(15,23,42,.16);display:none;flex-direction:column;min-width:280px;max-height:320px;overflow:hidden}
+#clienteAC.is-open{display:flex}
+.ac-search-box{padding:10px;border-bottom:1px solid var(--gray-100);position:relative;flex-shrink:0}
+.ac-search-icon{position:absolute;left:22px;top:50%;transform:translateY(-50%);color:var(--gray-400);pointer-events:none;display:flex}
+.ac-search-inp{width:100%;height:36px;border:none;outline:none;border-radius:9px;background:var(--gray-100);padding:0 10px 0 36px;color:var(--gray-800);font-size:13px;font-family:inherit}
+.ac-search-inp::placeholder{color:var(--gray-400)}
+.ac-list{max-height:240px;overflow-y:auto;padding:6px}
+.ac-list::-webkit-scrollbar{width:4px}
+.ac-list::-webkit-scrollbar-thumb{background:var(--gray-200);border-radius:99px}
+.ac-item{width:100%;border:none;background:transparent;border-radius:10px;padding:9px 12px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:background var(--fast),color var(--fast),transform var(--fast);text-align:left;font-family:inherit}
+.ac-item:hover,.ac-item.on{background:#EFF6FF;transform:translateX(2px)}
+.ac-name{flex:1;font-size:13px;font-weight:600;color:var(--gray-800);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ac-cod{font-size:11px;color:var(--gray-400);font-variant-numeric:tabular-nums;flex-shrink:0}
+.ac-empty{padding:24px 16px;font-size:13px;color:var(--gray-400);text-align:center}
 .cl-money-inp{height:36px;width:148px;padding:0 10px;border:1.5px solid var(--gray-200);border-radius:8px;background:#fff;font-size:14px;font-weight:700;color:var(--gray-800);outline:none;text-align:right;font-variant-numeric:tabular-nums;transition:border-color var(--fast)}
 .cl-money-inp:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(59,130,246,.1)}
 .cl-money-inp::placeholder{color:var(--gray-300);font-weight:400}
@@ -941,8 +954,14 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 
 <div class="toast" id="toast"></div>
 
-<!-- Autocomplete clientes -->
-<div id="clienteAC"></div>
+<!-- Combobox dropdown clientes -->
+<div id="clienteAC">
+  <div class="ac-search-box">
+    <span class="ac-search-icon"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></span>
+    <input class="ac-search-inp" id="acSearchInp" type="text" placeholder="Buscar cliente..." autocomplete="off">
+  </div>
+  <div class="ac-list" id="acList"></div>
+</div>
 
 <div id="appLoader" style="position:fixed;inset:0;z-index:9000;background:rgba(255,255,255,.92);backdrop-filter:blur(5px);display:none;flex-direction:column;align-items:center;justify-content:center;gap:18px">
   <div style="width:52px;height:52px;border:4.5px solid #DBEAFE;border-top-color:#3B82F6;border-radius:50%;animation:spin-arc .7s linear infinite"></div>
@@ -1448,10 +1467,9 @@ function renderClientesTable(){
   empty.style.display='none';tfoot.style.display='';
   tbody.innerHTML=c.clientes.map((cl,i)=>{
     const incClass=cl.inc===null?'na':cl.inc<5?'good':cl.inc<10?'warn':'bad';
-    const nombreEsc=cl.nombre.replace(/"/g,'&quot;');
     return`<tr data-clid="${cl.id}">
       <td class="idx">${i+1}</td>
-      <td style="padding:8px 10px"><input class="cl-txt-inp" type="text" value="${nombreEsc}" placeholder="Nombre cliente" data-clid="${cl.id}"></td>
+      <td style="padding:6px 10px"><button type="button" class="cl-combo${cl.nombre?' is-set':''}" data-clid="${cl.id}"><span class="cl-combo-lbl">${cl.nombre?esc(cl.nombre):'Nombre cliente'}</span><svg class="cl-combo-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="12" height="12"><path d="M6 9l6 6 6-6"/></svg></button></td>
       <td style="padding:8px 10px;text-align:right"><input class="cl-money-inp" type="text" value="${cl.monto>0?formatMoney(cl.monto):''}" placeholder="0" data-clid="${cl.id}"></td>
       ${isKm?`<td style="padding:8px 10px;text-align:right"><input class="cl-km-inp" type="number" min="0" step="1" value="${cl.km>0?cl.km:''}" placeholder="0" data-clid="${cl.id}"></td>`:''}
       <td class="r pct-col" data-col="pct">${cl.pct>0?Math.round(cl.pct)+'%':'—'}</td>
@@ -1600,14 +1618,8 @@ function _updateCalcCells(comp){
   if(td){td.innerHTML=difFmt(comp.diferencia);td.className='val r dif-col';}
 }
 
-/* Client table: nombre + monto inline listeners */
+/* Client table: monto inline listeners */
 document.getElementById('clientesTbody').addEventListener('input',e=>{
-  // --- nombre ---
-  if(e.target.classList.contains('cl-txt-inp')){
-    const cl=currentReparto.clientes.find(c=>c.id===+e.target.dataset.clid);
-    if(cl)cl.nombre=e.target.value;
-    return;
-  }
   // --- monto: live format + recalc ---
   if(e.target.classList.contains('cl-money-inp')){
     const pos=e.target.selectionStart;
@@ -1651,69 +1663,97 @@ async function buscarClientes(q){
   }catch{return[];}
 }
 
-const acEl=document.getElementById('clienteAC');
-let acActiveInp=null,acIdx=-1,acFiltered=[],acDebounce=null;
+/* ════════ COMBOBOX CLIENTES ════════════════════════════════════ */
+const acEl       = document.getElementById('clienteAC');
+const acSearchInp= document.getElementById('acSearchInp');
+const acList     = document.getElementById('acList');
+let acActiveBtn=null, acActiveClId=null, acIdx=-1, acFiltered=[], acDebounce=null;
 
-function acRender(list,inp){
-  const rect=inp.getBoundingClientRect();
-  acEl.style.left=rect.left+'px';
-  acEl.style.top=(rect.bottom+4)+'px';
-  acEl.style.width=Math.max(rect.width,280)+'px';
-  if(!list.length){acEl.innerHTML='<div class="ac-empty">Sin resultados</div>';acEl.style.display='block';return;}
-  acEl.innerHTML=list.map((cl,i)=>
-    `<div class="ac-item" data-i="${i}">
+function acPosition(btn){
+  const r=btn.getBoundingClientRect();
+  acEl.style.left=r.left+'px';
+  acEl.style.top=(r.bottom+6)+'px';
+  acEl.style.width=Math.max(r.width,280)+'px';
+}
+
+function acRenderList(list){
+  if(!list.length){acList.innerHTML='<div class="ac-empty">Sin resultados</div>';return;}
+  acList.innerHTML=list.map((cl,i)=>
+    `<button type="button" class="ac-item" data-i="${i}">
        <span class="ac-name">${esc(cl.nom_cliente)}</span>
        <span class="ac-cod">${esc(cl.cod_cliente)}</span>
-     </div>`
+     </button>`
   ).join('');
-  acEl.style.display='block';
-  acIdx=-1;acFiltered=list;
+  acIdx=-1; acFiltered=list;
 }
 
-function acHide(){acEl.style.display='none';acIdx=-1;acActiveInp=null;acFiltered=[];}
-
-function acSelect(cl){
-  if(!acActiveInp)return;
-  acActiveInp.value=cl.nom_cliente;
-  acActiveInp.dispatchEvent(new Event('input',{bubbles:true}));
-  acHide();
+function acOpen(btn){
+  if(acActiveBtn&&acActiveBtn!==btn)acClose();
+  acActiveBtn=btn;
+  acActiveClId=+btn.dataset.clid;
+  acPosition(btn);
+  btn.classList.add('is-open');
+  acEl.classList.add('is-open');
+  acSearchInp.value='';
+  acList.innerHTML='<div class="ac-empty">Escribí para buscar...</div>';
+  acFiltered=[]; acIdx=-1;
+  setTimeout(()=>acSearchInp.focus(),30);
 }
 
-/* Focus en campo nombre */
-document.getElementById('clientesTbody').addEventListener('focus',e=>{
-  if(!e.target.classList.contains('cl-txt-inp'))return;
-  acActiveInp=e.target;
-},true);
-
-/* Tipeo → debounce 300ms → buscar en Supabase */
-document.getElementById('clientesTbody').addEventListener('input',e=>{
-  if(!e.target.classList.contains('cl-txt-inp'))return;
-  acActiveInp=e.target;
-  const q=e.target.value;
-  if(q.length<2){acEl.style.display='none';clearTimeout(acDebounce);return;}
+function acClose(){
+  if(acActiveBtn){acActiveBtn.classList.remove('is-open');acActiveBtn=null;}
+  acEl.classList.remove('is-open');
+  acFiltered=[]; acIdx=-1; acActiveClId=null;
   clearTimeout(acDebounce);
-  acEl.innerHTML='<div class="ac-empty">Buscando...</div>';
-  acEl.style.display='block';
-  const inp=e.target;
+}
+
+function acSelectItem(cl){
+  const data=currentReparto.clientes.find(c=>c.id===acActiveClId);
+  if(data){data.nombre=cl.nom_cliente;}
+  if(acActiveBtn){
+    acActiveBtn.classList.add('is-set');
+    const lbl=acActiveBtn.querySelector('.cl-combo-lbl');
+    if(lbl)lbl.textContent=cl.nom_cliente;
+    // move focus to monto input of same row
+    const row=acActiveBtn.closest('tr');
+    const m=row&&row.querySelector('.cl-money-inp');
+    acClose();
+    if(m)m.focus();
+  }else{acClose();}
+}
+
+/* Click en botón combo → abrir/cerrar */
+document.getElementById('clientesTbody').addEventListener('click',e=>{
+  const btn=e.target.closest('.cl-combo');
+  if(btn){e.stopPropagation();acActiveBtn===btn?acClose():acOpen(btn);return;}
+  const delBtn=e.target.closest('[data-delcl]');
+  if(delBtn){const id=+delBtn.dataset.delcl;currentReparto.clientes=currentReparto.clientes.filter(c=>c.id!==id);renderClientesTable();updateResultCard();}
+});
+
+/* Tipeo en buscador → debounce 300ms → Supabase */
+acSearchInp.addEventListener('input',()=>{
+  const q=acSearchInp.value;
+  if(q.length<2){acList.innerHTML='<div class="ac-empty">Escribí para buscar...</div>';clearTimeout(acDebounce);acFiltered=[];return;}
+  clearTimeout(acDebounce);
+  acList.innerHTML='<div class="ac-empty">Buscando...</div>';
   acDebounce=setTimeout(async()=>{
     const list=await buscarClientes(q);
-    if(acActiveInp===inp)acRender(list,inp);
+    acRenderList(list);
   },300);
-},true);
+});
 
-/* Click en item del dropdown */
-acEl.addEventListener('mousedown',e=>{
+/* Click en ítem */
+acList.addEventListener('mousedown',e=>{
   const item=e.target.closest('.ac-item');
   if(!item)return;
   e.preventDefault();
   const i=+item.dataset.i;
-  if(acFiltered[i])acSelect(acFiltered[i]);
+  if(acFiltered[i])acSelectItem(acFiltered[i]);
 });
 
-/* Navegación teclado */
-document.addEventListener('keydown',e=>{
-  if(acEl.style.display==='none')return;
-  const items=acEl.querySelectorAll('.ac-item');
+/* Teclado: ArrowUp/Down en buscador, Enter, Escape */
+acSearchInp.addEventListener('keydown',e=>{
+  const items=acList.querySelectorAll('.ac-item');
   if(e.key==='ArrowDown'){
     e.preventDefault();
     acIdx=Math.min(acIdx+1,items.length-1);
@@ -1726,30 +1766,16 @@ document.addEventListener('keydown',e=>{
     if(items[acIdx])items[acIdx].scrollIntoView({block:'nearest'});
   }else if(e.key==='Enter'&&acIdx>=0&&acFiltered[acIdx]){
     e.preventDefault();
-    acSelect(acFiltered[acIdx]);
+    acSelectItem(acFiltered[acIdx]);
   }else if(e.key==='Escape'){
-    acHide();
+    acClose();
+    if(acActiveBtn)acActiveBtn.focus();
   }
 });
 
 /* Click fuera → cerrar */
 document.addEventListener('click',e=>{
-  if(!acEl.contains(e.target)&&e.target!==acActiveInp)acHide();
-});
-
-/* Enter en nombre → foco a monto */
-document.getElementById('clientesTbody').addEventListener('keydown',e=>{
-  if(e.key==='Enter'&&e.target.classList.contains('cl-txt-inp')){
-    if(acEl.style.display!=='none'&&acIdx>=0)return; // deja que el AC maneje Enter
-    const m=e.target.closest('tr').querySelector('.cl-money-inp');
-    if(m)m.focus();
-  }
-});
-
-/* Client table delete */
-document.getElementById('clientesTbody').addEventListener('click',e=>{
-  const delBtn=e.target.closest('[data-delcl]');
-  if(delBtn){const id=+delBtn.dataset.delcl;currentReparto.clientes=currentReparto.clientes.filter(c=>c.id!==id);renderClientesTable();updateResultCard();}
+  if(!acEl.contains(e.target)&&!e.target.closest('.cl-combo'))acClose();
 });
 
 /* Agregar cliente directo en tabla */
