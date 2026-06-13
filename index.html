@@ -98,7 +98,7 @@ body{min-height:100vh;overflow:hidden;font-family:Inter,system-ui,-apple-system,
 .table-scroll::-webkit-scrollbar{width:3px}
 .table-scroll::-webkit-scrollbar-thumb{background:var(--gray-200);border-radius:99px}
 table{width:100%;border-collapse:collapse}
-thead th{position:sticky;top:0;padding:11px 16px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--gray-400);background:var(--gray-50);border-bottom:1.5px solid var(--gray-200);text-align:left;white-space:nowrap;z-index:1}
+thead th{position:sticky;top:0;padding:11px 16px;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--gray-400);background:var(--gray-50);border-bottom:1.5px solid var(--gray-200);text-align:left;white-space:nowrap;z-index:1}
 th.r{text-align:right}th.c{text-align:center}
 tbody tr{border-bottom:1px solid var(--gray-100);transition:background var(--fast);animation:rowIn var(--alas-dur-normal) var(--alas-ease) both}
 tbody tr:last-child{border-bottom:0}
@@ -110,7 +110,7 @@ td{padding:13px 16px;font-size:14px;color:var(--gray-700)}
 td.r{text-align:right}td.c{text-align:center}
 td.bold{font-weight:800;color:var(--gray-800);font-variant-numeric:tabular-nums}
 td.muted{font-weight:600;color:var(--gray-500);font-variant-numeric:tabular-nums}
-td.idx{font-weight:700;color:var(--gray-400);font-size:12px}
+td.idx{font-weight:700;color:var(--gray-400);font-size:13px}
 tfoot tr{border-top:2px solid var(--gray-200);background:var(--gray-50)}
 tfoot td{padding:10px 14px;font-size:13px;font-weight:700}
 tfoot .lbl{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--gray-400)}
@@ -250,10 +250,10 @@ tfoot .val{font-weight:800;color:var(--gray-800);font-variant-numeric:tabular-nu
 .cl-km-inp{height:36px;width:72px;padding:0 8px;border:1.5px solid var(--gray-200);border-radius:8px;background:#fff;color:var(--gray-800);font-size:13px;font-weight:700;outline:none;text-align:right;font-variant-numeric:tabular-nums;transition:border-color var(--fast);-moz-appearance:textfield}
 .cl-km-inp::-webkit-outer-spin-button,.cl-km-inp::-webkit-inner-spin-button{-webkit-appearance:none}
 .cl-km-inp:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(59,130,246,.1)}
-.cl-txt-inp{height:36px;width:100%;min-width:120px;padding:0 10px;border:1.5px solid var(--gray-200);border-radius:8px;background:#fff;font-size:13.5px;font-weight:600;color:var(--gray-800);outline:none;transition:border-color var(--fast)}
+.cl-txt-inp{height:36px;width:100%;min-width:120px;padding:0 10px;border:1.5px solid var(--gray-200);border-radius:8px;background:#fff;font-size:15px;font-weight:600;color:var(--gray-800);outline:none;transition:border-color var(--fast)}
 .cl-txt-inp:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(59,130,246,.1)}
 .cl-txt-inp::placeholder{color:var(--gray-300)}
-.cl-money-inp{height:36px;width:148px;padding:0 10px;border:1.5px solid var(--gray-200);border-radius:8px;background:#fff;font-size:13.5px;font-weight:700;color:var(--gray-800);outline:none;text-align:right;font-variant-numeric:tabular-nums;transition:border-color var(--fast)}
+.cl-money-inp{height:36px;width:148px;padding:0 10px;border:1.5px solid var(--gray-200);border-radius:8px;background:#fff;font-size:15px;font-weight:700;color:var(--gray-800);outline:none;text-align:right;font-variant-numeric:tabular-nums;transition:border-color var(--fast)}
 .cl-money-inp:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(59,130,246,.1)}
 .cl-money-inp::placeholder{color:var(--gray-300);font-weight:400}
 .del-cl-btn{width:32px;height:32px;border-radius:8px;border:1.5px solid #FCA5A5;background:#FEF2F2;color:#DC2626;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all var(--fast);flex-shrink:0;padding:0}
@@ -285,7 +285,7 @@ tfoot .val{font-weight:800;color:var(--gray-800);font-variant-numeric:tabular-nu
 .clients-hd{display:flex;align-items:center;gap:10px;flex-shrink:0}
 .clients-hd h3{font-size:15px;font-weight:800;color:var(--gray-700)}
 .cnt-badge{padding:3px 11px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-size:12px;font-weight:800}
-.incid-col{font-variant-numeric:tabular-nums;font-weight:700;font-size:12.5px;text-align:right}
+.incid-col{font-variant-numeric:tabular-nums;font-weight:700;font-size:14px;text-align:right}
 .incid-col.good{color:var(--accent)}
 .incid-col.warn{color:var(--orange)}
 .incid-col.bad{color:var(--danger)}
@@ -293,9 +293,9 @@ tfoot .val{font-weight:800;color:var(--gray-800);font-variant-numeric:tabular-nu
 .dif-col{text-align:right}
 .chip-dif{display:inline-flex;align-items:center;padding:3px 10px;border-radius:999px;background:#FEE2E2;color:#DC2626;font-size:11px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap;letter-spacing:.1px}
 .chip-gan{display:inline-flex;align-items:center;padding:3px 10px;border-radius:999px;background:#DCFCE7;color:#16A34A;font-size:11px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap;letter-spacing:.1px}
-.gasto-col{font-variant-numeric:tabular-nums;font-size:13px;font-weight:600;color:var(--gray-600);text-align:right}
+.gasto-col{font-variant-numeric:tabular-nums;font-size:14px;font-weight:600;color:var(--gray-600);text-align:right}
 .gasto-col.zero{color:var(--gray-300)}
-.pct-col{font-size:11.5px;font-weight:600;color:var(--gray-400);text-align:right}
+.pct-col{font-size:13px;font-weight:600;color:var(--gray-400);text-align:right}
 
 /* ── Result card hero ── */
 @keyframes cardIn{0%{opacity:0;transform:translateY(18px) scale(.96)}100%{opacity:1;transform:translateY(0) scale(1)}}
@@ -607,7 +607,7 @@ tfoot .val{font-weight:800;color:var(--gray-800);font-variant-numeric:tabular-nu
   </div>
 
   <div class="calc-top">
-    <h2>Calculadora de Flete</h2>
+    <h2 style="display:flex;align-items:center;gap:10px"><img src="logo-alas-s.a.png" style="height:26px;object-fit:contain;flex-shrink:0">Calculadora de Flete</h2>
     <button class="btn btn-sm btn-ghost" type="button" id="btnNewReparto" style="display:none">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
       Nuevo reparto
@@ -759,7 +759,7 @@ tfoot .val{font-weight:800;color:var(--gray-800);font-variant-numeric:tabular-nu
 <!-- ═══ VIEW 2 — TRANSPORTISTAS ════════════════════════ -->
 <section id="viewTrans" class="stage">
   <div class="ts-topbar">
-    <h2>Transportistas <span id="tsCountBadge" style="font-size:14px;font-weight:700;color:var(--gray-400);padding:5px 14px;border-radius:999px;background:var(--gray-100)">0</span></h2>
+    <h2 style="display:flex;align-items:center;gap:10px"><img src="logo-alas-s.a.png" style="height:26px;object-fit:contain;flex-shrink:0">Transportistas <span id="tsCountBadge" style="font-size:14px;font-weight:700;color:var(--gray-400);padding:5px 14px;border-radius:999px;background:var(--gray-100)">0</span></h2>
     <button class="btn btn-primary" type="button" id="btnAddTs">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
       Agregar transportista
@@ -808,7 +808,7 @@ tfoot .val{font-weight:800;color:var(--gray-800);font-variant-numeric:tabular-nu
 <!-- ═══ VIEW 3 — HISTORIAL ════════════════════════════ -->
 <section id="viewHist" class="stage">
   <div class="hist-hd">
-    <h2>Historial de repartos</h2>
+    <h2 style="display:flex;align-items:center;gap:10px"><img src="logo-alas-s.a.png" style="height:26px;object-fit:contain;flex-shrink:0">Historial de repartos</h2>
     <span id="histCount" style="font-size:12px;font-weight:700;color:var(--gray-400);padding:3px 10px;border-radius:999px;background:var(--gray-100)">0</span>
   </div>
 
@@ -841,7 +841,7 @@ tfoot .val{font-weight:800;color:var(--gray-800);font-variant-numeric:tabular-nu
 <!-- ═══ VIEW 4 — DASHBOARD ════════════════════════════ -->
 <section id="viewDash" class="stage">
   <div class="dash-hd">
-    <h2>Dashboard</h2>
+    <h2 style="display:flex;align-items:center;gap:10px"><img src="logo-alas-s.a.png" style="height:26px;object-fit:contain;flex-shrink:0">Dashboard</h2>
     <p>Resumen de incidencias por período</p>
   </div>
   <div class="dash-body">
@@ -1443,7 +1443,7 @@ function renderClientesTable(){
       <td style="padding:8px 10px"><input class="cl-txt-inp" type="text" value="${nombreEsc}" placeholder="Nombre cliente" data-clid="${cl.id}"></td>
       <td style="padding:8px 10px;text-align:right"><input class="cl-money-inp" type="text" value="${cl.monto>0?formatMoney(cl.monto):''}" placeholder="0" data-clid="${cl.id}"></td>
       ${isKm?`<td style="padding:8px 10px;text-align:right"><input class="cl-km-inp" type="number" min="0" step="1" value="${cl.km>0?cl.km:''}" placeholder="0" data-clid="${cl.id}"></td>`:''}
-      <td class="r pct-col" data-col="pct">${cl.pct>0?cl.pct.toFixed(1)+'%':'—'}</td>
+      <td class="r pct-col" data-col="pct">${cl.pct>0?Math.round(cl.pct)+'%':'—'}</td>
       <td class="r gasto-col${cl.gasto===0?' zero':''}" data-col="gasto">${cl.gasto>0?fmtGs(cl.gasto):'—'}</td>
       <td class="r incid-col ${incClass}" data-col="incid">${cl.inc!==null?fmtPct(cl.inc):'—'}</td>
       <td class="r dif-col" data-col="dif">${difFmt(cl.dif)}</td>
@@ -1572,7 +1572,7 @@ function _updateCalcCells(comp){
     const pEl=row.querySelector('[data-col="pct"]');
     const gEl=row.querySelector('[data-col="gasto"]');
     const iEl=row.querySelector('[data-col="incid"]');
-    if(pEl)pEl.textContent=clc.pct>0?clc.pct.toFixed(1)+'%':'—';
+    if(pEl)pEl.textContent=clc.pct>0?Math.round(clc.pct)+'%':'—';
     if(gEl){gEl.textContent=clc.gasto>0?fmtGs(clc.gasto):'—';gEl.className='r gasto-col'+(clc.gasto===0?' zero':'');}
     if(iEl){iEl.textContent=clc.inc!==null?fmtPct(clc.inc):'—';iEl.className='r incid-col '+incClass;}
     const dEl=row.querySelector('[data-col="dif"]');
