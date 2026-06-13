@@ -580,14 +580,9 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 /* Seleccionado */
 .cal-day.selected{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.18);transform:scale(1.028)}
 /* Dots */
-.cal-dots{display:flex;gap:3px;height:6px;align-items:center;margin-top:2px}
-.cal-dot{width:5px;height:5px;border-radius:50%;animation:dotPulse 2s infinite}
-.cal-dot.ok{background:#10B981}
-.cal-dot.over{background:#DC2626}
-.cal-day.today .cal-dot{background:rgba(255,255,255,.8)}
-.cal-dot:nth-child(2){animation-delay:.3s}
-.cal-dot:nth-child(3){animation-delay:.6s}
-@keyframes dotPulse{0%,100%{opacity:.5;transform:scale(.85)}50%{opacity:1;transform:scale(1.1)}}
+.cal-day-info{display:flex;align-items:center;justify-content:center;gap:3px;margin-top:2px}
+.cal-day-icon{width:11px;height:11px;flex-shrink:0}
+.cal-day-inc{font-size:10.5px;font-weight:800;line-height:1;letter-spacing:-.2px}
 /* Leyenda */
 .cal-legend{display:flex;gap:16px;padding:10px 4px 0;justify-content:center;flex-wrap:wrap}
 .cal-legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--gray-400);font-weight:500}
@@ -2336,10 +2331,6 @@ function renderCard(r,opts={}){
         <span class="hist-date">${r.fecha}</span>
         <span class="hist-id">#${String(r.id).padStart(4,'0')}</span>
       </div>
-      <span class="hc-status ${over?'over':'ok'}">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="${over?'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z':'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'}"/></svg>
-        ${over?'Sobre objetivo':'Dentro del objetivo'}
-      </span>
     </div>
     <div class="hc-carrier-row">
       <span class="hc-ts">${esc(r.tsNombre)}</span>
@@ -2444,14 +2435,19 @@ function calDayCell(dayNum,iso,list,isToday,isSelected){
   if(status)cls+=` rep-${status}`;
   if(isSelected)cls+=' selected';
   const attr=list.length?`data-calday="${iso}"`:'';
-  let dots='';
+  let info='';
   if(list.length){
-    const hasOk=list.some(r=>r.diferencia<=0);
-    const hasOver=list.some(r=>r.diferencia>0);
-    const dotHtml=(hasOk?'<div class="cal-dot ok"></div>':'')+(hasOver?'<div class="cal-dot over"></div>':'');
-    dots=`<div class="cal-dots">${dotHtml}</div>`;
+    const validIncs=list.filter(r=>r.incTotal!==null).map(r=>r.incTotal);
+    const avgInc=validIncs.length?validIncs.reduce((a,b)=>a+b,0)/validIncs.length:null;
+    const iconPath=status==='ok'
+      ?'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'
+      :status==='mix'
+      ?'M8 12h.01M12 12h.01M16 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
+      :'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z';
+    const incStr=avgInc!==null?avgInc.toFixed(1)+'%':'—';
+    info=`<div class="cal-day-info"><svg class="cal-day-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="${iconPath}"/></svg><span class="cal-day-inc">${incStr}</span></div>`;
   }
-  return`<div class="${cls}" ${attr}><span class="day-num">${dayNum}</span>${dots}</div>`;
+  return`<div class="${cls}" ${attr}><span class="day-num">${dayNum}</span>${info}</div>`;
 }
 
 function renderCalendar(){
