@@ -739,7 +739,7 @@ tfoot .val{font-weight:800;color:var(--gray-800);font-variant-numeric:tabular-nu
           </div>
           <div class="rb-footer-divider"></div>
           <div class="rb-footer-item">
-            <span class="rb-footer-lbl" id="rsDifLbl">Diferencia</span>
+            <span class="rb-footer-lbl" id="rsDifLbl">Diferencia de Flete</span>
             <span class="rb-footer-val" id="rsDif">—</span>
           </div>
         </div>
@@ -1528,25 +1528,21 @@ function updateResultCard(){
   const rsDif=document.getElementById('rsDif');
   const rsDifLbl=document.getElementById('rsDifLbl');
   const rbBanner=document.getElementById('rbTargetBanner');
+  rsDifLbl.textContent='Diferencia de Flete';
   if(hasMonto&&hasFlete){
+    rsDif.innerHTML=difFmt(c.diferencia);
+    rsDif.className='rb-footer-val';
     if(c.faltaFacturar>0){
-      rsDifLbl.textContent='Faltan por facturar';
-      rsDif.textContent='+ '+fmtGs(c.faltaFacturar);
-      rsDif.className='rb-footer-val over';
       rbBanner.style.display='flex';
       rbBanner.className='rb-target-banner is-over';
       rbBanner.innerHTML=`<span class="rb-banner-inner"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>Facturá <strong>${fmtGs(c.faltaFacturar)}</strong> más para bajar al 3%</span>`;
     } else {
-      rsDifLbl.textContent='Por debajo del objetivo';
-      rsDif.textContent='✓ '+fmtGs(Math.abs(c.totalMonto-c.montoMinimo));
-      rsDif.className='rb-footer-val ok';
       rbBanner.style.display='flex';
       rbBanner.className='rb-target-banner is-ok';
       rbBanner.innerHTML=`<span class="rb-banner-inner"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Estás dentro del objetivo 3% ✓</span>`;
     }
   } else {
-    rsDifLbl.textContent='Diferencia';
-    rsDif.textContent='—';
+    rsDif.innerHTML=difFmt(null);
     rsDif.className='rb-footer-val';
     rbBanner.style.display='none';
   }
