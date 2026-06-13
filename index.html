@@ -585,10 +585,12 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .cal-day.today.rep-ok .day-num,.cal-day.today.rep-mix .day-num,.cal-day.today.rep-over .day-num{color:#fff}
 /* Seleccionado */
 .cal-day.selected{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.2),0 4px 14px rgba(59,130,246,.18);transform:scale(1.028)}
-/* Chip de incidencia dentro de la celda */
-.cal-day-info{display:inline-flex;align-items:center;justify-content:center;gap:5px;background:rgba(255,255,255,.75);border:1.5px solid rgba(255,255,255,.9);backdrop-filter:blur(4px);padding:4px 10px 4px 8px;border-radius:999px}
-.cal-day-icon{width:15px;height:15px;flex-shrink:0}
-.cal-day-inc{font-size:13px;font-weight:800;line-height:1;letter-spacing:-.3px}
+/* Incidencia dentro de la celda */
+.cal-day-info{display:flex;flex-direction:column;align-items:center;gap:3px}
+.cal-day-lbl{font-size:8.5px;font-weight:800;text-transform:uppercase;letter-spacing:.9px;opacity:.65;line-height:1}
+.cal-day-pct{display:flex;align-items:center;gap:4px}
+.cal-day-icon{width:14px;height:14px;flex-shrink:0}
+.cal-day-inc{font-size:16px;font-weight:800;line-height:1;letter-spacing:-.5px}
 /* Leyenda */
 .cal-legend{display:flex;gap:16px;padding:10px 4px 0;justify-content:center;flex-wrap:wrap}
 .cal-legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--gray-400);font-weight:500}
@@ -2450,7 +2452,7 @@ function calDayCell(dayNum,iso,list,isToday,isSelected){
       ?'M8 12h.01M12 12h.01M16 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
       :'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z';
     const incStr=avgInc!==null?avgInc.toFixed(1)+'%':'—';
-    info=`<div class="cal-day-info"><svg class="cal-day-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="${iconPath}"/></svg><span class="cal-day-inc">Incidencia ${incStr}</span></div>`;
+    info=`<div class="cal-day-info"><span class="cal-day-lbl">Incidencia</span><div class="cal-day-pct"><svg class="cal-day-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="${iconPath}"/></svg><span class="cal-day-inc">${incStr}</span></div></div>`;
   }
   return`<div class="${cls}" ${attr}><span class="day-num">${dayNum}</span>${info}</div>`;
 }
