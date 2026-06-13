@@ -250,10 +250,10 @@ tfoot .val{font-weight:800;color:var(--gray-800);font-variant-numeric:tabular-nu
 .cl-km-inp{height:36px;width:72px;padding:0 8px;border:1.5px solid var(--gray-200);border-radius:8px;background:#fff;color:var(--gray-800);font-size:13px;font-weight:700;outline:none;text-align:right;font-variant-numeric:tabular-nums;transition:border-color var(--fast);-moz-appearance:textfield}
 .cl-km-inp::-webkit-outer-spin-button,.cl-km-inp::-webkit-inner-spin-button{-webkit-appearance:none}
 .cl-km-inp:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(59,130,246,.1)}
-.cl-txt-inp{height:36px;width:100%;min-width:120px;padding:0 10px;border:1.5px solid var(--gray-200);border-radius:8px;background:#fff;font-size:15px;font-weight:600;color:var(--gray-800);outline:none;transition:border-color var(--fast)}
+.cl-txt-inp{height:36px;width:100%;min-width:120px;padding:0 10px;border:1.5px solid var(--gray-200);border-radius:8px;background:#fff;font-size:14px;font-weight:600;color:var(--gray-800);outline:none;transition:border-color var(--fast)}
 .cl-txt-inp:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(59,130,246,.1)}
 .cl-txt-inp::placeholder{color:var(--gray-300)}
-.cl-money-inp{height:36px;width:148px;padding:0 10px;border:1.5px solid var(--gray-200);border-radius:8px;background:#fff;font-size:15px;font-weight:700;color:var(--gray-800);outline:none;text-align:right;font-variant-numeric:tabular-nums;transition:border-color var(--fast)}
+.cl-money-inp{height:36px;width:148px;padding:0 10px;border:1.5px solid var(--gray-200);border-radius:8px;background:#fff;font-size:14px;font-weight:700;color:var(--gray-800);outline:none;text-align:right;font-variant-numeric:tabular-nums;transition:border-color var(--fast)}
 .cl-money-inp:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(59,130,246,.1)}
 .cl-money-inp::placeholder{color:var(--gray-300);font-weight:400}
 .del-cl-btn{width:32px;height:32px;border-radius:8px;border:1.5px solid #FCA5A5;background:#FEF2F2;color:#DC2626;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all var(--fast);flex-shrink:0;padding:0}
@@ -291,11 +291,12 @@ tfoot .val{font-weight:800;color:var(--gray-800);font-variant-numeric:tabular-nu
 .incid-col.bad{color:var(--danger)}
 .incid-col.na{color:var(--gray-300)}
 .dif-col{text-align:right}
-.chip-dif{display:inline-flex;align-items:center;padding:3px 10px;border-radius:999px;background:#FEE2E2;color:#DC2626;font-size:11px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap;letter-spacing:.1px}
-.chip-gan{display:inline-flex;align-items:center;padding:3px 10px;border-radius:999px;background:#DCFCE7;color:#16A34A;font-size:11px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap;letter-spacing:.1px}
+.chip-dif{display:inline-flex;align-items:center;padding:3px 11px;border-radius:999px;background:#FEE2E2;color:#DC2626;font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap;letter-spacing:.1px}
+.chip-gan{display:inline-flex;align-items:center;padding:3px 11px;border-radius:999px;background:#DCFCE7;color:#16A34A;font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap;letter-spacing:.1px}
+.rb-footer-val .chip-dif,.rb-footer-val .chip-gan{font-size:14px;padding:4px 14px}
 .gasto-col{font-variant-numeric:tabular-nums;font-size:14px;font-weight:600;color:var(--gray-600);text-align:right}
 .gasto-col.zero{color:var(--gray-300)}
-.pct-col{font-size:13px;font-weight:600;color:var(--gray-400);text-align:right}
+.pct-col{font-size:14px;font-weight:600;color:var(--gray-400);text-align:right}
 
 /* ── Result card hero ── */
 @keyframes cardIn{0%{opacity:0;transform:translateY(18px) scale(.96)}100%{opacity:1;transform:translateY(0) scale(1)}}
@@ -962,7 +963,7 @@ function difFmt(v){
   const abs=Math.abs(Math.round(v));
   const amt='Gs. '+formatMoney(abs);
   if(v>0)return`<span class="chip-dif">+${amt}</span>`;
-  if(v<0)return`<span class="chip-gan">${amt}</span>`;
+  if(v<0)return`<span class="chip-gan">−${amt}</span>`;
   return'<span style="color:var(--gray-300)">—</span>';
 }
 function showToast(msg,ms=2400){
