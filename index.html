@@ -253,6 +253,13 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .cl-txt-inp{height:36px;width:100%;min-width:120px;padding:0 10px;border:1.5px solid var(--gray-200);border-radius:8px;background:#fff;font-size:14px;font-weight:600;color:var(--gray-800);outline:none;transition:border-color var(--fast)}
 .cl-txt-inp:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(59,130,246,.1)}
 .cl-txt-inp::placeholder{color:var(--gray-300)}
+#clienteAC{position:fixed;z-index:9500;background:#fff;border:1.5px solid var(--gray-200);border-radius:12px;box-shadow:0 10px 32px rgba(0,0,0,0.13);max-height:260px;overflow-y:auto;display:none;flex-direction:column}
+.ac-item{padding:10px 14px;cursor:pointer;display:flex;flex-direction:column;gap:2px;border-bottom:1px solid var(--gray-100)}
+.ac-item:last-child{border-bottom:none}
+.ac-item:hover,.ac-item.on{background:#EBF5FF}
+.ac-name{font-size:13.5px;font-weight:600;color:var(--gray-800)}
+.ac-cod{font-size:11px;color:var(--gray-400);font-variant-numeric:tabular-nums}
+.ac-empty{padding:14px;font-size:13px;color:var(--gray-400);text-align:center}
 .cl-money-inp{height:36px;width:148px;padding:0 10px;border:1.5px solid var(--gray-200);border-radius:8px;background:#fff;font-size:14px;font-weight:700;color:var(--gray-800);outline:none;text-align:right;font-variant-numeric:tabular-nums;transition:border-color var(--fast)}
 .cl-money-inp:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(59,130,246,.1)}
 .cl-money-inp::placeholder{color:var(--gray-300);font-weight:400}
@@ -933,6 +940,9 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- Autocomplete clientes -->
+<div id="clienteAC"></div>
 
 <div id="appLoader" style="position:fixed;inset:0;z-index:9000;background:rgba(255,255,255,.92);backdrop-filter:blur(5px);display:none;flex-direction:column;align-items:center;justify-content:center;gap:18px">
   <div style="width:52px;height:52px;border:4.5px solid #DBEAFE;border-top-color:#3B82F6;border-radius:50%;animation:spin-arc .7s linear infinite"></div>
@@ -1619,9 +1629,115 @@ document.getElementById('clientesTbody').addEventListener('input',e=>{
   }
 });
 
+/* ════════ AUTOCOMPLETE CLIENTES ════════════════════════════════ */
+let _clientes=null,_clientesLoading=false;
+async function loadClientes(){
+  if(_clientes)return _clientes;
+  if(_clientesLoading)return new Promise(res=>{const t=setInterval(()=>{if(_clientes){clearInterval(t);res(_clientes);}},50);});
+  _clientesLoading=true;
+  try{const r=await fetch('clientes.json');_clientes=await r.json();}catch(e){_clientes=[];}
+  _clientesLoading=false;
+  return _clientes;
+}
+
+const acEl=document.getElementById('clienteAC');
+let acActiveInp=null,acIdx=-1,acFiltered=[];
+
+function acFilter(q,all){
+  const s=q.toLowerCase().trim();
+  if(s.length<2)return[];
+  const starts=[],contains=[];
+  for(const cl of all){
+    const n=cl[1].toLowerCase();
+    if(n.startsWith(s)||cl[0].startsWith(s))starts.push(cl);
+    else if(n.includes(s)||cl[0].includes(s))contains.push(cl);
+    if(starts.length+contains.length>=200)break;
+  }
+  return [...starts,...contains].slice(0,50);
+}
+
+function acRender(list,inp){
+  const rect=inp.getBoundingClientRect();
+  acEl.style.left=rect.left+'px';
+  acEl.style.top=(rect.bottom+4)+'px';
+  acEl.style.width=Math.max(rect.width,280)+'px';
+  if(!list.length){acEl.innerHTML='<div class="ac-empty">Sin resultados</div>';acEl.style.display='block';return;}
+  acEl.innerHTML=list.map((cl,i)=>
+    `<div class="ac-item" data-i="${i}">
+       <span class="ac-name">${esc(cl[1])}</span>
+       <span class="ac-cod">${esc(cl[0])}</span>
+     </div>`
+  ).join('');
+  acEl.style.display='block';
+  acIdx=-1;acFiltered=list;
+}
+
+function acHide(){acEl.style.display='none';acIdx=-1;acActiveInp=null;acFiltered=[];}
+
+function acSelect(cl){
+  if(!acActiveInp)return;
+  acActiveInp.value=cl[1];
+  acActiveInp.dispatchEvent(new Event('input',{bubbles:true}));
+  acHide();
+}
+
+/* Focus en campo nombre → precargar lista */
+document.getElementById('clientesTbody').addEventListener('focus',async e=>{
+  if(!e.target.classList.contains('cl-txt-inp'))return;
+  acActiveInp=e.target;
+  loadClientes(); // precarga en background
+},true);
+
+/* Tipeo en campo nombre → filtrar */
+document.getElementById('clientesTbody').addEventListener('input',async e=>{
+  if(!e.target.classList.contains('cl-txt-inp'))return;
+  acActiveInp=e.target;
+  const q=e.target.value;
+  if(q.length<2){acEl.style.display='none';return;}
+  const all=await loadClientes();
+  acRender(acFilter(q,all),e.target);
+},true);
+
+/* Click en item del dropdown */
+acEl.addEventListener('mousedown',e=>{
+  const item=e.target.closest('.ac-item');
+  if(!item)return;
+  e.preventDefault();
+  const i=+item.dataset.i;
+  if(acFiltered[i])acSelect(acFiltered[i]);
+});
+
+/* Navegación teclado */
+document.addEventListener('keydown',e=>{
+  if(acEl.style.display==='none')return;
+  const items=acEl.querySelectorAll('.ac-item');
+  if(e.key==='ArrowDown'){
+    e.preventDefault();
+    acIdx=Math.min(acIdx+1,items.length-1);
+    items.forEach((it,i)=>it.classList.toggle('on',i===acIdx));
+    if(items[acIdx])items[acIdx].scrollIntoView({block:'nearest'});
+  }else if(e.key==='ArrowUp'){
+    e.preventDefault();
+    acIdx=Math.max(acIdx-1,0);
+    items.forEach((it,i)=>it.classList.toggle('on',i===acIdx));
+    if(items[acIdx])items[acIdx].scrollIntoView({block:'nearest'});
+  }else if(e.key==='Enter'&&acIdx>=0&&acFiltered[acIdx]){
+    e.preventDefault();
+    acSelect(acFiltered[acIdx]);
+  }else if(e.key==='Escape'){
+    acHide();
+  }
+});
+
+/* Click fuera → cerrar */
+document.addEventListener('click',e=>{
+  if(!acEl.contains(e.target)&&e.target!==acActiveInp)acHide();
+});
+
 /* Enter en nombre → foco a monto */
 document.getElementById('clientesTbody').addEventListener('keydown',e=>{
   if(e.key==='Enter'&&e.target.classList.contains('cl-txt-inp')){
+    if(acEl.style.display!=='none'&&acIdx>=0)return; // deja que el AC maneje Enter
     const m=e.target.closest('tr').querySelector('.cl-money-inp');
     if(m)m.focus();
   }
