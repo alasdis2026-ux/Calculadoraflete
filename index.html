@@ -685,10 +685,7 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .dz-pct.optimo{color:var(--accent)}.dz-pct.aceptable{color:#0891b2}.dz-pct.elevado{color:var(--orange)}.dz-pct.critico{color:var(--danger)}.dz-pct.na{color:var(--gray-300)}
 .dz-rep-count{font-size:10.5px;font-weight:600;color:var(--gray-400)}
 /* Zona field en formulario */
-.zona-row{display:flex;flex-direction:column;gap:6px;align-self:flex-start;min-width:260px}
-.zona-inp{height:42px;border:1.5px solid var(--gray-200);border-radius:10px;padding:0 14px;font-size:13.5px;font-weight:600;color:var(--gray-700);background:#fff;transition:border-color var(--fast),box-shadow var(--fast),background var(--fast);outline:none}
-.zona-inp:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.12);background:linear-gradient(135deg,#f8fbff,#fff)}
-.zona-inp::placeholder{color:var(--gray-300);font-weight:400}
+#selZonaGroup{width:200px}
 .dash-no-data{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 20px;gap:10px;text-align:center}
 .dash-no-data svg{width:44px;height:44px;color:var(--gray-200)}
 .dash-no-data p{font-size:14px;font-weight:700;color:var(--gray-400)}
@@ -797,6 +794,21 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
           <div class="th-price" id="thPrice"></div>
         </div>
 
+        <div class="sel-group" id="selZonaGroup">
+          <div class="sel-lbl-row"><span class="sel-lbl">Zona</span></div>
+          <select id="selZona">
+            <option value="">— Zona —</option>
+            <option value="CAPITAL">Capital</option>
+            <option value="NORTE">Norte</option>
+            <option value="ESTE">Este</option>
+            <option value="SUR">Sur</option>
+            <option value="CAAGUAZU">Caaguazú</option>
+            <option value="CAAZAPA">Caazapá</option>
+            <option value="VILLARRICA">Villarrica</option>
+            <option value="CHACO">Chaco</option>
+          </select>
+        </div>
+
       </div>
 
       <input type="hidden" id="inpKm" value="0">
@@ -807,12 +819,6 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
       <span id="fbFijoPrecio" style="display:none"></span>
       <span id="fbRate" style="display:none"></span>
       <button type="button" id="btnGoConfig" style="display:none"></button>
-
-      <!-- Zona -->
-      <div class="zona-row">
-        <div class="sel-lbl-row"><span class="sel-lbl">Zona de reparto</span></div>
-        <input type="text" id="inpZona" class="zona-inp" placeholder="Ej: Centro, Norte, Sur…" autocomplete="off">
-      </div>
 
       <!-- Clientes -->
       <div class="clients-hd">
@@ -1612,7 +1618,7 @@ selTr.addEventListener('change',()=>{
   updateSelIcons();
 });
 inpKm.addEventListener('input',()=>{currentReparto.km=parseFloat(inpKm.value)||0;updateFleteInfo();updateSelIcons();});
-document.getElementById('inpZona').addEventListener('input',e=>{currentReparto.zona=e.target.value;});
+document.getElementById('selZona').addEventListener('change',e=>{currentReparto.zona=e.target.value;if(e.target.value)document.getElementById('selZonaGroup').classList.add('is-set');else document.getElementById('selZonaGroup').classList.remove('is-set');});
 
 document.getElementById('btnClearTs').addEventListener('click',()=>{
   selTs.value='';
@@ -2064,7 +2070,8 @@ function clearCurrentReparto(){
   currentReparto={id:null,tsId:null,trId:null,km:0,zona:'',clientes:[]};
   selTs.value='';selTr.innerHTML='<option value="">— Primero elegí TS —</option>';selTr.disabled=true;
   inpKm.value='0';
-  document.getElementById('inpZona').value='';
+  document.getElementById('selZona').value='';
+  document.getElementById('selZonaGroup').classList.remove('is-set');
   document.getElementById('editChip').style.display='none';
   document.getElementById('btnNewReparto').style.display='none';
   updateFleteInfo();
@@ -2080,7 +2087,9 @@ function loadForEdit(id){
   const maxCid=currentReparto.clientes.reduce((m,c)=>Math.max(m,c.id),0);
   if(maxCid>=nextClienteId)nextClienteId=maxCid+1;
   inpKm.value=r.km||0;
-  document.getElementById('inpZona').value=r.zona||'';
+  const selZona=document.getElementById('selZona');
+  selZona.value=r.zona||'';
+  document.getElementById('selZonaGroup').classList.toggle('is-set',!!r.zona);
   showView('calc');
   populateTsSelect();populateTrSelect(r.tsId);
   document.getElementById('editChip').style.display='';
