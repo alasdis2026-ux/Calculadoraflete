@@ -292,10 +292,17 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .cl-money-inp{height:34px;width:150px;padding:0 11px;border:1.5px solid var(--gray-200);border-radius:8px;background:#fff;font-size:15px;font-weight:800;color:var(--gray-800);outline:none;text-align:right;font-variant-numeric:tabular-nums;transition:border-color var(--fast)}
 .cl-money-inp:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(59,130,246,.1)}
 .cl-money-inp::placeholder{color:var(--gray-300);font-weight:400}
-/* Input referencia / N.º manifiesto */
-.cl-ref-inp{height:34px;width:100%;padding:0 11px;border:1.5px solid var(--gray-200);border-radius:8px;background:#fff;font-family:inherit;font-size:14.5px;font-weight:600;color:var(--gray-800);outline:none;transition:border-color var(--fast)}
-.cl-ref-inp:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(59,130,246,.1)}
-.cl-ref-inp::placeholder{color:var(--gray-300);font-weight:400}
+/* Select de camión por fila + subtexto transportista */
+.cl-truck-sel{height:34px;width:100%;padding:0 10px;border:1.5px solid var(--gray-200);border-radius:8px;background:#fff;font-family:inherit;font-size:14px;font-weight:700;color:var(--gray-800);outline:none;cursor:pointer;transition:border-color var(--fast)}
+.cl-truck-sel:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(59,130,246,.1)}
+.cl-truck-ts{font-size:11.5px;font-weight:700;color:var(--gray-400);margin-top:3px;padding-left:2px}
+/* Input precio de flete por fila */
+.cl-precio-inp{height:34px;width:150px;padding:0 11px;border:1.5px solid var(--gray-200);border-radius:8px;background:#fff;font-size:15px;font-weight:800;color:var(--primary);outline:none;text-align:right;font-variant-numeric:tabular-nums;transition:border-color var(--fast)}
+.cl-precio-inp:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(59,130,246,.1)}
+.cl-precio-inp::placeholder{color:var(--gray-300);font-weight:400}
+/* Barra slim (solo fecha) */
+.selector-card--slim{padding:14px 20px;align-items:flex-end}
+.selector-card--slim #selFechaGroup{width:220px}
 /* Tabla manifiestos PRO: fuente más grande y compacta (sin desperdiciar alto) */
 #clientesTable th{padding:8px 14px;font-size:12.5px}
 #clientesTable td{padding:6px 14px;font-size:15px}
@@ -792,51 +799,12 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
     <!-- Columna izquierda -->
     <div class="calc-left">
 
-      <!-- Selector de camión -->
-      <div class="selector-card">
-
-        <div class="sel-group" id="selTrGroup">
-          <div class="sel-lbl-row">
-            <span class="sel-lbl">Camión</span>
-            <button class="sel-clear-btn" id="btnClearTr" type="button" title="Quitar camión">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="13" height="13"><path stroke-linecap="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
-            </button>
-          </div>
-          <select id="selTr"><option value="">— Elegir camión —</option></select>
-        </div>
-
-        <div class="sel-group" id="selTsGroup">
-          <div class="sel-lbl-row">
-            <span class="sel-lbl">Transportista</span>
-          </div>
-          <select id="selTs"><option value="">— Elegí un camión —</option></select>
-        </div>
-
-        <div class="sel-group" id="selZonaGroup">
-          <div class="sel-lbl-row"><span class="sel-lbl">Zona</span></div>
-          <select id="selZona">
-            <option value="">— Zona —</option>
-            <option value="CAPITAL">Capital</option>
-            <option value="NORTE">Norte</option>
-            <option value="ESTE">Este</option>
-            <option value="SUR">Sur</option>
-            <option value="CAAGUAZU">Caaguazú</option>
-            <option value="CAAZAPA">Caazapá</option>
-            <option value="VILLARRICA">Villarrica</option>
-            <option value="CHACO">Chaco</option>
-          </select>
-        </div>
-
+      <!-- Barra: solo fecha del reparto -->
+      <div class="selector-card selector-card--slim">
         <div class="sel-group" id="selFechaGroup">
-          <div class="sel-lbl-row"><span class="sel-lbl">Fecha</span></div>
+          <div class="sel-lbl-row"><span class="sel-lbl">Fecha del reparto</span></div>
           <input type="date" id="inpFecha" class="sel-fecha">
         </div>
-
-        <div class="sel-group" id="selPrecioGroup">
-          <div class="sel-lbl-row"><span class="sel-lbl">Precio flete (total)</span></div>
-          <div class="sel-money"><span class="sel-money-cur">Gs.</span><input type="text" id="inpPrecioManual" class="sel-money-inp" inputmode="numeric" placeholder="0" autocomplete="off"></div>
-        </div>
-
       </div>
 
       <input type="hidden" id="inpKm" value="0">
@@ -848,13 +816,13 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
       <span id="fbRate" style="display:none"></span>
       <button type="button" id="btnGoConfig" style="display:none"></button>
 
-      <!-- Facturas -->
+      <!-- Camiones del reparto -->
       <div class="clients-hd">
-        <h3>Manifiestos del reparto</h3>
+        <h3>Camiones del reparto</h3>
         <span class="cnt-badge" id="clienteCount">0</span>
         <button class="btn btn-sm btn-outline" type="button" id="btnAddCliente">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
-          Agregar manifiesto
+          Agregar camión
         </button>
         <button class="btn btn-sm btn-ghost" type="button" id="btnLimpiarClientes" style="display:none">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14"><path stroke-linecap="round" stroke-width="2.2" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -886,8 +854,8 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
           </table>
           <div class="empty-state" id="clientesEmpty">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-            <strong>Sin manifiestos</strong>
-            <span>Elegí un camión y agregá los manifiestos del reparto</span>
+            <strong>Sin camiones</strong>
+            <span>Agregá los camiones del reparto con su monto y precio</span>
           </div>
         </div>
       </div>
@@ -904,7 +872,7 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
           <span class="result-number is-empty" id="rNumber">—</span>
           <span class="result-pct" id="rPct" style="opacity:0">%</span>
         </div>
-        <div class="result-sub s-empty" id="rCaption">Elegí un camión y agregá manifiestos</div>
+        <div class="result-sub s-empty" id="rCaption">Agregá los camiones del reparto</div>
         <div class="result-divider"></div>
         <div class="result-row2">
           <div class="result-r2-item">
@@ -920,7 +888,7 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 
       <!-- Breakdown card -->
       <div class="result-breakdown" id="resultBreakdown">
-        <div class="rb-title">Desglose por manifiesto</div>
+        <div class="rb-title">Desglose por camión</div>
         <div class="rb-list" id="rbList"></div>
         <div class="rb-footer">
           <div class="rb-footer-item">
@@ -1407,19 +1375,24 @@ async function loadData(){
 
 /* ── Computed ────────────────────────────────────── */
 function computeReparto(){
-  const ts=transportistas.find(t=>t.id===currentReparto.tsId);
-  const tr=ts?.trucks.find(t=>t.id===currentReparto.trId);
-  const precio=currentReparto.precio||0; // precio de flete TOTAL, cargado a mano
-  const tipo='manual';
+  // Cada fila es un CAMIÓN con su propio monto y precio de flete (cargado a mano).
+  const tipo='multi';
   const totalMonto=currentReparto.clientes.reduce((s,c)=>s+(c.monto||0),0);
-  const totalFlete=precio;
+  const totalFlete=currentReparto.clientes.reduce((s,c)=>s+(c.precio||0),0);
   const clientes=currentReparto.clientes.map(c=>{
-    const pct=totalMonto>0?(c.monto/totalMonto)*100:0;
-    const gasto=totalMonto>0?(c.monto/totalMonto)*totalFlete:0; // reparte el flete por participación
-    const inc=c.monto>0&&gasto>0?(gasto/c.monto)*100:null;
-    const dif=c.monto>0&&gasto>0?gasto-(c.monto*0.03):null;
-    return{...c,pct,gasto,inc,dif};
+    const tsR=transportistas.find(t=>(t.trucks||[]).some(x=>x.id===c.trId));
+    const trR=tsR?tsR.trucks.find(x=>x.id===c.trId):null;
+    const gasto=c.precio||0;                                   // el precio del camión ES su gasto de flete
+    const pct=totalMonto>0?(c.monto/totalMonto)*100:0;          // participación sobre el monto total
+    const inc=c.monto>0&&gasto>0?(gasto/c.monto)*100:null;      // incidencia del flete de ese camión
+    const dif=c.monto>0&&gasto>0?gasto-(c.monto*0.03):null;     // vs. límite del 3%
+    return{...c,tsId:tsR?tsR.id:c.tsId,tsNombre:tsR?tsR.n:'',trDesc:trR?trR.d:'',pct,gasto,inc,dif};
   });
+  // ts/tr top-level (compat con snap/historial): resumen del reparto
+  const tsIds=[...new Set(clientes.map(c=>c.tsId).filter(Boolean))];
+  const ts=tsIds.length===1?transportistas.find(t=>t.id===tsIds[0]):null;
+  const tr=clientes.length===1?{d:clientes[0].trDesc}:null;
+  const precio=totalFlete;
   const incTotal=totalMonto>0&&totalFlete>0?(totalFlete/totalMonto)*100:null;
   const gastoPermitido=totalMonto*0.03;
   const diferencia=totalFlete-gastoPermitido;
@@ -1448,28 +1421,11 @@ function showView(v){
 document.querySelectorAll('[data-nav]').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.nav)));
 
 /* ════════ VIEW 1 — CALCULADORA ═════════════════════ */
-const selTs=document.getElementById('selTs');
-const selTr=document.getElementById('selTr');
-const inpKm=document.getElementById('inpKm');
-var sselTs=null,sselTr=null,sselZona=null;
-
-function populateTsSelect(){
-  // Transportista: solo refleja el del camión elegido (auto, solo lectura)
-  selTs.innerHTML='<option value="">— Elegí un camión —</option>'+
-    transportistas.map(t=>`<option value="${t.id}"${t.id===currentReparto.tsId?' selected':''}>${esc(t.n)}</option>`).join('');
-  if(sselTs)sselTs.sync();
-}
-// El camión es el selector primario: lista TODOS los camiones de todos los
-// transportistas; cada opción recuerda a qué transportista pertenece (data-ts).
-function populateTrSelect(){
-  const opts=[];
-  transportistas.forEach(ts=>(ts.trucks||[]).forEach(tr=>{
-    opts.push(`<option value="${tr.id}" data-ts="${ts.id}" data-tsname="${esc(ts.n)}"${tr.id===currentReparto.trId?' selected':''}>${esc(tr.d)}</option>`);
-  }));
-  selTr.disabled=false;
-  selTr.innerHTML='<option value="">— Elegir camión —</option>'+opts.join('');
-  if(sselTr){sselTr.sync();sselTr.setDisabled(false);}
-}
+// Los selectores de arriba (transportista/camión/zona/precio) se removieron: ahora
+// cada fila de la tabla es un camión. Estas funciones se conservan como no-op /
+// refresco porque VIEW 2 (admin de transportistas) las sigue llamando al editar.
+function populateTsSelect(){}
+function populateTrSelect(){ if(document.getElementById('clientesTbody'))renderClientesTable(); }
 // Devuelve el transportista dueño de un camión
 function tsOfTruck(trId){ return transportistas.find(t=>(t.trucks||[]).some(x=>x.id===trId))||null; }
 
@@ -1602,49 +1558,14 @@ function makeSsel(nativeId,opts){
     setDisabled:function(v){g.disabled=!!v;d.classList.toggle('ssel-disabled',!!v);}
   };
 }
-function updateSelIcons(){
-  document.getElementById('selTsGroup').classList.toggle('is-set',!!currentReparto.tsId);
-  document.getElementById('selTrGroup').classList.toggle('is-set',!!currentReparto.trId);
-  if(sselTs)sselTs.sync();
-  if(sselTr)sselTr.sync();
-  if(sselZona)sselZona.sync();
-}
+function updateSelIcons(){}  // los selectores de arriba ya no existen
 
-// Camión = selector primario: al elegirlo se autocompleta el transportista.
-selTr.addEventListener('change',()=>{
-  currentReparto.trId=selTr.value?+selTr.value:null;
-  const ts=currentReparto.trId?tsOfTruck(currentReparto.trId):null;
-  currentReparto.tsId=ts?ts.id:null;
-  selTs.value=currentReparto.tsId||'';
-  if(sselTs)sselTs.sync();
-  updateFleteInfo();
-  updateSelIcons();
-});
-document.getElementById('selZona').addEventListener('change',e=>{
-  currentReparto.zona=e.target.value;
-  document.getElementById('selZonaGroup').classList.toggle('is-set',!!e.target.value);
-});
-// Fecha del reparto
+// Fecha del reparto (único selector que queda arriba)
 document.getElementById('inpFecha').addEventListener('change',e=>{
   currentReparto.fecha=e.target.value;
   document.getElementById('selFechaGroup').classList.toggle('is-set',!!e.target.value);
 });
-// Precio de flete TOTAL (manual), con formato de miles
-const inpPM=document.getElementById('inpPrecioManual');
-inpPM.addEventListener('input',()=>{
-  const raw=parseMoney(inpPM.value);
-  currentReparto.precio=raw||0;
-  inpPM.value=raw>0?formatMoney(raw):'';
-  inpPM.setSelectionRange(inpPM.value.length,inpPM.value.length);
-  document.getElementById('selPrecioGroup').classList.toggle('is-set',raw>0);
-  updateFleteInfo();
-});
 
-document.getElementById('btnClearTr').addEventListener('click',()=>{
-  selTr.value='';
-  selTr.dispatchEvent(new Event('change'));
-  if(sselTr)sselTr.sync();
-});
 document.getElementById('btnLimpiarClientes').addEventListener('click',()=>{
   if(!currentReparto.clientes.length)return;
   currentReparto.clientes=[];
@@ -1660,7 +1581,16 @@ document.getElementById('btnGoConfig').addEventListener('click',()=>{
   if(currentReparto.tsId)setTimeout(()=>selectTs(currentReparto.tsId),50);
 });
 
-/* Render client table */
+/* Opciones de camión (todos los transportistas) para el select de cada fila */
+function truckOptionsHTML(selId){
+  let h='<option value="">— Elegir camión —</option>';
+  transportistas.forEach(ts=>(ts.trucks||[]).forEach(tr=>{
+    h+=`<option value="${tr.id}"${tr.id===selId?' selected':''}>${esc(tr.d)}</option>`;
+  }));
+  return h;
+}
+
+/* Render tabla de camiones del reparto */
 function renderClientesTable(){
   const c=computeReparto();
   const tbl=document.getElementById('clientesTable');
@@ -1673,10 +1603,10 @@ function renderClientesTable(){
   if(btnLimp)btnLimp.style.display=c.clientes.length?'':'none';
   thead.innerHTML=
     `<th style="width:32px">#</th>`+
-    `<th style="width:210px">N.º Manifiesto / Ref.</th>`+
-    `<th class="r">Monto Manifiesto</th>`+
+    `<th style="min-width:230px">Camión</th>`+
+    `<th class="r">Monto</th>`+
+    `<th class="r">Precio flete</th>`+
     `<th class="r">Participación</th>`+
-    `<th class="r">Gasto Flete</th>`+
     `<th class="r">Incidencia</th>`+
     `<th class="r" style="width:150px">Diferencia</th>`+
     `<th style="width:44px"></th>`;
@@ -1686,20 +1616,23 @@ function renderClientesTable(){
     const incClass=cl.inc===null?'na':cl.inc<5?'good':cl.inc<10?'warn':'bad';
     return`<tr data-clid="${cl.id}">
       <td class="idx">${i+1}</td>
-      <td style="padding:6px 10px"><input class="cl-ref-inp" type="text" value="${cl.nombre?esc(cl.nombre):''}" placeholder="N.º manifiesto / ref. (opcional)" data-clid="${cl.id}" autocomplete="off"></td>
-      <td style="padding:8px 10px;text-align:right"><input class="cl-money-inp" type="text" value="${cl.monto>0?formatMoney(cl.monto):''}" placeholder="0" data-clid="${cl.id}" inputmode="numeric"></td>
+      <td style="padding:6px 10px">
+        <select class="cl-truck-sel" data-clid="${cl.id}">${truckOptionsHTML(cl.trId)}</select>
+        <div class="cl-truck-ts">${cl.tsNombre?esc(cl.tsNombre):'—'}</div>
+      </td>
+      <td style="padding:6px 10px;text-align:right"><input class="cl-money-inp" type="text" value="${cl.monto>0?formatMoney(cl.monto):''}" placeholder="0" data-clid="${cl.id}" inputmode="numeric"></td>
+      <td style="padding:6px 10px;text-align:right"><input class="cl-precio-inp" type="text" value="${cl.precio>0?formatMoney(cl.precio):''}" placeholder="0" data-clid="${cl.id}" inputmode="numeric"></td>
       <td class="r pct-col" data-col="pct">${cl.pct>0?Math.round(cl.pct)+'%':'—'}</td>
-      <td class="r gasto-col${cl.gasto===0?' zero':''}" data-col="gasto">${cl.gasto>0?fmtGs(cl.gasto):'—'}</td>
       <td class="r incid-col ${incClass}" data-col="incid">${cl.inc!==null?fmtPct(cl.inc):'—'}</td>
       <td class="r dif-col" data-col="dif">${difFmt(cl.dif)}</td>
-      <td style="padding:8px 8px;text-align:center"><button class="del-cl-btn" type="button" data-delcl="${cl.id}"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg></button></td>
+      <td style="padding:6px 8px;text-align:center"><button class="del-cl-btn" type="button" data-delcl="${cl.id}"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg></button></td>
     </tr>`;
   }).join('');
   tfoot.innerHTML=`<tr>
     <td colspan="2" class="lbl">TOTAL</td>
     <td class="val r" data-col="tot-monto">${fmtGs(c.totalMonto)}</td>
-    <td class="val r">100%</td>
     <td class="val r" data-col="tot-flete">${c.totalFlete>0?fmtGs(c.totalFlete):'—'}</td>
+    <td class="val r">100%</td>
     <td class="val r" data-col="tot-inc">${c.incTotal!==null?fmtPct(c.incTotal):'—'}</td>
     <td class="val r dif-col" data-col="tot-dif">${difFmt(c.diferencia)}</td>
     <td></td>
@@ -1730,7 +1663,7 @@ function updateResultCard(){
     rNum.classList.add('is-empty');
     rNum.classList.remove('pop');
     rPct.style.opacity='0';
-    rCap.textContent=!c.tr?'Elegí un camión':(c.precio<=0?'Ingresá el precio del flete':'Agregá manifiestos para calcular');
+    rCap.textContent=!c.clientes.length?'Agregá los camiones del reparto':(c.totalMonto<=0?'Cargá el monto de cada camión':'Cargá el precio de flete');
     rCap.className='result-sub s-empty';
   }
 
@@ -1755,7 +1688,7 @@ function updateResultCard(){
       return`<div class="rb-item">
         <div class="rb-item-top">
           <span class="rb-dot" style="background:${color}"></span>
-          <span class="rb-name">${esc(cl.nombre||('Manifiesto '+(i+1)))}</span>
+          <span class="rb-name">${esc(cl.trDesc||('Camión '+(i+1)))}</span>
           <span class="rb-pct">${cl.pct.toFixed(0)}%</span>
           <span class="rb-val">${fmtGs(cl.gasto)}</span>
         </div>
@@ -1793,19 +1726,32 @@ function updateResultCard(){
 
 }
 
-/* Km por cliente — live update sin perder foco */
-document.getElementById('clientesTbody').addEventListener('input',e=>{
-  if(!e.target.classList.contains('cl-km-inp'))return;
-  const clId=+e.target.dataset.clid;
-  const cl=currentReparto.clientes.find(c=>c.id===clId);
+/* Camión de la fila: al elegirlo autocompleta el transportista (re-render para el subtexto) */
+document.getElementById('clientesTbody').addEventListener('change',e=>{
+  if(!e.target.classList.contains('cl-truck-sel'))return;
+  const cl=currentReparto.clientes.find(c=>c.id===+e.target.dataset.clid);
   if(!cl)return;
-  cl.km=parseFloat(e.target.value)||0;
-  // actualiza celdas en-lugar sin re-render (preserva foco)
-  const comp=computeReparto();
-  _updateCalcCells(comp);
-  updateResultCard();
-  updateEstimador(comp);
+  cl.trId=e.target.value?+e.target.value:null;
+  const ts=cl.trId?transportistas.find(t=>(t.trucks||[]).some(x=>x.id===cl.trId)):null;
+  cl.tsId=ts?ts.id:null;
+  renderClientesTable();updateResultCard();
 });
+
+/* Helper: formatea un input de dinero preservando el cursor y devuelve el número */
+function _liveMoney(inp){
+  const pos=inp.selectionStart;
+  const oldVal=inp.value;
+  const digitsBefore=oldVal.slice(0,pos).replace(/[^\d]/g,'').length;
+  const digits=oldVal.replace(/[^\d]/g,'');
+  if(!digits){inp.value='';return 0;}
+  const formatted=parseInt(digits,10).toLocaleString('es-PY');
+  inp.value=formatted;
+  let count=0,newPos=formatted.length;
+  for(let i=0;i<formatted.length;i++){if(/\d/.test(formatted[i]))count++;if(count===digitsBefore){newPos=i+1;break;}}
+  if(digitsBefore===0)newPos=0;
+  inp.setSelectionRange(newPos,newPos);
+  return parseInt(digits,10)||0;
+}
 
 /* Helper: actualiza celdas calculadas en-lugar sin re-render */
 function _updateCalcCells(comp){
@@ -1833,32 +1779,16 @@ function _updateCalcCells(comp){
   if(td){td.innerHTML=difFmt(comp.diferencia);td.className='val r dif-col';}
 }
 
-/* Client table: monto + referencia inline listeners */
+/* Monto y precio de flete de cada camión: live format + recálculo */
 document.getElementById('clientesTbody').addEventListener('input',e=>{
-  // --- referencia / N.º factura (no afecta el cálculo) ---
-  if(e.target.classList.contains('cl-ref-inp')){
-    const cl=currentReparto.clientes.find(c=>c.id===+e.target.dataset.clid);
-    if(cl)cl.nombre=e.target.value;
-    return;
-  }
-  // --- monto: live format + recalc ---
-  if(e.target.classList.contains('cl-money-inp')){
-    const pos=e.target.selectionStart;
-    const oldVal=e.target.value;
-    const digitsBefore=oldVal.slice(0,pos).replace(/[^\d]/g,'').length;
-    const digits=oldVal.replace(/[^\d]/g,'');
-    if(!digits){e.target.value='';}
-    else{
-      const formatted=parseInt(digits,10).toLocaleString('es-PY');
-      e.target.value=formatted;
-      let count=0,newPos=formatted.length;
-      for(let i=0;i<formatted.length;i++){if(/\d/.test(formatted[i]))count++;if(count===digitsBefore){newPos=i+1;break;}}
-      if(digitsBefore===0)newPos=0;
-      e.target.setSelectionRange(newPos,newPos);
-    }
-    const cl=currentReparto.clientes.find(c=>c.id===+e.target.dataset.clid);
-    if(cl){cl.monto=parseInt(digits||'0',10)||0;const comp=computeReparto();_updateCalcCells(comp);updateResultCard();updateEstimador(comp);}
-    return;
+  const isMonto=e.target.classList.contains('cl-money-inp');
+  const isPrecio=e.target.classList.contains('cl-precio-inp');
+  if(!isMonto&&!isPrecio)return;
+  const val=_liveMoney(e.target);
+  const cl=currentReparto.clientes.find(c=>c.id===+e.target.dataset.clid);
+  if(cl){
+    if(isMonto)cl.monto=val; else cl.precio=val;
+    const comp=computeReparto();_updateCalcCells(comp);updateResultCard();updateEstimador(comp);
   }
 });
 
@@ -1999,24 +1929,13 @@ document.addEventListener('click',e=>{
   if(!acEl.contains(e.target)&&!e.target.closest('.cl-combo'))acClose();
 });
 
-/* Agregar cliente directo en tabla */
+/* Agregar camión directo en la tabla */
 document.getElementById('btnAddCliente').addEventListener('click',()=>{
-  if(!currentReparto.trId){
-    const btn=document.getElementById('btnAddCliente');
-    btn.classList.remove('btn-shake');
-    void btn.offsetWidth;
-    btn.classList.add('btn-shake');
-    btn.addEventListener('animationend',()=>btn.classList.remove('btn-shake'),{once:true});
-    const selTrGroup=document.getElementById('selTrGroup');
-    if(selTrGroup)selTrGroup.querySelector('.ssel-display')?.classList.add('ssel-error');
-    setTimeout(()=>selTrGroup?.querySelector('.ssel-display')?.classList.remove('ssel-error'),1800);
-    return;
-  }
-  const newCl={id:nextClienteId++,nombre:'',monto:0,km:0};
+  const newCl={id:nextClienteId++,trId:null,tsId:null,monto:0,precio:0};
   currentReparto.clientes.push(newCl);
   renderClientesTable();updateResultCard();
-  const inp=document.querySelector(`[data-clid="${newCl.id}"] .cl-money-inp`);
-  if(inp)inp.focus();
+  const sel=document.querySelector(`[data-clid="${newCl.id}"] .cl-truck-sel`);
+  if(sel)sel.focus();
 });
 
 function openClienteModal(existing){
@@ -2050,20 +1969,25 @@ document.getElementById('mCltMonto').addEventListener('keydown',e=>{if(e.key==='
 /* Save reparto */
 document.getElementById('btnGuardar').addEventListener('click',async()=>{
   const c=computeReparto();
-  if(!c.tr){showToast('Elegí un camión antes de guardar');return;}
-  if(!currentReparto.clientes.length){showToast('Agregá al menos un manifiesto');return;}
-  if(!(currentReparto.precio>0)){showToast('Ingresá el precio del flete');return;}
+  if(!c.clientes.length){showToast('Agregá al menos un camión');return;}
+  if(c.clientes.some(cl=>!cl.trId)){showToast('Elegí el camión en cada fila');return;}
+  if(!(c.totalMonto>0)){showToast('Cargá el monto de cada camión');return;}
+  if(!(c.totalFlete>0)){showToast('Cargá el precio de flete');return;}
   const fISO=currentReparto.fecha||todayISO();
   const fDisp=new Date(fISO+'T00:00:00').toLocaleDateString('es-PY',{day:'2-digit',month:'long',year:'numeric'});
+  const tsIds=[...new Set(c.clientes.map(cl=>cl.tsId).filter(Boolean))];
   const snap={
     id:currentReparto.id!==null?currentReparto.id:null,
-    fecha:fDisp,fechaISO:fISO,tsId:currentReparto.tsId,tsNombre:c.ts?.n||'—',
-    trId:currentReparto.trId,trDesc:c.tr?.d||'—',
-    km:currentReparto.km,precio:c.precio,tipo:c.tipo,totalFlete:c.totalFlete,
+    fecha:fDisp,fechaISO:fISO,
+    tsId:tsIds.length===1?tsIds[0]:null,
+    tsNombre:tsIds.length===1?(c.clientes.find(cl=>cl.tsId)?.tsNombre||'—'):'Varios',
+    trId:c.clientes.length===1?c.clientes[0].trId:null,
+    trDesc:c.clientes.length===1?c.clientes[0].trDesc:(c.clientes.length+' camiones'),
+    km:0,precio:c.totalFlete,tipo:'multi',totalFlete:c.totalFlete,
     totalMonto:c.totalMonto,incTotal:c.incTotal,
     gastoPermitido:c.gastoPermitido,diferencia:c.diferencia,
-    zona:currentReparto.zona||'',
-    clientes:c.clientes.map(cl=>({id:cl.id,nombre:cl.nombre,monto:cl.monto,gasto:cl.gasto,inc:cl.inc,pct:cl.pct})),
+    zona:'',
+    clientes:c.clientes.map(cl=>({id:cl.id,trId:cl.trId,tsId:cl.tsId,trDesc:cl.trDesc,tsNombre:cl.tsNombre,monto:cl.monto,precio:cl.precio,gasto:cl.gasto,inc:cl.inc,pct:cl.pct})),
   };
   try{
     const savedId=await dbSaveReparto(snap);
@@ -2077,9 +2001,6 @@ document.getElementById('btnGuardar').addEventListener('click',async()=>{
       document.getElementById('btnNewReparto').style.display='';
       document.getElementById('editChipText').textContent='Reparto #'+String(savedId).padStart(4,'0')+' — '+snap.fecha;
     }
-    const ts=transportistas.find(t=>t.id===currentReparto.tsId);
-    const tr=ts?.trucks.find(t=>t.id===currentReparto.trId);
-    if(tr){tr.lastKm=currentReparto.km;dbUpdateTruck(tr.id,{last_km:currentReparto.km}).catch(()=>{});}
     showSaveAnim();
   }catch(err){
     showToast('Error al guardar reparto');
@@ -2087,55 +2008,31 @@ document.getElementById('btnGuardar').addEventListener('click',async()=>{
 });
 
 function clearCurrentReparto(){
-  currentReparto={id:null,tsId:null,trId:null,km:0,zona:'',fecha:'',precio:0,clientes:[]};
-  selTr.value='';populateTrSelect();
-  selTs.value='';if(sselTs)sselTs.sync();
-  inpKm.value='0';
-  document.getElementById('selZona').value='';
-  document.getElementById('selZonaGroup').classList.remove('is-set');
-  if(sselZona)sselZona.sync();
-  document.getElementById('inpFecha').value='';
-  document.getElementById('selFechaGroup').classList.remove('is-set');
-  const _pm=document.getElementById('inpPrecioManual');if(_pm)_pm.value='';
-  document.getElementById('selPrecioGroup').classList.remove('is-set');
+  currentReparto={id:null,fecha:todayISO(),clientes:[]};
+  const inpF=document.getElementById('inpFecha');
+  if(inpF){inpF.value=todayISO();document.getElementById('selFechaGroup').classList.add('is-set');}
   document.getElementById('editChip').style.display='none';
   document.getElementById('btnNewReparto').style.display='none';
   updateFleteInfo();
-  updateSelIcons();
 }
 document.getElementById('btnCancelEdit').addEventListener('click',clearCurrentReparto);
 document.getElementById('btnNewReparto').addEventListener('click',clearCurrentReparto);
 
 function loadForEdit(id){
   const r=repartos.find(x=>x.id===id);if(!r)return;
-  const precio=r.totalFlete||r.precio||0; // flete total (nuevo modelo = precio manual)
-  currentReparto={id:r.id,tsId:r.tsId,trId:r.trId,km:r.km||0,zona:r.zona||'',
-    fecha:r.fechaISO||'',precio:precio,
-    clientes:r.clientes.map(c=>({id:c.id,nombre:c.nombre,monto:c.monto,km:c.km||0}))};
+  // Cada fila del reparto guardado es un camión: {trId, tsId, monto, precio}
+  currentReparto={id:r.id,fecha:r.fechaISO||'',
+    clientes:(r.clientes||[]).map(c=>({id:c.id,trId:c.trId||null,tsId:c.tsId||null,monto:c.monto||0,precio:c.precio||c.gasto||0}))};
   const maxCid=currentReparto.clientes.reduce((m,c)=>Math.max(m,c.id),0);
   if(maxCid>=nextClienteId)nextClienteId=maxCid+1;
-  const selZona=document.getElementById('selZona');
-  selZona.value=r.zona||'';
-  document.getElementById('selZonaGroup').classList.toggle('is-set',!!r.zona);
-  if(sselZona)sselZona.sync();
-  // Fecha + precio manual en los inputs
   const inpF=document.getElementById('inpFecha');
   inpF.value=r.fechaISO||'';
   document.getElementById('selFechaGroup').classList.toggle('is-set',!!r.fechaISO);
-  const inpP=document.getElementById('inpPrecioManual');
-  inpP.value=precio>0?formatMoney(precio):'';
-  document.getElementById('selPrecioGroup').classList.toggle('is-set',precio>0);
   showView('calc');
-  // Camión primario (lista completa) + transportista auto
-  populateTrSelect();
-  selTr.value=r.trId||'';if(sselTr)sselTr.sync();
-  populateTsSelect();
-  selTs.value=r.tsId||'';if(sselTs)sselTs.sync();
   document.getElementById('editChip').style.display='';
   document.getElementById('btnNewReparto').style.display='';
   document.getElementById('editChipText').textContent='Reparto #'+r.id.toString().padStart(4,'0')+' — '+r.fecha;
   updateFleteInfo();
-  updateSelIcons();
 }
 
 /* ════════ VIEW 2 — TRANSPORTISTAS ══════════════════ */
@@ -2405,9 +2302,9 @@ function renderCard(r,opts={}){
     const hasInc=c.inc!==null&&c.inc!==undefined;
     const clOk=hasInc&&c.inc<3;
     return`<tr style="--i:${i}">
-      <td>${esc(c.nombre||'—')}</td>
+      <td>${esc(c.trDesc||c.nombre||'—')}</td>
       <td>${fmtGs(c.monto||0)}</td>
-      <td>${c.gasto?fmtGs(c.gasto):'—'}</td>
+      <td>${(c.precio||c.gasto)?fmtGs(c.precio||c.gasto):'—'}</td>
       <td class="cell-inc ${hasInc?(clOk?'ok':'over'):''}">${hasInc?c.inc.toFixed(2)+'%':'—'}</td>
     </tr>`;
   }).join('');
@@ -2436,19 +2333,19 @@ function renderCard(r,opts={}){
         <span class="hc-kpi-val ${r.incTotal!==null?(incOk?'ok':'over'):''}">${inc}</span>
       </div>
       <div class="hc-kpi">
-        <span class="hc-kpi-lbl">Zona</span>
-        <span class="hc-kpi-val">${esc(r.zona||'—')}</span>
+        <span class="hc-kpi-lbl">Camiones</span>
+        <span class="hc-kpi-val">${(r.clientes||[]).length}</span>
       </div>
     </div>
     ${clList.length?`<div class="hc-detail-wrap">
       <button class="hc-detail-btn" type="button" data-toggledetail>
         <svg class="chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 18l6-6-6-6"/></svg>
         Ver detalles
-        <span class="hc-detail-count">${clList.length} manifiestos</span>
+        <span class="hc-detail-count">${clList.length} camiones</span>
       </button>
       <div class="hc-detail-panel">
         <table class="hc-detail-table">
-          <thead><tr><th>N.º Manifiesto / Ref.</th><th>Monto</th><th>Gasto flete</th><th>Incidencia</th></tr></thead>
+          <thead><tr><th>Camión</th><th>Monto</th><th>Precio flete</th><th>Incidencia</th></tr></thead>
           <tbody>${clientRows}</tbody>
         </table>
       </div>
@@ -2741,46 +2638,11 @@ async function initApp(){
     window._alasEntered=true;
     window.ALASTransition.enterProject();
   }
-  populateTsSelect();
-  const _bldgIco='<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16"><path d="M3 21V7l9-4 9 4v14"/><path d="M9 21v-6h6v6"/><rect x="9" y="11" width="2" height="2"/><rect x="13" y="11" width="2" height="2"/></svg>';
-  sselTs=makeSsel('selTs',{
-    placeholder:'— Elegí un camión —',
-    defaultIcon:_bldgIco,
-    iconFn:function(v,lbl){
-      if(!v)return _bldgIco;
-      return'<div style="width:100%;height:100%;border-radius:8px;background:linear-gradient(135deg,#EBF5FF,#DBEAFE);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--primary)">'+initials(lbl)+'</div>';
-    },
-    itemIconFn:function(v,lbl){return getTrIco('',14);}
-  });
-  sselTr=makeSsel('selTr',{
-    placeholder:'— Elegir camión —',
-    defaultIcon:getTrIco('',16),
-    iconFn:function(v,lbl){return getTrIco(v?lbl:'',16);},
-    itemIconFn:function(v,lbl){return getTrIco(lbl,14);},
-    dropdownClass:'ssel-dd-tr',
-    itemRightFn:function(v,lbl,opt){
-      if(!v)return'';
-      var ts=opt.dataset.tsname||'';
-      return ts?'<span class="ssel-chip km">'+esc(ts)+'</span>':'';
-    }
-  });
-  populateTrSelect();
-  sselTr.setDisabled(false);
-  const _pinIco='<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16"><path d="M17.657 16.657L13.414 20.9a2 2 0 01-2.827 0l-4.244-4.244a8 8 0 1111.314 0z"/><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>';
-  sselZona=makeSsel('selZona',{
-    placeholder:'— Zona —',
-    defaultIcon:_pinIco,
-    iconFn:function(v,lbl){
-      if(!v)return _pinIco;
-      return'<div style="width:100%;height:100%;border-radius:8px;background:linear-gradient(135deg,#ECFDF5,#D1FAE5);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#065F46">'+lbl.substring(0,3).toUpperCase()+'</div>';
-    }
-  });
   // Fecha por defecto: hoy
   const _inpF=document.getElementById('inpFecha');
   if(_inpF){_inpF.value=todayISO();currentReparto.fecha=todayISO();document.getElementById('selFechaGroup').classList.add('is-set');}
   renderClientesTable();
   updateResultCard();
-  updateSelIcons();
 }
 initApp();
 
