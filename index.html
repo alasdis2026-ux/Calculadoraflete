@@ -582,7 +582,9 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .hc-detail-btn:hover .chevron{color:var(--primary)}
 .hc-detail-count{margin-left:auto;font-size:11px;font-weight:800;padding:2px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
 .hc-detail-panel{max-height:0;overflow:hidden;opacity:0;transition:max-height .38s var(--alas-ease),opacity .25s ease}
-.hc-detail-panel.open{max-height:600px;opacity:1}
+.hc-detail-panel.open{max-height:1400px;opacity:1}
+.hc-detail-table tfoot .hc-detail-total td{border-top:2px solid var(--primary);background:#EBF5FF;font-weight:800;color:var(--primary);font-size:12.5px;padding-top:10px;padding-bottom:10px}
+.hc-detail-table tfoot .hc-detail-total td:first-child{font-size:10px;text-transform:uppercase;letter-spacing:.6px;opacity:.8}
 .hc-detail-table{width:100%;border-collapse:collapse;font-size:12px}
 .hc-detail-table thead tr{border-top:1.5px solid var(--gray-200)}
 .hc-detail-table th{padding:8px 14px 6px;font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--gray-400);text-align:left;background:var(--gray-50)}
@@ -2415,15 +2417,21 @@ function renderCard(r,opts={}){
       </div>
     </div>
     ${clList.length?`<div class="hc-detail-wrap">
-      <button class="hc-detail-btn" type="button" data-toggledetail>
+      <button class="hc-detail-btn${opts.expandDetail?' open':''}" type="button" data-toggledetail>
         <svg class="chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 18l6-6-6-6"/></svg>
-        Ver detalles
+        ${opts.expandDetail?'Camiones del reparto':'Ver detalles'}
         <span class="hc-detail-count">${clList.length} camiones</span>
       </button>
-      <div class="hc-detail-panel">
+      <div class="hc-detail-panel${opts.expandDetail?' open':''}">
         <table class="hc-detail-table">
-          <thead><tr><th>Camión</th><th>Monto</th><th>Precio flete</th><th>Incidencia</th></tr></thead>
+          <thead><tr><th>Camión</th><th>Monto</th><th>Flete</th><th>Incidencia</th></tr></thead>
           <tbody>${clientRows}</tbody>
+          <tfoot><tr class="hc-detail-total">
+            <td>TOTAL</td>
+            <td>${fmtGs(r.totalMonto)}</td>
+            <td>${fmtGs(r.totalFlete)}</td>
+            <td class="cell-inc ${r.incTotal!==null?(incOk?'ok':'over'):''}">${inc}</td>
+          </tr></tfoot>
         </table>
       </div>
     </div>`:''}
@@ -2565,7 +2573,7 @@ function openCalModal(iso,list){
       <span class="cal-kpi-val ${incOk?'ok':'over'}">${incProm.toFixed(2)}%</span>
     </div>`:''}`;
 
-  document.getElementById('calModalBody').innerHTML=list.map(r=>renderCard(r,{noAnim:true})).join('');
+  document.getElementById('calModalBody').innerHTML=list.map(r=>renderCard(r,{noAnim:true,expandDetail:true})).join('');
   document.getElementById('calModalBd').classList.add('open');
 }
 
