@@ -1648,7 +1648,6 @@ function renderClientesTable(){
           <span class="row-truck__lbl">${cl.trDesc?esc(cl.trDesc):'Elegir camión'}</span>
           <span class="row-truck__arr"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14"><path d="M6 9l6 6 6-6"/></svg></span>
         </button>
-        <div class="cl-truck-ts">${cl.tsNombre?esc(cl.tsNombre):'—'}</div>
       </td>
       <td style="padding:6px 10px;text-align:right"><input class="cl-money-inp" type="text" value="${cl.monto>0?formatMoney(cl.monto):''}" placeholder="0" data-clid="${cl.id}" inputmode="numeric"></td>
       <td style="padding:6px 10px;text-align:right"><input class="cl-precio-inp" type="text" value="${cl.precio>0?formatMoney(cl.precio):''}" placeholder="0" data-clid="${cl.id}" inputmode="numeric"></td>
