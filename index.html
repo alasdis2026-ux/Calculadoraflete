@@ -1260,8 +1260,8 @@ document.querySelectorAll('.money-modal').forEach(bindMoney);
 /* ── Supabase ────────────────────────────────────── */
 const{createClient}=supabase;
 const sb=createClient(
-  'https://cxsyayunvyinfqxpjjzc.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN4c3lheXVudnlpbmZxeHBqanpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExOTc4ODQsImV4cCI6MjA5Njc3Mzg4NH0.3QilTeulwlWmMzHFC8bRRe0PVYBM9vDX6XBnHQHwxNk'
+  'https://wooihkyzpexxqkwwnylt.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indvb2loa3l6cGV4eHFrd3dueWx0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQzMDY0NzEsImV4cCI6MjA5OTg4MjQ3MX0.EQ9ivlWubJQ3-TtrKK67qPO7fRt8id0lE8pdreJwSJA'
 );
 
 // Convierte DATE de DB ('2026-06-11') a texto de display ('11 de junio de 2026')
@@ -1867,8 +1867,8 @@ document.getElementById('clientesTbody').addEventListener('input',e=>{
 });
 
 /* ════════ AUTOCOMPLETE CLIENTES (Supabase) ═════════════════════ */
-const FLETE_URL='https://cxsyayunvyinfqxpjjzc.supabase.co';
-const FLETE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN4c3lheXVudnlpbmZxeHBqanpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExOTc4ODQsImV4cCI6MjA5Njc3Mzg4NH0.3QilTeulwlWmMzHFC8bRRe0PVYBM9vDX6XBnHQHwxNk';
+const FLETE_URL='https://wooihkyzpexxqkwwnylt.supabase.co';
+const FLETE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indvb2loa3l6cGV4eHFrd3dueWx0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQzMDY0NzEsImV4cCI6MjA5OTg4MjQ3MX0.EQ9ivlWubJQ3-TtrKK67qPO7fRt8id0lE8pdreJwSJA';
 
 async function buscarClientes(q){
   const s=q.trim();
