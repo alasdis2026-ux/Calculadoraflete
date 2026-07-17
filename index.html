@@ -669,7 +669,7 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 /* Modal día calendario */
 .cal-modal-bd{position:fixed;inset:0;z-index:8500;background:rgba(15,23,42,.5);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:20px}
 .cal-modal-bd.open{display:flex}
-.cal-modal-box{background:#fff;border-radius:22px;width:100%;max-width:680px;max-height:86vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 28px 72px rgba(15,23,42,.28);animation:slideUp .3s var(--alas-ease) both}
+.cal-modal-box{background:#fff;border-radius:24px;width:100%;max-width:860px;max-height:88vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 32px 80px rgba(15,23,42,.30)}
 .cal-modal-hd{padding:20px 24px 16px;border-bottom:1.5px solid var(--gray-100);display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-shrink:0;background:linear-gradient(135deg,#f8fbff,#fff)}
 .cal-modal-title-wrap{display:flex;flex-direction:column;gap:4px}
 .cal-modal-title{font-family:Sora,Inter,sans-serif;font-size:18px;font-weight:800;color:var(--primary);letter-spacing:-.2px;text-transform:capitalize}
@@ -678,13 +678,40 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .cal-modal-close:hover{background:#FEF2F2;color:#DC2626;border-color:#FCA5A5}
 /* KPIs del día */
 .cal-modal-kpis{display:flex;gap:10px;padding:14px 24px;border-bottom:1.5px solid var(--gray-100);background:var(--gray-50);flex-shrink:0}
-.cal-kpi{flex:1;display:flex;flex-direction:column;gap:3px;padding:12px 14px;background:#fff;border-radius:12px;border:1.5px solid var(--gray-100)}
+.cal-kpi{flex:1;display:flex;flex-direction:column;gap:5px;padding:14px 16px;background:#fff;border-radius:14px;border:1.5px solid var(--gray-100);box-shadow:0 2px 8px rgba(0,0,0,.04)}
 .cal-kpi-lbl{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--gray-400)}
-.cal-kpi-val{font-size:15px;font-weight:800;color:var(--primary);font-variant-numeric:tabular-nums;letter-spacing:-.3px}
+.cal-kpi-val{font-family:Sora,Inter,sans-serif;font-size:19px;font-weight:800;color:var(--primary);font-variant-numeric:tabular-nums;letter-spacing:-.4px}
 .cal-kpi-val.ok{color:#047857}
 .cal-kpi-val.over{color:#DC2626}
 /* Body */
-.cal-modal-body{padding:16px 24px;overflow-y:auto;display:flex;flex-direction:column;gap:12px;flex:1}
+.cal-modal-body{padding:18px 24px 22px;overflow-y:auto;display:flex;flex-direction:column;gap:16px;flex:1}
+/* ── Reparto dentro del modal del día ── */
+.cal-rep{border:1.5px solid var(--gray-200);border-radius:16px;overflow:hidden;background:#fff;box-shadow:0 3px 14px rgba(15,23,42,.05)}
+.cal-rep-hd{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;background:linear-gradient(135deg,#f8fbff,#fff);border-bottom:1px solid var(--gray-100)}
+.cal-rep-hd-left{display:flex;flex-direction:column;gap:2px;min-width:0}
+.cal-rep-ts{font-family:Sora,Inter,sans-serif;font-size:16px;font-weight:800;color:var(--primary);letter-spacing:-.2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cal-rep-meta{font-size:11.5px;font-weight:600;color:var(--gray-400)}
+.cal-rep-actions{display:flex;gap:8px;flex-shrink:0}
+.cal-rep-btn{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 13px;border-radius:9px;border:1.5px solid var(--gray-200);background:#fff;cursor:pointer;font-family:inherit;font-size:12.5px;font-weight:700;color:var(--gray-600);transition:all var(--fast)}
+.cal-rep-btn.edit:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+.cal-rep-btn.del{padding:0 10px;color:var(--gray-400)}
+.cal-rep-btn.del:hover{border-color:#FCA5A5;color:#DC2626;background:#FEF2F2}
+.cal-rep-table-wrap{overflow-x:auto}
+.cal-rep-table{width:100%;border-collapse:collapse}
+.cal-rep-table th{padding:10px 18px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--gray-400);text-align:left;background:var(--gray-50);border-bottom:1.5px solid var(--gray-100);white-space:nowrap}
+.cal-rep-table th.r{text-align:right}
+.cal-rep-table td{padding:12px 18px;border-bottom:1px solid var(--gray-100);font-size:14px;color:var(--gray-700);vertical-align:middle}
+.cal-rep-table tbody tr:hover td{background:#f8fbff}
+.crt-name{font-weight:700;color:var(--gray-800)}
+.crt-num{text-align:right;font-weight:700;font-variant-numeric:tabular-nums;color:var(--gray-800)}
+.crt-inc{text-align:right;font-weight:800;font-variant-numeric:tabular-nums}
+.crt-inc.ok{color:#047857}.crt-inc.over{color:#DC2626}
+.cal-rep-table tfoot .crt-total td{border-top:2px solid var(--primary);border-bottom:none;background:#EBF5FF;font-weight:800;color:var(--primary);font-size:14.5px;padding-top:13px;padding-bottom:13px}
+.cal-rep-table tfoot .crt-total td:first-child{font-size:11px;text-transform:uppercase;letter-spacing:.6px}
+.cal-rep-dif{display:flex;align-items:center;gap:8px;padding:12px 18px;font-size:13px;font-weight:700}
+.cal-rep-dif svg{width:15px;height:15px;flex-shrink:0}
+.cal-rep-dif.ok{background:#ecfdf5;color:#047857}
+.cal-rep-dif.over{background:#fef2f2;color:#DC2626}
 
 /* ════════════════════════════════════════
    VIEW 4 — DASHBOARD
@@ -2573,8 +2600,65 @@ function openCalModal(iso,list){
       <span class="cal-kpi-val ${incOk?'ok':'over'}">${incProm.toFixed(2)}%</span>
     </div>`:''}`;
 
-  document.getElementById('calModalBody').innerHTML=list.map(r=>renderCard(r,{noAnim:true,expandDetail:true})).join('');
+  document.getElementById('calModalBody').innerHTML=list.map(renderCalReparto).join('');
   document.getElementById('calModalBd').classList.add('open');
+
+  // Animación GSAP de entrada
+  const box=document.querySelector('.cal-modal-box');
+  const g=window.gsap, reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(g&&box&&!reduce){
+    g.killTweensOf(box);
+    g.fromTo(box,{y:26,scale:.95,opacity:0},{y:0,scale:1,opacity:1,duration:.44,ease:'back.out(1.5)',clearProps:'transform,opacity'});
+    g.from('#calModalKpis .cal-kpi',{y:-12,opacity:0,duration:.4,stagger:.08,delay:.12,ease:'power2.out',clearProps:'all'});
+    g.from('#calModalBody .cal-rep',{y:18,opacity:0,duration:.42,stagger:.1,delay:.16,ease:'power2.out',clearProps:'all'});
+    g.from('#calModalBody .cal-rep-table tbody tr',{opacity:0,x:-10,duration:.34,stagger:.04,delay:.3,ease:'power2.out',clearProps:'all'});
+  }
+}
+
+// Tarjeta de reparto para el modal del día (sin repetir los KPIs del día)
+function renderCalReparto(r){
+  const over=r.diferencia>0;
+  const inc=r.incTotal!==null?r.incTotal.toFixed(2)+'%':'—';
+  const incOk=r.incTotal!==null&&r.incTotal<3;
+  const cl=r.clientes||[];
+  const rows=cl.map(c=>{
+    const hasInc=c.inc!==null&&c.inc!==undefined;
+    const clOk=hasInc&&c.inc<3;
+    return`<tr>
+      <td class="crt-name">${esc(c.trDesc||c.nombre||'—')}</td>
+      <td class="crt-num">${fmtGs(c.monto||0)}</td>
+      <td class="crt-num">${(c.precio||c.gasto)?fmtGs(c.precio||c.gasto):'—'}</td>
+      <td class="crt-inc ${hasInc?(clOk?'ok':'over'):''}">${hasInc?c.inc.toFixed(2)+'%':'—'}</td>
+    </tr>`;
+  }).join('');
+  return`<div class="cal-rep">
+    <div class="cal-rep-hd">
+      <div class="cal-rep-hd-left">
+        <span class="cal-rep-ts">${esc(r.tsNombre||'—')}</span>
+        <span class="cal-rep-meta">Reparto #${String(r.id).padStart(4,'0')} · ${cl.length} camión${cl.length!==1?'es':''}</span>
+      </div>
+      <div class="cal-rep-actions">
+        <button class="cal-rep-btn edit" type="button" data-editr="${r.id}"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="15" height="15"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>Editar</button>
+        <button class="cal-rep-btn del" type="button" data-delr="${r.id}" title="Eliminar"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="15" height="15"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>
+      </div>
+    </div>
+    <div class="cal-rep-table-wrap">
+      <table class="cal-rep-table">
+        <thead><tr><th>Camión</th><th class="r">Monto</th><th class="r">Flete</th><th class="r">Incid.</th></tr></thead>
+        <tbody>${rows}</tbody>
+        <tfoot><tr class="crt-total">
+          <td>TOTAL</td>
+          <td class="crt-num">${fmtGs(r.totalMonto)}</td>
+          <td class="crt-num">${fmtGs(r.totalFlete)}</td>
+          <td class="crt-inc ${incOk?'ok':'over'}">${inc}</td>
+        </tr></tfoot>
+      </table>
+    </div>
+    <div class="cal-rep-dif ${over?'over':'ok'}">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="15" height="15"><path d="${over?'M13 17h8m0 0V9m0 8l-8-8-4 4-6-6':'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6'}"/></svg>
+      ${over?'+ '+fmtGs(r.diferencia)+' sobre el objetivo (3%)':'Dentro del objetivo (3%)'}
+    </div>
+  </div>`;
 }
 
 function closeCalModal(){
