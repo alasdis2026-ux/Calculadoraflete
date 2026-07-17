@@ -289,16 +289,18 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .ac-name{flex:1;font-size:13px;font-weight:600;color:var(--gray-800);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ac-cod{font-size:11px;color:var(--gray-400);font-variant-numeric:tabular-nums;flex-shrink:0}
 .ac-empty{padding:24px 16px;font-size:13px;color:var(--gray-400);text-align:center}
-.cl-money-inp{height:36px;width:148px;padding:0 10px;border:1.5px solid var(--gray-200);border-radius:8px;background:#fff;font-size:14px;font-weight:700;color:var(--gray-800);outline:none;text-align:right;font-variant-numeric:tabular-nums;transition:border-color var(--fast)}
+.cl-money-inp{height:34px;width:150px;padding:0 11px;border:1.5px solid var(--gray-200);border-radius:8px;background:#fff;font-size:15px;font-weight:800;color:var(--gray-800);outline:none;text-align:right;font-variant-numeric:tabular-nums;transition:border-color var(--fast)}
 .cl-money-inp:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(59,130,246,.1)}
 .cl-money-inp::placeholder{color:var(--gray-300);font-weight:400}
-/* Input referencia / N.º factura */
-.cl-ref-inp{height:36px;width:100%;padding:0 11px;border:1.5px solid var(--gray-200);border-radius:8px;background:#fff;font-family:inherit;font-size:13.5px;font-weight:600;color:var(--gray-800);outline:none;transition:border-color var(--fast)}
+/* Input referencia / N.º manifiesto */
+.cl-ref-inp{height:34px;width:100%;padding:0 11px;border:1.5px solid var(--gray-200);border-radius:8px;background:#fff;font-family:inherit;font-size:14.5px;font-weight:600;color:var(--gray-800);outline:none;transition:border-color var(--fast)}
 .cl-ref-inp:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(59,130,246,.1)}
 .cl-ref-inp::placeholder{color:var(--gray-300);font-weight:400}
-/* Tabla facturas PRO: compacta y con scroll horizontal si hiciera falta */
-#clientesTable th,#clientesTable td{padding-top:9px;padding-bottom:9px}
-#clientesTable th{padding-left:14px;padding-right:14px}
+/* Tabla manifiestos PRO: fuente más grande y compacta (sin desperdiciar alto) */
+#clientesTable th{padding:8px 14px;font-size:12.5px}
+#clientesTable td{padding:6px 14px;font-size:15px}
+#clientesTable td.idx{font-size:14px}
+#clientesTable tfoot td{padding:10px 14px;font-size:15.5px}
 .del-cl-btn{width:32px;height:32px;border-radius:8px;border:1.5px solid #FCA5A5;background:#FEF2F2;color:#DC2626;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all var(--fast);flex-shrink:0;padding:0}
 .del-cl-btn:hover{background:#DC2626;color:#fff;border-color:#DC2626}
 .del-cl-btn svg{width:14px;height:14px;pointer-events:none}
@@ -328,18 +330,18 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .clients-hd{display:flex;align-items:center;gap:10px;flex-shrink:0}
 .clients-hd h3{font-size:15px;font-weight:800;color:var(--gray-700)}
 .cnt-badge{padding:3px 11px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-size:12px;font-weight:800}
-.incid-col{font-variant-numeric:tabular-nums;font-weight:700;font-size:14px;text-align:right}
+.incid-col{font-variant-numeric:tabular-nums;font-weight:800;font-size:16px;text-align:right}
 .incid-col.good{color:var(--accent)}
 .incid-col.warn{color:var(--orange)}
 .incid-col.bad{color:var(--danger)}
 .incid-col.na{color:var(--gray-300)}
-.dif-col{text-align:right}
+.dif-col{text-align:right;font-size:15px}
 .chip-dif{display:inline-flex;align-items:center;padding:3px 11px;border-radius:999px;background:#FEE2E2;color:#DC2626;font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap;letter-spacing:.1px}
 .chip-gan{display:inline-flex;align-items:center;padding:3px 11px;border-radius:999px;background:#DCFCE7;color:#16A34A;font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap;letter-spacing:.1px}
 .rb-footer-val .chip-dif,.rb-footer-val .chip-gan{font-size:14px;padding:4px 14px}
-.gasto-col{font-variant-numeric:tabular-nums;font-size:14px;font-weight:600;color:var(--gray-600);text-align:right}
+.gasto-col{font-variant-numeric:tabular-nums;font-size:15px;font-weight:700;color:var(--gray-700);text-align:right}
 .gasto-col.zero{color:var(--gray-300)}
-.pct-col{font-size:14px;font-weight:600;color:var(--gray-400);text-align:right}
+.pct-col{font-size:15px;font-weight:700;color:var(--gray-500);text-align:right}
 
 /* ── Result card hero ── */
 @keyframes cardIn{0%{opacity:0;transform:translateY(18px) scale(.96)}100%{opacity:1;transform:translateY(0) scale(1)}}
@@ -720,6 +722,7 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .save-ring{position:relative;width:86px;height:86px}
 .save-ring svg{position:absolute;inset:0;width:86px;height:86px}
 @keyframes spin-arc{to{transform:rotate(360deg)}}
+@keyframes loaderSlide{0%{left:-40%}100%{left:120%}}
 .save-ring .arc-svg{transform-origin:center;animation:spin-arc .65s linear infinite}
 .arc-track{fill:none;stroke:#dbeafe;stroke-width:5}
 .arc-line{fill:none;stroke:var(--accent);stroke-width:5;stroke-linecap:round;stroke-dasharray:95 130}
@@ -804,7 +807,7 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 
         <div class="sel-group" id="selTsGroup">
           <div class="sel-lbl-row">
-            <span class="sel-lbl">Transportista <span class="sel-auto-tag">automático</span></span>
+            <span class="sel-lbl">Transportista</span>
           </div>
           <select id="selTs"><option value="">— Elegí un camión —</option></select>
         </div>
@@ -847,11 +850,11 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 
       <!-- Facturas -->
       <div class="clients-hd">
-        <h3>Facturas del reparto</h3>
+        <h3>Manifiestos del reparto</h3>
         <span class="cnt-badge" id="clienteCount">0</span>
         <button class="btn btn-sm btn-outline" type="button" id="btnAddCliente">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
-          Agregar factura
+          Agregar manifiesto
         </button>
         <button class="btn btn-sm btn-ghost" type="button" id="btnLimpiarClientes" style="display:none">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14"><path stroke-linecap="round" stroke-width="2.2" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -865,7 +868,7 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
             <thead><tr>
               <th style="width:30px">#</th>
               <th>Cliente</th>
-              <th class="r">Monto Factura</th>
+              <th class="r">Monto Manifiesto</th>
               <th class="r">Participación</th>
               <th class="r">Gasto Flete</th>
               <th class="r">Incidencia</th>
@@ -883,8 +886,8 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
           </table>
           <div class="empty-state" id="clientesEmpty">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-            <strong>Sin facturas</strong>
-            <span>Elegí un camión y agregá las facturas del reparto</span>
+            <strong>Sin manifiestos</strong>
+            <span>Elegí un camión y agregá los manifiestos del reparto</span>
           </div>
         </div>
       </div>
@@ -901,7 +904,7 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
           <span class="result-number is-empty" id="rNumber">—</span>
           <span class="result-pct" id="rPct" style="opacity:0">%</span>
         </div>
-        <div class="result-sub s-empty" id="rCaption">Elegí un camión y agregá facturas</div>
+        <div class="result-sub s-empty" id="rCaption">Elegí un camión y agregá manifiestos</div>
         <div class="result-divider"></div>
         <div class="result-row2">
           <div class="result-r2-item">
@@ -917,7 +920,7 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 
       <!-- Breakdown card -->
       <div class="result-breakdown" id="resultBreakdown">
-        <div class="rb-title">Desglose por factura</div>
+        <div class="rb-title">Desglose por manifiesto</div>
         <div class="rb-list" id="rbList"></div>
         <div class="rb-footer">
           <div class="rb-footer-item">
@@ -1120,7 +1123,7 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
       <input class="modal-input" type="text" id="mCltNombre" placeholder="Ej: Bazar Central" autocomplete="off">
     </div>
     <div class="modal-field">
-      <label for="mCltMonto">Monto de factura (Gs.) <span class="req">*</span></label>
+      <label for="mCltMonto">Monto de manifiesto (Gs.) <span class="req">*</span></label>
       <div class="modal-inp-wrap">
         <span class="modal-pfx">Gs.</span>
         <input class="modal-input pfx money-modal" type="text" id="mCltMonto" placeholder="0" autocomplete="off" inputmode="numeric">
@@ -1190,9 +1193,13 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
   <div class="ac-list" id="acList"></div>
 </div>
 
-<div id="appLoader" style="position:fixed;inset:0;z-index:9000;background:rgba(255,255,255,.92);backdrop-filter:blur(5px);display:none;flex-direction:column;align-items:center;justify-content:center;gap:18px">
-  <div style="width:52px;height:52px;border:4.5px solid #DBEAFE;border-top-color:#3B82F6;border-radius:50%;animation:spin-arc .7s linear infinite"></div>
-  <div style="font-family:Sora,Inter,sans-serif;font-size:15px;font-weight:800;color:#64748B;letter-spacing:-.2px">Cargando datos...</div>
+<div id="appLoader" style="position:fixed;inset:0;z-index:9000;background:#EEF2F7;display:none;align-items:center;justify-content:center">
+  <div style="display:flex;flex-direction:column;align-items:center;gap:22px">
+    <img src="logo-alas-s.a.png" alt="ALAS" style="height:46px;opacity:.9">
+    <div style="width:150px;height:4px;border-radius:999px;background:#E2E8F0;overflow:hidden;position:relative">
+      <span style="position:absolute;top:0;left:-40%;width:40%;height:100%;border-radius:999px;background:#0B5F8D;animation:loaderSlide 1.1s cubic-bezier(.65,0,.35,1) infinite"></span>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -1666,8 +1673,8 @@ function renderClientesTable(){
   if(btnLimp)btnLimp.style.display=c.clientes.length?'':'none';
   thead.innerHTML=
     `<th style="width:32px">#</th>`+
-    `<th style="width:210px">N.º Factura / Ref.</th>`+
-    `<th class="r">Monto Factura</th>`+
+    `<th style="width:210px">N.º Manifiesto / Ref.</th>`+
+    `<th class="r">Monto Manifiesto</th>`+
     `<th class="r">Participación</th>`+
     `<th class="r">Gasto Flete</th>`+
     `<th class="r">Incidencia</th>`+
@@ -1679,7 +1686,7 @@ function renderClientesTable(){
     const incClass=cl.inc===null?'na':cl.inc<5?'good':cl.inc<10?'warn':'bad';
     return`<tr data-clid="${cl.id}">
       <td class="idx">${i+1}</td>
-      <td style="padding:6px 10px"><input class="cl-ref-inp" type="text" value="${cl.nombre?esc(cl.nombre):''}" placeholder="N.º factura / ref. (opcional)" data-clid="${cl.id}" autocomplete="off"></td>
+      <td style="padding:6px 10px"><input class="cl-ref-inp" type="text" value="${cl.nombre?esc(cl.nombre):''}" placeholder="N.º manifiesto / ref. (opcional)" data-clid="${cl.id}" autocomplete="off"></td>
       <td style="padding:8px 10px;text-align:right"><input class="cl-money-inp" type="text" value="${cl.monto>0?formatMoney(cl.monto):''}" placeholder="0" data-clid="${cl.id}" inputmode="numeric"></td>
       <td class="r pct-col" data-col="pct">${cl.pct>0?Math.round(cl.pct)+'%':'—'}</td>
       <td class="r gasto-col${cl.gasto===0?' zero':''}" data-col="gasto">${cl.gasto>0?fmtGs(cl.gasto):'—'}</td>
@@ -1723,7 +1730,7 @@ function updateResultCard(){
     rNum.classList.add('is-empty');
     rNum.classList.remove('pop');
     rPct.style.opacity='0';
-    rCap.textContent=!c.tr?'Elegí un camión':(c.precio<=0?'Ingresá el precio del flete':'Agregá facturas para calcular');
+    rCap.textContent=!c.tr?'Elegí un camión':(c.precio<=0?'Ingresá el precio del flete':'Agregá manifiestos para calcular');
     rCap.className='result-sub s-empty';
   }
 
@@ -1748,7 +1755,7 @@ function updateResultCard(){
       return`<div class="rb-item">
         <div class="rb-item-top">
           <span class="rb-dot" style="background:${color}"></span>
-          <span class="rb-name">${esc(cl.nombre||('Factura '+(i+1)))}</span>
+          <span class="rb-name">${esc(cl.nombre||('Manifiesto '+(i+1)))}</span>
           <span class="rb-pct">${cl.pct.toFixed(0)}%</span>
           <span class="rb-val">${fmtGs(cl.gasto)}</span>
         </div>
@@ -2044,7 +2051,7 @@ document.getElementById('mCltMonto').addEventListener('keydown',e=>{if(e.key==='
 document.getElementById('btnGuardar').addEventListener('click',async()=>{
   const c=computeReparto();
   if(!c.tr){showToast('Elegí un camión antes de guardar');return;}
-  if(!currentReparto.clientes.length){showToast('Agregá al menos una factura');return;}
+  if(!currentReparto.clientes.length){showToast('Agregá al menos un manifiesto');return;}
   if(!(currentReparto.precio>0)){showToast('Ingresá el precio del flete');return;}
   const fISO=currentReparto.fecha||todayISO();
   const fDisp=new Date(fISO+'T00:00:00').toLocaleDateString('es-PY',{day:'2-digit',month:'long',year:'numeric'});
@@ -2437,11 +2444,11 @@ function renderCard(r,opts={}){
       <button class="hc-detail-btn" type="button" data-toggledetail>
         <svg class="chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 18l6-6-6-6"/></svg>
         Ver detalles
-        <span class="hc-detail-count">${clList.length} facturas</span>
+        <span class="hc-detail-count">${clList.length} manifiestos</span>
       </button>
       <div class="hc-detail-panel">
         <table class="hc-detail-table">
-          <thead><tr><th>N.º Factura / Ref.</th><th>Monto</th><th>Gasto flete</th><th>Incidencia</th></tr></thead>
+          <thead><tr><th>N.º Manifiesto / Ref.</th><th>Monto</th><th>Gasto flete</th><th>Incidencia</th></tr></thead>
           <tbody>${clientRows}</tbody>
         </table>
       </div>
