@@ -2050,14 +2050,17 @@ document.getElementById('btnGuardar').addEventListener('click',async()=>{
   const fISO=currentReparto.fecha||todayISO();
   const fDisp=new Date(fISO+'T00:00:00').toLocaleDateString('es-PY',{day:'2-digit',month:'long',year:'numeric'});
   const tsIds=[...new Set(c.clientes.map(cl=>cl.tsId).filter(Boolean))];
+  const first=c.clientes.find(cl=>cl.trId)||c.clientes[0];
   const snap={
     id:currentReparto.id!==null?currentReparto.id:null,
     fecha:fDisp,fechaISO:fISO,
-    tsId:tsIds.length===1?tsIds[0]:null,
-    tsNombre:tsIds.length===1?(c.clientes.find(cl=>cl.tsId)?.tsNombre||'—'):'Varios',
-    trId:c.clientes.length===1?c.clientes[0].trId:null,
-    trDesc:c.clientes.length===1?c.clientes[0].trDesc:(c.clientes.length+' camiones'),
-    km:0,precio:c.totalFlete,tipo:'multi',totalFlete:c.totalFlete,
+    // transportista_id/camion_id: el 1er camión (validos, no null) para no chocar con NOT NULL/FK
+    tsId:first?first.tsId:null,
+    tsNombre:tsIds.length===1?(first?.tsNombre||'—'):'Varios',
+    trId:first?first.trId:null,
+    trDesc:c.clientes.length===1?(first?.trDesc||'—'):(c.clientes.length+' camiones'),
+    // tipo='km' (no 'multi') por si la columna tiene CHECK IN ('fijo','km'); ya no se usa
+    km:0,precio:c.totalFlete,tipo:'km',totalFlete:c.totalFlete,
     totalMonto:c.totalMonto,incTotal:c.incTotal,
     gastoPermitido:c.gastoPermitido,diferencia:c.diferencia,
     zona:'',
