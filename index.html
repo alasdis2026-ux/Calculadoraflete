@@ -292,10 +292,36 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .cl-money-inp{height:34px;width:150px;padding:0 11px;border:1.5px solid var(--gray-200);border-radius:8px;background:#fff;font-size:15px;font-weight:800;color:var(--gray-800);outline:none;text-align:right;font-variant-numeric:tabular-nums;transition:border-color var(--fast)}
 .cl-money-inp:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(59,130,246,.1)}
 .cl-money-inp::placeholder{color:var(--gray-300);font-weight:400}
-/* Select de camión por fila + subtexto transportista */
-.cl-truck-sel{height:34px;width:100%;padding:0 10px;border:1.5px solid var(--gray-200);border-radius:8px;background:#fff;font-family:inherit;font-size:14px;font-weight:700;color:var(--gray-800);outline:none;cursor:pointer;transition:border-color var(--fast)}
-.cl-truck-sel:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(59,130,246,.1)}
+/* Trigger de camión por fila (minimalista) + subtexto transportista */
+.row-truck{display:flex;align-items:center;gap:8px;width:100%;min-width:210px;height:36px;padding:0 10px;border:1.5px solid var(--gray-200);border-radius:9px;background:#fff;cursor:pointer;font-family:inherit;font-size:14px;font-weight:700;color:var(--gray-800);text-align:left;outline:none;transition:border-color var(--fast),box-shadow var(--fast)}
+.row-truck:hover{border-color:var(--gray-300);box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.row-truck.is-open{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.12)}
+.row-truck__ico{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;background:var(--gray-100);color:var(--gray-400);flex-shrink:0;transition:background var(--fast),color var(--fast)}
+.row-truck.is-set .row-truck__ico{background:var(--accent-soft);color:var(--primary)}
+.row-truck__lbl{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row-truck:not(.is-set) .row-truck__lbl{color:var(--gray-400);font-weight:500}
+.row-truck__arr{color:var(--gray-400);flex-shrink:0;transition:transform var(--fast)}
+.row-truck.is-open .row-truck__arr{transform:rotate(180deg)}
 .cl-truck-ts{font-size:11.5px;font-weight:700;color:var(--gray-400);margin-top:3px;padding-left:2px}
+/* Panel del dropdown de camión (fijo, no lo corta el scroll de la tabla) */
+.truck-pop{position:fixed;z-index:4000;background:rgba(255,255,255,.99);border:1.5px solid var(--gray-200);border-radius:14px;box-shadow:0 20px 52px rgba(15,23,42,.18);display:none;flex-direction:column;max-height:340px;overflow:hidden}
+.truck-pop.open{display:flex}
+.truck-pop__search{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--gray-100);color:var(--gray-400);flex-shrink:0}
+.truck-pop__search input{flex:1;border:none;outline:none;background:transparent;font-family:inherit;font-size:13.5px;color:var(--gray-800)}
+.truck-pop__list{overflow-y:auto;padding:6px}
+.truck-pop__list::-webkit-scrollbar{width:4px}
+.truck-pop__list::-webkit-scrollbar-thumb{background:var(--gray-200);border-radius:99px}
+.truck-pop__item{display:flex;align-items:center;gap:10px;width:100%;padding:8px 10px;border:none;border-radius:9px;background:transparent;cursor:pointer;font-family:inherit;text-align:left;transition:background var(--fast)}
+.truck-pop__item:hover{background:var(--gray-50)}
+.truck-pop__item.on{background:var(--accent-soft)}
+.truck-pop__ico{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:var(--gray-100);color:var(--gray-500);flex-shrink:0}
+.truck-pop__item.on .truck-pop__ico{background:#fff;color:var(--primary)}
+.truck-pop__txt{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.25}
+.truck-pop__name{font-size:13.5px;font-weight:700;color:var(--gray-800);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.truck-pop__tsn{font-size:11px;font-weight:600;color:var(--gray-400)}
+.truck-pop__chk{color:var(--primary);opacity:0;flex-shrink:0}
+.truck-pop__item.on .truck-pop__chk{opacity:1}
+.truck-pop__empty{padding:18px;text-align:center;color:var(--gray-400);font-size:13px}
 /* Input precio de flete por fila */
 .cl-precio-inp{height:34px;width:150px;padding:0 11px;border:1.5px solid var(--gray-200);border-radius:8px;background:#fff;font-size:15px;font-weight:800;color:var(--primary);outline:none;text-align:right;font-variant-numeric:tabular-nums;transition:border-color var(--fast)}
 .cl-precio-inp:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(59,130,246,.1)}
@@ -1617,7 +1643,11 @@ function renderClientesTable(){
     return`<tr data-clid="${cl.id}">
       <td class="idx">${i+1}</td>
       <td style="padding:6px 10px">
-        <select class="cl-truck-sel" data-clid="${cl.id}">${truckOptionsHTML(cl.trId)}</select>
+        <button type="button" class="row-truck${cl.trId?' is-set':''}" data-clid="${cl.id}">
+          <span class="row-truck__ico">${getTrIco(cl.trDesc||'',16)}</span>
+          <span class="row-truck__lbl">${cl.trDesc?esc(cl.trDesc):'Elegir camión'}</span>
+          <span class="row-truck__arr"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14"><path d="M6 9l6 6 6-6"/></svg></span>
+        </button>
         <div class="cl-truck-ts">${cl.tsNombre?esc(cl.tsNombre):'—'}</div>
       </td>
       <td style="padding:6px 10px;text-align:right"><input class="cl-money-inp" type="text" value="${cl.monto>0?formatMoney(cl.monto):''}" placeholder="0" data-clid="${cl.id}" inputmode="numeric"></td>
@@ -1726,15 +1756,60 @@ function updateResultCard(){
 
 }
 
-/* Camión de la fila: al elegirlo autocompleta el transportista (re-render para el subtexto) */
-document.getElementById('clientesTbody').addEventListener('change',e=>{
-  if(!e.target.classList.contains('cl-truck-sel'))return;
-  const cl=currentReparto.clientes.find(c=>c.id===+e.target.dataset.clid);
-  if(!cl)return;
-  cl.trId=e.target.value?+e.target.value:null;
-  const ts=cl.trId?transportistas.find(t=>(t.trucks||[]).some(x=>x.id===cl.trId)):null;
-  cl.tsId=ts?ts.id:null;
-  renderClientesTable();updateResultCard();
+/* ── Dropdown de camión por fila: panel fijo (no lo corta el scroll) + GSAP ── */
+let _truckPop=null,_truckPopCl=null;
+function ensureTruckPop(){
+  if(_truckPop)return _truckPop;
+  const p=document.createElement('div');p.className='truck-pop';
+  p.innerHTML='<div class="truck-pop__search"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg><input type="text" placeholder="Buscar camión..." autocomplete="off"></div><div class="truck-pop__list"></div>';
+  document.body.appendChild(p);
+  p.querySelector('input').addEventListener('input',e=>renderTruckPopList(e.target.value));
+  document.addEventListener('click',e=>{ if(_truckPop&&_truckPop.classList.contains('open')&&!_truckPop.contains(e.target)&&!e.target.closest('.row-truck'))closeTruckPop(); });
+  window.addEventListener('resize',()=>{ if(_truckPop&&_truckPop.classList.contains('open'))closeTruckPop(); });
+  window.addEventListener('scroll',()=>{ if(_truckPop&&_truckPop.classList.contains('open'))closeTruckPop(); },true);
+  _truckPop=p;return p;
+}
+function renderTruckPopList(q){
+  const list=_truckPop.querySelector('.truck-pop__list');q=(q||'').toLowerCase().trim();
+  let html='';
+  transportistas.forEach(ts=>(ts.trucks||[]).forEach(tr=>{
+    if(q&&!(tr.d+' '+ts.n).toLowerCase().includes(q))return;
+    const on=_truckPopCl&&_truckPopCl.trId===tr.id;
+    html+=`<button type="button" class="truck-pop__item${on?' on':''}" data-tr="${tr.id}" data-ts="${ts.id}"><span class="truck-pop__ico">${getTrIco(tr.d,16)}</span><span class="truck-pop__txt"><span class="truck-pop__name">${esc(tr.d)}</span><span class="truck-pop__tsn">${esc(ts.n)}</span></span><span class="truck-pop__chk"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14"><path d="M20 6L9 17l-5-5"/></svg></span></button>`;
+  }));
+  list.innerHTML=html||'<div class="truck-pop__empty">Sin resultados</div>';
+  list.querySelectorAll('.truck-pop__item').forEach(b=>b.addEventListener('click',()=>{
+    if(!_truckPopCl)return;
+    _truckPopCl.trId=+b.dataset.tr;_truckPopCl.tsId=+b.dataset.ts;
+    closeTruckPop();renderClientesTable();updateResultCard();
+  }));
+}
+function openTruckPop(btn,cl){
+  const p=ensureTruckPop();_truckPopCl=cl;
+  renderTruckPopList('');
+  const r=btn.getBoundingClientRect();
+  const w=Math.max(r.width,300);
+  p.style.width=w+'px';
+  p.style.left=Math.min(r.left,window.innerWidth-w-12)+'px';
+  p.style.top=(r.bottom+6)+'px';
+  p.classList.add('open');
+  btn.classList.add('is-open');
+  const inp=p.querySelector('input');inp.value='';setTimeout(()=>inp.focus(),50);
+  if(window.gsap)gsap.fromTo(p,{opacity:0,y:-10,scale:.97},{opacity:1,y:0,scale:1,duration:.28,ease:'back.out(1.6)',clearProps:'transform'});
+}
+function closeTruckPop(){
+  if(!_truckPop)return;
+  document.querySelectorAll('.row-truck.is-open').forEach(b=>b.classList.remove('is-open'));
+  const p=_truckPop;_truckPopCl=null;
+  if(window.gsap)gsap.to(p,{opacity:0,y:-8,scale:.98,duration:.16,ease:'power2.in',onComplete:()=>{p.classList.remove('open');gsap.set(p,{clearProps:'all'});}});
+  else p.classList.remove('open');
+}
+/* Abrir el dropdown al tocar el camión de una fila */
+document.getElementById('clientesTbody').addEventListener('click',e=>{
+  const btn=e.target.closest('.row-truck');if(!btn)return;
+  e.stopPropagation();
+  const cl=currentReparto.clientes.find(c=>c.id===+btn.dataset.clid);
+  if(cl)openTruckPop(btn,cl);
 });
 
 /* Helper: formatea un input de dinero preservando el cursor y devuelve el número */
