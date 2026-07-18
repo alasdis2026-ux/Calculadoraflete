@@ -499,6 +499,33 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 ════════════════════════════════════════ */
 .ts-topbar{display:flex;align-items:center;gap:12px;flex-shrink:0;max-width:100%;width:100%}
 .ts-topbar h2{font-family:Sora,Inter,sans-serif;font-size:26px;font-weight:800;color:var(--primary);flex:1;letter-spacing:-.4px}
+/* ── Vista GRILLA de transportistas ── */
+.ts-wrap{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+.ts-grid-state{flex:1;min-height:0;display:flex;flex-direction:column;gap:14px}
+.ts-grid-search{position:relative;flex-shrink:0}
+.ts-grid-search .md-search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:17px;height:17px;color:var(--gray-400);pointer-events:none}
+.ts-grid-search .md-search{width:100%;height:46px;padding:0 14px 0 40px;border:1.5px solid var(--gray-200);border-radius:12px;background:#fff;font-family:inherit;font-size:14px;color:var(--gray-800);outline:none;transition:border-color var(--fast),box-shadow var(--fast)}
+.ts-grid-search .md-search:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.12)}
+.ts-grid{flex:1;min-height:0;overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;align-content:start;padding:2px 4px 8px}
+.ts-grid::-webkit-scrollbar{width:5px}.ts-grid::-webkit-scrollbar-thumb{background:var(--gray-200);border-radius:99px}
+.ts-card{display:flex;flex-direction:column;gap:8px;padding:18px;border:1.5px solid var(--gray-200);border-radius:16px;background:#fff;cursor:pointer;text-align:left;font-family:inherit;box-shadow:0 2px 8px rgba(15,23,42,.04);transition:transform var(--alas-dur-normal) var(--alas-ease-spring),box-shadow var(--alas-dur-normal) var(--alas-ease),border-color var(--fast)}
+.ts-card:hover{transform:translateY(-3px);box-shadow:0 14px 32px rgba(15,23,42,.12);border-color:var(--accent)}
+.ts-card__top{display:flex;align-items:center;justify-content:space-between}
+.ts-card__ico{width:46px;height:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#EBF5FF,#DBEAFE);color:var(--primary)}
+.ts-card__cnt{font-family:Sora,Inter,sans-serif;font-size:24px;font-weight:800;color:var(--gray-300);line-height:1}
+.ts-card:hover .ts-card__cnt{color:var(--accent)}
+.ts-card__name{font-family:Sora,Inter,sans-serif;font-size:16px;font-weight:800;color:var(--gray-800);letter-spacing:-.2px;line-height:1.2;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.ts-card__last{font-size:11.5px;font-weight:600;color:var(--gray-400)}
+/* ── Detalle (drill-in) ── */
+.ts-detail-state{flex:1;min-height:0;display:flex;flex-direction:column;gap:16px;border:1.5px solid var(--gray-200);border-radius:16px;background:#fff;overflow:hidden}
+.ts-detail-hd{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1.5px solid var(--gray-100);background:linear-gradient(135deg,#f8fbff,#fff);flex-shrink:0}
+.ts-back{display:inline-flex;align-items:center;gap:5px;height:36px;padding:0 13px;border-radius:10px;border:1.5px solid var(--gray-200);background:#fff;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700;color:var(--gray-600);transition:all var(--fast)}
+.ts-back:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+.ts-detail-body{flex:1;min-height:0;overflow:auto;padding:0 8px 8px}
+.tr-lastprice{text-align:right;white-space:nowrap}
+.tr-lp-val{display:inline-block;font-weight:800;color:var(--primary);font-variant-numeric:tabular-nums;font-size:14px}
+.tr-lp-date{display:block;font-size:10.5px;font-weight:600;color:var(--gray-400)}
+.tr-lp-none{font-size:12px;font-weight:600;color:var(--gray-300)}
 .md-wrap{flex:1;min-height:0;display:flex;overflow:hidden;border:1.5px solid var(--gray-200);border-radius:var(--radius-lg);background:#fff}
 
 /* List left */
@@ -1019,32 +1046,25 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
     </button>
   </div>
 
-  <div class="md-wrap">
-    <div class="md-list">
-      <div class="md-list__top">
-        <div class="md-search-wrap">
-          <svg class="md-search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-          <input class="md-search" type="search" id="tsSearch" placeholder="Buscar...">
-        </div>
+  <div class="ts-wrap">
+    <!-- Estado GRILLA -->
+    <div class="ts-grid-state" id="tsGridState">
+      <div class="ts-grid-search">
+        <svg class="md-search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input class="md-search" type="search" id="tsSearch" placeholder="Buscar transportista...">
       </div>
-      <div class="md-list__items" id="tsList"></div>
-    <div class="md-list__footer" style="display:none">
-      <span class="md-list__total" id="tsListTotal">0 transportistas</span>
+      <div class="ts-grid" id="tsList"></div>
     </div>
-    </div>
-
-    <div class="md-detail" id="mdDetail">
-      <div class="md-hint" id="mdHint">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M1 3h15v13H1zm15 5h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-        <p>Seleccioná un transportista</p>
-        <span>Hacé clic en cualquier empresa de la lista</span>
-      </div>
-      <div class="md-detail__hd" id="detailHd" style="display:none">
+    <!-- Estado DETALLE (al entrar a un transportista) -->
+    <div class="ts-detail-state" id="tsDetailState" style="display:none">
+      <div class="ts-detail-hd" id="detailHd">
+        <button class="ts-back" type="button" id="tsBack"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16"><path stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" d="M15 18l-6-6 6-6"/></svg>Volver</button>
         <div class="md-detail__badge" id="detailBadge">—</div>
         <div class="md-detail__name" id="detailName">
           <span class="md-detail__name-text"></span>
           <span class="name-chip" id="detailChip"></span>
         </div>
+        <div style="flex:1"></div>
         <button class="btn btn-sm btn-outline" type="button" id="detailAddTr">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
           Camión
@@ -1053,7 +1073,7 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
         </button>
       </div>
-      <div class="md-detail__body" id="detailBody" style="display:none"></div>
+      <div class="ts-detail-body" id="detailBody"></div>
     </div>
   </div>
 </section>
@@ -1539,7 +1559,7 @@ function showView(v){
     document.getElementById('view'+x.charAt(0).toUpperCase()+x.slice(1)).classList.toggle('is-active',x===v);
   });
   document.querySelectorAll('[data-nav]').forEach(b=>b.classList.toggle('is-active',b.dataset.nav===v));
-  if(v==='trans')renderTsList();
+  if(v==='trans'){ selectedTsId=null; const gs=document.getElementById('tsGridState'),ds=document.getElementById('tsDetailState'); if(gs)gs.style.display=''; if(ds)ds.style.display='none'; renderTsList(); }
   if(v==='hist'){setHistView(histViewMode);}
   if(v==='dash')renderDashboard();
 }
@@ -2303,36 +2323,55 @@ function loadForEdit(id){
 const tsSearchEl=document.getElementById('tsSearch');
 const tsListEl=document.getElementById('tsList');
 
+// Último precio usado por camión (del historial de repartos)
+function lastPriceForTruck(trId){
+  let best=null,bestDate='';
+  repartos.forEach(r=>{ (r.clientes||[]).forEach(c=>{ const p=c.precio||c.gasto; if(c.trId===trId&&p>0){ const d=r.fechaISO||''; if(best===null||d>=bestDate){best=p;bestDate=d;} } }); });
+  return {precio:best,fecha:bestDate};
+}
+// Fecha del último reparto en que aparece un transportista
+function tsLastUsed(ts){
+  let best='';
+  repartos.forEach(r=>{ const has=r.tsId===ts.id||(r.clientes||[]).some(c=>c.tsId===ts.id); if(has&&r.fechaISO&&r.fechaISO>best)best=r.fechaISO; });
+  return best;
+}
 function renderTsList(){
   const q=search.trim().toLowerCase();
   const list=q?transportistas.filter(t=>t.n.toLowerCase().includes(q)):transportistas;
   document.getElementById('tsCountBadge').textContent=transportistas.length;
-  if(!list.length){tsListEl.innerHTML=`<div class="md-empty">${q?'Sin resultados':'Sin transportistas'}</div>`;return;}
-  tsListEl.innerHTML=list.map(t=>`
-    <div class="md-item${selectedTsId===t.id?' is-active':''}" data-tsid="${t.id}">
-      <div class="md-item__ico">${getTrIco('',20)}</div>
-      <div class="md-item__info">
-        <div class="md-item__name">${esc(t.n)}</div>
-        <div class="md-item__cnt">${t.trucks.length} camión${t.trucks.length!==1?'es':''}</div>
-      </div>
-    </div>`).join('');
+  const grid=document.getElementById('tsList');
+  if(!list.length){grid.innerHTML=`<div class="md-empty">${q?'Sin resultados':'Sin transportistas'}</div>`;return;}
+  grid.innerHTML=list.map(t=>{
+    const last=tsLastUsed(t);
+    return`<button type="button" class="ts-card" data-tsid="${t.id}">
+      <div class="ts-card__top"><span class="ts-card__ico">${getTrIco('',22)}</span><span class="ts-card__cnt">${t.trucks.length}</span></div>
+      <div class="ts-card__name">${esc(t.n)}</div>
+      <div class="ts-card__last">${last?'Último reparto: '+isoToDisplay(last):'Sin repartos aún'}</div>
+    </button>`;
+  }).join('');
 }
 tsListEl.addEventListener('click',e=>{const item=e.target.closest('[data-tsid]');if(item)selectTs(+item.dataset.tsid);});
 tsSearchEl.addEventListener('input',e=>{search=e.target.value;renderTsList();});
 
-function selectTs(tsId){selectedTsId=tsId;renderTsList();renderDetail();}
+function selectTs(tsId){
+  selectedTsId=tsId;
+  document.getElementById('tsGridState').style.display='none';
+  document.getElementById('tsDetailState').style.display='';
+  renderDetail();
+  if(window.gsap)gsap.from('#tsDetailState',{opacity:0,y:14,duration:.34,ease:'power2.out',clearProps:'all'});
+}
+function tsBackToGrid(){
+  selectedTsId=null;
+  document.getElementById('tsDetailState').style.display='none';
+  document.getElementById('tsGridState').style.display='';
+  renderTsList();
+  if(window.gsap)gsap.from('#tsList .ts-card',{opacity:0,y:12,duration:.3,stagger:.015,ease:'power2.out',clearProps:'all'});
+}
+document.getElementById('tsBack').addEventListener('click',tsBackToGrid);
 
 function renderDetail(){
   const ts=transportistas.find(t=>t.id===selectedTsId);
-  if(!ts){
-    document.getElementById('mdHint').style.display='';
-    document.getElementById('detailHd').style.display='none';
-    document.getElementById('detailBody').style.display='none';
-    return;
-  }
-  document.getElementById('mdHint').style.display='none';
-  document.getElementById('detailHd').style.display='';
-  document.getElementById('detailBody').style.display='';
+  if(!ts){ tsBackToGrid(); return; }
   document.getElementById('detailBadge').textContent=initials(ts.n);
   document.querySelector('#detailName .md-detail__name-text').textContent=ts.n;
   document.getElementById('detailChip').textContent=ts.trucks.length+' camión'+(ts.trucks.length!==1?'es':'');
@@ -2348,10 +2387,12 @@ function renderDetailBody(ts){
   body.innerHTML=`<table class="tr-tbl"><thead><tr>
     <th style="width:32px">#</th>
     <th>Descripción del camión</th>
-    <th style="white-space:nowrap">Tipo de Precio</th>
-    <th style="white-space:nowrap">Precio</th>
+    <th style="white-space:nowrap">Tipo</th>
+    <th style="white-space:nowrap;text-align:right">Último precio usado</th>
     <th style="width:36px"></th>
-  </tr></thead><tbody>${ts.trucks.map((tr,i)=>`<tr data-trid="${tr.id}" data-tsid="${ts.id}">
+  </tr></thead><tbody>${ts.trucks.map((tr,i)=>{
+    const lp=lastPriceForTruck(tr.id);
+    return`<tr data-trid="${tr.id}" data-tsid="${ts.id}">
     <td style="color:var(--gray-300);font-size:11px;font-weight:700">${i+1}</td>
     <td class="tr-desc">${esc(tr.d)}</td>
     <td>
@@ -2363,20 +2404,9 @@ function renderDetailBody(ts){
         }
       </button>
     </td>
-    <td>
-      <div style="display:flex;align-items:center;gap:6px">
-        <span class="no-precio-tag" data-npt="${tr.id}"${tr.precio>0?' style="display:none"':''}><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="9" height="9"><path d="M12 9v2m0 4h.01"/></svg>Sin precio</span>
-        <div class="tr-inp-wrap">
-          <span class="tr-pfx">Gs.</span>
-          <input class="tr-inp money-tr" type="text" inputmode="numeric" data-field="precio"
-            value="${tr.precio>0?formatMoney(tr.precio):''}"
-            placeholder="${tr.tipo==='fijo'?'por salida':'por km'}"
-            ${!window._alasIsAdmin?'readonly title="Solo administradores pueden modificar el precio"':''}>
-        </div>
-      </div>
-    </td>
+    <td class="tr-lastprice">${lp.precio?`<span class="tr-lp-val">Gs. ${formatMoney(lp.precio)}</span>${lp.fecha?`<span class="tr-lp-date">${isoToDisplay(lp.fecha)}</span>`:''}`:'<span class="tr-lp-none">Sin usar</span>'}</td>
     <td><button class="del-btn" type="button" data-deltr="${tr.id}" data-tsid="${ts.id}"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg></button></td>
-  </tr>`).join('')}</tbody></table>`;
+  </tr>`;}).join('')}</tbody></table>`;
 }
 
 
