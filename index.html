@@ -506,16 +506,21 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .ts-grid-search .md-search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:17px;height:17px;color:var(--gray-400);pointer-events:none}
 .ts-grid-search .md-search{width:100%;height:46px;padding:0 14px 0 40px;border:1.5px solid var(--gray-200);border-radius:12px;background:#fff;font-family:inherit;font-size:14px;color:var(--gray-800);outline:none;transition:border-color var(--fast),box-shadow var(--fast)}
 .ts-grid-search .md-search:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.12)}
-.ts-grid{flex:1;min-height:0;overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;align-content:start;padding:2px 4px 8px}
+.ts-grid{flex:1;min-height:0;overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(196px,1fr));gap:12px;align-content:start;padding:2px 4px 8px}
 .ts-grid::-webkit-scrollbar{width:5px}.ts-grid::-webkit-scrollbar-thumb{background:var(--gray-200);border-radius:99px}
-.ts-card{display:flex;flex-direction:column;gap:8px;padding:18px;border:1.5px solid var(--gray-200);border-radius:16px;background:#fff;cursor:pointer;text-align:left;font-family:inherit;box-shadow:0 2px 8px rgba(15,23,42,.04);transition:transform var(--alas-dur-normal) var(--alas-ease-spring),box-shadow var(--alas-dur-normal) var(--alas-ease),border-color var(--fast)}
-.ts-card:hover{transform:translateY(-3px);box-shadow:0 14px 32px rgba(15,23,42,.12);border-color:var(--accent)}
+.ts-card{position:relative;display:flex;flex-direction:column;gap:11px;padding:15px 16px;border:1.5px solid var(--gray-200);border-radius:14px;background:#fff;cursor:pointer;text-align:left;font-family:inherit;overflow:hidden;transition:transform var(--alas-dur-normal) var(--alas-ease-spring),box-shadow var(--alas-dur-normal) var(--alas-ease),border-color var(--fast)}
+.ts-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent);transform:scaleY(0);transform-origin:top;transition:transform var(--fast)}
+.ts-card:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(15,23,42,.11);border-color:var(--accent)}
+.ts-card:hover::before{transform:scaleY(1)}
 .ts-card__top{display:flex;align-items:center;justify-content:space-between}
-.ts-card__ico{width:46px;height:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#EBF5FF,#DBEAFE);color:var(--primary)}
-.ts-card__cnt{font-family:Sora,Inter,sans-serif;font-size:24px;font-weight:800;color:var(--gray-300);line-height:1}
-.ts-card:hover .ts-card__cnt{color:var(--accent)}
-.ts-card__name{font-family:Sora,Inter,sans-serif;font-size:16px;font-weight:800;color:var(--gray-800);letter-spacing:-.2px;line-height:1.2;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
-.ts-card__last{font-size:11.5px;font-weight:600;color:var(--gray-400)}
+.ts-card__ico{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;background:var(--gray-100);color:var(--gray-400);transition:background var(--fast),color var(--fast)}
+.ts-card:hover .ts-card__ico{background:var(--accent-soft);color:var(--primary)}
+.ts-card__chip{min-width:28px;height:24px;padding:0 9px;display:inline-flex;align-items:center;justify-content:center;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-size:13px;font-weight:800;font-variant-numeric:tabular-nums}
+.ts-card__name{font-family:Sora,Inter,sans-serif;font-size:15px;font-weight:800;color:var(--gray-800);letter-spacing:-.2px;line-height:1.25;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;min-height:2.5em}
+.ts-card__foot{display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;color:var(--gray-400)}
+.ts-card__dot{width:7px;height:7px;border-radius:50%;background:var(--gray-300);flex-shrink:0}
+.ts-card__foot.has{color:#059669}
+.ts-card__foot.has .ts-card__dot{background:#10B981}
 /* ── Detalle (drill-in) ── */
 .ts-detail-state{flex:1;min-height:0;display:flex;flex-direction:column;gap:16px;border:1.5px solid var(--gray-200);border-radius:16px;background:#fff;overflow:hidden}
 .ts-detail-hd{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1.5px solid var(--gray-100);background:linear-gradient(135deg,#f8fbff,#fff);flex-shrink:0}
@@ -2356,9 +2361,9 @@ function renderTsList(){
   grid.innerHTML=list.map(t=>{
     const last=tsLastUsed(t);
     return`<button type="button" class="ts-card" data-tsid="${t.id}">
-      <div class="ts-card__top"><span class="ts-card__ico">${getTrIco('',22)}</span><span class="ts-card__cnt">${t.trucks.length}</span></div>
+      <div class="ts-card__top"><span class="ts-card__ico">${getTrIco('',20)}</span><span class="ts-card__chip">${t.trucks.length}</span></div>
       <div class="ts-card__name">${esc(t.n)}</div>
-      <div class="ts-card__last">${last?'Último reparto: '+isoToDisplay(last):'Sin repartos aún'}</div>
+      <div class="ts-card__foot${last?' has':''}"><span class="ts-card__dot"></span>${last?'Último '+isoToDisplay(last):'Sin repartos'}</div>
     </button>`;
   }).join('');
 }
