@@ -304,24 +304,41 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .row-truck.is-open .row-truck__arr{transform:rotate(180deg)}
 .cl-truck-ts{font-size:11.5px;font-weight:700;color:var(--gray-400);margin-top:3px;padding-left:2px}
 /* Panel del dropdown de camión (fijo, no lo corta el scroll de la tabla) */
-.truck-pop{position:fixed;z-index:4000;background:rgba(255,255,255,.99);border:1.5px solid var(--gray-200);border-radius:14px;box-shadow:0 20px 52px rgba(15,23,42,.18);display:none;flex-direction:column;max-height:340px;overflow:hidden}
+.truck-pop{position:fixed;z-index:4000;background:#fff;border:1.5px solid var(--gray-200);border-radius:16px;box-shadow:0 24px 60px rgba(15,23,42,.22);display:none;flex-direction:column;max-height:340px;overflow:hidden}
 .truck-pop.open{display:flex}
-.truck-pop__search{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--gray-100);color:var(--gray-400);flex-shrink:0}
-.truck-pop__search input{flex:1;border:none;outline:none;background:transparent;font-family:inherit;font-size:13.5px;color:var(--gray-800)}
-.truck-pop__list{overflow-y:auto;padding:6px}
-.truck-pop__list::-webkit-scrollbar{width:4px}
+.truck-pop__search{display:flex;align-items:center;gap:9px;padding:12px 14px;border-bottom:1px solid var(--gray-100);color:var(--gray-400);flex-shrink:0}
+.truck-pop__search input{flex:1;border:none;outline:none;background:transparent;font-family:inherit;font-size:14px;color:var(--gray-800)}
+.truck-pop__count{font-size:11px;font-weight:800;color:var(--accent);background:var(--accent-soft);padding:2px 9px;border-radius:999px;min-width:20px;text-align:center}
+.truck-pop__count:empty{display:none}
+.truck-pop__list{flex:1;min-height:0;overflow-y:auto;padding:6px}
+.truck-pop__list::-webkit-scrollbar{width:5px}
 .truck-pop__list::-webkit-scrollbar-thumb{background:var(--gray-200);border-radius:99px}
-.truck-pop__item{display:flex;align-items:center;gap:10px;width:100%;padding:8px 10px;border:none;border-radius:9px;background:transparent;cursor:pointer;font-family:inherit;text-align:left;transition:background var(--fast)}
+.truck-pop__group{position:sticky;top:0;z-index:1;padding:8px 12px 5px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--primary);background:linear-gradient(#fff,#fff 70%,rgba(255,255,255,0));backdrop-filter:blur(2px)}
+.truck-pop__item{display:flex;align-items:center;gap:10px;width:100%;padding:9px 10px;border:none;border-radius:10px;background:transparent;cursor:pointer;font-family:inherit;text-align:left;transition:background var(--fast)}
 .truck-pop__item:hover{background:var(--gray-50)}
 .truck-pop__item.on{background:var(--accent-soft)}
-.truck-pop__ico{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:var(--gray-100);color:var(--gray-500);flex-shrink:0}
+.truck-pop__ico{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;background:var(--gray-100);color:var(--gray-500);flex-shrink:0}
 .truck-pop__item.on .truck-pop__ico{background:#fff;color:var(--primary)}
-.truck-pop__txt{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.25}
-.truck-pop__name{font-size:13.5px;font-weight:700;color:var(--gray-800);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.truck-pop__tsn{font-size:11px;font-weight:600;color:var(--gray-400)}
+.truck-pop__name{flex:1;min-width:0;font-size:14px;font-weight:700;color:var(--gray-800);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .truck-pop__chk{color:var(--primary);opacity:0;flex-shrink:0}
 .truck-pop__item.on .truck-pop__chk{opacity:1}
-.truck-pop__empty{padding:18px;text-align:center;color:var(--gray-400);font-size:13px}
+.truck-pop__empty{padding:22px 18px;text-align:center;color:var(--gray-400);font-size:13px;line-height:1.5}
+/* Pie: agregar camión nuevo */
+.truck-pop__add{display:flex;align-items:center;justify-content:center;gap:8px;flex-shrink:0;padding:12px;border:none;border-top:1px solid var(--gray-100);background:var(--gray-50);cursor:pointer;font-family:inherit;font-size:13px;font-weight:800;color:var(--accent);transition:background var(--fast)}
+.truck-pop__add:hover{background:var(--accent-soft)}
+/* Formulario nuevo camión */
+.truck-pop__form{display:flex;flex-direction:column;gap:8px;padding:16px}
+.tpf-hd{font-family:Sora,Inter,sans-serif;font-size:15px;font-weight:800;color:var(--primary);margin-bottom:4px}
+.tpf-lbl{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--gray-400);margin-top:4px}
+.tpf-ts,.tpf-tsnew,.tpf-desc{height:40px;padding:0 12px;border:1.5px solid var(--gray-200);border-radius:10px;background:#fff;font-family:inherit;font-size:14px;font-weight:600;color:var(--gray-800);outline:none;transition:border-color var(--fast),box-shadow var(--fast)}
+.tpf-ts:focus,.tpf-tsnew:focus,.tpf-desc:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.12)}
+.tpf-actions{display:flex;gap:8px;margin-top:10px}
+.tpf-cancel,.tpf-save{flex:1;height:40px;border-radius:10px;font-family:inherit;font-size:13px;font-weight:800;cursor:pointer;transition:all var(--fast)}
+.tpf-cancel{border:1.5px solid var(--gray-200);background:#fff;color:var(--gray-600)}
+.tpf-cancel:hover{background:var(--gray-50)}
+.tpf-save{border:none;background:var(--primary);color:#fff}
+.tpf-save:hover{filter:brightness(1.08)}
+.tpf-save:disabled{opacity:.6;cursor:default}
 /* Input precio de flete por fila */
 .cl-precio-inp{height:34px;width:150px;padding:0 11px;border:1.5px solid var(--gray-200);border-radius:8px;background:#fff;font-size:15px;font-weight:800;color:var(--primary);outline:none;text-align:right;font-variant-numeric:tabular-nums;transition:border-color var(--fast)}
 .cl-precio-inp:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(59,130,246,.1)}
@@ -1789,23 +1806,83 @@ let _truckPop=null,_truckPopCl=null;
 function ensureTruckPop(){
   if(_truckPop)return _truckPop;
   const p=document.createElement('div');p.className='truck-pop';
-  p.innerHTML='<div class="truck-pop__search"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg><input type="text" placeholder="Buscar camión..." autocomplete="off"></div><div class="truck-pop__list"></div>';
+  p.innerHTML=
+    '<div class="truck-pop__search"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="15" height="15"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg><input type="text" placeholder="Buscar camión o transportista..." autocomplete="off"><span class="truck-pop__count"></span></div>'+
+    '<div class="truck-pop__list"></div>'+
+    '<button type="button" class="truck-pop__add"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16"><path stroke-width="2.2" stroke-linecap="round" d="M12 5v14M5 12h14"/></svg>Agregar camión nuevo</button>'+
+    '<div class="truck-pop__form" hidden>'+
+      '<div class="tpf-hd">Nuevo camión</div>'+
+      '<label class="tpf-lbl">Transportista</label>'+
+      '<select class="tpf-ts"></select>'+
+      '<input class="tpf-tsnew" type="text" placeholder="Nombre del transportista nuevo" autocomplete="off" hidden>'+
+      '<label class="tpf-lbl">Descripción del camión</label>'+
+      '<input class="tpf-desc" type="text" placeholder="Ej: MB814 BLANCO BXY123" autocomplete="off">'+
+      '<div class="tpf-actions"><button type="button" class="tpf-cancel">Cancelar</button><button type="button" class="tpf-save">Guardar camión</button></div>'+
+    '</div>';
   document.body.appendChild(p);
-  p.querySelector('input').addEventListener('input',e=>renderTruckPopList(e.target.value));
+  const inp=p.querySelector('.truck-pop__search input');
+  inp.addEventListener('input',e=>renderTruckPopList(e.target.value));
+  inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){const first=p.querySelector('.truck-pop__item');if(first)first.click();} });
+  p.querySelector('.truck-pop__add').addEventListener('click',()=>showTruckForm(true));
+  p.querySelector('.tpf-cancel').addEventListener('click',()=>showTruckForm(false));
+  p.querySelector('.tpf-ts').addEventListener('change',e=>{ const n=p.querySelector('.tpf-tsnew'); n.hidden=e.target.value!=='__new'; if(!n.hidden)setTimeout(()=>n.focus(),30); });
+  p.querySelector('.tpf-save').addEventListener('click',saveNewTruck);
   document.addEventListener('click',e=>{ if(_truckPop&&_truckPop.classList.contains('open')&&!_truckPop.contains(e.target)&&!e.target.closest('.row-truck'))closeTruckPop(); });
   window.addEventListener('resize',()=>{ if(_truckPop&&_truckPop.classList.contains('open'))closeTruckPop(); });
-  window.addEventListener('scroll',()=>{ if(_truckPop&&_truckPop.classList.contains('open'))closeTruckPop(); },true);
+  window.addEventListener('scroll',e=>{ if(_truckPop&&_truckPop.classList.contains('open')&&!_truckPop.contains(e.target))closeTruckPop(); },true);
   _truckPop=p;return p;
 }
+function showTruckForm(show){
+  const p=_truckPop; if(!p)return;
+  p.querySelector('.truck-pop__search').style.display=show?'none':'';
+  p.querySelector('.truck-pop__list').style.display=show?'none':'';
+  p.querySelector('.truck-pop__add').style.display=show?'none':'';
+  p.querySelector('.truck-pop__form').hidden=!show;
+  if(show){
+    const sel=p.querySelector('.tpf-ts');
+    const cur=_truckPopCl&&_truckPopCl.tsId;
+    sel.innerHTML=transportistas.map(t=>`<option value="${t.id}"${t.id===cur?' selected':''}>${esc(t.n)}</option>`).join('')+'<option value="__new">➕ Nuevo transportista…</option>';
+    const nn=p.querySelector('.tpf-tsnew');nn.hidden=true;nn.value='';
+    p.querySelector('.tpf-desc').value='';
+    setTimeout(()=>p.querySelector('.tpf-desc').focus(),50);
+  }
+}
+async function saveNewTruck(){
+  const p=_truckPop; const sel=p.querySelector('.tpf-ts'); const desc=p.querySelector('.tpf-desc').value.trim();
+  if(!desc){p.querySelector('.tpf-desc').focus();return;}
+  const btn=p.querySelector('.tpf-save'); btn.disabled=true; btn.textContent='Guardando…';
+  try{
+    let tsId, ts;
+    if(sel.value==='__new'){
+      const nn=p.querySelector('.tpf-tsnew').value.trim();
+      if(!nn){const el=p.querySelector('.tpf-tsnew');el.hidden=false;el.focus();btn.disabled=false;btn.textContent='Guardar camión';return;}
+      tsId=await dbAddTs(nn); ts={id:tsId,n:nn,trucks:[]}; transportistas.push(ts);
+    } else { tsId=+sel.value; ts=transportistas.find(t=>t.id===tsId); }
+    const trId=await dbAddTruck(tsId,desc,0,'km');
+    if(ts)ts.trucks.push({id:trId,d:desc,tipo:'km',precio:0,lastKm:0});
+    if(_truckPopCl){_truckPopCl.trId=trId;_truckPopCl.tsId=tsId;}
+    closeTruckPop();renderClientesTable();updateResultCard();
+    showToast('Camión agregado');
+  }catch(err){
+    btn.disabled=false;btn.textContent='Guardar camión';
+    showToast('Error al agregar el camión');
+  }
+}
 function renderTruckPopList(q){
-  const list=_truckPop.querySelector('.truck-pop__list');q=(q||'').toLowerCase().trim();
-  let html='';
-  transportistas.forEach(ts=>(ts.trucks||[]).forEach(tr=>{
-    if(q&&!(tr.d+' '+ts.n).toLowerCase().includes(q))return;
-    const on=_truckPopCl&&_truckPopCl.trId===tr.id;
-    html+=`<button type="button" class="truck-pop__item${on?' on':''}" data-tr="${tr.id}" data-ts="${ts.id}"><span class="truck-pop__ico">${getTrIco(tr.d,16)}</span><span class="truck-pop__txt"><span class="truck-pop__name">${esc(tr.d)}</span><span class="truck-pop__tsn">${esc(ts.n)}</span></span><span class="truck-pop__chk"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14"><path d="M20 6L9 17l-5-5"/></svg></span></button>`;
-  }));
-  list.innerHTML=html||'<div class="truck-pop__empty">Sin resultados</div>';
+  const p=_truckPop, list=p.querySelector('.truck-pop__list'), countEl=p.querySelector('.truck-pop__count');
+  q=(q||'').toLowerCase().trim();
+  let html='', n=0;
+  transportistas.forEach(ts=>{
+    const trucks=(ts.trucks||[]).filter(tr=>!q||(tr.d+' '+ts.n).toLowerCase().includes(q));
+    if(!trucks.length)return;
+    html+=`<div class="truck-pop__group">${esc(ts.n)}</div>`;
+    trucks.forEach(tr=>{ n++;
+      const on=_truckPopCl&&_truckPopCl.trId===tr.id;
+      html+=`<button type="button" class="truck-pop__item${on?' on':''}" data-tr="${tr.id}" data-ts="${ts.id}"><span class="truck-pop__ico">${getTrIco(tr.d,16)}</span><span class="truck-pop__name">${esc(tr.d)}</span><span class="truck-pop__chk"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14"><path d="M20 6L9 17l-5-5"/></svg></span></button>`;
+    });
+  });
+  list.innerHTML=html||'<div class="truck-pop__empty">Sin resultados — usá "Agregar camión nuevo"</div>';
+  if(countEl)countEl.textContent=n?`${n}`:'';
   list.querySelectorAll('.truck-pop__item').forEach(b=>b.addEventListener('click',()=>{
     if(!_truckPopCl)return;
     _truckPopCl.trId=+b.dataset.tr;_truckPopCl.tsId=+b.dataset.ts;
@@ -1814,23 +1891,30 @@ function renderTruckPopList(q){
 }
 function openTruckPop(btn,cl){
   const p=ensureTruckPop();_truckPopCl=cl;
+  showTruckForm(false);
   renderTruckPopList('');
   const r=btn.getBoundingClientRect();
-  const w=Math.max(r.width,300);
+  const w=Math.max(r.width,320);
+  // Posición inteligente: abre hacia abajo, o hacia arriba si no hay espacio
+  const spaceBelow=window.innerHeight-r.bottom-16, spaceAbove=r.top-16;
+  const up=spaceBelow<340 && spaceAbove>spaceBelow;
+  const maxH=Math.min(560, Math.max(240, up?spaceAbove:spaceBelow));
   p.style.width=w+'px';
+  p.style.maxHeight=maxH+'px';
   p.style.left=Math.min(r.left,window.innerWidth-w-12)+'px';
-  p.style.top=(r.bottom+6)+'px';
+  if(up){ p.style.top='auto'; p.style.bottom=(window.innerHeight-r.top+6)+'px'; }
+  else { p.style.bottom='auto'; p.style.top=(r.bottom+6)+'px'; }
   p.classList.add('open');
   btn.classList.add('is-open');
-  const inp=p.querySelector('input');inp.value='';setTimeout(()=>inp.focus(),50);
-  if(window.gsap)gsap.fromTo(p,{opacity:0,y:-10,scale:.97},{opacity:1,y:0,scale:1,duration:.28,ease:'back.out(1.6)',clearProps:'transform'});
+  const inp=p.querySelector('.truck-pop__search input');inp.value='';setTimeout(()=>inp.focus(),50);
+  if(window.gsap)gsap.fromTo(p,{opacity:0,y:up?10:-10,scale:.97},{opacity:1,y:0,scale:1,duration:.28,ease:'back.out(1.6)',clearProps:'transform'});
 }
 function closeTruckPop(){
   if(!_truckPop)return;
   document.querySelectorAll('.row-truck.is-open').forEach(b=>b.classList.remove('is-open'));
   const p=_truckPop;_truckPopCl=null;
-  if(window.gsap)gsap.to(p,{opacity:0,y:-8,scale:.98,duration:.16,ease:'power2.in',onComplete:()=>{p.classList.remove('open');gsap.set(p,{clearProps:'all'});}});
-  else p.classList.remove('open');
+  if(window.gsap)gsap.to(p,{opacity:0,y:-8,scale:.98,duration:.16,ease:'power2.in',onComplete:()=>{p.classList.remove('open');gsap.set(p,{clearProps:'all'});showTruckForm(false);}});
+  else { p.classList.remove('open'); showTruckForm(false); }
 }
 /* Abrir el dropdown al tocar el camión de una fila */
 document.getElementById('clientesTbody').addEventListener('click',e=>{
