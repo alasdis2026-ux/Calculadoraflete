@@ -521,11 +521,23 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .ts-detail-hd{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1.5px solid var(--gray-100);background:linear-gradient(135deg,#f8fbff,#fff);flex-shrink:0}
 .ts-back{display:inline-flex;align-items:center;gap:5px;height:36px;padding:0 13px;border-radius:10px;border:1.5px solid var(--gray-200);background:#fff;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700;color:var(--gray-600);transition:all var(--fast)}
 .ts-back:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
-.ts-detail-body{flex:1;min-height:0;overflow:auto;padding:0 8px 8px}
-.tr-lastprice{text-align:right;white-space:nowrap}
+.ts-detail-body{flex:1;min-height:0;overflow:auto;padding:14px 16px 18px}
+/* Lista compacta de camiones (ancho acotado, no se estira en pantallas grandes) */
+.tr-list{max-width:1000px;margin:0 auto}
+.tr-list__hd,.tr-row{display:grid;grid-template-columns:28px minmax(0,1fr) 74px 170px 34px;align-items:center;gap:16px}
+.tr-list__hd{padding:4px 14px 10px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--gray-400);border-bottom:1.5px solid var(--gray-100)}
+.tr-list__hd .r{text-align:right}
+.tr-row{padding:11px 14px;border-radius:12px;border:1px solid transparent;transition:background var(--fast),border-color var(--fast)}
+.tr-row:hover{background:#f8fbff;border-color:var(--gray-100)}
+.tr-row__n{font-size:12px;font-weight:800;color:var(--gray-300)}
+.tr-row__desc{font-size:14.5px;font-weight:700;color:var(--gray-800);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tr-row .tipo-badge{justify-self:start}
+.tr-row__price{text-align:right;white-space:nowrap}
+.tr-row .del-btn{justify-self:end}
 .tr-lp-val{display:inline-block;font-weight:800;color:var(--primary);font-variant-numeric:tabular-nums;font-size:14px}
 .tr-lp-date{display:block;font-size:10.5px;font-weight:600;color:var(--gray-400)}
-.tr-lp-none{font-size:12px;font-weight:600;color:var(--gray-300)}
+.tr-lp-none{font-size:12.5px;font-weight:600;color:var(--gray-300)}
+@media(max-width:640px){.tr-list__hd{display:none}.tr-row{grid-template-columns:24px minmax(0,1fr) auto 34px;gap:10px}.tr-row__price{grid-column:2/4;text-align:left;font-size:12px}}
 .md-wrap{flex:1;min-height:0;display:flex;overflow:hidden;border:1.5px solid var(--gray-200);border-radius:var(--radius-lg);background:#fff}
 
 /* List left */
@@ -2384,29 +2396,19 @@ function renderDetailBody(ts){
     body.innerHTML=`<div class="detail-empty"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M1 3h15v13H1zm15 5h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg><p>Sin camiones</p><span>Usá "+ Camión" para agregar</span></div>`;
     return;
   }
-  body.innerHTML=`<table class="tr-tbl"><thead><tr>
-    <th style="width:32px">#</th>
-    <th>Descripción del camión</th>
-    <th style="white-space:nowrap">Tipo</th>
-    <th style="white-space:nowrap;text-align:right">Último precio usado</th>
-    <th style="width:36px"></th>
-  </tr></thead><tbody>${ts.trucks.map((tr,i)=>{
-    const lp=lastPriceForTruck(tr.id);
-    return`<tr data-trid="${tr.id}" data-tsid="${ts.id}">
-    <td style="color:var(--gray-300);font-size:11px;font-weight:700">${i+1}</td>
-    <td class="tr-desc">${esc(tr.d)}</td>
-    <td>
-      <button class="tipo-badge ${tr.tipo==='fijo'?'is-fijo':'is-km'}" type="button"
-        data-toggle-tipo data-trid="${tr.id}" data-tsid="${ts.id}" title="Click para cambiar tipo">
-        ${tr.tipo==='fijo'
-          ? '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="10" height="10"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> FIJO'
-          : '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="10" height="10"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg> KM'
-        }
-      </button>
-    </td>
-    <td class="tr-lastprice">${lp.precio?`<span class="tr-lp-val">Gs. ${formatMoney(lp.precio)}</span>${lp.fecha?`<span class="tr-lp-date">${isoToDisplay(lp.fecha)}</span>`:''}`:'<span class="tr-lp-none">Sin usar</span>'}</td>
-    <td><button class="del-btn" type="button" data-deltr="${tr.id}" data-tsid="${ts.id}"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg></button></td>
-  </tr>`;}).join('')}</tbody></table>`;
+  body.innerHTML=`<div class="tr-list">
+    <div class="tr-list__hd"><span></span><span>Camión</span><span>Tipo</span><span class="r">Último precio usado</span><span></span></div>
+    ${ts.trucks.map((tr,i)=>{
+      const lp=lastPriceForTruck(tr.id);
+      return`<div class="tr-row" data-trid="${tr.id}" data-tsid="${ts.id}">
+        <span class="tr-row__n">${i+1}</span>
+        <span class="tr-row__desc">${esc(tr.d)}</span>
+        <button class="tipo-badge ${tr.tipo==='fijo'?'is-fijo':'is-km'}" type="button" data-toggle-tipo data-trid="${tr.id}" data-tsid="${ts.id}" title="Cambiar tipo">${tr.tipo==='fijo'?'FIJO':'KM'}</button>
+        <span class="tr-row__price">${lp.precio?`<span class="tr-lp-val">Gs. ${formatMoney(lp.precio)}</span>${lp.fecha?`<span class="tr-lp-date">${isoToDisplay(lp.fecha)}</span>`:''}`:'<span class="tr-lp-none">Sin usar</span>'}</span>
+        <button class="del-btn" type="button" data-deltr="${tr.id}" data-tsid="${ts.id}"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg></button>
+      </div>`;
+    }).join('')}
+  </div>`;
 }
 
 
