@@ -136,6 +136,29 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .modal-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.12)}
 .modal-input.pfx{padding-left:38px}
 .modal-input:hover:not(:focus){border-color:var(--gray-300)}
+/* Selector custom de transportista (modal nuevo camión) */
+.nc-sel{position:relative}
+.nc-sel-btn{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;height:38px;padding:0 11px;border:1.5px solid var(--gray-200);border-radius:8px;background:#fff;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;color:var(--gray-800);text-align:left;outline:none;transition:border-color var(--fast),box-shadow var(--fast)}
+.nc-sel-btn:hover{border-color:var(--gray-300)}
+.nc-sel-btn.open{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.12)}
+.nc-sel-lbl{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nc-sel-lbl.placeholder{color:var(--gray-400);font-weight:500}
+.nc-sel-arr{color:var(--gray-400);flex-shrink:0;transition:transform var(--fast)}
+.nc-sel-btn.open .nc-sel-arr{transform:rotate(180deg)}
+.nc-sel-pop{position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:10;background:#fff;border:1.5px solid var(--gray-200);border-radius:12px;box-shadow:0 18px 44px rgba(15,23,42,.18);display:flex;flex-direction:column;max-height:260px;overflow:hidden}
+.nc-sel-pop[hidden]{display:none}
+.nc-sel-search{display:flex;align-items:center;gap:8px;padding:9px 11px;border-bottom:1px solid var(--gray-100);color:var(--gray-400);flex-shrink:0}
+.nc-sel-search input{flex:1;border:none;outline:none;background:transparent;font-family:inherit;font-size:13px;color:var(--gray-800)}
+.nc-sel-list{overflow-y:auto;padding:5px;min-height:0}
+.nc-sel-list::-webkit-scrollbar{width:4px}
+.nc-sel-list::-webkit-scrollbar-thumb{background:var(--gray-200);border-radius:99px}
+.nc-sel-item{display:flex;align-items:center;gap:8px;width:100%;padding:8px 10px;border:none;border-radius:8px;background:transparent;cursor:pointer;font-family:inherit;font-size:13.5px;font-weight:600;color:var(--gray-700);text-align:left;transition:background var(--fast)}
+.nc-sel-item:hover{background:var(--gray-50)}
+.nc-sel-item.on{background:var(--accent-soft)}
+.nc-sel-item.new{color:var(--accent);font-weight:800;border-bottom:1px solid var(--gray-100);border-radius:8px 8px 0 0;margin-bottom:3px}
+.nc-sel-item-lbl{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nc-sel-chk{color:var(--primary);opacity:0;flex-shrink:0}
+.nc-sel-item.on .nc-sel-chk{opacity:1}
 .modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--gray-100)}
 .modal-actions .btn{min-height:34px;padding:6px 16px;font-size:12.5px}
 .req{color:var(--danger)}
@@ -1199,7 +1222,13 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
     <div class="modal-sub">Elegí el transportista y describí el camión.</div>
     <div class="modal-field">
       <label>Transportista <span class="req">*</span></label>
-      <select class="modal-input" id="ncTs"></select>
+      <div class="nc-sel" id="ncSel">
+        <button type="button" class="nc-sel-btn" id="ncSelBtn"><span class="nc-sel-lbl" id="ncSelLbl">Elegir transportista</span><svg class="nc-sel-arr" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16"><path d="M6 9l6 6 6-6"/></svg></button>
+        <div class="nc-sel-pop" id="ncSelPop" hidden>
+          <div class="nc-sel-search"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg><input type="text" id="ncSelSearch" placeholder="Buscar transportista..." autocomplete="off"></div>
+          <div class="nc-sel-list" id="ncSelList"></div>
+        </div>
+      </div>
     </div>
     <div class="modal-field" id="ncTsNewField" style="display:none">
       <label>Nombre del transportista nuevo <span class="req">*</span></label>
@@ -1846,33 +1875,63 @@ function ensureTruckPop(){
 }
 /* ── Modal "Nuevo camión" (abierto desde el dropdown) ── */
 let _ncCl=null;
+let _ncTsVal=null;  // id del transportista elegido, o '__new'
+function ncSetTs(val,label){
+  _ncTsVal=val;
+  document.getElementById('ncSelLbl').textContent=label;
+  document.getElementById('ncSelLbl').classList.toggle('placeholder',val==null);
+  const isNew=val==='__new';
+  document.getElementById('ncTsNewField').style.display=isNew?'':'none';
+  if(isNew)setTimeout(()=>document.getElementById('ncTsNew').focus(),30);
+}
+function ncRenderTsList(q){
+  q=(q||'').toLowerCase().trim();
+  let html='<button type="button" class="nc-sel-item new" data-v="__new"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="15" height="15"><path stroke-width="2.2" stroke-linecap="round" d="M12 5v14M5 12h14"/></svg>Nuevo transportista…</button>';
+  transportistas.filter(t=>!q||t.n.toLowerCase().includes(q)).forEach(t=>{
+    const on=String(_ncTsVal)===String(t.id);
+    html+=`<button type="button" class="nc-sel-item${on?' on':''}" data-v="${t.id}"><span class="nc-sel-item-lbl">${esc(t.n)}</span><span class="nc-sel-chk"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14"><path d="M20 6L9 17l-5-5"/></svg></span></button>`;
+  });
+  const list=document.getElementById('ncSelList');
+  list.innerHTML=html;
+  list.querySelectorAll('.nc-sel-item').forEach(b=>b.addEventListener('click',()=>{
+    const v=b.dataset.v;
+    ncSetTs(v, v==='__new'?'Nuevo transportista' : (transportistas.find(t=>String(t.id)===v)?.n||''));
+    ncCloseTsPop();
+  }));
+}
+function ncOpenTsPop(){ const pop=document.getElementById('ncSelPop'); pop.hidden=false; document.getElementById('ncSelBtn').classList.add('open'); ncRenderTsList(''); const s=document.getElementById('ncSelSearch'); s.value=''; setTimeout(()=>s.focus(),40); if(window.gsap)gsap.fromTo(pop,{opacity:0,y:-8,scale:.98},{opacity:1,y:0,scale:1,duration:.22,ease:'back.out(1.5)',clearProps:'transform'}); }
+function ncCloseTsPop(){ document.getElementById('ncSelPop').hidden=true; document.getElementById('ncSelBtn').classList.remove('open'); }
+
 function openNCModal(){
   _ncCl=_truckPopCl;               // recordar la fila que estaba eligiendo
   closeTruckPop();
-  const sel=document.getElementById('ncTs');
   const cur=_ncCl&&_ncCl.tsId;
-  sel.innerHTML=transportistas.map(t=>`<option value="${t.id}"${t.id===cur?' selected':''}>${esc(t.n)}</option>`).join('')+'<option value="__new">➕ Nuevo transportista…</option>';
-  document.getElementById('ncTsNewField').style.display='none';
+  const curTs=cur?transportistas.find(t=>t.id===cur):null;
+  if(curTs)ncSetTs(String(curTs.id),curTs.n); else ncSetTs(null,'Elegir transportista');
+  ncCloseTsPop();
   document.getElementById('ncTsNew').value='';
   document.getElementById('ncDesc').value='';
   document.getElementById('modalNC').classList.add('is-open');
   setTimeout(()=>document.getElementById('ncDesc').focus(),140);
 }
-function closeNCModal(){ document.getElementById('modalNC').classList.remove('is-open'); _ncCl=null; }
-document.getElementById('ncTs').addEventListener('change',e=>{ document.getElementById('ncTsNewField').style.display=e.target.value==='__new'?'':'none'; if(e.target.value==='__new')setTimeout(()=>document.getElementById('ncTsNew').focus(),30); });
+function closeNCModal(){ document.getElementById('modalNC').classList.remove('is-open'); ncCloseTsPop(); _ncCl=null; }
+document.getElementById('ncSelBtn').addEventListener('click',e=>{ e.stopPropagation(); const pop=document.getElementById('ncSelPop'); if(pop.hidden)ncOpenTsPop(); else ncCloseTsPop(); });
+document.getElementById('ncSelSearch').addEventListener('input',e=>ncRenderTsList(e.target.value));
+document.addEventListener('click',e=>{ if(!document.getElementById('ncSelPop').hidden && !e.target.closest('#ncSel'))ncCloseTsPop(); });
 document.getElementById('ncCancel').addEventListener('click',closeNCModal);
 document.getElementById('modalNC').addEventListener('click',e=>{ if(e.target.id==='modalNC')closeNCModal(); });
 document.getElementById('ncSave').addEventListener('click',async()=>{
-  const sel=document.getElementById('ncTs'); const desc=document.getElementById('ncDesc').value.trim();
+  const desc=document.getElementById('ncDesc').value.trim();
+  if(!_ncTsVal){ showToast('Elegí el transportista'); ncOpenTsPop(); return; }
   if(!desc){document.getElementById('ncDesc').focus();return;}
   const btn=document.getElementById('ncSave'); const orig=btn.textContent; btn.disabled=true; btn.textContent='Guardando…';
   try{
     let tsId, ts;
-    if(sel.value==='__new'){
+    if(_ncTsVal==='__new'){
       const nn=document.getElementById('ncTsNew').value.trim();
-      if(!nn){document.getElementById('ncTsNewField').style.display='';document.getElementById('ncTsNew').focus();btn.disabled=false;btn.textContent=orig;return;}
+      if(!nn){document.getElementById('ncTsNew').focus();btn.disabled=false;btn.textContent=orig;return;}
       tsId=await dbAddTs(nn); ts={id:tsId,n:nn,trucks:[]}; transportistas.push(ts);
-    } else { tsId=+sel.value; ts=transportistas.find(t=>t.id===tsId); }
+    } else { tsId=+_ncTsVal; ts=transportistas.find(t=>t.id===tsId); }
     const trId=await dbAddTruck(tsId,desc,0,'km');
     if(ts)ts.trucks.push({id:trId,d:desc,tipo:'km',precio:0,lastKm:0});
     if(_ncCl){_ncCl.trId=trId;_ncCl.tsId=tsId;}
