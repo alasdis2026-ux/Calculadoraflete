@@ -1571,11 +1571,22 @@ function initials(name){
 }
 
 /* ════════ NAVIGATION ════════════════════════════════ */
+let _lastView=null;
 function showView(v){
   ['calc','trans','hist','dash'].forEach(x=>{
     document.getElementById('view'+x.charAt(0).toUpperCase()+x.slice(1)).classList.toggle('is-active',x===v);
   });
-  document.querySelectorAll('[data-nav]').forEach(b=>b.classList.toggle('is-active',b.dataset.nav===v));
+  document.querySelectorAll('[data-nav]').forEach(b=>{
+    const on=b.dataset.nav===v, was=b.classList.contains('is-active');
+    b.classList.toggle('is-active',on);
+    if(on&&!was&&window.gsap){const ic=b.querySelector('svg,i');if(ic)gsap.fromTo(ic,{scale:.7},{scale:1,duration:.4,ease:'back.out(2.2)',clearProps:'transform'});}
+  });
+  // Entrada orquestada de la vista (patrón Control de Facturas): hijos directos en cascada
+  if(v!==_lastView&&window.gsap&&!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)){
+    const st=document.getElementById('view'+v.charAt(0).toUpperCase()+v.slice(1));
+    if(st){const kids=Array.from(st.children).slice(0,8);if(kids.length){gsap.killTweensOf(kids);gsap.from(kids,{opacity:0,y:14,duration:.4,stagger:.05,ease:'power3.out',clearProps:'all'});}}
+  }
+  _lastView=v;
   if(v==='trans'){ selectedTsId=null; const gs=document.getElementById('tsGridState'),ds=document.getElementById('tsDetailState'); if(gs)gs.style.display=''; if(ds)ds.style.display='none'; renderTsList(); }
   if(v==='hist'){setHistView(histViewMode);}
   if(v==='dash')renderDashboard();
@@ -2857,7 +2868,13 @@ function renderCalReparto(r){
 }
 
 function closeCalModal(){
-  document.getElementById('calModalBd').classList.remove('open');
+  const bd=document.getElementById('calModalBd'), box=bd.querySelector('.cal-modal-box');
+  const g=window.gsap, reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(g&&box&&!reduce){
+    g.killTweensOf(box);
+    g.to(box,{y:16,scale:.97,opacity:0,duration:.18,ease:'power2.in'});
+    g.to(bd,{opacity:0,duration:.22,ease:'power2.in',onComplete:()=>{bd.classList.remove('open');g.set(bd,{clearProps:'all'});g.set(box,{clearProps:'all'});}});
+  } else bd.classList.remove('open');
   calSelectedDate=null;
   renderCalendar();
 }

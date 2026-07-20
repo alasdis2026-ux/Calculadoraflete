@@ -1,0 +1,24 @@
+{
+  "name": "calculadora-de-flete",
+  "version": "1.0.0",
+  "description": "",
+  "main": "alas-auth-client.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alasdis2026-ux/Calculadoraflete.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/alasdis2026-ux/Calculadoraflete/issues"
+  },
+  "homepage": "https://github.com/alasdis2026-ux/Calculadoraflete#readme",
+  "dependencies": {
+    "xlsx": "^0.18.5"
+  }
+}
