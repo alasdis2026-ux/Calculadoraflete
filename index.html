@@ -868,7 +868,24 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .save-ring{position:relative;width:86px;height:86px}
 .save-ring svg{position:absolute;inset:0;width:86px;height:86px}
 @keyframes spin-arc{to{transform:rotate(360deg)}}
-@keyframes loaderSlide{0%{left:-40%}100%{left:120%}}
+/* ── Loader circular canónico del launcher ── */
+.ald{position:fixed;inset:0;z-index:9000;display:none;place-items:center;background:
+  radial-gradient(circle, rgba(11,95,141,0.055) 1px, transparent 1px),
+  radial-gradient(ellipse 70% 55% at 50% 42%, rgba(11,95,141,0.04), transparent 65%),
+  linear-gradient(145deg,#edf1f7 0%,#e6ecf5 55%,#edf2f8 100%);
+  background-size:44px 44px,100% 100%,100% 100%}
+.ald__stage{position:relative;width:272px;height:272px;display:grid;place-items:center;animation:aldRise .62s var(--alas-ease,cubic-bezier(.16,1,.3,1)) both}
+@keyframes aldRise{from{transform:translateY(20px);opacity:0}to{transform:none;opacity:1}}
+.ald__svg{position:absolute;inset:0;overflow:visible;animation:spin-arc .95s linear infinite}
+.ald__arc{stroke-dasharray:716;stroke-dashoffset:286;animation:aldDash .75s ease-in-out infinite alternate}
+@keyframes aldDash{from{stroke-dashoffset:286}to{stroke-dashoffset:587}}
+.ald__hub{position:relative;width:192px;height:192px;border-radius:50%;display:grid;place-items:center;animation:aldFloat 2.6s ease-in-out infinite alternate}
+@keyframes aldFloat{from{transform:translateY(0) scale(1)}to{transform:translateY(-5px) scale(1.022)}}
+.ald__ring{position:absolute;inset:-8px;border-radius:50%;border:1px solid rgba(11,95,141,.14);animation:aldRing 4s ease-in-out infinite}
+@keyframes aldRing{0%,100%{transform:scale(1);opacity:.75}50%{transform:scale(1.05);opacity:.25}}
+.ald__surface{position:absolute;inset:0;border-radius:50%;background:linear-gradient(145deg,#ffffff 0%,#f4f8ff 100%);border:1px solid rgba(203,213,225,.75)}
+.ald__logo{position:relative;width:119px;height:auto;filter:grayscale(1) brightness(0);user-select:none;pointer-events:none}
+@media (prefers-reduced-motion: reduce){.ald__stage,.ald__svg,.ald__arc,.ald__hub,.ald__ring{animation:none}}
 .save-ring .arc-svg{transform-origin:center;animation:spin-arc .65s linear infinite}
 .arc-track{fill:none;stroke:#dbeafe;stroke-width:5}
 .arc-line{fill:none;stroke:var(--accent);stroke-width:5;stroke-linecap:round;stroke-dasharray:95 130}
@@ -1323,11 +1340,16 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
   <div class="ac-list" id="acList"></div>
 </div>
 
-<div id="appLoader" style="position:fixed;inset:0;z-index:9000;background:#EEF2F7;display:none;align-items:center;justify-content:center">
-  <div style="display:flex;flex-direction:column;align-items:center;gap:22px">
-    <img src="logo-alas-s.a.png" alt="ALAS" style="height:46px;opacity:.9">
-    <div style="width:150px;height:4px;border-radius:999px;background:#E2E8F0;overflow:hidden;position:relative">
-      <span style="position:absolute;top:0;left:-40%;width:40%;height:100%;border-radius:999px;background:#0B5F8D;animation:loaderSlide 1.1s cubic-bezier(.65,0,.35,1) infinite"></span>
+<div id="appLoader" class="ald" style="display:none" role="status" aria-label="Cargando">
+  <div class="ald__stage">
+    <svg class="ald__svg" width="272" height="272" viewBox="0 0 272 272" aria-hidden="true">
+      <circle cx="136" cy="136" r="114" fill="none" stroke="rgba(11,95,141,.09)" stroke-width="1.5"/>
+      <circle class="ald__arc" cx="136" cy="136" r="114" fill="none" stroke="#0B5F8D" stroke-width="2.5" stroke-linecap="round"/>
+    </svg>
+    <div class="ald__hub">
+      <span class="ald__ring"></span>
+      <span class="ald__surface"></span>
+      <img src="logo-icon.png" alt="" class="ald__logo" draggable="false">
     </div>
   </div>
 </div>
@@ -1407,7 +1429,7 @@ const isoToDisplay=iso=>{
   return`${d} de ${meses[m-1]} de ${y}`;
 };
 
-function showLoading(){document.getElementById('appLoader').style.display='flex';}
+function showLoading(){document.getElementById('appLoader').style.display='grid';}
 function hideLoading(){document.getElementById('appLoader').style.display='none';}
 
 /* ── DB helpers ──────────────────────────────────── */
