@@ -913,6 +913,10 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h6"/></svg>
       <span class="label">Planillas</span>
     </button>
+    <button class="sidebar-item" type="button" data-nav="rrep">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2M9 13l2 2 4-4"/></svg>
+      <span class="label">Reporte de Repartos</span>
+    </button>
     <button class="sidebar-item" type="button" data-nav="fact">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 3h14a1 1 0 011 1v17l-3-2-3 2-3-2-3 2-3-2V4a1 1 0 011-1z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
       <span class="label">Facturas</span>
@@ -1205,6 +1209,11 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
       <div class="hist-grid" id="histGrid"></div>
     </div>
   </div>
+</section>
+
+<!-- ═══ VIEW — REPORTE DE REPARTOS ═════════════════════ -->
+<section id="viewRrep" class="stage">
+  <div id="rrepHost" class="cf-host"></div>
 </section>
 
 <!-- ═══ VIEW — FACTURAS ════════════════════════════════ -->
@@ -1596,7 +1605,7 @@ function initials(name){
 /* ════════ NAVIGATION ════════════════════════════════ */
 let _lastView=null;
 function showView(v){
-  ['calc','trans','hist','dash','fact'].forEach(x=>{
+  ['calc','trans','hist','dash','fact','rrep'].forEach(x=>{
     document.getElementById('view'+x.charAt(0).toUpperCase()+x.slice(1)).classList.toggle('is-active',x===v);
   });
   document.querySelectorAll('[data-nav]').forEach(b=>{
@@ -1614,6 +1623,7 @@ function showView(v){
   if(v==='hist'){setHistView(histViewMode);_cfLoadFac();}
   if(v==='dash')renderReporte();
   if(v==='fact')renderFacturas();
+  if(v==='rrep')renderReporteRepartos();
 }
 document.querySelectorAll('[data-nav]').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.nav)));
 
@@ -3350,6 +3360,32 @@ function showSaveAnim(){
   .hc-detail-table tr.hc-grp--servicios td{background:var(--success-soft,#D1FAE5);color:#15803d}
   .hc-detail-table tr.hc-sub td{background:#f2f6fa;font-weight:800;color:var(--gray-800,#1e293b);border-top:1px solid #cdd8e4;font-size:11px}
   .cf-segpill{display:inline-block;font-size:10.5px;font-weight:800;padding:2px 8px;border-radius:999px;white-space:nowrap}
+  /* Reporte de Repartos */
+  .cf-count{font-size:12px;font-weight:800;color:var(--gray-500,#64748b);background:var(--gray-100,#f1f5f9);padding:3px 11px;border-radius:999px}
+  .rr-mnav{display:inline-flex;align-items:center;gap:4px;background:var(--gray-100,#f1f5f9);border:1px solid var(--gray-200,#e2e8f0);border-radius:11px;padding:3px 4px;margin-left:10px}
+  .rr-mnav button{border:0;background:transparent;width:30px;height:30px;border-radius:8px;font-size:18px;color:var(--primary);cursor:pointer;font-weight:800;line-height:1}
+  .rr-mnav button:hover{background:#fff}
+  .rr-mnav span{font-weight:800;font-size:14px;padding:0 8px;color:var(--gray-800,#1e293b)}
+  .rr-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+  .rr-chip{border:1px solid var(--gray-200,#e2e8f0);background:#fff;border-radius:10px;padding:8px 14px;font:inherit;font-size:13px;font-weight:700;color:var(--gray-600,#475569);cursor:pointer;transition:all .15s}
+  .rr-chip:hover{border-color:var(--primary);color:var(--primary)}
+  .rr-chip.on{background:var(--primary);border-color:var(--primary);color:#fff}
+  .rr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(258px,1fr));gap:14px}
+  .rr-card{background:#fff;border:1px solid var(--gray-200,#e2e8f0);border-radius:16px;padding:16px 18px;cursor:pointer;transition:box-shadow .2s,transform .2s,border-color .2s}
+  .rr-card:hover{box-shadow:0 8px 24px rgba(15,23,42,.1);transform:translateY(-2px);border-color:var(--primary)}
+  .rr-card__ts{font-family:Sora,Inter,sans-serif;font-size:18px;font-weight:800;color:var(--primary)}
+  .rr-card__pd{font-size:12px;font-weight:600;color:var(--gray-500,#64748b);margin:2px 0 12px}
+  .rr-card__foot{display:flex;justify-content:space-between;border-top:1px solid var(--gray-100,#f1f5f9);padding-top:12px}
+  .rr-card__foot b{display:block;font-family:Sora,Inter,sans-serif;font-size:18px;font-weight:800;color:var(--gray-800,#1e293b);font-variant-numeric:tabular-nums}
+  .rr-card__foot span{font-size:10.5px;font-weight:700;color:var(--gray-400,#94a3b8);text-transform:uppercase;letter-spacing:.4px}
+  .rr-card__monto{margin-top:10px;font-size:12.5px;color:var(--gray-500,#64748b)}
+  .rr-card__monto b{color:var(--gray-800,#1e293b);font-weight:800}
+  .rr-card__go{margin-top:8px;font-size:12.5px;font-weight:800;color:var(--primary)}
+  .cf-table tr.hc-grp td{background:#e8eef5;font-weight:800;color:var(--primary);font-size:10.5px;letter-spacing:.4px;text-transform:uppercase;padding:6px 10px}
+  .cf-table tr.hc-grp--interior td{background:var(--orange-soft,#FFEDD5);color:var(--orange,#F97316)}
+  .cf-table tr.hc-grp--servicios td{background:var(--success-soft,#D1FAE5);color:#15803d}
+  .cf-table tr.hc-sub td{background:#f2f6fa;font-weight:800}
+  .cf-table tr.rr-tot td{background:var(--primary);color:#fff;font-weight:800;font-size:14px}
   .cf-segpill.sp-loc{background:#DBEAFE;color:var(--primary)} .cf-segpill.sp-int{background:var(--orange-soft,#FFEDD5);color:var(--orange,#F97316)} .cf-segpill.sp-srv{background:var(--success-soft,#D1FAE5);color:#15803d}
   .cf-empty{text-align:center;color:var(--gray-400,#94a3b8);padding:44px 20px;font-size:14px;font-weight:600}
   /* modal simple */
@@ -3482,9 +3518,59 @@ function _cfOpenFacturaModal(){
   });
 }
 
+/* ════════ REPORTE DE REPARTOS (por semana + transportista) ════════ */
+let _rrMes=(function(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');})();
+let _rrWeek=undefined; // undefined=auto · null=Mes completo · 'YYYY-MM-DD'=semana
+function _isoD(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function _dispD(iso){return iso?iso.split('-').reverse().join('/'):'—';}
+function _shD(iso){const p=iso.split('-');return p[2]+'/'+p[1];}
+function _weeksOfMonth(mk){const a=mk.split('-').map(Number),y=a[0],mo=a[1];const first=new Date(y,mo-1,1),last=new Date(y,mo,0);let d=new Date(first);d.setDate(d.getDate()-((d.getDay()+6)%7));const w=[];while(d<=last){const mon=new Date(d),sun=new Date(d);sun.setDate(sun.getDate()+6);w.push({desde:_isoD(mon),hasta:_isoD(sun)});d.setDate(d.getDate()+7);}return w;}
+function _rrShiftMonth(delta){const a=_rrMes.split('-').map(Number);const d=new Date(a[0],a[1]-1+delta,1);_rrMes=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');_rrWeek=null;renderReporteRepartos();}
+function _rrGroups(weekDesde){
+  const groups={};
+  (repartos||[]).forEach(r=>{
+    const wk=(typeof isoWeekRange==='function'&&r.fechaISO)?isoWeekRange(r.fechaISO):null;
+    if(weekDesde){if(!wk||wk.desde!==weekDesde)return;}
+    else{if((r.fechaISO||'').slice(0,7)!==_rrMes)return;}
+    (r.clientes||[]).forEach(cl=>{const ts=cl.tsNombre||'—';const g=groups[ts]||(groups[ts]={ts:ts,tsId:cl.tsId,lines:[],monto:0,flete:0});g.lines.push(cl);g.monto+=+cl.monto||0;g.flete+=+cl.precio||0;});
+  });
+  return Object.values(groups).sort((a,b)=>b.flete-a.flete);
+}
+function renderReporteRepartos(){
+  const host=document.getElementById('rrepHost');if(!host)return;
+  const weeks=_weeksOfMonth(_rrMes);
+  if(_rrWeek===undefined){const today=_isoD(new Date());const cur=weeks.find(w=>today>=w.desde&&today<=w.hasta);_rrWeek=cur?cur.desde:(weeks[0]?weeks[0].desde:null);}
+  const M=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const a=_rrMes.split('-').map(Number),monthLbl=M[a[1]-1]+' '+a[0];
+  const groups=_rrGroups(_rrWeek);
+  const wkObj=_rrWeek?weeks.find(w=>w.desde===_rrWeek):null;
+  const periodLbl=wkObj?(_dispD(wkObj.desde)+' al '+_dispD(wkObj.hasta)):'Mes completo';
+  const chips='<div class="rr-chips"><button class="rr-chip'+(!_rrWeek?' on':'')+'" data-rrw="">Mes completo</button>'+weeks.map(w=>'<button class="rr-chip'+(_rrWeek===w.desde?' on':'')+'" data-rrw="'+w.desde+'">'+_shD(w.desde)+'–'+_shD(w.hasta)+'</button>').join('')+'</div>';
+  const nav='<div class="rr-mnav"><button data-rrm="-1" aria-label="Mes anterior">‹</button><span>'+monthLbl+'</span><button data-rrm="1" aria-label="Mes siguiente">›</button></div>';
+  let cards;
+  if(!groups.length){cards='<div class="cf-empty">Sin repartos en '+periodLbl+'.<br>Calculá y guardá repartos en la Calculadora para que aparezcan acá.</div>';}
+  else{cards='<div class="rr-grid">'+groups.map((g,i)=>'<div class="rr-card" data-rrts="'+i+'"><div class="rr-card__ts">'+_escp(g.ts)+'</div><div class="rr-card__pd">'+periodLbl+'</div><div class="rr-card__foot"><div><b>'+g.lines.length+'</b><span>Camiones</span></div><div style="text-align:right"><b>'+_gs(g.flete)+'</b><span>Flete total</span></div></div><div class="rr-card__monto">Monto repartido: <b>'+_gs(g.monto)+'</b></div><div class="rr-card__go">Ver planilla ›</div></div>').join('')+'</div>';}
+  host.innerHTML='<div class="cf-hd"><h2><img src="logo-alas-s.a.png">Reporte de Repartos</h2><span class="cf-count">'+groups.length+'</span>'+nav+'</div>'+chips+cards;
+  host.querySelectorAll('[data-rrm]').forEach(b=>b.addEventListener('click',()=>_rrShiftMonth(+b.dataset.rrm)));
+  host.querySelectorAll('[data-rrw]').forEach(b=>b.addEventListener('click',()=>{_rrWeek=b.dataset.rrw||null;renderReporteRepartos();}));
+  host.querySelectorAll('[data-rrts]').forEach(b=>b.addEventListener('click',()=>_rrOpenDetail(groups[+b.dataset.rrts],periodLbl,wkObj)));
+  if(window.gsap){gsap.from('#rrepHost .rr-card',{opacity:0,y:14,duration:.4,stagger:.05,ease:'power3.out',clearProps:'all'});}
+}
+function _rrOpenDetail(g,periodLbl,wkObj){
+  const SEGORD=[['local','Local'],['interior','Interior'],['servicios','Servicios']];
+  let rows='';
+  SEGORD.forEach(function(pair){const sk=pair[0],slbl=pair[1];const ls=g.lines.filter(c=>(c.seg||'local')===sk);if(!ls.length)return;let sM=0,sF=0;rows+='<tr class="hc-grp hc-grp--'+sk+'"><td colspan="3">'+slbl+'</td></tr>';ls.forEach(c=>{const fl=(c.precio||c.gasto)||0;sM+=c.monto||0;sF+=fl;rows+='<tr><td>'+_escp(c.trDesc||'—')+'</td><td class="r">'+_gs(c.monto||0)+'</td><td class="r">'+_gs(fl)+'</td></tr>';});rows+='<tr class="hc-sub"><td>Subtotal '+slbl+'</td><td class="r">'+_gs(sM)+'</td><td class="r">'+_gs(sF)+'</td></tr>';});
+  const bd=document.createElement('div');bd.className='cf-mbd on';
+  bd.innerHTML='<div class="cf-mbox" style="max-width:580px"><h3>'+_escp(g.ts)+' · '+periodLbl+'</h3><div style="max-height:52vh;overflow:auto;margin:0 -4px"><table class="cf-table"><thead><tr><th>Camión</th><th class="r">Monto</th><th class="r">Flete</th></tr></thead><tbody>'+rows+'<tr class="rr-tot"><td>TOTAL</td><td class="r">'+_gs(g.monto)+'</td><td class="r">'+_gs(g.flete)+'</td></tr></tbody></table></div><div class="cf-mfoot"><button class="cancel">Cerrar</button><button class="ok"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" width="15" height="15" style="vertical-align:-2px"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6v-8z"/></svg> Imprimir</button></div></div>';
+  document.body.appendChild(bd);
+  bd.querySelector('.cancel').addEventListener('click',()=>bd.remove());
+  bd.addEventListener('click',e=>{if(e.target===bd)bd.remove();});
+  bd.querySelector('.ok').addEventListener('click',()=>{_cfPrint({id:null,tsNombre:g.ts,semanaDesde:wkObj?wkObj.desde:null,semanaHasta:wkObj?wkObj.hasta:null,clientes:g.lines,totalMonto:g.monto,totalFlete:g.flete,incTotal:g.monto>0?g.flete/g.monto*100:null,factura_id:null});});
+}
+
 /* ════════ IMPRIMIR PLANILLA (formato Control, agrupado por segmento) ════════ */
-function printPlanillaFlete(id){
-  const r=(repartos||[]).find(x=>x.id===id);if(!r){showToast('Planilla no encontrada');return;}
+function printPlanillaFlete(id){const r=(repartos||[]).find(x=>x.id===id);if(!r){showToast('Planilla no encontrada');return;}_cfPrint(r);}
+function _cfPrint(r){
   const lines=r.clientes||[];if(!lines.length){showToast('La planilla no tiene camiones');return;}
   const f=(window.__cfFac||[]).find(x=>x.id===r.factura_id)||null;
   const SEGP=[['local','LOCAL'],['interior','INTERIOR'],['servicios','SERVICIOS ADICIONALES']];
@@ -3497,9 +3583,9 @@ function printPlanillaFlete(id){
     body+='<tr class="sub"><td>SUBTOTAL '+slbl+'</td><td class="r">'+_gs(sM)+'</td><td class="r">'+_gs(sF)+'</td><td></td></tr>';
     totM+=sM;totF+=sF;totN+=g.length;
   });
-  const pid='#'+String(r.id).padStart(4,'0');
+  const pid=r.id?('#'+String(r.id).padStart(4,'0')):'Semanal';
   const logoUrl=new URL('logo-alas-s.a.png',window.location.href).href;
-  const wk=(typeof isoWeekRange==='function'&&r.fechaISO)?isoWeekRange(r.fechaISO):null;
+  const wk=r.semanaDesde?{desde:r.semanaDesde,hasta:r.semanaHasta}:((typeof isoWeekRange==='function'&&r.fechaISO)?isoWeekRange(r.fechaISO):null);
   const dd=iso=>iso?iso.split('-').reverse().join('/'):'—';
   const incTot=r.incTotal!=null?r.incTotal.toFixed(2)+'%':'—';
   const meta=(k,v)=>'<div class="mi"><span>'+k+'</span><b>'+v+'</b></div>';
