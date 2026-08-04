@@ -1541,6 +1541,7 @@ SEED.forEach(ts=>ts.trucks.forEach(tr=>{if(!tr.precio)tr.precio=0;if(!tr.tipo)tr
 let transportistas=[],repartos=[],search='',selectedTsId=null,pendingTsId=null,editingClienteId=null;
 let currentReparto={id:null,tsId:null,trId:null,km:0,zona:'',fecha:'',precio:0,clientes:[]};
 let nextRepartoId=1,nextClienteId=1,nextTsId=5000,nextTrId=9000;
+let _repartidores=[]; // nombres de repartidores (tabla repartidores)
 
 /* ── Persist (Supabase) ──────────────────────────── */
 async function loadData(){
@@ -1572,6 +1573,7 @@ async function loadData(){
       zona:r.zona||'',factura_id:r.factura_id||null,clientes:r.clientes||[]
     }));
   }
+  try{const rr=await sb.from('repartidores').select('nombre').eq('activo',true).order('nombre');if(!rr.error&&rr.data)_repartidores=rr.data.map(x=>x.nombre);}catch(e){}
   const maxCid=repartos.flatMap(r=>r.clientes||[]).reduce((m,c)=>Math.max(m,c.id||0),0);
   if(maxCid>=nextClienteId)nextClienteId=maxCid+1;
 }
@@ -1821,8 +1823,9 @@ function renderClientesTable(){
   if(btnLimp)btnLimp.style.display=c.clientes.length?'':'none';
   thead.innerHTML=
     `<th style="width:32px">#</th>`+
-    `<th style="min-width:200px">Camión</th>`+
-    `<th style="width:118px">Segmento</th>`+
+    `<th style="min-width:190px">Camión</th>`+
+    `<th style="width:112px">Segmento</th>`+
+    `<th style="width:158px">Repartidor</th>`+
     `<th class="r">Monto</th>`+
     `<th class="r">Precio flete</th>`+
     `<th class="r">Participación</th>`+
@@ -1849,6 +1852,13 @@ function renderClientesTable(){
           <option value="servicios"${cl.seg==='servicios'?' selected':''}>Servicios</option>
         </select>
       </td>
+      <td style="padding:6px 8px">
+        <select class="cl-rep-sel" data-clid="${cl.id}" style="width:100%;padding:6px 6px;border:1px solid #d1d5db;border-radius:8px;font-size:12px;font-weight:600;background:#fff;cursor:pointer">
+          <option value=""${!cl.rep?' selected':''}>— Repartidor —</option>
+          ${_repartidores.map(n=>`<option value="${esc(n)}"${cl.rep===n?' selected':''}>${esc(n)}</option>`).join('')}
+          <option value="__new__">＋ Agregar nuevo…</option>
+        </select>
+      </td>
       <td style="padding:6px 10px;text-align:right"><input class="cl-money-inp" type="text" value="${cl.monto>0?formatMoney(cl.monto):''}" placeholder="0" data-clid="${cl.id}" inputmode="numeric"></td>
       <td style="padding:6px 10px;text-align:right"><input class="cl-precio-inp" type="text" value="${cl.precio>0?formatMoney(cl.precio):''}" placeholder="0" data-clid="${cl.id}" inputmode="numeric"></td>
       <td class="r pct-col" data-col="pct">${cl.pct>0?Math.round(cl.pct)+'%':'—'}</td>
@@ -1858,7 +1868,7 @@ function renderClientesTable(){
     </tr>`;
   }).join('');
   tfoot.innerHTML=`<tr>
-    <td colspan="3" class="lbl">TOTAL</td>
+    <td colspan="4" class="lbl">TOTAL</td>
     <td class="val r" data-col="tot-monto">${fmtGs(c.totalMonto)}</td>
     <td class="val r" data-col="tot-flete">${c.totalFlete>0?fmtGs(c.totalFlete):'—'}</td>
     <td class="val r">100%</td>
@@ -1892,7 +1902,7 @@ function updateResultCard(){
     rNum.classList.add('is-empty');
     rNum.classList.remove('pop');
     rPct.style.opacity='0';
-    rCap.textContent=!c.clientes.length?'Agregá los camiones del reparto':(c.totalMonto<=0?'Cargá el monto de cada camión':'Cargá el precio de flete');
+    rCap.textContent=!c.clientes.length?'Agregá los camiones del reparto':(c.totalMonto<=0?'Cargá el monto de cada camión':'Cargá el flete para ver la incidencia');
     rCap.className='result-sub s-empty';
   }
 
@@ -2023,25 +2033,26 @@ document.getElementById('ncCancel').addEventListener('click',closeNCModal);
 document.getElementById('modalNC').addEventListener('click',e=>{ if(e.target.id==='modalNC')closeNCModal(); });
 document.getElementById('ncSave').addEventListener('click',async()=>{
   const desc=document.getElementById('ncDesc').value.trim();
-  if(!_ncTsVal){ showToast('Elegí el transportista'); ncOpenTsPop(); return; }
-  if(!desc){document.getElementById('ncDesc').focus();return;}
+  const _mark=el=>{if(!el)return;el.classList.add('is-err');el.focus();el.addEventListener('input',()=>el.classList.remove('is-err'),{once:true});};
+  if(!_ncTsVal){ showToast('¡Ojo! Elegí primero el transportista'); ncOpenTsPop(); return; }
+  if(!desc){showToast('Falta el nombre/chapa del camión');_mark(document.getElementById('ncDesc'));return;}
   const btn=document.getElementById('ncSave'); const orig=btn.textContent; btn.disabled=true; btn.textContent='Guardando…';
   try{
     let tsId, ts;
     if(_ncTsVal==='__new'){
       const nn=document.getElementById('ncTsNew').value.trim();
-      if(!nn){document.getElementById('ncTsNew').focus();btn.disabled=false;btn.textContent=orig;return;}
+      if(!nn){showToast('Escribí el nombre del transportista nuevo');_mark(document.getElementById('ncTsNew'));btn.disabled=false;btn.textContent=orig;return;}
       tsId=await dbAddTs(nn); ts={id:tsId,n:nn,trucks:[]}; transportistas.push(ts);
     } else { tsId=+_ncTsVal; ts=transportistas.find(t=>t.id===tsId); }
     const trId=await dbAddTruck(tsId,desc,0,'km');
-    if(ts)ts.trucks.push({id:trId,d:desc,tipo:'km',precio:0,lastKm:0});
+    if(ts)ts.trucks.push({id:trId,d:desc,tipo:'km',precio:0,lastKm:0,seg:'local'});
     if(_ncCl){_ncCl.trId=trId;_ncCl.tsId=tsId;_ncCl.seg=_truckSeg(trId);}
     btn.disabled=false;btn.textContent=orig;
     closeNCModal();renderClientesTable();updateResultCard();
-    showToast('Camión agregado');
+    showToast('¡Listo! Sumé el camión 🚚');
   }catch(err){
     btn.disabled=false;btn.textContent=orig;
-    showToast('Error al agregar el camión');
+    showToast('Uy, no pude agregar el camión. Probá de nuevo.');
   }
 });
 function renderTruckPopList(q){
@@ -2160,6 +2171,36 @@ document.getElementById('clientesTbody').addEventListener('change',e=>{
   const cl=currentReparto.clientes.find(c=>c.id===+e.target.dataset.clid);
   if(cl)cl.seg=e.target.value;
 });
+
+/* Repartidor por camión (con opción de agregar nuevo) */
+document.getElementById('clientesTbody').addEventListener('change',e=>{
+  if(!e.target.classList.contains('cl-rep-sel'))return;
+  const sel=e.target, cl=currentReparto.clientes.find(c=>c.id===+sel.dataset.clid);
+  if(!cl)return;
+  if(sel.value==='__new__'){ sel.value=cl.rep||''; _openAddRepartidor(function(name){ cl.rep=name; renderClientesTable(); }); return; }
+  cl.rep=sel.value||null;
+});
+
+// Modal para agregar un repartidor nuevo a la tabla `repartidores`
+function _openAddRepartidor(onDone){
+  const bd=document.createElement('div');bd.className='modal-bd is-open';bd.style.zIndex='9000';
+  bd.innerHTML='<div class="modal-box" style="max-width:420px"><div class="modal-title">Agregar repartidor</div><div class="modal-sub">Escribí el nombre del nuevo repartidor y lo sumo a la lista.</div><div class="modal-field"><label for="_repNew">Nombre <span class="req">*</span></label><input class="modal-input" id="_repNew" type="text" placeholder="Ej: Juan Pérez" autocomplete="off"><span id="_repErr" style="display:block;font-size:11.5px;color:#c9505c;font-weight:700;margin-top:5px"></span></div><div class="modal-actions" style="display:flex;gap:10px;justify-content:flex-end;margin-top:18px"><button class="btn btn-ghost" id="_repCancel" type="button">Cancelar</button><button class="btn btn-primary" id="_repSave" type="button">Guardar</button></div></div>';
+  document.body.appendChild(bd);
+  const inp=bd.querySelector('#_repNew');setTimeout(()=>inp.focus(),60);
+  inp.addEventListener('input',()=>{inp.classList.remove('is-err');const ee=bd.querySelector('#_repErr');if(ee)ee.textContent='';});
+  const close=()=>bd.remove();
+  bd.querySelector('#_repCancel').addEventListener('click',close);
+  bd.addEventListener('click',ev=>{if(ev.target===bd)close();});
+  inp.addEventListener('keydown',ev=>{if(ev.key==='Enter')bd.querySelector('#_repSave').click();if(ev.key==='Escape')close();});
+  const errEl=bd.querySelector('#_repErr');
+  bd.querySelector('#_repSave').addEventListener('click',async()=>{
+    const name=inp.value.trim();
+    if(!name){if(errEl)errEl.textContent='Parece que olvidaste el nombre del repartidor.';inp.classList.add('is-err');inp.focus();return;}
+    if(errEl)errEl.textContent='';inp.classList.remove('is-err');
+    if(_repartidores.some(n=>n.toLowerCase()===name.toLowerCase())){const ex=_repartidores.find(n=>n.toLowerCase()===name.toLowerCase());onDone&&onDone(ex);close();return;}
+    try{const r=await sb.from('repartidores').insert({nombre:name}).select('nombre').single();if(r.error)throw r.error;_repartidores.push(name);_repartidores.sort((a,b)=>a.localeCompare(b));onDone&&onDone(name);showToast('¡Listo! Sumé a '+name+' a la lista');close();}catch(err){showToast('Uy, no pude agregar el repartidor. Probá de nuevo.');}
+  });
+}
 
 /* ════════ AUTOCOMPLETE CLIENTES (Supabase) ═════════════════════ */
 const FLETE_URL='https://wooihkyzpexxqkwwnylt.supabase.co';
@@ -2300,7 +2341,7 @@ document.addEventListener('click',e=>{
 
 /* Agregar camión directo en la tabla */
 document.getElementById('btnAddCliente').addEventListener('click',()=>{
-  const newCl={id:nextClienteId++,trId:null,tsId:null,monto:0,precio:0,seg:'local'};
+  const newCl={id:nextClienteId++,trId:null,tsId:null,monto:0,precio:0,seg:'local',rep:null};
   currentReparto.clientes.push(newCl);
   renderClientesTable();updateResultCard();
   const sel=document.querySelector(`[data-clid="${newCl.id}"] .cl-truck-sel`);
@@ -2338,10 +2379,10 @@ document.getElementById('mCltMonto').addEventListener('keydown',e=>{if(e.key==='
 /* Save reparto */
 document.getElementById('btnGuardar').addEventListener('click',async()=>{
   const c=computeReparto();
-  if(!c.clientes.length){showToast('Agregá al menos un camión');return;}
-  if(c.clientes.some(cl=>!cl.trId)){showToast('Elegí el camión en cada fila');return;}
-  if(!(c.totalMonto>0)){showToast('Cargá el monto de cada camión');return;}
-  if(!(c.totalFlete>0)){showToast('Cargá el precio de flete');return;}
+  if(!c.clientes.length){showToast('¡Ojo! Agregá al menos un camión al reparto');return;}
+  if(c.clientes.some(cl=>!cl.trId)){showToast('Falta elegir el camión en alguna fila');return;}
+  if(!(c.totalMonto>0)){showToast('Che, cargá el monto de cada camión');return;}
+  // El flete ya no es obligatorio: se puede guardar sin precio de flete.
   const fISO=currentReparto.fecha||todayISO();
   const fDisp=new Date(fISO+'T00:00:00').toLocaleDateString('es-PY',{day:'2-digit',month:'long',year:'numeric'});
   const tsIds=[...new Set(c.clientes.map(cl=>cl.tsId).filter(Boolean))];
@@ -2359,7 +2400,7 @@ document.getElementById('btnGuardar').addEventListener('click',async()=>{
     totalMonto:c.totalMonto,incTotal:c.incTotal,
     gastoPermitido:c.gastoPermitido,diferencia:c.diferencia,
     zona:'',
-    clientes:c.clientes.map(cl=>({id:cl.id,trId:cl.trId,tsId:cl.tsId,trDesc:cl.trDesc,tsNombre:cl.tsNombre,seg:cl.seg||'local',monto:cl.monto,precio:cl.precio,gasto:cl.gasto,inc:cl.inc,pct:cl.pct})),
+    clientes:c.clientes.map(cl=>({id:cl.id,trId:cl.trId,tsId:cl.tsId,trDesc:cl.trDesc,tsNombre:cl.tsNombre,seg:cl.seg||'local',rep:cl.rep||null,monto:cl.monto,precio:cl.precio,gasto:cl.gasto,inc:cl.inc,pct:cl.pct})),
   };
   try{
     const savedId=await dbSaveReparto(snap);
@@ -2570,12 +2611,14 @@ document.getElementById('btnAddTs').addEventListener('click',()=>{mTsName.value=
 document.getElementById('mTsCancel').addEventListener('click',()=>modalTs.classList.remove('is-open'));
 modalTs.addEventListener('click',e=>{if(e.target===modalTs)modalTs.classList.remove('is-open');});
 document.getElementById('mTsConfirm').addEventListener('click',async()=>{
-  const n=mTsName.value.trim().toUpperCase();if(!n){mTsName.focus();return;}
+  const n=mTsName.value.trim().toUpperCase();
+  if(!n){showToast('Parece que olvidaste el nombre del transportista');mTsName.classList.add('is-err');mTsName.focus();mTsName.addEventListener('input',()=>mTsName.classList.remove('is-err'),{once:true});return;}
   try{
     const id=await dbAddTs(n);
     transportistas.push({id,n,trucks:[]});
     modalTs.classList.remove('is-open');renderTsList();selectTs(id);populateTsSelect();
-  }catch(err){showToast('Error al guardar transportista');}
+    showToast('¡Listo! Agregué el transportista');
+  }catch(err){showToast('Uy, no pude guardar el transportista. Probá de nuevo.');}
 });
 mTsName.addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('mTsConfirm').click();});
 
@@ -2617,19 +2660,21 @@ function openModalTr(tsId){
 document.getElementById('mTrCancel').addEventListener('click',()=>modalTr.classList.remove('is-open'));
 modalTr.addEventListener('click',e=>{if(e.target===modalTr)modalTr.classList.remove('is-open');});
 document.getElementById('mTrConfirm').addEventListener('click',async()=>{
-  const d=mTrDesc.value.trim();if(!d){mTrDesc.focus();return;}
+  const d=mTrDesc.value.trim();
+  if(!d){showToast('Falta la descripción del camión');mTrDesc.classList.add('is-err');mTrDesc.focus();mTrDesc.addEventListener('input',()=>mTrDesc.classList.remove('is-err'),{once:true});return;}
   const precio=window._alasIsAdmin?parseMoney(mTrPrecio.value):0;
   const ts=transportistas.find(t=>t.id===pendingTsId);if(!ts)return;
   try{
     const id=await dbAddTruck(ts.id,d,precio,mTrTipoActual);
-    ts.trucks.push({id,d,precio,tipo:mTrTipoActual,lastKm:0});
+    ts.trucks.push({id,d,precio,tipo:mTrTipoActual,lastKm:0,seg:'local'});
     modalTr.classList.remove('is-open');renderTsList();
     if(selectedTsId===pendingTsId){
       renderDetailBody(ts);
       document.getElementById('detailChip').textContent=ts.trucks.length+' camión'+(ts.trucks.length!==1?'es':'');
     }
     populateTsSelect();
-  }catch(err){showToast('Error al guardar camión');}
+    showToast('¡Listo! Sumé el camión 🚚');
+  }catch(err){showToast('Uy, no pude guardar el camión. Probá de nuevo.');}
 });
 mTrDesc.addEventListener('keydown',e=>{if(e.key==='Enter')mTrPrecio.focus();});
 mTrPrecio.addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('mTrConfirm').click();});
@@ -3430,6 +3475,43 @@ function showSaveAnim(){
   .rrm-body table{margin:0}
   .rrm-body .cf-table th{position:sticky;top:0;background:#fff;z-index:1;box-shadow:0 1px 0 var(--gray-200,#e2e8f0)}
   @media(max-width:620px){.rrm-kpis{grid-template-columns:1fr}}
+  /* ─── Modales PRO (form agrupado + validación) ─── */
+  .cf-mbox--form{max-width:640px}
+  .cf-msub{font-size:13px;color:var(--gray-500,#64748b);font-weight:500;margin:-8px 0 18px}
+  .cf-sec{background:var(--gray-50,#f8fafc);border:1px solid var(--gray-200,#e2e8f0);border-radius:14px;padding:15px 16px;margin-bottom:14px}
+  .cf-sec__t{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--gray-400,#94a3b8);margin-bottom:13px}
+  .cf-sec__t svg{width:15px;height:15px}
+  .cf-grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:520px){.cf-grid2{grid-template-columns:1fr}}
+  .cf-fld{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+  .cf-sec .cf-fld:last-child{margin-bottom:0}
+  .cf-fld label{font-size:12.5px;font-weight:700;color:var(--gray-600,#475569)}
+  .cf-fld input,.cf-fld select{border:1.5px solid var(--gray-200,#e2e8f0);border-radius:10px;padding:11px 13px;font:inherit;font-size:14px;font-weight:600;color:var(--gray-800,#1e293b);background:#fff;transition:border-color .15s,box-shadow .15s;width:100%}
+  .cf-fld input:focus,.cf-fld select:focus{outline:none;border-color:var(--accent,#3B82F6);box-shadow:0 0 0 3px rgba(59,130,246,.12)}
+  .cf-fld.is-err input,.cf-fld.is-err select{border-color:#e0707a;box-shadow:0 0 0 3px rgba(224,112,122,.13)}
+  .cf-fld.is-ok input,.cf-fld.is-ok select{border-color:#5aab82}
+  .cf-fld__hint{font-size:11.5px;color:var(--gray-400,#94a3b8);font-weight:600}
+  .cf-fld__err{font-size:11.5px;color:#c9505c;font-weight:700;min-height:0;line-height:1.3;transition:min-height .15s}
+  .cf-fld.is-err .cf-fld__err{min-height:16px}
+  .cf-live{display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:700;padding:10px 13px;border-radius:10px;margin-top:6px}
+  .cf-live.ok{background:var(--success-soft,#D1FAE5);color:#15803d}
+  .cf-live.diff{background:var(--danger-soft,#FEE2E2);color:#c0424c}
+  .cf-live.neutral{background:var(--gray-100,#f1f5f9);color:var(--gray-500,#64748b)}
+  .cf-mfoot .ok:disabled{opacity:.5;cursor:not-allowed}
+  .cf-mfoot .ok.danger{background:var(--danger,#EF4444)}
+  /* ─── Vista Facturas ─── */
+  .cf-card--flush{padding:0;overflow:hidden}
+  .cf-table--hover tbody tr{transition:background .12s}
+  .cf-table--hover tbody tr:hover{background:var(--gray-50,#f8fafc)}
+  .fac-nro{font-weight:700;font-variant-numeric:tabular-nums}
+  .fac-monto{font-family:Sora,Inter,sans-serif;font-weight:800;font-size:15px;color:var(--gray-800,#1e293b);font-variant-numeric:tabular-nums}
+  .fac-del{border:0;background:transparent;color:var(--gray-300,#cbd5e1);cursor:pointer;padding:5px;border-radius:8px;opacity:0;transition:opacity .15s,color .15s,background .15s}
+  .cf-table--hover tbody tr:hover .fac-del{opacity:1}
+  .fac-del:hover{color:var(--danger,#EF4444);background:var(--danger-soft,#FEE2E2)}
+  .fac-del svg{width:16px;height:16px;display:block}
+  .cf-empty svg{width:42px;height:42px;color:var(--gray-300,#cbd5e1);margin-bottom:12px}
+  .cf-empty b{display:block;font-size:15px;color:var(--gray-700,#334155);margin-bottom:3px}
+  .modal-input.is-err{border-color:#e0707a !important;box-shadow:0 0 0 3px rgba(224,112,122,.13)}
   .cf-segpill.sp-loc{background:#DBEAFE;color:var(--primary)} .cf-segpill.sp-int{background:var(--orange-soft,#FFEDD5);color:var(--orange,#F97316)} .cf-segpill.sp-srv{background:var(--success-soft,#D1FAE5);color:#15803d}
   .cf-empty{text-align:center;color:var(--gray-400,#94a3b8);padding:44px 20px;font-size:14px;font-weight:600}
   /* modal simple */
@@ -3522,43 +3604,90 @@ function _cfOpenReporteEdit(mk){
 }
 
 /* ════════ FACTURAS ════════ */
+/* ─── Helpers de UI reutilizables (modal ancho animado + validación inline) ─── */
+function _ic(k){const p={doc:'<path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/>',truck:'<path d="M1 3h13v13H1zm13 5h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="1.6"/><circle cx="17.5" cy="18.5" r="1.6"/>',user:'<circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0112 0v1"/>'}[k]||'';return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">'+p+'</svg>';}
+function _cfModalOpen(html){
+  const bd=document.createElement('div');bd.className='cf-mbd on';bd.innerHTML=html;document.body.appendChild(bd);
+  const box=bd.querySelector('.cf-mbox');
+  const close=()=>{const g=window.gsap;if(g&&box){g.to(box,{y:16,scale:.97,opacity:0,duration:.18,ease:'power2.in'});g.to(bd,{opacity:0,duration:.22,ease:'power2.in',onComplete:()=>bd.remove()});}else bd.remove();};
+  bd.addEventListener('click',e=>{if(e.target===bd)close();});
+  document.addEventListener('keydown',function esc(ev){if(ev.key==='Escape'){close();document.removeEventListener('keydown',esc);}});
+  const g=window.gsap,reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(g&&box&&!reduce){g.fromTo(bd,{opacity:0},{opacity:1,duration:.24,ease:'power2.out'});g.fromTo(box,{y:26,scale:.95,opacity:0},{y:0,scale:1,opacity:1,duration:.44,ease:'back.out(1.5)',clearProps:'transform,opacity'});}
+  return {bd,box,close,$:s=>bd.querySelector(s)};
+}
+function _cfSetErr(fld,msg){if(!fld)return;fld.classList.remove('is-ok');fld.classList.add('is-err');const e=fld.querySelector('.cf-fld__err');if(e)e.textContent=msg;}
+function _cfSetOk(fld){if(!fld)return;fld.classList.remove('is-err');fld.classList.add('is-ok');const e=fld.querySelector('.cf-fld__err');if(e)e.textContent='';}
+function _cfClearVal(fld){if(!fld)return;fld.classList.remove('is-err','is-ok');const e=fld.querySelector('.cf-fld__err');if(e)e.textContent='';}
+function _cfConfirm(title,msg,onOk,okLabel){
+  const m=_cfModalOpen('<div class="cf-mbox" style="max-width:430px"><h3>'+title+'</h3><p class="cf-msub">'+msg+'</p><div class="cf-mfoot"><button class="cancel">Cancelar</button><button class="ok danger">'+(okLabel||'Sí, eliminar')+'</button></div></div>');
+  m.$('.cancel').addEventListener('click',m.close);
+  m.$('.ok').addEventListener('click',()=>{m.close();onOk&&onOk();});
+}
+
 async function renderFacturas(){
   const host=document.getElementById('factHost');if(!host)return;
   let facs=[];try{const res=await sb.from('fact_facturas').select('*').order('id',{ascending:false});facs=res.data||[];}catch(e){console.error('[facturas]',e);}
   window.__cfFac=facs;
-  const totalFact=facs.reduce((s,f)=>s+(+f.monto||0),0);
+  facs.forEach(f=>{const pl=(repartos||[]).find(r=>r.id===f.planilla_id);f._pl=pl;f._st=pl?(Math.round(+f.monto||0)===Math.round(pl.totalFlete||0)?'ok':'diff'):'sin';});
+  const totalFact=facs.reduce((s,f)=>s+(+f.monto||0),0),nOk=facs.filter(f=>f._st==='ok').length,nDiff=facs.filter(f=>f._st==='diff').length;
   function kpi(cls,l,v,s){return '<div class="cf-kpi '+cls+'"><div><div class="cf-kpi__l">'+l+'</div><div class="cf-kpi__v">'+v+'</div><div class="cf-kpi__s">'+s+'</div></div></div>';}
-  const kpis='<div class="cf-kpis">'+kpi('k3','Total facturado',_gs(totalFact),facs.length+' factura'+(facs.length===1?'':'s'))+'</div>';
+  const kpis='<div class="cf-kpis">'+kpi('k3','Total facturado',_gs(totalFact),facs.length+' factura'+(facs.length===1?'':'s'))+kpi('k2','Conciliadas',nOk,'coinciden con el flete')+kpi('k1','Con diferencia',nDiff,'revisá el monto')+'</div>';
   let table;
-  if(!facs.length){table='<div class="cf-card"><div class="cf-empty">Sin facturas todavía.<br>Registrá la primera y vinculala a una planilla.</div></div>';}
-  else{const rows=facs.map(f=>{const pl=(repartos||[]).find(r=>r.id===f.planilla_id);const plLbl=pl?('#'+String(pl.id).padStart(4,'0')+' · '+(pl.tsNombre||'—')):'—';return '<tr><td>'+_escp(f.nro||'—')+'</td><td>'+(f.fecha?f.fecha.split('-').reverse().join('/'):'—')+'</td><td>'+_escp(plLbl)+'</td><td class="r">'+_gs(f.monto)+'</td></tr>';}).join('');
-    table='<div class="cf-card"><table class="cf-table"><thead><tr><th>Nº Factura</th><th>Fecha</th><th>Planilla</th><th class="r">Monto</th></tr></thead><tbody>'+rows+'</tbody></table></div>';}
+  if(!facs.length){table='<div class="cf-card"><div class="cf-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 3h14a1 1 0 011 1v17l-3-2-3 2-3-2-3 2-3-2V4a1 1 0 011-1z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><b>Todavía no hay facturas</b><span>Registrá la primera y vinculala a la planilla que corresponde.</span></div></div>';}
+  else{const rows=facs.map(f=>{const plLbl=f._pl?('#'+String(f._pl.id).padStart(4,'0')+' · '+(f._pl.tsNombre||'—')):'— sin planilla —';
+      const chip=f._st==='ok'?'<span class="cf-chip ok">✓ Conciliada</span>':f._st==='diff'?'<span class="cf-chip diff">▲ Con diferencia</span>':'<span class="cf-chip proc">Sin planilla</span>';
+      return '<tr data-facid="'+f.id+'"><td class="fac-nro">'+_escp(f.nro||'—')+'</td><td>'+(f.fecha?f.fecha.split('-').reverse().join('/'):'—')+'</td><td>'+_escp(plLbl)+'</td><td>'+chip+'</td><td class="r fac-monto">'+_gs(f.monto)+'</td><td class="r"><button class="fac-del" data-delfac="'+f.id+'" title="Eliminar factura"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg></button></td></tr>';}).join('');
+    table='<div class="cf-card cf-card--flush"><table class="cf-table cf-table--hover"><thead><tr><th>Nº Factura</th><th>Fecha</th><th>Planilla</th><th>Estado</th><th class="r">Monto</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div>';}
   host.innerHTML='<div class="cf-hd"><h2><img src="logo-alas-s.a.png">Facturas</h2><div class="cf-spacer"></div><button class="cf-btn" id="cfNewFac"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Registrar factura</button></div>'+kpis+table;
   document.getElementById('cfNewFac').addEventListener('click',_cfOpenFacturaModal);
-  if(window.gsap){gsap.from('#factHost .cf-kpi,#factHost .cf-card',{opacity:0,y:14,duration:.4,stagger:.06,ease:'power3.out',clearProps:'all'});}
+  host.querySelectorAll('[data-delfac]').forEach(b=>b.addEventListener('click',()=>_cfDeleteFactura(+b.dataset.delfac)));
+  if(window.gsap){gsap.from('#factHost .cf-kpi',{opacity:0,y:14,duration:.4,stagger:.06,ease:'power3.out',clearProps:'all'});gsap.from('#factHost .cf-table tbody tr',{opacity:0,y:8,duration:.3,stagger:.02,delay:.1,ease:'power2.out',clearProps:'all'});}
+}
+
+function _cfDeleteFactura(id){
+  const f=(window.__cfFac||[]).find(x=>x.id===id);
+  _cfConfirm('¿Eliminar esta factura?','Se va a desvincular de su planilla. Esta acción no se puede deshacer.',async()=>{
+    try{const d=await sb.from('fact_facturas').delete().eq('id',id);if(d.error)throw d.error;
+      if(f&&f.planilla_id){await sb.from('repartos').update({factura_id:null}).eq('id',f.planilla_id);const pl=(repartos||[]).find(r=>r.id===f.planilla_id);if(pl)pl.factura_id=null;}
+      showToast('Listo, borré la factura');renderFacturas();}catch(e){showToast('Uy, no pude borrar la factura');}
+  });
 }
 
 function _cfOpenFacturaModal(){
-  const opts=(repartos||[]).slice().sort((a,b)=>(b.fechaISO||'').localeCompare(a.fechaISO||'')).map(r=>'<option value="'+r.id+'">#'+String(r.id).padStart(4,'0')+' · '+_escp(r.fecha||'')+' · '+_escp(r.tsNombre||'—')+' · '+_gs(r.totalMonto||0)+'</option>').join('');
-  const bd=document.createElement('div');bd.className='cf-mbd on';
-  bd.innerHTML='<div class="cf-mbox"><h3>Registrar factura</h3>'+
-    '<div class="cf-fld"><label>Nº de factura</label><input id="cf_fnro" placeholder="001-001-0000000"></div>'+
-    '<div class="cf-fld"><label>Fecha</label><input id="cf_ffecha" type="date" value="'+(typeof todayISO==='function'?todayISO():new Date().toISOString().slice(0,10))+'"></div>'+
-    '<div class="cf-fld"><label>Monto (Gs.)</label><input id="cf_fmonto" inputmode="numeric" placeholder="0"></div>'+
-    '<div class="cf-fld"><label>Planilla</label><select id="cf_fpl">'+opts+'</select></div>'+
-    '<div class="cf-mfoot"><button class="cancel">Cancelar</button><button class="ok">Guardar</button></div></div>';
-  document.body.appendChild(bd);
-  const mo=bd.querySelector('#cf_fmonto');mo.addEventListener('input',()=>{const n=parseInt(mo.value.replace(/[^\d]/g,''),10)||0;mo.value=n?_nnum(n):'';});
-  bd.querySelector('.cancel').addEventListener('click',()=>bd.remove());
-  bd.addEventListener('click',e=>{if(e.target===bd)bd.remove();});
-  bd.querySelector('.ok').addEventListener('click',async()=>{
-    const nro=bd.querySelector('#cf_fnro').value.trim();const monto=parseInt(mo.value.replace(/[^\d]/g,''),10)||0;const plId=+bd.querySelector('#cf_fpl').value;const fecha=bd.querySelector('#cf_ffecha').value||null;
-    if(!nro){showToast('Cargá el Nº de factura');return;}if(!(monto>0)){showToast('Cargá el monto');return;}
-    const pl=(repartos||[]).find(r=>r.id===plId);
-    try{const ins=await sb.from('fact_facturas').insert({nro:nro,fecha:fecha,monto:monto,planilla_id:plId,transportadora_nombre:pl?pl.tsNombre:''}).select('id').single();if(ins.error)throw ins.error;
-      await sb.from('repartos').update({factura_id:ins.data.id}).eq('id',plId);
-      if(pl)pl.factura_id=ins.data.id;
-      bd.remove();showToast('Factura registrada');renderFacturas();}catch(e){console.error(e);showToast('Error al registrar');}
+  if(!(repartos||[]).length){showToast('¡Vaya! Primero cargá al menos un reparto en la Calculadora');return;}
+  const opts=(repartos||[]).slice().sort((a,b)=>(b.fechaISO||'').localeCompare(a.fechaISO||'')).map(r=>'<option value="'+r.id+'" data-flete="'+(r.totalFlete||0)+'">#'+String(r.id).padStart(4,'0')+' · '+_escp(r.fecha||'')+' · '+_escp(r.tsNombre||'—')+' · flete '+_gs(r.totalFlete||0)+'</option>').join('');
+  const m=_cfModalOpen('<div class="cf-mbox cf-mbox--form">'+
+    '<h3>Registrar factura</h3><p class="cf-msub">Cargá los datos y vinculala a la planilla que corresponde.</p>'+
+    '<div class="cf-sec"><div class="cf-sec__t">'+_ic('doc')+'Datos de la factura</div>'+
+      '<div class="cf-fld" data-fld><label for="cf_fnro">Nº de factura</label><input id="cf_fnro" placeholder="001-001-0000000" autocomplete="off"><span class="cf-fld__err"></span></div>'+
+      '<div class="cf-grid2">'+
+        '<div class="cf-fld"><label for="cf_ffecha">Fecha</label><input id="cf_ffecha" type="date" value="'+(typeof todayISO==='function'?todayISO():new Date().toISOString().slice(0,10))+'"></div>'+
+        '<div class="cf-fld" data-fld><label for="cf_fmonto">Monto (Gs.)</label><input id="cf_fmonto" inputmode="numeric" placeholder="0"><span class="cf-fld__err"></span></div>'+
+      '</div></div>'+
+    '<div class="cf-sec"><div class="cf-sec__t">'+_ic('truck')+'Planilla vinculada</div>'+
+      '<div class="cf-fld"><label for="cf_fpl">Planilla</label><select id="cf_fpl">'+opts+'</select></div>'+
+      '<div class="cf-live neutral" id="cf_flive">Ingresá el monto para compararlo con el flete de la planilla.</div>'+
+    '</div>'+
+    '<div class="cf-mfoot"><button class="cancel">Cancelar</button><button class="ok">Guardar factura</button></div></div>');
+  const nroI=m.$('#cf_fnro'),mo=m.$('#cf_fmonto'),pl=m.$('#cf_fpl'),live=m.$('#cf_flive');
+  const nroF=nroI.closest('[data-fld]'),moF=mo.closest('[data-fld]');
+  const fleteSel=()=>{const o=pl.options[pl.selectedIndex];return o?(+o.dataset.flete||0):0;};
+  function updLive(){const v=parseInt(mo.value.replace(/[^\d]/g,''),10)||0,fl=fleteSel();if(!v){live.className='cf-live neutral';live.textContent='Ingresá el monto para compararlo con el flete de la planilla.';return;}if(Math.round(v)===Math.round(fl)){live.className='cf-live ok';live.textContent='✓ Coincide con el flete — quedará conciliada.';}else{live.className='cf-live diff';live.textContent='▲ No coincide: flete '+_gs(fl)+' vs factura '+_gs(v)+'.';}}
+  nroI.addEventListener('input',()=>{nroI.value.trim()?_cfSetOk(nroF):_cfClearVal(nroF);});
+  mo.addEventListener('input',()=>{const n=parseInt(mo.value.replace(/[^\d]/g,''),10)||0;mo.value=n?_nnum(n):'';n>0?_cfSetOk(moF):_cfClearVal(moF);updLive();});
+  pl.addEventListener('change',updLive);
+  m.$('.cancel').addEventListener('click',m.close);
+  m.$('.ok').addEventListener('click',async()=>{
+    const nro=nroI.value.trim(),monto=parseInt(mo.value.replace(/[^\d]/g,''),10)||0,plId=+pl.value,fecha=m.$('#cf_ffecha').value||null;
+    let bad=false;
+    if(!nro){_cfSetErr(nroF,'Falta un pequeño detalle: el Nº de la factura.');bad=true;}
+    if(!(monto>0)){_cfSetErr(moF,'Che, ingresá el monto de la factura.');bad=true;}
+    if(bad){showToast('Revisá los campos marcados 👀');return;}
+    const plObj=(repartos||[]).find(r=>r.id===plId);
+    try{const ins=await sb.from('fact_facturas').insert({nro:nro,fecha:fecha,monto:monto,planilla_id:plId,transportadora_nombre:plObj?plObj.tsNombre:''}).select('id').single();if(ins.error)throw ins.error;
+      await sb.from('repartos').update({factura_id:ins.data.id}).eq('id',plId);if(plObj)plObj.factura_id=ins.data.id;
+      m.close();showToast('¡Factura guardada correctamente! 🎉');renderFacturas();}catch(e){console.error(e);showToast('Uy, no pude guardar la factura. Probá de nuevo.');}
   });
 }
 
@@ -3595,7 +3724,7 @@ function renderReporteRepartos(){
   const SEGF=[['todos','Todos'],['local','Local'],['interior','Interior'],['servicios','Servicios']];
   const segFilter='<div class="rr-segfilter"><span class="rr-segfilter__l">Segmento</span>'+SEGF.map(s=>'<button class="rr-sf rr-sf--'+s[0]+(_rrSeg===s[0]?' on':'')+'" data-rrseg="'+s[0]+'">'+s[1]+'</button>').join('')+'</div>';
   let cards;
-  if(!groups.length){cards='<div class="cf-empty">Sin repartos en '+periodLbl+'.<br>Calculá y guardá repartos en la Calculadora para que aparezcan acá.</div>';}
+  if(!groups.length){cards='<div class="cf-card"><div class="cf-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 3h13v13H1zm13 5h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg><b>¡Vaya! No hay repartos en '+periodLbl+'</b><span>Calculá y guardá un flete en la Calculadora y va a aparecer acá agrupado por transportista.</span></div></div>';}
   else{cards='<div class="rr-grid">'+groups.map((g,i)=>'<div class="rr-card" data-rrts="'+i+'"><div class="rr-card__ts">'+_escp(g.ts)+'</div><div class="rr-card__pd">'+periodLbl+'</div><div class="rr-card__foot"><div><b>'+g.lines.length+'</b><span>Camiones</span></div><div style="text-align:right"><b>'+_gs(g.flete)+'</b><span>Flete total</span></div></div><div class="rr-card__monto">Monto repartido: <b>'+_gs(g.monto)+'</b></div><div class="rr-card__go">Ver planilla ›</div></div>').join('')+'</div>';}
   host.innerHTML='<div class="cf-hd"><h2><img src="logo-alas-s.a.png">Reporte de Repartos</h2><span class="cf-count">'+groups.length+'</span>'+nav+'</div>'+chips+segFilter+cards;
   host.querySelectorAll('[data-rrm]').forEach(b=>b.addEventListener('click',()=>_rrShiftMonth(+b.dataset.rrm)));
