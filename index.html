@@ -3521,6 +3521,7 @@ function showSaveAnim(){
   .rr-card:hover{box-shadow:0 8px 24px rgba(15,23,42,.1);transform:translateY(-2px);border-color:var(--primary)}
   .rr-card__ts{font-family:Sora,Inter,sans-serif;font-size:18px;font-weight:800;color:var(--primary)}
   .rr-card__pd{font-size:12px;font-weight:600;color:var(--gray-500,#64748b);margin:2px 0 12px}
+  .rr-card__st{margin:-4px 0 12px}
   .rr-card__foot{display:flex;justify-content:space-between;border-top:1px solid var(--gray-100,#f1f5f9);padding-top:12px}
   .rr-card__foot b{display:block;font-family:Sora,Inter,sans-serif;font-size:18px;font-weight:800;color:var(--gray-800,#1e293b);font-variant-numeric:tabular-nums}
   .rr-card__foot span{font-size:10.5px;font-weight:700;color:var(--gray-400,#94a3b8);text-transform:uppercase;letter-spacing:.4px}
@@ -3585,6 +3586,22 @@ function showSaveAnim(){
   .cf-empty svg{width:42px;height:42px;color:var(--gray-300,#cbd5e1);margin-bottom:12px}
   .cf-empty b{display:block;font-size:15px;color:var(--gray-700,#334155);margin-bottom:3px}
   .modal-input.is-err{border-color:#e0707a !important;box-shadow:0 0 0 3px rgba(224,112,122,.13)}
+  .fac-ts{font-weight:700;color:var(--gray-800,#1e293b)}
+  .fac-sem{font-size:12.5px;color:var(--gray-500,#64748b);font-weight:600;white-space:nowrap}
+  .fac-acts{white-space:nowrap}
+  .fac-editbtn,.fac-del{border:0;background:transparent;color:var(--gray-300,#cbd5e1);cursor:pointer;padding:5px;border-radius:8px;opacity:0;transition:opacity .15s,color .15s,background .15s;vertical-align:middle}
+  .cf-table--hover tbody tr:hover .fac-editbtn,.cf-table--hover tbody tr:hover .fac-del{opacity:1}
+  .fac-editbtn:hover{color:var(--primary);background:var(--accent-soft,#DBEAFE)}
+  .fac-editbtn svg{width:16px;height:16px;display:block}
+  .cf-plbtn{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;padding:12px 14px;border:1.5px dashed var(--gray-300,#cbd5e1);border-radius:11px;background:#fff;font:inherit;cursor:pointer;text-align:left;transition:border-color .15s,background .15s}
+  .cf-plbtn:hover{border-color:var(--accent,#3B82F6);background:var(--gray-50,#f8fafc)}
+  .cf-plbtn.set{border-style:solid;border-color:var(--gray-200,#e2e8f0)}
+  .cf-plbtn__main{display:flex;flex-direction:column;gap:2px;min-width:0}
+  .cf-plbtn__ts{font-family:Sora,Inter,sans-serif;font-weight:800;font-size:15px;color:var(--primary)}
+  .cf-plbtn__sub{font-size:12px;font-weight:600;color:var(--gray-500,#64748b)}
+  .cf-plbtn__ph{font-size:13.5px;font-weight:700;color:var(--gray-400,#94a3b8)}
+  .cf-plbtn__act{font-size:12.5px;font-weight:800;color:var(--primary);white-space:nowrap;flex-shrink:0}
+  .fac-pick-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;max-height:54vh;overflow:auto;padding:3px}
   .cf-segpill.sp-loc{background:#DBEAFE;color:var(--primary)} .cf-segpill.sp-int{background:var(--orange-soft,#FFEDD5);color:var(--orange,#F97316)} .cf-segpill.sp-srv{background:var(--success-soft,#D1FAE5);color:#15803d}
   .cf-empty{text-align:center;color:var(--gray-400,#94a3b8);padding:44px 20px;font-size:14px;font-weight:600}
   /* modal simple */
@@ -3698,70 +3715,138 @@ function _cfConfirm(title,msg,onOk,okLabel){
   m.$('.ok').addEventListener('click',()=>{m.close();onOk&&onOk();});
 }
 
+/* ── Facturas: filtro mes/semana + conciliación por planilla semanal ── */
+let _facMes=(function(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');})();
+let _facWeek=null; // null=mes completo · 'YYYY-MM-DD'=semana
+function _wkHasta(sd){const p=sd.split('-').map(Number),d=new Date(p[0],p[1]-1,p[2]+6);return _isoD(d);}
+function _facSem(f){return f.semana_desde||((f.fecha&&typeof isoWeekRange==='function')?isoWeekRange(f.fecha).desde:null);}
+// Flete agregado de un transportista en una semana (para conciliar)
+function _fleteDe(ts,semDesde){let f=0;if(!semDesde)return 0;(repartos||[]).forEach(r=>{const wk=(r.fechaISO&&typeof isoWeekRange==='function')?isoWeekRange(r.fechaISO):null;if(!wk||wk.desde!==semDesde)return;(r.clientes||[]).forEach(cl=>{if((cl.tsNombre||'—')===ts)f+=+cl.precio||0;});});return f;}
+// Estado de la planilla (transportista + semana) según la factura vinculada
+function _facEstadoDe(ts,semDesde){
+  if(!semDesde)return{k:'proc',l:'En proceso'};
+  const f=(window.__cfFac||[]).find(x=>(x.transportadora_nombre||'')===ts&&(x.semana_desde||'')===semDesde);
+  if(!f)return{k:'proc',l:'En proceso'};
+  return Math.round(+f.monto||0)===Math.round(_fleteDe(ts,semDesde))?{k:'ok',l:'Conciliada'}:{k:'diff',l:'Con diferencia'};
+}
+// Planillas (transportista × semana) para el mes/semana dados
+function _planillasDe(mes,weekDesde){
+  const groups={};
+  (repartos||[]).forEach(r=>{
+    const wk=(r.fechaISO&&typeof isoWeekRange==='function')?isoWeekRange(r.fechaISO):null;if(!wk)return;
+    if(weekDesde){if(wk.desde!==weekDesde)return;}else if(mes){if((r.fechaISO||'').slice(0,7)!==mes)return;}
+    (r.clientes||[]).forEach(cl=>{const ts=cl.tsNombre||'—',k=ts+'|'+wk.desde;const g=groups[k]||(groups[k]={ts:ts,semDesde:wk.desde,semHasta:wk.hasta,cam:0,monto:0,flete:0});g.cam++;g.monto+=+cl.monto||0;g.flete+=+cl.precio||0;});
+  });
+  return Object.values(groups).sort((a,b)=>b.flete-a.flete);
+}
+
 async function renderFacturas(){
   const host=document.getElementById('factHost');if(!host)return;
   let facs=[];try{const res=await sb.from('fact_facturas').select('*').order('id',{ascending:false});facs=res.data||[];}catch(e){console.error('[facturas]',e);}
   window.__cfFac=facs;
-  facs.forEach(f=>{const pl=(repartos||[]).find(r=>r.id===f.planilla_id);f._pl=pl;f._st=pl?(Math.round(+f.monto||0)===Math.round(pl.totalFlete||0)?'ok':'diff'):'sin';});
-  const totalFact=facs.reduce((s,f)=>s+(+f.monto||0),0),nOk=facs.filter(f=>f._st==='ok').length,nDiff=facs.filter(f=>f._st==='diff').length;
+  const weeks=_weeksOfMonth(_facMes);
+  const shown=facs.filter(f=>{const sd=_facSem(f);if(!sd)return false;return _facWeek?sd===_facWeek:sd.slice(0,7)===_facMes;});
+  shown.forEach(f=>{const ts=f.transportadora_nombre||'',sd=_facSem(f);const fl=(ts&&sd)?_fleteDe(ts,sd):0;f._flete=fl;f._sd=sd;f._st=(ts&&sd)?(Math.round(+f.monto||0)===Math.round(fl)?'ok':'diff'):'sin';});
+  const totalFact=shown.reduce((s,f)=>s+(+f.monto||0),0),nOk=shown.filter(f=>f._st==='ok').length,nDiff=shown.filter(f=>f._st==='diff').length;
   function kpi(cls,l,v,s){return '<div class="cf-kpi '+cls+'"><div><div class="cf-kpi__l">'+l+'</div><div class="cf-kpi__v">'+v+'</div><div class="cf-kpi__s">'+s+'</div></div></div>';}
-  const kpis='<div class="cf-kpis">'+kpi('k3','Total facturado',_gs(totalFact),facs.length+' factura'+(facs.length===1?'':'s'))+kpi('k2','Conciliadas',nOk,'coinciden con el flete')+kpi('k1','Con diferencia',nDiff,'revisá el monto')+'</div>';
+  const kpis='<div class="cf-kpis">'+kpi('k3','Total facturado',_gs(totalFact),shown.length+' factura'+(shown.length===1?'':'s'))+kpi('k2','Conciliadas',nOk,'coinciden con el flete')+kpi('k1','Con diferencia',nDiff,'revisá el monto')+'</div>';
+  const nav='<div class="rr-mnav"><button data-facm="-1" aria-label="Mes anterior">‹</button><span>'+_mesLbl(_facMes)+'</span><button data-facm="1" aria-label="Mes siguiente">›</button></div>';
+  const chips='<div class="rr-chips"><button class="rr-chip'+(!_facWeek?' on':'')+'" data-facw="">Mes completo</button>'+weeks.map(w=>'<button class="rr-chip'+(_facWeek===w.desde?' on':'')+'" data-facw="'+w.desde+'">'+_shD(w.desde)+'–'+_shD(w.hasta)+'</button>').join('')+'</div>';
   let table;
-  if(!facs.length){table='<div class="cf-card"><div class="cf-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 3h14a1 1 0 011 1v17l-3-2-3 2-3-2-3 2-3-2V4a1 1 0 011-1z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><b>Todavía no hay facturas</b><span>Registrá la primera y vinculala a la planilla que corresponde.</span></div></div>';}
-  else{const rows=facs.map(f=>{const plLbl=f._pl?('#'+String(f._pl.id).padStart(4,'0')+' · '+(f._pl.tsNombre||'—')):'— sin planilla —';
+  if(!shown.length){table='<div class="cf-card"><div class="cf-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 3h14a1 1 0 011 1v17l-3-2-3 2-3-2-3 2-3-2V4a1 1 0 011-1z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><b>No hay facturas en este período</b><span>Registrá una y elegí la planilla del transportista que corresponde.</span></div></div>';}
+  else{const rows=shown.map(f=>{const sd=f._sd,hasta=f.semana_hasta||(sd?_wkHasta(sd):null);
+      const sem=sd?(_dispD(sd)+' al '+_dispD(hasta)):'—';
       const chip=f._st==='ok'?'<span class="cf-chip ok">✓ Conciliada</span>':f._st==='diff'?'<span class="cf-chip diff">▲ Con diferencia</span>':'<span class="cf-chip proc">Sin planilla</span>';
-      return '<tr data-facid="'+f.id+'"><td class="fac-nro">'+_escp(f.nro||'—')+'</td><td>'+(f.fecha?f.fecha.split('-').reverse().join('/'):'—')+'</td><td>'+_escp(plLbl)+'</td><td>'+chip+'</td><td class="r fac-monto">'+_gs(f.monto)+'</td><td class="r"><button class="fac-del" data-delfac="'+f.id+'" title="Eliminar factura"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg></button></td></tr>';}).join('');
-    table='<div class="cf-card cf-card--flush"><table class="cf-table cf-table--hover"><thead><tr><th>Nº Factura</th><th>Fecha</th><th>Planilla</th><th>Estado</th><th class="r">Monto</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div>';}
-  host.innerHTML='<div class="cf-hd"><h2><img src="logo-alas-s.a.png">Facturas</h2><div class="cf-spacer"></div><button class="cf-btn" id="cfNewFac"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Registrar factura</button></div>'+kpis+table;
-  document.getElementById('cfNewFac').addEventListener('click',_cfOpenFacturaModal);
+      return '<tr data-facid="'+f.id+'"><td class="fac-nro">'+_escp(f.nro||'—')+'</td><td>'+(f.fecha?f.fecha.split('-').reverse().join('/'):'—')+'</td><td class="fac-ts">'+_escp(f.transportadora_nombre||'—')+'</td><td class="fac-sem">'+sem+'</td><td>'+chip+'</td><td class="r fac-monto">'+_gs(f.monto)+'</td>'+
+        '<td class="r fac-acts"><button class="fac-editbtn" data-editfac="'+f.id+'" title="Editar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 4H4a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-7M18.5 2.5a2.1 2.1 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="fac-del" data-delfac="'+f.id+'" title="Eliminar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg></button></td></tr>';}).join('');
+    table='<div class="cf-card cf-card--flush"><table class="cf-table cf-table--hover"><thead><tr><th>Nº Factura</th><th>Fecha</th><th>Transportista</th><th>Semana</th><th>Estado</th><th class="r">Monto</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div>';}
+  host.innerHTML='<div class="cf-hd"><h2><img src="logo-alas-s.a.png">Facturas</h2>'+nav+'<div class="cf-spacer"></div><button class="cf-btn" id="cfNewFac"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Registrar factura</button></div>'+chips+kpis+table;
+  document.getElementById('cfNewFac').addEventListener('click',()=>_cfOpenFacturaModal(null));
+  host.querySelectorAll('[data-facm]').forEach(b=>b.addEventListener('click',()=>{const a=_facMes.split('-').map(Number),d=new Date(a[0],a[1]-1+(+b.dataset.facm),1);_facMes=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');_facWeek=null;renderFacturas();}));
+  host.querySelectorAll('[data-facw]').forEach(b=>b.addEventListener('click',()=>{_facWeek=b.dataset.facw||null;renderFacturas();}));
   host.querySelectorAll('[data-delfac]').forEach(b=>b.addEventListener('click',()=>_cfDeleteFactura(+b.dataset.delfac)));
+  host.querySelectorAll('[data-editfac]').forEach(b=>b.addEventListener('click',()=>{const f=(window.__cfFac||[]).find(x=>x.id===+b.dataset.editfac);if(f)_cfOpenFacturaModal(f);}));
   if(window.gsap){gsap.from('#factHost .cf-kpi',{opacity:0,y:14,duration:.4,stagger:.06,ease:'power3.out',clearProps:'all'});gsap.from('#factHost .cf-table tbody tr',{opacity:0,y:8,duration:.3,stagger:.02,delay:.1,ease:'power2.out',clearProps:'all'});}
 }
 
 function _cfDeleteFactura(id){
-  const f=(window.__cfFac||[]).find(x=>x.id===id);
-  _cfConfirm('¿Eliminar esta factura?','Se va a desvincular de su planilla. Esta acción no se puede deshacer.',async()=>{
-    try{const d=await sb.from('fact_facturas').delete().eq('id',id);if(d.error)throw d.error;
-      if(f&&f.planilla_id){await sb.from('repartos').update({factura_id:null}).eq('id',f.planilla_id);const pl=(repartos||[]).find(r=>r.id===f.planilla_id);if(pl)pl.factura_id=null;}
-      showToast('Listo, borré la factura');renderFacturas();}catch(e){showToast('Uy, no pude borrar la factura');}
+  _cfConfirm('¿Eliminar esta factura?','No se puede deshacer. La planilla vuelve a quedar sin facturar.',async()=>{
+    try{const d=await sb.from('fact_facturas').delete().eq('id',id);if(d.error)throw d.error;showToast('Listo, borré la factura');renderFacturas();}catch(e){showToast('Uy, no pude borrar la factura');}
   });
 }
 
-function _cfOpenFacturaModal(){
+function _cfOpenFacturaModal(existing){
   if(!(repartos||[]).length){showToast('¡Vaya! Primero cargá al menos un reparto en la Calculadora');return;}
-  const opts=(repartos||[]).slice().sort((a,b)=>(b.fechaISO||'').localeCompare(a.fechaISO||'')).map(r=>'<option value="'+r.id+'" data-flete="'+(r.totalFlete||0)+'">#'+String(r.id).padStart(4,'0')+' · '+_escp(r.fecha||'')+' · '+_escp(r.tsNombre||'—')+' · flete '+_gs(r.totalFlete||0)+'</option>').join('');
+  const editing=!!(existing&&existing.id);
+  let sel=null;
+  if(editing&&existing.transportadora_nombre&&(existing.semana_desde||existing.fecha)){
+    const sd=existing.semana_desde||isoWeekRange(existing.fecha).desde;
+    sel={ts:existing.transportadora_nombre,semDesde:sd,semHasta:existing.semana_hasta||_wkHasta(sd),flete:_fleteDe(existing.transportadora_nombre,sd)};
+  }
   const m=_cfModalOpen('<div class="cf-mbox cf-mbox--form">'+
-    '<h3>Registrar factura</h3><p class="cf-msub">Cargá los datos y vinculala a la planilla que corresponde.</p>'+
+    '<h3>'+(editing?'Editar factura':'Registrar factura')+'</h3><p class="cf-msub">Cargá los datos y elegí la planilla (transportista + semana) que corresponde.</p>'+
     '<div class="cf-sec"><div class="cf-sec__t">'+_ic('doc')+'Datos de la factura</div>'+
       '<div class="cf-fld" data-fld><label for="cf_fnro">Nº de factura</label><input id="cf_fnro" placeholder="001-001-0000000" autocomplete="off"><span class="cf-fld__err"></span></div>'+
       '<div class="cf-grid2">'+
-        '<div class="cf-fld"><label for="cf_ffecha">Fecha</label><input id="cf_ffecha" type="date" value="'+(typeof todayISO==='function'?todayISO():new Date().toISOString().slice(0,10))+'"></div>'+
+        '<div class="cf-fld"><label for="cf_ffecha">Fecha</label><input id="cf_ffecha" type="date"></div>'+
         '<div class="cf-fld" data-fld><label for="cf_fmonto">Monto (Gs.)</label><input id="cf_fmonto" inputmode="numeric" placeholder="0"><span class="cf-fld__err"></span></div>'+
       '</div></div>'+
     '<div class="cf-sec"><div class="cf-sec__t">'+_ic('truck')+'Planilla vinculada</div>'+
-      '<div class="cf-fld"><label for="cf_fpl">Planilla</label><select id="cf_fpl">'+opts+'</select></div>'+
-      '<div class="cf-live neutral" id="cf_flive">Ingresá el monto para compararlo con el flete de la planilla.</div>'+
+      '<div class="cf-fld" data-fld><button type="button" class="cf-plbtn" id="cf_plbtn"></button><span class="cf-fld__err"></span></div>'+
+      '<div class="cf-live neutral" id="cf_flive">Elegí la planilla y el monto para compararlo con el flete.</div>'+
     '</div>'+
-    '<div class="cf-mfoot"><button class="cancel">Cancelar</button><button class="ok">Guardar factura</button></div></div>');
-  const nroI=m.$('#cf_fnro'),mo=m.$('#cf_fmonto'),pl=m.$('#cf_fpl'),live=m.$('#cf_flive');
-  const nroF=nroI.closest('[data-fld]'),moF=mo.closest('[data-fld]');
-  const fleteSel=()=>{const o=pl.options[pl.selectedIndex];return o?(+o.dataset.flete||0):0;};
-  function updLive(){const v=parseInt(mo.value.replace(/[^\d]/g,''),10)||0,fl=fleteSel();if(!v){live.className='cf-live neutral';live.textContent='Ingresá el monto para compararlo con el flete de la planilla.';return;}if(Math.round(v)===Math.round(fl)){live.className='cf-live ok';live.textContent='✓ Coincide con el flete — quedará conciliada.';}else{live.className='cf-live diff';live.textContent='▲ No coincide: flete '+_gs(fl)+' vs factura '+_gs(v)+'.';}}
+    '<div class="cf-mfoot"><button class="cancel">Cancelar</button><button class="ok">'+(editing?'Guardar cambios':'Guardar factura')+'</button></div></div>');
+  const nroI=m.$('#cf_fnro'),feI=m.$('#cf_ffecha'),mo=m.$('#cf_fmonto'),plBtn=m.$('#cf_plbtn'),live=m.$('#cf_flive');
+  const nroF=nroI.closest('[data-fld]'),moF=mo.closest('[data-fld]'),plF=plBtn.closest('[data-fld]');
+  feI.value=(editing&&existing.fecha)?existing.fecha:(typeof todayISO==='function'?todayISO():new Date().toISOString().slice(0,10));
+  if(editing){nroI.value=existing.nro||'';mo.value=existing.monto?_nnum(existing.monto):'';}
+  function renderPlBtn(){
+    if(sel){plBtn.classList.add('set');plBtn.innerHTML='<span class="cf-plbtn__main"><span class="cf-plbtn__ts">'+_escp(sel.ts)+'</span><span class="cf-plbtn__sub">'+_dispD(sel.semDesde)+' al '+_dispD(sel.semHasta)+' · flete '+_gs(sel.flete)+'</span></span><span class="cf-plbtn__act">Cambiar</span>';}
+    else{plBtn.classList.remove('set');plBtn.innerHTML='<span class="cf-plbtn__ph">— Elegir planilla —</span><span class="cf-plbtn__act">Elegir</span>';}
+  }
+  function updLive(){const v=parseInt(mo.value.replace(/[^\d]/g,''),10)||0;if(!sel){live.className='cf-live neutral';live.textContent='Elegí la planilla y el monto para compararlo con el flete.';return;}if(!v){live.className='cf-live neutral';live.textContent='Ingresá el monto para compararlo con el flete ('+_gs(sel.flete)+').';return;}if(Math.round(v)===Math.round(sel.flete)){live.className='cf-live ok';live.textContent='✓ Coincide con el flete — quedará conciliada.';}else{live.className='cf-live diff';live.textContent='▲ No coincide: flete '+_gs(sel.flete)+' vs factura '+_gs(v)+'.';}}
+  renderPlBtn();updLive();
+  plBtn.addEventListener('click',()=>_facPlanillaPicker(pick=>{sel=pick;_cfClearVal(plF);renderPlBtn();updLive();}));
   nroI.addEventListener('input',()=>{nroI.value.trim()?_cfSetOk(nroF):_cfClearVal(nroF);});
   mo.addEventListener('input',()=>{const n=parseInt(mo.value.replace(/[^\d]/g,''),10)||0;mo.value=n?_nnum(n):'';n>0?_cfSetOk(moF):_cfClearVal(moF);updLive();});
-  pl.addEventListener('change',updLive);
   m.$('.cancel').addEventListener('click',m.close);
   m.$('.ok').addEventListener('click',async()=>{
-    const nro=nroI.value.trim(),monto=parseInt(mo.value.replace(/[^\d]/g,''),10)||0,plId=+pl.value,fecha=m.$('#cf_ffecha').value||null;
+    const nro=nroI.value.trim(),monto=parseInt(mo.value.replace(/[^\d]/g,''),10)||0,fecha=feI.value||null;
     let bad=false;
     if(!nro){_cfSetErr(nroF,'Falta un pequeño detalle: el Nº de la factura.');bad=true;}
     if(!(monto>0)){_cfSetErr(moF,'Che, ingresá el monto de la factura.');bad=true;}
+    if(!sel){_cfSetErr(plF,'Elegí a qué planilla corresponde.');bad=true;}
     if(bad){showToast('Revisá los campos marcados 👀');return;}
-    const plObj=(repartos||[]).find(r=>r.id===plId);
-    try{const ins=await sb.from('fact_facturas').insert({nro:nro,fecha:fecha,monto:monto,planilla_id:plId,transportadora_nombre:plObj?plObj.tsNombre:''}).select('id').single();if(ins.error)throw ins.error;
-      await sb.from('repartos').update({factura_id:ins.data.id}).eq('id',plId);if(plObj)plObj.factura_id=ins.data.id;
-      m.close();showToast('¡Factura guardada correctamente! 🎉');renderFacturas();}catch(e){console.error(e);showToast('Uy, no pude guardar la factura. Probá de nuevo.');}
+    const row={nro:nro,fecha:fecha,monto:monto,transportadora_nombre:sel.ts,semana_desde:sel.semDesde,semana_hasta:sel.semHasta};
+    try{
+      if(editing){const up=await sb.from('fact_facturas').update(row).eq('id',existing.id);if(up.error)throw up.error;m.close();showToast('¡Factura actualizada! ✨');}
+      else{const ins=await sb.from('fact_facturas').insert(row);if(ins.error)throw ins.error;m.close();showToast('¡Factura guardada correctamente! 🎉');}
+      renderFacturas();
+    }catch(e){console.error(e);showToast('Uy, no pude guardar la factura. Probá de nuevo.');}
   });
+}
+
+// Picker de planilla (grilla por transportista, estilo Reporte de Repartos)
+function _facPlanillaPicker(onPick){
+  let pm=_facMes,pw=_facWeek;
+  const m=_cfModalOpen('<div class="cf-mbox cf-mbox--wide"><div class="rrm-hd"><div><h3 class="rrm-ts" style="font-size:20px">Elegí la planilla</h3><div class="rrm-pd">Transportista + semana a facturar</div></div><button class="rrm-x cancel" aria-label="Cerrar">&times;</button></div><div id="fp_body"></div></div>');
+  function draw(){
+    const weeks=_weeksOfMonth(pm);
+    if(pw===undefined){const t=_isoD(new Date());const c=weeks.find(w=>t>=w.desde&&t<=w.hasta);pw=c?c.desde:(weeks[0]?weeks[0].desde:null);}
+    const nav='<div class="rr-mnav"><button data-pm="-1">‹</button><span>'+_mesLbl(pm)+'</span><button data-pm="1">›</button></div>';
+    const chips='<div class="rr-chips"><button class="rr-chip'+(!pw?' on':'')+'" data-pw="">Mes completo</button>'+weeks.map(w=>'<button class="rr-chip'+(pw===w.desde?' on':'')+'" data-pw="'+w.desde+'">'+_shD(w.desde)+'–'+_shD(w.hasta)+'</button>').join('')+'</div>';
+    const groups=_planillasDe(pm,pw);
+    let grid;
+    if(!groups.length)grid='<div class="cf-empty" style="padding:30px"><b>Sin planillas en este período</b><span>Cambiá de mes o semana.</span></div>';
+    else grid='<div class="fac-pick-grid">'+groups.map((g,i)=>'<button type="button" class="rr-card" data-pick="'+i+'" style="cursor:pointer;text-align:left;font:inherit;width:100%"><div class="rr-card__ts">'+_escp(g.ts)+'</div><div class="rr-card__pd">'+_dispD(g.semDesde)+' al '+_dispD(g.semHasta)+'</div><div class="rr-card__foot"><div><b>'+g.cam+'</b><span>Camiones</span></div><div style="text-align:right"><b>'+_gs(g.flete)+'</b><span>Flete</span></div></div></button>').join('')+'</div>';
+    m.$('#fp_body').innerHTML='<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">'+nav+'</div>'+chips+grid;
+    m.$('#fp_body').querySelectorAll('[data-pm]').forEach(b=>b.addEventListener('click',()=>{const a=pm.split('-').map(Number),d=new Date(a[0],a[1]-1+(+b.dataset.pm),1);pm=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');pw=null;draw();}));
+    m.$('#fp_body').querySelectorAll('[data-pw]').forEach(b=>b.addEventListener('click',()=>{pw=b.dataset.pw||null;draw();}));
+    m.$('#fp_body').querySelectorAll('[data-pick]').forEach(b=>b.addEventListener('click',()=>{const g=groups[+b.dataset.pick];m.close();onPick({ts:g.ts,semDesde:g.semDesde,semHasta:g.semHasta,flete:g.flete});}));
+    if(window.gsap)gsap.from(m.$('#fp_body').querySelectorAll('.rr-card'),{opacity:0,y:12,duration:.34,stagger:.03,ease:'power2.out',clearProps:'all'});
+  }
+  draw();
+  m.$('.cancel').addEventListener('click',m.close);
 }
 
 /* ════════ REPORTE DE REPARTOS (por semana + transportista) ════════ */
@@ -3785,6 +3870,8 @@ function _rrGroups(weekDesde){
 }
 function renderReporteRepartos(){
   const host=document.getElementById('rrepHost');if(!host)return;
+  // Carga las facturas (una vez) para mostrar el estado en cada tarjeta
+  if(!window.__cfFac){sb.from('fact_facturas').select('*').then(r=>{window.__cfFac=r.data||[];if(document.getElementById('viewRrep').classList.contains('is-active'))renderReporteRepartos();}).catch(()=>{window.__cfFac=[];});}
   const weeks=_weeksOfMonth(_rrMes);
   if(_rrWeek===undefined){const today=_isoD(new Date());const cur=weeks.find(w=>today>=w.desde&&today<=w.hasta);_rrWeek=cur?cur.desde:(weeks[0]?weeks[0].desde:null);}
   const M=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
@@ -3798,7 +3885,7 @@ function renderReporteRepartos(){
   const segFilter='<div class="rr-segfilter"><span class="rr-segfilter__l">Segmento</span>'+SEGF.map(s=>'<button class="rr-sf rr-sf--'+s[0]+(_rrSeg===s[0]?' on':'')+'" data-rrseg="'+s[0]+'">'+s[1]+'</button>').join('')+'</div>';
   let cards;
   if(!groups.length){cards='<div class="cf-card"><div class="cf-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 3h13v13H1zm13 5h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg><b>¡Vaya! No hay repartos en '+periodLbl+'</b><span>Calculá y guardá un flete en la Calculadora y va a aparecer acá agrupado por transportista.</span></div></div>';}
-  else{cards='<div class="rr-grid">'+groups.map((g,i)=>'<div class="rr-card" data-rrts="'+i+'"><div class="rr-card__ts">'+_escp(g.ts)+'</div><div class="rr-card__pd">'+periodLbl+'</div><div class="rr-card__foot"><div><b>'+g.lines.length+'</b><span>Camiones</span></div><div style="text-align:right"><b>'+_gs(g.flete)+'</b><span>Flete total</span></div></div><div class="rr-card__monto">Monto repartido: <b>'+_gs(g.monto)+'</b></div><div class="rr-card__go">Ver planilla ›</div></div>').join('')+'</div>';}
+  else{cards='<div class="rr-grid">'+groups.map((g,i)=>{const st=_rrWeek?_facEstadoDe(g.ts,_rrWeek):null;return '<div class="rr-card" data-rrts="'+i+'"><div class="rr-card__ts">'+_escp(g.ts)+'</div><div class="rr-card__pd">'+periodLbl+'</div>'+(st?'<div class="rr-card__st"><span class="cf-chip '+st.k+'">'+st.l+'</span></div>':'')+'<div class="rr-card__foot"><div><b>'+g.lines.length+'</b><span>Camiones</span></div><div style="text-align:right"><b>'+_gs(g.flete)+'</b><span>Flete total</span></div></div><div class="rr-card__monto">Monto repartido: <b>'+_gs(g.monto)+'</b></div><div class="rr-card__go">Ver planilla ›</div></div>';}).join('')+'</div>';}
   host.innerHTML='<div class="cf-hd"><h2><img src="logo-alas-s.a.png">Reporte de Repartos</h2><span class="cf-count">'+groups.length+'</span>'+nav+'</div>'+chips+segFilter+cards;
   host.querySelectorAll('[data-rrm]').forEach(b=>b.addEventListener('click',()=>_rrShiftMonth(+b.dataset.rrm)));
   host.querySelectorAll('[data-rrw]').forEach(b=>b.addEventListener('click',()=>{_rrWeek=b.dataset.rrw||null;renderReporteRepartos();}));
@@ -3886,10 +3973,14 @@ function _cfPrint(r){
     '</tbody></table></div>'+
     '<div class="foot"><div class="firmas"><div class="firma"><div class="ln"></div><span>JEFE DE DISTRIBUCIÓN</span></div><div class="firma"><div class="ln"></div><span>JEFE DE LOGÍSTICA</span></div></div>'+
     '<div class="resumen"><h3>Resumen</h3><div class="rr"><span>Camiones</span><b>'+totN+'</b></div><div class="rr"><span>Monto repartido</span><b>Gs. '+_nnum(totM)+'</b></div><div class="rr"><span>Flete total</span><b>Gs. '+_nnum(totF)+'</b></div>'+(f?'<div class="rr" style="border-top:1px solid #dde6ef;margin-top:5px;padding-top:6px"><span>Monto factura</span><b>Gs. '+_nnum(f.monto)+'</b></div>':'')+'</div></div>'+
-    '<script>window.onload=function(){setTimeout(function(){window.print();},250);};<\/script></body></html>';
-  const w=window.open('','_blank','width=920,height=1040');
-  if(!w){showToast('Permití las ventanas emergentes para imprimir');return;}
-  w.document.open();w.document.write(html);w.document.close();w.focus();
+    '</body></html>';
+  // Impresión con iframe oculto (evita el bloqueador de popups)
+  let ifr=document.getElementById('_cfPrintFrame');if(ifr)ifr.remove();
+  ifr=document.createElement('iframe');ifr.id='_cfPrintFrame';ifr.style.cssText='position:fixed;left:-9999px;top:0;width:900px;height:0;border:0';
+  document.body.appendChild(ifr);
+  const doc=ifr.contentWindow.document;doc.open();doc.write(html);doc.close();
+  const go=()=>{try{ifr.contentWindow.focus();ifr.contentWindow.print();}catch(e){console.error(e);showToast('No se pudo abrir la impresión');}};
+  if(doc.readyState==='complete')setTimeout(go,350);else ifr.onload=()=>setTimeout(go,200);
 }
 </script>
 </body>
