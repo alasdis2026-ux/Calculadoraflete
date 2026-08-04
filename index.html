@@ -820,6 +820,11 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .cal-rep-table td{padding:12px 18px;border-bottom:1px solid var(--gray-100);font-size:14px;color:var(--gray-700);vertical-align:middle}
 .cal-rep-table tbody tr:hover td{background:#f8fbff}
 .crt-name{font-weight:700;color:var(--gray-800)}
+.crt-sub2{font-size:11px;font-weight:600;color:var(--gray-400);margin-top:2px}
+.cal-rep-table tr.crt-grp td{background:#e8eef5;font-weight:800;color:var(--primary);font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;padding:7px 18px}
+.cal-rep-table tr.crt-grp--interior td{background:var(--orange-soft);color:var(--orange)}
+.cal-rep-table tr.crt-grp--servicios td{background:var(--success-soft);color:#15803d}
+.cal-rep-table tr.crt-sub td{background:var(--gray-50);font-weight:800;color:var(--gray-800);border-top:1px solid var(--gray-200)}
 .crt-num{text-align:right;font-weight:700;font-variant-numeric:tabular-nums;color:var(--gray-800)}
 .crt-inc{text-align:right;font-weight:800;font-variant-numeric:tabular-nums}
 .crt-inc.ok{color:#047857}.crt-inc.over{color:#DC2626}
@@ -2508,7 +2513,7 @@ function loadForEdit(id){
   const r=repartos.find(x=>x.id===id);if(!r)return;
   // Cada fila del reparto guardado es un camión: {trId, tsId, monto, precio}
   currentReparto={id:r.id,fecha:r.fechaISO||'',
-    clientes:(r.clientes||[]).map(c=>({id:c.id,trId:c.trId||null,tsId:c.tsId||null,monto:c.monto||0,precio:c.precio||c.gasto||0}))};
+    clientes:(r.clientes||[]).map(c=>({id:c.id,trId:c.trId||null,tsId:c.tsId||null,seg:c.seg||'local',rep:c.rep||null,zona:c.zona||null,monto:c.monto||0,precio:c.precio||c.gasto||0}))};
   const maxCid=currentReparto.clientes.reduce((m,c)=>Math.max(m,c.id),0);
   if(maxCid>=nextClienteId)nextClienteId=maxCid+1;
   const inpF=document.getElementById('inpFecha');
@@ -3027,16 +3032,15 @@ function renderCalReparto(r){
   const inc=r.incTotal!==null?r.incTotal.toFixed(2)+'%':'—';
   const incOk=r.incTotal!==null&&r.incTotal<3;
   const cl=r.clientes||[];
-  const rows=cl.map(c=>{
-    const hasInc=c.inc!==null&&c.inc!==undefined;
-    const clOk=hasInc&&c.inc<3;
-    return`<tr>
-      <td class="crt-name">${esc(c.trDesc||c.nombre||'—')}</td>
-      <td class="crt-num">${fmtGs(c.monto||0)}</td>
-      <td class="crt-num">${(c.precio||c.gasto)?fmtGs(c.precio||c.gasto):'—'}</td>
-      <td class="crt-inc ${hasInc?(clOk?'ok':'over'):''}">${hasInc?c.inc.toFixed(2)+'%':'—'}</td>
-    </tr>`;
-  }).join('');
+  // Agrupado por segmento (Local / Interior / Servicios) con subtotales
+  const SEGORD=[['local','Local'],['interior','Interior'],['servicios','Servicios']];
+  let rows='';
+  SEGORD.forEach(function(pair){const sk=pair[0],slbl=pair[1];const ls=cl.filter(c=>(c.seg||'local')===sk);if(!ls.length)return;let sM=0,sF=0;
+    rows+='<tr class="crt-grp crt-grp--'+sk+'"><td colspan="4">'+slbl+'</td></tr>';
+    ls.forEach(function(c){const hasInc=c.inc!==null&&c.inc!==undefined,clOk=hasInc&&c.inc<3,fl=(c.precio||c.gasto)||0;sM+=c.monto||0;sF+=fl;
+      rows+='<tr><td class="crt-name">'+esc(c.trDesc||c.nombre||'—')+(c.rep||c.zona?'<div class="crt-sub2">'+[c.rep?esc(c.rep):'',c.zona?esc(c.zona):''].filter(Boolean).join(' · ')+'</div>':'')+'</td><td class="crt-num">'+fmtGs(c.monto||0)+'</td><td class="crt-num">'+(fl?fmtGs(fl):'—')+'</td><td class="crt-inc '+(hasInc?(clOk?'ok':'over'):'')+'">'+(hasInc?c.inc.toFixed(2)+'%':'—')+'</td></tr>';});
+    rows+='<tr class="crt-sub"><td>Subtotal '+slbl+'</td><td class="crt-num">'+fmtGs(sM)+'</td><td class="crt-num">'+fmtGs(sF)+'</td><td></td></tr>';
+  });
   return`<div class="cal-rep">
     <div class="cal-rep-hd">
       <div class="cal-rep-hd-left">
@@ -3980,15 +3984,15 @@ function _cfPrint(r){
     '</tbody></table></div>'+
     '<div class="foot"><div class="firmas"><div class="firma"><div class="ln"></div><span>JEFE DE DISTRIBUCIÓN</span></div><div class="firma"><div class="ln"></div><span>JEFE DE LOGÍSTICA</span></div></div>'+
     '<div class="resumen"><h3>Resumen</h3><div class="rr"><span>Camiones</span><b>'+totN+'</b></div><div class="rr"><span>Monto repartido</span><b>Gs. '+_nnum(totM)+'</b></div><div class="rr"><span>Flete total</span><b>Gs. '+_nnum(totF)+'</b></div>'+(f?'<div class="rr" style="border-top:1px solid #dde6ef;margin-top:5px;padding-top:6px"><span>Monto factura</span><b>Gs. '+_nnum(f.monto)+'</b></div>':'')+'</div></div>'+
-    '</body></html>';
-  // Impresión con iframe (srcdoc → onload confiable, sin bloqueo de popups)
+    '<script>window.onload=function(){setTimeout(function(){try{window.focus();window.print();}catch(e){}},300);};<\/script></body></html>';
+  // 1) Pestaña nueva SIN medidas (no la bloquea el navegador en un clic) + auto-print
+  const w=window.open('','_blank');
+  if(w){w.document.open();w.document.write(html);w.document.close();w.focus();return;}
+  // 2) Fallback: iframe con srcdoc (el mismo script se auto-imprime)
   let ifr=document.getElementById('_cfPrintFrame');if(ifr)ifr.remove();
   ifr=document.createElement('iframe');ifr.id='_cfPrintFrame';
   ifr.style.cssText='position:fixed;left:-10000px;top:0;width:800px;height:1120px;border:0';
-  let _pr=false;
-  ifr.onload=function(){if(_pr)return;_pr=true;setTimeout(function(){try{ifr.contentWindow.focus();ifr.contentWindow.print();}catch(e){console.error(e);showToast('No se pudo abrir la impresión');}},350);};
-  ifr.srcdoc=html;
-  document.body.appendChild(ifr);
+  ifr.srcdoc=html;document.body.appendChild(ifr);
 }
 </script>
 </body>
