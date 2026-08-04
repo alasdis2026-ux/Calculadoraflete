@@ -537,6 +537,15 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .tr-row__n{font-size:12px;font-weight:800;color:var(--gray-300)}
 .tr-row__desc{font-size:14.5px;font-weight:700;color:var(--gray-800);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tr-row .tipo-badge{justify-self:start}
+.tr-row__desc{display:flex;flex-direction:column;gap:7px;align-items:flex-start;min-width:0}
+.tr-row__name{font-weight:600;color:var(--gray-800)}
+.seg-ctrl{display:inline-flex;background:var(--gray-100);border:1px solid var(--gray-200);border-radius:9px;padding:2px;gap:2px}
+.seg-ctrl__b{border:0;background:transparent;border-radius:7px;padding:5px 12px;font:inherit;font-size:11px;font-weight:700;color:var(--gray-500);cursor:pointer;transition:background .15s,color .15s;white-space:nowrap}
+.seg-ctrl__b:hover{color:var(--gray-800)}
+.seg-ctrl__b.on{color:#fff}
+.seg-ctrl__b.on.seg-local{background:var(--primary)}
+.seg-ctrl__b.on.seg-interior{background:var(--orange)}
+.seg-ctrl__b.on.seg-servicios{background:var(--success)}
 .tr-row__price{text-align:right;white-space:nowrap}
 .tr-row .del-btn{justify-self:end}
 .tr-lp-val{display:inline-block;font-weight:800;color:var(--primary);font-variant-numeric:tabular-nums;font-size:14px}
@@ -753,7 +762,7 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 /* Modal día calendario */
 .cal-modal-bd{position:fixed;inset:0;z-index:8500;background:rgba(15,23,42,.5);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:20px}
 .cal-modal-bd.open{display:flex}
-.cal-modal-box{background:#fff;border-radius:24px;width:100%;max-width:860px;max-height:88vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 32px 80px rgba(15,23,42,.30)}
+.cal-modal-box{background:#fff;border-radius:26px;width:100%;max-width:1060px;max-height:92vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 40px 100px rgba(15,23,42,.34)}
 .cal-modal-hd{padding:20px 24px 16px;border-bottom:1.5px solid var(--gray-100);display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-shrink:0;background:linear-gradient(135deg,#f8fbff,#fff)}
 .cal-modal-title-wrap{display:flex;flex-direction:column;gap:4px}
 .cal-modal-title{font-family:Sora,Inter,sans-serif;font-size:18px;font-weight:800;color:var(--primary);letter-spacing:-.2px;text-transform:capitalize}
@@ -910,8 +919,8 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
       <span class="label">Calculadora</span>
     </button>
     <button class="sidebar-item" type="button" data-nav="hist">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h6"/></svg>
-      <span class="label">Planillas</span>
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      <span class="label">Calendario</span>
     </button>
     <button class="sidebar-item" type="button" data-nav="rrep">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2M9 13l2 2 4-4"/></svg>
@@ -1537,14 +1546,14 @@ let nextRepartoId=1,nextClienteId=1,nextTsId=5000,nextTrId=9000;
 async function loadData(){
   const[tsRes,camRes,repRes]=await Promise.all([
     sb.from('transportistas').select('id,nombre').eq('activo',true).order('id'),
-    sb.from('camiones').select('id,transportista_id,descripcion,tipo,precio,last_km').order('transportista_id,id'),
+    sb.from('camiones').select('*').order('transportista_id,id'),
     sb.from('repartos').select('*').order('id')
   ]);
   if(!tsRes.error&&tsRes.data&&tsRes.data.length){
     const camMap={};
     (camRes.data||[]).forEach(c=>{
       if(!camMap[c.transportista_id])camMap[c.transportista_id]=[];
-      camMap[c.transportista_id].push({id:c.id,d:c.descripcion,tipo:c.tipo||'km',precio:c.precio||0,lastKm:c.last_km||0});
+      camMap[c.transportista_id].push({id:c.id,d:c.descripcion,tipo:c.tipo||'km',precio:c.precio||0,lastKm:c.last_km||0,seg:c.segmento||'local'});
     });
     transportistas=tsRes.data.map(ts=>({id:ts.id,n:ts.nombre,trucks:camMap[ts.id]||[]}));
   }else if(!transportistas.length){
@@ -1635,6 +1644,8 @@ function populateTsSelect(){}
 function populateTrSelect(){ if(document.getElementById('clientesTbody'))renderClientesTable(); }
 // Devuelve el transportista dueño de un camión
 function tsOfTruck(trId){ return transportistas.find(t=>(t.trucks||[]).some(x=>x.id===trId))||null; }
+// Segmento predeterminado configurado para un camión (Transportistas). Default: local.
+function _truckSeg(trId){ const t=tsOfTruck(trId); const tr=t?t.trucks.find(x=>x.id===trId):null; return (tr&&tr.seg)||'local'; }
 
 function updateFleteInfo(){
   renderClientesTable();
@@ -2024,7 +2035,7 @@ document.getElementById('ncSave').addEventListener('click',async()=>{
     } else { tsId=+_ncTsVal; ts=transportistas.find(t=>t.id===tsId); }
     const trId=await dbAddTruck(tsId,desc,0,'km');
     if(ts)ts.trucks.push({id:trId,d:desc,tipo:'km',precio:0,lastKm:0});
-    if(_ncCl){_ncCl.trId=trId;_ncCl.tsId=tsId;}
+    if(_ncCl){_ncCl.trId=trId;_ncCl.tsId=tsId;_ncCl.seg=_truckSeg(trId);}
     btn.disabled=false;btn.textContent=orig;
     closeNCModal();renderClientesTable();updateResultCard();
     showToast('Camión agregado');
@@ -2050,7 +2061,7 @@ function renderTruckPopList(q){
   if(countEl)countEl.textContent=n?`${n}`:'';
   list.querySelectorAll('.truck-pop__item').forEach(b=>b.addEventListener('click',()=>{
     if(!_truckPopCl)return;
-    _truckPopCl.trId=+b.dataset.tr;_truckPopCl.tsId=+b.dataset.ts;
+    _truckPopCl.trId=+b.dataset.tr;_truckPopCl.tsId=+b.dataset.ts;_truckPopCl.seg=_truckSeg(+b.dataset.tr);
     closeTruckPop();renderClientesTable();updateResultCard();
   }));
 }
@@ -2467,7 +2478,7 @@ function renderDetailBody(ts){
       const lp=lastPriceForTruck(tr.id);
       return`<div class="tr-row" data-trid="${tr.id}" data-tsid="${ts.id}">
         <span class="tr-row__n">${i+1}</span>
-        <span class="tr-row__desc">${esc(tr.d)}</span>
+        <span class="tr-row__desc"><span class="tr-row__name">${esc(tr.d)}</span><div class="seg-ctrl" data-trid="${tr.id}" data-tsid="${ts.id}">${[['local','Local'],['interior','Interior'],['servicios','Servicios']].map(s=>`<button type="button" class="seg-ctrl__b seg-${s[0]}${(tr.seg||'local')===s[0]?' on':''}" data-seg="${s[0]}">${s[1]}</button>`).join('')}</div></span>
         <button class="tipo-badge ${tr.tipo==='fijo'?'is-fijo':'is-km'}" type="button" data-toggle-tipo data-trid="${tr.id}" data-tsid="${ts.id}" title="Cambiar tipo">${tr.tipo==='fijo'?'FIJO':'KM'}</button>
         <span class="tr-row__price">${lp.precio?`<span class="tr-lp-val">Gs. ${formatMoney(lp.precio)}</span>${lp.fecha?`<span class="tr-lp-date">${isoToDisplay(lp.fecha)}</span>`:''}`:'<span class="tr-lp-none">Sin usar</span>'}</span>
         <button class="del-btn" type="button" data-deltr="${tr.id}" data-tsid="${ts.id}"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg></button>
@@ -2511,8 +2522,15 @@ document.getElementById('detailBody').addEventListener('input',e=>{
   if(e.target.value!==cleaned){const diff=e.target.value.length-cleaned.length;e.target.value=cleaned;e.target.setSelectionRange(Math.max(0,pos-diff),Math.max(0,pos-diff));}
 });
 
-/* Toggle tipo (FIJO/KM) */
+/* Toggle tipo (FIJO/KM) + segmento predeterminado del camión */
 document.getElementById('detailBody').addEventListener('click',e=>{
+  const sbtn=e.target.closest('.seg-ctrl__b');
+  if(sbtn){
+    const ctrl=sbtn.closest('[data-trid]');const trId=+ctrl.dataset.trid,tsId=+ctrl.dataset.tsid,seg=sbtn.dataset.seg;
+    const ts=transportistas.find(t=>t.id===tsId);const tr=ts?ts.trucks.find(t=>t.id===trId):null;
+    if(tr&&tr.seg!==seg){tr.seg=seg;dbUpdateTruck(trId,{segmento:seg}).catch(()=>showToast('Error al guardar segmento'));renderDetailBody(ts);}
+    return;
+  }
   const tb=e.target.closest('[data-toggle-tipo]');
   if(tb){
     const tsId=+tb.dataset.tsid,trId=+tb.dataset.trid;
@@ -2877,8 +2895,9 @@ function openCalModal(iso,list){
   const g=window.gsap, reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if(g&&box&&!reduce){
     g.killTweensOf(box);
-    g.fromTo(box,{y:26,scale:.95,opacity:0},{y:0,scale:1,opacity:1,duration:.44,ease:'back.out(1.5)',clearProps:'transform,opacity'});
-    g.from('#calModalKpis .cal-kpi',{y:-12,opacity:0,duration:.4,stagger:.08,delay:.12,ease:'power2.out',clearProps:'all'});
+    g.fromTo('#calModalBd',{opacity:0},{opacity:1,duration:.3,ease:'power2.out'});
+    g.fromTo(box,{y:30,scale:.94,opacity:0},{y:0,scale:1,opacity:1,duration:.5,ease:'back.out(1.6)',clearProps:'transform,opacity'});
+    g.from('#calModalKpis .cal-kpi',{y:-12,opacity:0,duration:.4,stagger:.08,delay:.14,ease:'power2.out',clearProps:'all'});
     g.from('#calModalBody .cal-rep',{y:18,opacity:0,duration:.42,stagger:.1,delay:.16,ease:'power2.out',clearProps:'all'});
     g.from('#calModalBody .cal-rep-table tbody tr',{opacity:0,x:-10,duration:.34,stagger:.04,delay:.3,ease:'power2.out',clearProps:'all'});
   }
@@ -3370,6 +3389,15 @@ function showSaveAnim(){
   .rr-chip{border:1px solid var(--gray-200,#e2e8f0);background:#fff;border-radius:10px;padding:8px 14px;font:inherit;font-size:13px;font-weight:700;color:var(--gray-600,#475569);cursor:pointer;transition:all .15s}
   .rr-chip:hover{border-color:var(--primary);color:var(--primary)}
   .rr-chip.on{background:var(--primary);border-color:var(--primary);color:#fff}
+  .rr-segfilter{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:-6px 0 18px}
+  .rr-segfilter__l{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--gray-400,#94a3b8);margin-right:2px}
+  .rr-sf{border:1.5px solid var(--gray-200,#e2e8f0);background:#fff;border-radius:999px;padding:7px 16px;font:inherit;font-size:12.5px;font-weight:700;color:var(--gray-600,#475569);cursor:pointer;transition:background .18s,color .18s,border-color .18s,transform .12s}
+  .rr-sf:hover{transform:translateY(-1px);border-color:var(--gray-300,#cbd5e1)}
+  .rr-sf.on{color:#fff}
+  .rr-sf--todos.on{background:var(--gray-800,#1e293b);border-color:var(--gray-800,#1e293b)}
+  .rr-sf--local.on{background:var(--primary);border-color:var(--primary)}
+  .rr-sf--interior.on{background:var(--orange,#F97316);border-color:var(--orange,#F97316)}
+  .rr-sf--servicios.on{background:var(--success,#10B981);border-color:var(--success,#10B981)}
   .rr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(258px,1fr));gap:14px}
   .rr-card{background:#fff;border:1px solid var(--gray-200,#e2e8f0);border-radius:16px;padding:16px 18px;cursor:pointer;transition:box-shadow .2s,transform .2s,border-color .2s}
   .rr-card:hover{box-shadow:0 8px 24px rgba(15,23,42,.1);transform:translateY(-2px);border-color:var(--primary)}
@@ -3386,6 +3414,22 @@ function showSaveAnim(){
   .cf-table tr.hc-grp--servicios td{background:var(--success-soft,#D1FAE5);color:#15803d}
   .cf-table tr.hc-sub td{background:#f2f6fa;font-weight:800}
   .cf-table tr.rr-tot td{background:var(--primary);color:#fff;font-weight:800;font-size:14px}
+  /* Modal ampliado Reporte de Repartos */
+  .cf-mbox--wide{max-width:920px;padding:22px 24px}
+  .rrm-hd{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px}
+  .rrm-ts{margin:0;font-family:Sora,Inter,sans-serif;font-size:23px;font-weight:800;color:var(--primary)}
+  .rrm-pd{font-size:12.5px;font-weight:600;color:var(--gray-500,#64748b);margin-top:3px}
+  .rrm-x{border:0;background:var(--gray-100,#f1f5f9);color:var(--gray-500,#64748b);width:36px;height:36px;border-radius:11px;font-size:24px;line-height:1;cursor:pointer;flex-shrink:0}
+  .rrm-x:hover{background:var(--gray-200,#e2e8f0);color:var(--gray-800,#1e293b)}
+  .rrm-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-bottom:16px}
+  .rrm-kpi{background:var(--gray-50,#f8fafc);border:1px solid var(--gray-200,#e2e8f0);border-radius:13px;padding:12px 14px}
+  .rrm-kpi span{display:block;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-400,#94a3b8);margin-bottom:3px}
+  .rrm-kpi b{font-family:Sora,Inter,sans-serif;font-size:20px;font-weight:800;color:var(--primary);font-variant-numeric:tabular-nums}
+  .rrm-kpi b.ok{color:var(--success,#10B981)}
+  .rrm-body{max-height:46vh;overflow:auto;border:1px solid var(--gray-200,#e2e8f0);border-radius:13px}
+  .rrm-body table{margin:0}
+  .rrm-body .cf-table th{position:sticky;top:0;background:#fff;z-index:1;box-shadow:0 1px 0 var(--gray-200,#e2e8f0)}
+  @media(max-width:620px){.rrm-kpis{grid-template-columns:1fr}}
   .cf-segpill.sp-loc{background:#DBEAFE;color:var(--primary)} .cf-segpill.sp-int{background:var(--orange-soft,#FFEDD5);color:var(--orange,#F97316)} .cf-segpill.sp-srv{background:var(--success-soft,#D1FAE5);color:#15803d}
   .cf-empty{text-align:center;color:var(--gray-400,#94a3b8);padding:44px 20px;font-size:14px;font-weight:600}
   /* modal simple */
@@ -3521,6 +3565,7 @@ function _cfOpenFacturaModal(){
 /* ════════ REPORTE DE REPARTOS (por semana + transportista) ════════ */
 let _rrMes=(function(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');})();
 let _rrWeek=undefined; // undefined=auto · null=Mes completo · 'YYYY-MM-DD'=semana
+let _rrSeg='todos';    // todos | local | interior | servicios
 function _isoD(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function _dispD(iso){return iso?iso.split('-').reverse().join('/'):'—';}
 function _shD(iso){const p=iso.split('-');return p[2]+'/'+p[1];}
@@ -3532,7 +3577,7 @@ function _rrGroups(weekDesde){
     const wk=(typeof isoWeekRange==='function'&&r.fechaISO)?isoWeekRange(r.fechaISO):null;
     if(weekDesde){if(!wk||wk.desde!==weekDesde)return;}
     else{if((r.fechaISO||'').slice(0,7)!==_rrMes)return;}
-    (r.clientes||[]).forEach(cl=>{const ts=cl.tsNombre||'—';const g=groups[ts]||(groups[ts]={ts:ts,tsId:cl.tsId,lines:[],monto:0,flete:0});g.lines.push(cl);g.monto+=+cl.monto||0;g.flete+=+cl.precio||0;});
+    (r.clientes||[]).forEach(cl=>{if(_rrSeg!=='todos'&&(cl.seg||'local')!==_rrSeg)return;const ts=cl.tsNombre||'—';const g=groups[ts]||(groups[ts]={ts:ts,tsId:cl.tsId,lines:[],monto:0,flete:0});g.lines.push(cl);g.monto+=+cl.monto||0;g.flete+=+cl.precio||0;});
   });
   return Object.values(groups).sort((a,b)=>b.flete-a.flete);
 }
@@ -3547,12 +3592,15 @@ function renderReporteRepartos(){
   const periodLbl=wkObj?(_dispD(wkObj.desde)+' al '+_dispD(wkObj.hasta)):'Mes completo';
   const chips='<div class="rr-chips"><button class="rr-chip'+(!_rrWeek?' on':'')+'" data-rrw="">Mes completo</button>'+weeks.map(w=>'<button class="rr-chip'+(_rrWeek===w.desde?' on':'')+'" data-rrw="'+w.desde+'">'+_shD(w.desde)+'–'+_shD(w.hasta)+'</button>').join('')+'</div>';
   const nav='<div class="rr-mnav"><button data-rrm="-1" aria-label="Mes anterior">‹</button><span>'+monthLbl+'</span><button data-rrm="1" aria-label="Mes siguiente">›</button></div>';
+  const SEGF=[['todos','Todos'],['local','Local'],['interior','Interior'],['servicios','Servicios']];
+  const segFilter='<div class="rr-segfilter"><span class="rr-segfilter__l">Segmento</span>'+SEGF.map(s=>'<button class="rr-sf rr-sf--'+s[0]+(_rrSeg===s[0]?' on':'')+'" data-rrseg="'+s[0]+'">'+s[1]+'</button>').join('')+'</div>';
   let cards;
   if(!groups.length){cards='<div class="cf-empty">Sin repartos en '+periodLbl+'.<br>Calculá y guardá repartos en la Calculadora para que aparezcan acá.</div>';}
   else{cards='<div class="rr-grid">'+groups.map((g,i)=>'<div class="rr-card" data-rrts="'+i+'"><div class="rr-card__ts">'+_escp(g.ts)+'</div><div class="rr-card__pd">'+periodLbl+'</div><div class="rr-card__foot"><div><b>'+g.lines.length+'</b><span>Camiones</span></div><div style="text-align:right"><b>'+_gs(g.flete)+'</b><span>Flete total</span></div></div><div class="rr-card__monto">Monto repartido: <b>'+_gs(g.monto)+'</b></div><div class="rr-card__go">Ver planilla ›</div></div>').join('')+'</div>';}
-  host.innerHTML='<div class="cf-hd"><h2><img src="logo-alas-s.a.png">Reporte de Repartos</h2><span class="cf-count">'+groups.length+'</span>'+nav+'</div>'+chips+cards;
+  host.innerHTML='<div class="cf-hd"><h2><img src="logo-alas-s.a.png">Reporte de Repartos</h2><span class="cf-count">'+groups.length+'</span>'+nav+'</div>'+chips+segFilter+cards;
   host.querySelectorAll('[data-rrm]').forEach(b=>b.addEventListener('click',()=>_rrShiftMonth(+b.dataset.rrm)));
   host.querySelectorAll('[data-rrw]').forEach(b=>b.addEventListener('click',()=>{_rrWeek=b.dataset.rrw||null;renderReporteRepartos();}));
+  host.querySelectorAll('[data-rrseg]').forEach(b=>b.addEventListener('click',()=>{if(_rrSeg===b.dataset.rrseg)return;_rrSeg=b.dataset.rrseg;renderReporteRepartos();}));
   host.querySelectorAll('[data-rrts]').forEach(b=>b.addEventListener('click',()=>_rrOpenDetail(groups[+b.dataset.rrts],periodLbl,wkObj)));
   if(window.gsap){gsap.from('#rrepHost .rr-card',{opacity:0,y:14,duration:.4,stagger:.05,ease:'power3.out',clearProps:'all'});}
 }
@@ -3560,13 +3608,26 @@ function _rrOpenDetail(g,periodLbl,wkObj){
   const SEGORD=[['local','Local'],['interior','Interior'],['servicios','Servicios']];
   let rows='';
   SEGORD.forEach(function(pair){const sk=pair[0],slbl=pair[1];const ls=g.lines.filter(c=>(c.seg||'local')===sk);if(!ls.length)return;let sM=0,sF=0;rows+='<tr class="hc-grp hc-grp--'+sk+'"><td colspan="3">'+slbl+'</td></tr>';ls.forEach(c=>{const fl=(c.precio||c.gasto)||0;sM+=c.monto||0;sF+=fl;rows+='<tr><td>'+_escp(c.trDesc||'—')+'</td><td class="r">'+_gs(c.monto||0)+'</td><td class="r">'+_gs(fl)+'</td></tr>';});rows+='<tr class="hc-sub"><td>Subtotal '+slbl+'</td><td class="r">'+_gs(sM)+'</td><td class="r">'+_gs(sF)+'</td></tr>';});
+  const inc=g.monto>0?(g.flete/g.monto*100):null;
   const bd=document.createElement('div');bd.className='cf-mbd on';
-  bd.innerHTML='<div class="cf-mbox" style="max-width:580px"><h3>'+_escp(g.ts)+' · '+periodLbl+'</h3><div style="max-height:52vh;overflow:auto;margin:0 -4px"><table class="cf-table"><thead><tr><th>Camión</th><th class="r">Monto</th><th class="r">Flete</th></tr></thead><tbody>'+rows+'<tr class="rr-tot"><td>TOTAL</td><td class="r">'+_gs(g.monto)+'</td><td class="r">'+_gs(g.flete)+'</td></tr></tbody></table></div><div class="cf-mfoot"><button class="cancel">Cerrar</button><button class="ok"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" width="15" height="15" style="vertical-align:-2px"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6v-8z"/></svg> Imprimir</button></div></div>';
+  bd.innerHTML='<div class="cf-mbox cf-mbox--wide">'+
+    '<div class="rrm-hd"><div><h3 class="rrm-ts">'+_escp(g.ts)+'</h3><div class="rrm-pd">'+periodLbl+' · '+g.lines.length+' camiones</div></div><button class="rrm-x cancel" aria-label="Cerrar">&times;</button></div>'+
+    '<div class="rrm-kpis"><div class="rrm-kpi"><span>Total monto</span><b>'+_gs(g.monto)+'</b></div><div class="rrm-kpi"><span>Total flete</span><b>'+_gs(g.flete)+'</b></div><div class="rrm-kpi"><span>Incidencia</span><b class="'+(inc!=null&&inc<3?'ok':'')+'">'+(inc!=null?inc.toFixed(2)+'%':'—')+'</b></div></div>'+
+    '<div class="rrm-body"><table class="cf-table"><thead><tr><th>Camión</th><th class="r">Monto</th><th class="r">Flete</th></tr></thead><tbody>'+rows+'<tr class="rr-tot"><td>TOTAL</td><td class="r">'+_gs(g.monto)+'</td><td class="r">'+_gs(g.flete)+'</td></tr></tbody></table></div>'+
+    '<div class="cf-mfoot"><button class="cancel">Cerrar</button><button class="ok"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" width="15" height="15" style="vertical-align:-2px"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6v-8z"/></svg> Imprimir</button></div></div>';
   document.body.appendChild(bd);
-  bd.querySelector('.cancel').addEventListener('click',()=>bd.remove());
-  bd.addEventListener('click',e=>{if(e.target===bd)bd.remove();});
-  bd.querySelector('.ok').addEventListener('click',()=>{_cfPrint({id:null,tsNombre:g.ts,semanaDesde:wkObj?wkObj.desde:null,semanaHasta:wkObj?wkObj.hasta:null,clientes:g.lines,totalMonto:g.monto,totalFlete:g.flete,incTotal:g.monto>0?g.flete/g.monto*100:null,factura_id:null});});
+  bd.querySelectorAll('.cancel').forEach(b=>b.addEventListener('click',()=>_rrClose(bd)));
+  bd.addEventListener('click',e=>{if(e.target===bd)_rrClose(bd);});
+  bd.querySelector('.ok').addEventListener('click',()=>{_cfPrint({id:null,tsNombre:g.ts,semanaDesde:wkObj?wkObj.desde:null,semanaHasta:wkObj?wkObj.hasta:null,clientes:g.lines,totalMonto:g.monto,totalFlete:g.flete,incTotal:inc,factura_id:null});});
+  const box=bd.querySelector('.cf-mbox'),gs=window.gsap,reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(gs&&!reduce){
+    gs.fromTo(bd,{opacity:0},{opacity:1,duration:.28,ease:'power2.out'});
+    gs.fromTo(box,{y:30,scale:.94,opacity:0},{y:0,scale:1,opacity:1,duration:.5,ease:'back.out(1.6)',clearProps:'transform,opacity'});
+    gs.from(bd.querySelectorAll('.rrm-kpi'),{y:-12,opacity:0,duration:.4,stagger:.08,delay:.12,ease:'power2.out',clearProps:'all'});
+    gs.from(bd.querySelectorAll('.rrm-body tbody tr'),{opacity:0,x:-10,duration:.34,stagger:.03,delay:.2,ease:'power2.out',clearProps:'all'});
+  }
 }
+function _rrClose(bd){const gs=window.gsap,box=bd.querySelector('.cf-mbox');if(gs&&box){gs.to(box,{y:16,scale:.97,opacity:0,duration:.2,ease:'power2.in'});gs.to(bd,{opacity:0,duration:.24,ease:'power2.in',onComplete:()=>bd.remove()});}else bd.remove();}
 
 /* ════════ IMPRIMIR PLANILLA (formato Control, agrupado por segmento) ════════ */
 function printPlanillaFlete(id){const r=(repartos||[]).find(x=>x.id===id);if(!r){showToast('Planilla no encontrada');return;}_cfPrint(r);}
@@ -3578,9 +3639,9 @@ function _cfPrint(r){
   SEGP.forEach(([sk,slbl])=>{
     const g=lines.filter(c=>(c.seg||'local')===sk);if(!g.length)return;
     let sM=0,sF=0;
-    body+='<tr class="grp"><td colspan="4">REPARTO: '+slbl+'</td></tr>';
-    g.forEach(c=>{const fl=(c.precio||c.gasto)||0;sM+=c.monto||0;sF+=fl;const hi=c.inc!=null&&c.inc!==undefined;body+='<tr><td>'+_escp(c.trDesc||'—')+'</td><td class="r">'+_gs(c.monto||0)+'</td><td class="r">'+_gs(fl)+'</td><td class="r">'+(hi?c.inc.toFixed(2)+'%':'—')+'</td></tr>';});
-    body+='<tr class="sub"><td>SUBTOTAL '+slbl+'</td><td class="r">'+_gs(sM)+'</td><td class="r">'+_gs(sF)+'</td><td></td></tr>';
+    body+='<tr class="grp"><td colspan="3">REPARTO: '+slbl+'</td></tr>';
+    g.forEach(c=>{const fl=(c.precio||c.gasto)||0;sM+=c.monto||0;sF+=fl;body+='<tr><td>'+_escp(c.trDesc||'—')+'</td><td class="r">'+_gs(c.monto||0)+'</td><td class="r">'+_gs(fl)+'</td></tr>';});
+    body+='<tr class="sub"><td>SUBTOTAL '+slbl+'</td><td class="r">'+_gs(sM)+'</td><td class="r">'+_gs(sF)+'</td></tr>';
     totM+=sM;totF+=sF;totN+=g.length;
   });
   const pid=r.id?('#'+String(r.id).padStart(4,'0')):'Semanal';
@@ -3618,11 +3679,11 @@ function _cfPrint(r){
     '<div class="rp-hd"><div class="rp-hd__l"><img class="rp-logo" src="'+logoUrl+'" alt="ALAS"><div><h1>Planilla de Reparto de Flete</h1></div></div>'+
     '<div class="co"><span class="co-lbl">Fecha de emisión</span><b>'+dd(typeof todayISO==='function'?todayISO():new Date().toISOString().slice(0,10))+'</b></div></div>'+
     '<div class="meta">'+meta('Planilla ID',pid)+meta('Semana',wk?dd(wk.desde)+' al '+dd(wk.hasta):'—')+meta('Transportadora',_escp(r.tsNombre||'—'))+meta('Factura Nº',f?_escp(f.nro||'—'):'—')+'</div>'+
-    '<div class="rp-tbl"><table><thead><tr><th>Camión</th><th class="r">Monto (Gs.)</th><th class="r">Flete (Gs.)</th><th class="r">Incidencia</th></tr></thead><tbody>'+body+
-    '<tr class="total"><td>TOTAL GENERAL</td><td class="r">'+_gs(totM)+'</td><td class="r">'+_gs(totF)+'</td><td class="r">'+incTot+'</td></tr>'+
+    '<div class="rp-tbl"><table><thead><tr><th>Camión</th><th class="r">Monto (Gs.)</th><th class="r">Flete (Gs.)</th></tr></thead><tbody>'+body+
+    '<tr class="total"><td>TOTAL GENERAL</td><td class="r">'+_gs(totM)+'</td><td class="r">'+_gs(totF)+'</td></tr>'+
     '</tbody></table></div>'+
     '<div class="foot"><div class="firmas"><div class="firma"><div class="ln"></div><span>JEFE DE DISTRIBUCIÓN</span></div><div class="firma"><div class="ln"></div><span>JEFE DE LOGÍSTICA</span></div></div>'+
-    '<div class="resumen"><h3>Resumen</h3><div class="rr"><span>Camiones</span><b>'+totN+'</b></div><div class="rr"><span>Monto repartido</span><b>Gs. '+_nnum(totM)+'</b></div><div class="rr"><span>Flete total</span><b>Gs. '+_nnum(totF)+'</b></div><div class="rr"><span>Incidencia</span><b>'+incTot+'</b></div>'+(f?'<div class="rr" style="border-top:1px solid #dde6ef;margin-top:5px;padding-top:6px"><span>Monto factura</span><b>Gs. '+_nnum(f.monto)+'</b></div>':'')+'</div></div>'+
+    '<div class="resumen"><h3>Resumen</h3><div class="rr"><span>Camiones</span><b>'+totN+'</b></div><div class="rr"><span>Monto repartido</span><b>Gs. '+_nnum(totM)+'</b></div><div class="rr"><span>Flete total</span><b>Gs. '+_nnum(totF)+'</b></div>'+(f?'<div class="rr" style="border-top:1px solid #dde6ef;margin-top:5px;padding-top:6px"><span>Monto factura</span><b>Gs. '+_nnum(f.monto)+'</b></div>':'')+'</div></div>'+
     '<script>window.onload=function(){setTimeout(function(){window.print();},250);};<\/script></body></html>';
   const w=window.open('','_blank','width=920,height=1040');
   if(!w){showToast('Permití las ventanas emergentes para imprimir');return;}
