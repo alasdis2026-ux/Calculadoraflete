@@ -2652,18 +2652,21 @@ function renderCard(r,opts={}){
   const _st=!r.factura_id?{k:'proc',l:'En proceso'}:(()=>{const f=(window.__cfFac||[]).find(x=>x.id===r.factura_id);if(!f)return{k:'ok',l:'Facturada'};return Math.round(f.monto||0)===Math.round(r.totalFlete||0)?{k:'ok',l:'Conciliada'}:{k:'diff',l:'Con diferencia'};})();
   const SEGLBL={interior:['Interior','sp-int'],servicios:['Servicios','sp-srv'],local:['Local','sp-loc']};
   const anim=opts.noAnim?'style="animation:none"':'';
-  const clientRows=clList.map((c,i)=>{
-    const hasInc=c.inc!==null&&c.inc!==undefined;
-    const clOk=hasInc&&c.inc<3;
-    const sg=SEGLBL[c.seg||'local']||SEGLBL.local;
-    return`<tr style="--i:${i}">
-      <td>${esc(c.trDesc||c.nombre||'—')}</td>
-      <td><span class="cf-segpill ${sg[1]}">${sg[0]}</span></td>
-      <td>${fmtGs(c.monto||0)}</td>
-      <td>${(c.precio||c.gasto)?fmtGs(c.precio||c.gasto):'—'}</td>
-      <td class="cell-inc ${hasInc?(clOk?'ok':'over'):''}">${hasInc?c.inc.toFixed(2)+'%':'—'}</td>
-    </tr>`;
-  }).join('');
+  // Detalle agrupado por segmento (Local / Interior / Servicios) con subtotales
+  const SEGORD=[['local','Local'],['interior','Interior'],['servicios','Servicios']];
+  let clientRows='',_ci=0;
+  SEGORD.forEach(([sk,slbl])=>{
+    const lines=clList.filter(c=>(c.seg||'local')===sk);
+    if(!lines.length)return;
+    let sM=0,sF=0;
+    clientRows+=`<tr class="hc-grp hc-grp--${sk}"><td colspan="4">${slbl}</td></tr>`;
+    lines.forEach(c=>{
+      const hasInc=c.inc!==null&&c.inc!==undefined,clOk=hasInc&&c.inc<3,fl=(c.precio||c.gasto)||0;
+      sM+=c.monto||0;sF+=fl;
+      clientRows+=`<tr style="--i:${_ci++}"><td>${esc(c.trDesc||c.nombre||'—')}</td><td>${fmtGs(c.monto||0)}</td><td>${fl?fmtGs(fl):'—'}</td><td class="cell-inc ${hasInc?(clOk?'ok':'over'):''}">${hasInc?c.inc.toFixed(2)+'%':'—'}</td></tr>`;
+    });
+    clientRows+=`<tr class="hc-sub"><td>Subtotal ${slbl}</td><td>${fmtGs(sM)}</td><td>${fmtGs(sF)}</td><td></td></tr>`;
+  });
   return`<div class="hist-card" ${anim}>
     <div class="hc-head">
       <div class="hc-head-left">
@@ -2702,10 +2705,10 @@ function renderCard(r,opts={}){
       </button>
       <div class="hc-detail-panel${opts.expandDetail?' open':''}">
         <table class="hc-detail-table">
-          <thead><tr><th>Camión</th><th>Segmento</th><th>Monto</th><th>Flete</th><th>Incidencia</th></tr></thead>
+          <thead><tr><th>Camión</th><th>Monto</th><th>Flete</th><th>Incidencia</th></tr></thead>
           <tbody>${clientRows}</tbody>
           <tfoot><tr class="hc-detail-total">
-            <td colspan="2">TOTAL</td>
+            <td>TOTAL</td>
             <td>${fmtGs(r.totalMonto)}</td>
             <td>${fmtGs(r.totalFlete)}</td>
             <td class="cell-inc ${r.incTotal!==null?(incOk?'ok':'over'):''}">${inc}</td>
@@ -2718,6 +2721,9 @@ function renderCard(r,opts={}){
       ${over?'+ '+fmtGs(r.diferencia)+' sobre el objetivo (3%)':'✓ '+fmtGs(Math.abs(r.diferencia))+' dentro del objetivo (3%)'}
     </div>
     <div class="hist-actions">
+      <button class="btn btn-sm btn-outline" type="button" data-printr="${r.id}">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6v-8z"/></svg>Imprimir
+      </button>
       <button class="btn btn-sm btn-outline" type="button" data-editr="${r.id}">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>Editar
       </button>
@@ -2743,6 +2749,8 @@ function renderHistorial(){
   grid.innerHTML=filtered.map(r=>renderCard(r)).join('');
 }
 document.getElementById('histGrid').addEventListener('click',async e=>{
+  const printBtn=e.target.closest('[data-printr]');
+  if(printBtn){printPlanillaFlete(+printBtn.dataset.printr);return;}
   const editBtn=e.target.closest('[data-editr]');
   const delBtn=e.target.closest('[data-delr]');
   if(editBtn)loadForEdit(+editBtn.dataset.editr);
@@ -3337,6 +3345,10 @@ function showSaveAnim(){
   .cf-chip{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px}
   .cf-chip.ok{background:var(--success-soft,#D1FAE5);color:#15803d} .cf-chip.diff{background:var(--danger-soft,#FEE2E2);color:var(--danger,#EF4444)} .cf-chip.proc{background:#DBEAFE;color:var(--primary)}
   .hc-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .hc-detail-table tr.hc-grp td{background:#e8eef5;font-weight:800;color:var(--primary);font-size:10.5px;letter-spacing:.4px;padding:6px 10px;text-transform:uppercase}
+  .hc-detail-table tr.hc-grp--interior td{background:var(--orange-soft,#FFEDD5);color:var(--orange,#F97316)}
+  .hc-detail-table tr.hc-grp--servicios td{background:var(--success-soft,#D1FAE5);color:#15803d}
+  .hc-detail-table tr.hc-sub td{background:#f2f6fa;font-weight:800;color:var(--gray-800,#1e293b);border-top:1px solid #cdd8e4;font-size:11px}
   .cf-segpill{display:inline-block;font-size:10.5px;font-weight:800;padding:2px 8px;border-radius:999px;white-space:nowrap}
   .cf-segpill.sp-loc{background:#DBEAFE;color:var(--primary)} .cf-segpill.sp-int{background:var(--orange-soft,#FFEDD5);color:var(--orange,#F97316)} .cf-segpill.sp-srv{background:var(--success-soft,#D1FAE5);color:#15803d}
   .cf-empty{text-align:center;color:var(--gray-400,#94a3b8);padding:44px 20px;font-size:14px;font-weight:600}
@@ -3468,6 +3480,67 @@ function _cfOpenFacturaModal(){
       if(pl)pl.factura_id=ins.data.id;
       bd.remove();showToast('Factura registrada');renderFacturas();}catch(e){console.error(e);showToast('Error al registrar');}
   });
+}
+
+/* ════════ IMPRIMIR PLANILLA (formato Control, agrupado por segmento) ════════ */
+function printPlanillaFlete(id){
+  const r=(repartos||[]).find(x=>x.id===id);if(!r){showToast('Planilla no encontrada');return;}
+  const lines=r.clientes||[];if(!lines.length){showToast('La planilla no tiene camiones');return;}
+  const f=(window.__cfFac||[]).find(x=>x.id===r.factura_id)||null;
+  const SEGP=[['local','LOCAL'],['interior','INTERIOR'],['servicios','SERVICIOS ADICIONALES']];
+  let body='',totM=0,totF=0,totN=0;
+  SEGP.forEach(([sk,slbl])=>{
+    const g=lines.filter(c=>(c.seg||'local')===sk);if(!g.length)return;
+    let sM=0,sF=0;
+    body+='<tr class="grp"><td colspan="4">REPARTO: '+slbl+'</td></tr>';
+    g.forEach(c=>{const fl=(c.precio||c.gasto)||0;sM+=c.monto||0;sF+=fl;const hi=c.inc!=null&&c.inc!==undefined;body+='<tr><td>'+_escp(c.trDesc||'—')+'</td><td class="r">'+_gs(c.monto||0)+'</td><td class="r">'+_gs(fl)+'</td><td class="r">'+(hi?c.inc.toFixed(2)+'%':'—')+'</td></tr>';});
+    body+='<tr class="sub"><td>SUBTOTAL '+slbl+'</td><td class="r">'+_gs(sM)+'</td><td class="r">'+_gs(sF)+'</td><td></td></tr>';
+    totM+=sM;totF+=sF;totN+=g.length;
+  });
+  const pid='#'+String(r.id).padStart(4,'0');
+  const logoUrl=new URL('logo-alas-s.a.png',window.location.href).href;
+  const wk=(typeof isoWeekRange==='function'&&r.fechaISO)?isoWeekRange(r.fechaISO):null;
+  const dd=iso=>iso?iso.split('-').reverse().join('/'):'—';
+  const incTot=r.incTotal!=null?r.incTotal.toFixed(2)+'%':'—';
+  const meta=(k,v)=>'<div class="mi"><span>'+k+'</span><b>'+v+'</b></div>';
+  const html='<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Planilla '+pid+'</title><style>'+
+    '*{margin:0;padding:0;box-sizing:border-box}'+
+    'body{font-family:Arial,"Segoe UI",sans-serif;color:#1a2331;font-size:12px;padding:26px 30px;-webkit-print-color-adjust:exact;print-color-adjust:exact}'+
+    '.rp-hd{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:3px solid #0B5F8D;padding-bottom:12px;margin-bottom:14px}'+
+    '.rp-hd__l{display:flex;align-items:flex-end;gap:14px}.rp-logo{height:40px;width:auto}'+
+    '.rp-hd h1{font-size:17px;color:#0B5F8D;letter-spacing:.2px;line-height:1;padding-bottom:3px}'+
+    '.rp-hd .co{text-align:right;line-height:1.4}.rp-hd .co-lbl{display:block;font-size:8.5px;text-transform:uppercase;letter-spacing:.5px;color:#7a8699;font-weight:700}.rp-hd .co b{color:#0B5F8D;font-size:14px}'+
+    '.meta{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}'+
+    '.mi{background:#f2f6fa;border:1px solid #dde6ef;border-radius:7px;padding:7px 11px}'+
+    '.mi span{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.5px;color:#7a8699;font-weight:700}.mi b{font-size:12.5px;color:#1a2331}'+
+    '.rp-tbl{border:1px solid #dbe3ee;border-radius:12px;overflow:hidden;margin-bottom:14px}'+
+    'table{width:100%;border-collapse:separate;border-spacing:0}'+
+    'thead th{background:#2578b8;color:#fff;font-size:10px;text-transform:uppercase;letter-spacing:.4px;padding:8px 9px;text-align:left}'+
+    'thead th.r,td.r{text-align:right}'+
+    'tbody td{padding:6px 9px;border-bottom:1px solid #e7edf4;font-size:11.5px}'+
+    'tr.grp td{background:#e8eef5;font-weight:800;color:#0B5F8D;font-size:10.5px;letter-spacing:.4px;padding:7px 9px}'+
+    'tr.sub td{background:#f2f6fa;font-weight:800;color:#1a2331;border-top:1.5px solid #cdd8e4}'+
+    'tr.total td{background:#2578b8;color:#fff;font-weight:800;font-size:13px;padding:10px 9px}'+
+    '.foot{display:flex;justify-content:space-between;gap:24px;margin-top:8px}'+
+    '.resumen{border:1.5px solid #0B5F8D;border-radius:9px;padding:12px 16px;min-width:240px}'+
+    '.resumen h3{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:#0B5F8D;margin-bottom:8px;border-bottom:1px solid #dde6ef;padding-bottom:5px}'+
+    '.resumen .rr{display:flex;justify-content:space-between;padding:3px 0;font-size:12px}.resumen .rr b{font-weight:800}'+
+    '.firmas{display:flex;gap:40px;align-items:flex-end;flex:1;justify-content:space-around;padding:0 10px}'+
+    '.firma{text-align:center;min-width:180px}.firma .ln{border-top:1.5px solid #1a2331;margin-bottom:5px}.firma span{font-size:11px;font-weight:700;color:#3a4759}'+
+    '@media print{body{padding:0}@page{margin:14mm}}'+
+    '</style></head><body>'+
+    '<div class="rp-hd"><div class="rp-hd__l"><img class="rp-logo" src="'+logoUrl+'" alt="ALAS"><div><h1>Planilla de Reparto de Flete</h1></div></div>'+
+    '<div class="co"><span class="co-lbl">Fecha de emisión</span><b>'+dd(typeof todayISO==='function'?todayISO():new Date().toISOString().slice(0,10))+'</b></div></div>'+
+    '<div class="meta">'+meta('Planilla ID',pid)+meta('Semana',wk?dd(wk.desde)+' al '+dd(wk.hasta):'—')+meta('Transportadora',_escp(r.tsNombre||'—'))+meta('Factura Nº',f?_escp(f.nro||'—'):'—')+'</div>'+
+    '<div class="rp-tbl"><table><thead><tr><th>Camión</th><th class="r">Monto (Gs.)</th><th class="r">Flete (Gs.)</th><th class="r">Incidencia</th></tr></thead><tbody>'+body+
+    '<tr class="total"><td>TOTAL GENERAL</td><td class="r">'+_gs(totM)+'</td><td class="r">'+_gs(totF)+'</td><td class="r">'+incTot+'</td></tr>'+
+    '</tbody></table></div>'+
+    '<div class="foot"><div class="firmas"><div class="firma"><div class="ln"></div><span>JEFE DE DISTRIBUCIÓN</span></div><div class="firma"><div class="ln"></div><span>JEFE DE LOGÍSTICA</span></div></div>'+
+    '<div class="resumen"><h3>Resumen</h3><div class="rr"><span>Camiones</span><b>'+totN+'</b></div><div class="rr"><span>Monto repartido</span><b>Gs. '+_nnum(totM)+'</b></div><div class="rr"><span>Flete total</span><b>Gs. '+_nnum(totF)+'</b></div><div class="rr"><span>Incidencia</span><b>'+incTot+'</b></div>'+(f?'<div class="rr" style="border-top:1px solid #dde6ef;margin-top:5px;padding-top:6px"><span>Monto factura</span><b>Gs. '+_nnum(f.monto)+'</b></div>':'')+'</div></div>'+
+    '<script>window.onload=function(){setTimeout(function(){window.print();},250);};<\/script></body></html>';
+  const w=window.open('','_blank','width=920,height=1040');
+  if(!w){showToast('Permití las ventanas emergentes para imprimir');return;}
+  w.document.open();w.document.write(html);w.document.close();w.focus();
 }
 </script>
 </body>
