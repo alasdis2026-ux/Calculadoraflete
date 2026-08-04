@@ -20,3 +20,6 @@ extract_visual.html
 # Dependencias
 node_modules/
 .env
+
+# Contiene service_role key — NO subir
+seed-clientes.js
