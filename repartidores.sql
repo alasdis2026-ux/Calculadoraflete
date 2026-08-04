@@ -19,10 +19,19 @@ grant usage on schema public to anon, authenticated;
 grant all on repartidores to anon, authenticated;
 grant all on all sequences in schema public to anon, authenticated;
 
--- ── Seed de repartidores ──
--- Cuando me pases la lista de nombres, se agregan acá. Ejemplo:
--- insert into repartidores (nombre) values
---   ('Juan Pérez'),('María López')
--- on conflict (nombre) do nothing;
---
--- (También podés cargarlos desde la Calculadora con el botón "＋ Agregar nuevo".)
+-- ── Seed de repartidores (en MAYÚSCULA) ──
+insert into repartidores (nombre) values
+  ('ADILSON GALEANO'),('ALBERTO BRITEZ'),('ALEJANDRO ALVARENGA'),('ALEXIS GIMENEZ'),
+  ('AMILCAR GARCIA'),('ANGEL ZORRILLA'),('AXEL MENDIETA'),('CANDIDO DIAZ'),
+  ('CARLOS BARRETO'),('CARLOS GALEANO'),('CARLOS PENAYO'),('CELSO GAMARRA'),
+  ('CRISTHIAN SANTA CRUZ'),('CRISTHOFER CASTILLO'),('CRISTIAN SANTACRUZ'),('ENRRIQUE ARZA'),
+  ('FRANCISCO DEL PUERTO'),('FRANCISCO RIVAS'),('GUILLERMO MENCIA'),('GUSTAVO BENITEZ'),
+  ('JOEL BENITEZ'),('JORGE ESTIGARRIBIA'),('JUAN BALMORI'),('JULIO VELILLA'),
+  ('LISANDRO LOPEZ'),('LUCAS MAQUEDA'),('MAICOL BENITEZ'),('MANUEL MARTINEZ'),
+  ('MARCOS AVEIRO'),('NAHUEL CASTILLO'),('NESTOR MIRANDA'),('PEDRO RIVEROS'),
+  ('REINALDO FERREIRA'),('SEBASTIAN BAEZ'),('TOMAS QUIÑONEZ'),('TERCERIZADO'),
+  ('TOMAS BERNAL'),('EUGENIO VILLAR'),('ANGEL DENIS'),('JOSE SEGOVIA'),
+  ('JESUS ESCOBAR'),('ENZO RUFINELI'),('SERGIO AGUILERA'),('DENIS GONZALEZ')
+on conflict (nombre) do nothing;
+
+-- (También podés cargar más desde la Calculadora con el botón "＋ Agregar nuevo".)
