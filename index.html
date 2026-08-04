@@ -3670,7 +3670,14 @@ async function renderReporte(){
   host.innerHTML='<div class="cf-hd"><h2><img src="logo-alas-s.a.png">Reporte General</h2>'+segBtns+'<div class="cf-spacer"></div>'+editBtn+'</div>'+kpis+panels+resumen+bottom;
   host.querySelectorAll('[data-rmes]').forEach(b=>b.addEventListener('click',()=>{_cfRepMes=b.dataset.rmes||null;renderReporte();}));
   const eb=document.getElementById('cfRepEdit');if(eb)eb.addEventListener('click',()=>_cfOpenReporteEdit(_cfRepMes));
-  if(window.gsap){gsap.from('#repHost .cf-kpi',{opacity:0,y:14,duration:.4,stagger:.05,ease:'power3.out',clearProps:'all'});gsap.from('#repHost .cf-sp',{opacity:0,y:16,duration:.4,stagger:.06,delay:.08,ease:'power3.out',clearProps:'all'});}
+  if(window.gsap){
+    gsap.from('#repHost .cf-kpi',{opacity:0,y:14,duration:.4,stagger:.05,ease:'power3.out',clearProps:'all'});
+    gsap.from('#repHost .cf-sp',{opacity:0,y:16,duration:.4,stagger:.06,delay:.08,ease:'power3.out',clearProps:'all'});
+    gsap.from('#repHost .cf-card',{opacity:0,y:16,duration:.42,stagger:.08,delay:.18,ease:'power3.out',clearProps:'all'});
+    gsap.from('#repHost .cf-tile',{opacity:0,y:8,duration:.32,stagger:.02,delay:.26,ease:'power2.out',clearProps:'all'});
+    gsap.from('#repHost .cf-gauge__fg',{opacity:0,duration:.7,delay:.35,ease:'power2.out'});
+    gsap.from('#repHost .cf-gauge__val',{opacity:0,duration:.5,delay:.5,ease:'power2.out'});
+  }
 }
 
 function _cfOpenReporteEdit(mk){
@@ -3974,13 +3981,14 @@ function _cfPrint(r){
     '<div class="foot"><div class="firmas"><div class="firma"><div class="ln"></div><span>JEFE DE DISTRIBUCIÓN</span></div><div class="firma"><div class="ln"></div><span>JEFE DE LOGÍSTICA</span></div></div>'+
     '<div class="resumen"><h3>Resumen</h3><div class="rr"><span>Camiones</span><b>'+totN+'</b></div><div class="rr"><span>Monto repartido</span><b>Gs. '+_nnum(totM)+'</b></div><div class="rr"><span>Flete total</span><b>Gs. '+_nnum(totF)+'</b></div>'+(f?'<div class="rr" style="border-top:1px solid #dde6ef;margin-top:5px;padding-top:6px"><span>Monto factura</span><b>Gs. '+_nnum(f.monto)+'</b></div>':'')+'</div></div>'+
     '</body></html>';
-  // Impresión con iframe oculto (evita el bloqueador de popups)
+  // Impresión con iframe (srcdoc → onload confiable, sin bloqueo de popups)
   let ifr=document.getElementById('_cfPrintFrame');if(ifr)ifr.remove();
-  ifr=document.createElement('iframe');ifr.id='_cfPrintFrame';ifr.style.cssText='position:fixed;left:-9999px;top:0;width:900px;height:0;border:0';
+  ifr=document.createElement('iframe');ifr.id='_cfPrintFrame';
+  ifr.style.cssText='position:fixed;left:-10000px;top:0;width:800px;height:1120px;border:0';
+  let _pr=false;
+  ifr.onload=function(){if(_pr)return;_pr=true;setTimeout(function(){try{ifr.contentWindow.focus();ifr.contentWindow.print();}catch(e){console.error(e);showToast('No se pudo abrir la impresión');}},350);};
+  ifr.srcdoc=html;
   document.body.appendChild(ifr);
-  const doc=ifr.contentWindow.document;doc.open();doc.write(html);doc.close();
-  const go=()=>{try{ifr.contentWindow.focus();ifr.contentWindow.print();}catch(e){console.error(e);showToast('No se pudo abrir la impresión');}};
-  if(doc.readyState==='complete')setTimeout(go,350);else ifr.onload=()=>setTimeout(go,200);
 }
 </script>
 </body>
