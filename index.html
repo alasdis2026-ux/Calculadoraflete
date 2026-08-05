@@ -3994,18 +3994,23 @@ function _cfPrint(r){
     '</tbody></table></div>'+
     '<div class="foot"><div class="firmas"><div class="firma"><div class="ln"></div><span>JEFE DE DISTRIBUCIÓN</span></div><div class="firma"><div class="ln"></div><span>JEFE DE LOGÍSTICA</span></div></div>'+
     '<div class="resumen"><h3>Resumen</h3><div class="rr"><span>Camiones</span><b>'+totN+'</b></div><div class="rr"><span>Monto repartido</span><b>Gs. '+_nnum(totM)+'</b></div><div class="rr"><span>Flete total</span><b>Gs. '+_nnum(totF)+'</b></div>'+(f?'<div class="rr" style="border-top:1px solid #dde6ef;margin-top:5px;padding-top:6px"><span>Monto factura</span><b>Gs. '+_nnum(f.monto)+'</b></div>':'')+'</div></div>';
-  // Impresión 100% confiable: iframe aislado (no hereda estilos ni estado de la app)
+  // Impresión 100% confiable: iframe aislado con dimensiones reales fuera de pantalla
+  // (un iframe 0x0 no imprime en Chrome). Fallback a ventana nueva si el iframe falla.
   const doc='<!doctype html><html><head><meta charset="utf-8"><title>Planilla de Reparto de Flete</title>'+css+'</head><body><div id="_cfPrintArea">'+content+'</div></body></html>';
-  let ifr=document.getElementById('_cfPrintFrame');if(ifr)ifr.remove();
-  ifr=document.createElement('iframe');ifr.id='_cfPrintFrame';
-  ifr.style.cssText='position:fixed;right:0;bottom:0;width:0;height:0;border:0;opacity:0;pointer-events:none';
-  document.body.appendChild(ifr);
-  const idoc=ifr.contentWindow.document;idoc.open();idoc.write(doc);idoc.close();
-  let fired=false;
-  const doPrint=function(){if(fired)return;fired=true;try{ifr.contentWindow.focus();ifr.contentWindow.print();}catch(e){try{showToast('No se pudo abrir la impresión');}catch(_){}}setTimeout(function(){if(ifr&&ifr.parentNode)ifr.remove();},30000);};
-  const imgs=idoc.images;let pend=0;
-  if(imgs&&imgs.length){for(let i=0;i<imgs.length;i++){const im=imgs[i];if(!im.complete){pend++;im.onload=im.onerror=function(){pend--;if(pend<=0)doPrint();};}}if(pend===0)doPrint();else setTimeout(doPrint,1500);}
-  else setTimeout(doPrint,60);
+  const openWindowFallback=function(){try{const w=window.open('','_blank');if(!w){try{showToast('Permití las ventanas emergentes para poder imprimir');}catch(_){}return;}w.document.open();w.document.write(doc);w.document.close();w.focus();setTimeout(function(){try{w.print();}catch(_){}},500);}catch(_){}};
+  let ifr;
+  try{
+    const old=document.getElementById('_cfPrintFrame');if(old)old.remove();
+    ifr=document.createElement('iframe');ifr.id='_cfPrintFrame';
+    ifr.style.cssText='position:fixed;left:-10000px;top:0;width:820px;height:1160px;border:0';
+    document.body.appendChild(ifr);
+    const idoc=ifr.contentWindow.document;idoc.open();idoc.write(doc);idoc.close();
+    let fired=false;
+    const doPrint=function(){if(fired)return;fired=true;let ok=false;try{ifr.contentWindow.focus();ifr.contentWindow.print();ok=true;}catch(e){ok=false;}if(!ok)openWindowFallback();setTimeout(function(){if(ifr&&ifr.parentNode)ifr.remove();},30000);};
+    const imgs=idoc.images;let pend=0;
+    if(imgs&&imgs.length){for(let i=0;i<imgs.length;i++){const im=imgs[i];if(!im.complete){pend++;im.onload=im.onerror=function(){pend--;if(pend<=0)doPrint();};}}if(pend===0)doPrint();else setTimeout(doPrint,1500);}
+    else setTimeout(doPrint,80);
+  }catch(e){openWindowFallback();}
 }
 </script>
 </body>
