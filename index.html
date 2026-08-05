@@ -805,9 +805,14 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 /* ── Reparto dentro del modal del día ── */
 .cal-rep{border:1.5px solid var(--gray-200);border-radius:16px;overflow:hidden;background:#fff;box-shadow:0 3px 14px rgba(15,23,42,.05)}
 .cal-rep-hd{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;background:linear-gradient(135deg,#f8fbff,#fff);border-bottom:1px solid var(--gray-100)}
-.cal-rep-hd-left{display:flex;flex-direction:column;gap:2px;min-width:0}
-.cal-rep-ts{font-family:Sora,Inter,sans-serif;font-size:16px;font-weight:800;color:var(--primary);letter-spacing:-.2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.cal-rep-meta{font-size:11.5px;font-weight:600;color:var(--gray-400)}
+.cal-rep-hd-left{display:flex;align-items:center;gap:12px;min-width:0;flex-wrap:wrap}
+.cal-rep-seg{display:inline-flex;gap:6px}
+.crs{font-family:Sora,Inter,sans-serif;font-size:17px;font-weight:800;letter-spacing:.3px;padding:4px 12px;border-radius:9px;line-height:1.1}
+.crs--local{background:var(--accent-soft);color:var(--primary)}
+.crs--interior{background:var(--orange-soft);color:var(--orange)}
+.crs--servicios{background:var(--success-soft);color:#15803d}
+.cal-rep-count{font-family:Sora,Inter,sans-serif;font-size:18px;font-weight:800;color:var(--gray-800);font-variant-numeric:tabular-nums}
+.cal-rep-count small{font-size:12px;font-weight:700;color:var(--gray-400);letter-spacing:.2px}
 .cal-rep-actions{display:flex;gap:8px;flex-shrink:0}
 .cal-rep-btn{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 13px;border-radius:9px;border:1.5px solid var(--gray-200);background:#fff;cursor:pointer;font-family:inherit;font-size:12.5px;font-weight:700;color:var(--gray-600);transition:all var(--fast)}
 .cal-rep-btn.edit:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
@@ -3044,8 +3049,8 @@ function renderCalReparto(r){
   return`<div class="cal-rep">
     <div class="cal-rep-hd">
       <div class="cal-rep-hd-left">
-        <span class="cal-rep-ts">${esc(r.tsNombre||'—')}</span>
-        <span class="cal-rep-meta">Reparto #${String(r.id).padStart(4,'0')} · ${cl.length} camión${cl.length!==1?'es':''}</span>
+        <span class="cal-rep-seg">${(function(){const SL={local:'LOCAL',interior:'INTERIOR',servicios:'SERVICIOS'};const segs=[...new Set(cl.map(c=>c.seg||'local'))];return segs.map(s=>'<span class="crs crs--'+s+'">'+(SL[s]||s.toUpperCase())+'</span>').join('');})()}</span>
+        <span class="cal-rep-count">${cl.length} <small>camión${cl.length!==1?'es':''}</small></span>
       </div>
       <div class="cal-rep-actions">
         <button class="cal-rep-btn edit" type="button" data-editr="${r.id}"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="15" height="15"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>Editar</button>
@@ -3618,10 +3623,14 @@ function showSaveAnim(){
   .cf-fld input,.cf-fld select{border:1.5px solid var(--gray-200,#e2e8f0);border-radius:10px;padding:10px 12px;font:inherit;font-size:14px;font-weight:600;color:var(--gray-800,#1e293b);background:#fff}
   .cf-fld input:focus,.cf-fld select:focus{outline:none;border-color:var(--accent,#3B82F6)}
   .cf-sec-h{font-family:Sora,Inter,sans-serif;font-size:12.5px;font-weight:800;color:var(--primary);margin:14px 0 8px;padding-bottom:5px;border-bottom:1.5px solid var(--gray-100,#f1f5f9)}
-  .cf-mfoot{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
-  .cf-mfoot button{border:0;border-radius:10px;padding:10px 16px;font:inherit;font-weight:700;font-size:13px;cursor:pointer}
+  .cf-mfoot{display:flex;gap:12px;justify-content:flex-end;margin-top:18px}
+  .cf-mfoot button{border:0;border-radius:12px;padding:12px 22px;font:inherit;font-weight:800;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:transform .12s,box-shadow .16s,background .15s}
+  .cf-mfoot button:hover{transform:translateY(-1px)}
+  .cf-mfoot button svg{width:16px;height:16px}
   .cf-mfoot .cancel{background:var(--gray-100,#f1f5f9);color:var(--gray-600,#475569)}
-  .cf-mfoot .ok{background:var(--primary);color:#fff}
+  .cf-mfoot .cancel:hover{background:var(--gray-200,#e2e8f0)}
+  .cf-mfoot .ok{background:var(--primary);color:#fff;box-shadow:0 5px 16px rgba(11,95,141,.30)}
+  .cf-mfoot .ok:hover{box-shadow:0 8px 22px rgba(11,95,141,.38)}
 </style>
 <script>
 /* ════════ Helpers ════════ */
@@ -3948,34 +3957,35 @@ function _cfPrint(r){
   const logoUrl=new URL('logo-alas-s.a.png',window.location.href).href;
   const wk=r.semanaDesde?{desde:r.semanaDesde,hasta:r.semanaHasta}:((typeof isoWeekRange==='function'&&r.fechaISO)?isoWeekRange(r.fechaISO):null);
   const dd=iso=>iso?iso.split('-').reverse().join('/'):'—';
-  const incTot=r.incTotal!=null?r.incTotal.toFixed(2)+'%':'—';
   const meta=(k,v)=>'<div class="mi"><span>'+k+'</span><b>'+v+'</b></div>';
-  const html='<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Planilla '+pid+'</title><style>'+
-    '*{margin:0;padding:0;box-sizing:border-box}'+
-    'body{font-family:Arial,"Segoe UI",sans-serif;color:#1a2331;font-size:12px;padding:26px 30px;-webkit-print-color-adjust:exact;print-color-adjust:exact}'+
-    '.rp-hd{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:3px solid #0B5F8D;padding-bottom:12px;margin-bottom:14px}'+
-    '.rp-hd__l{display:flex;align-items:flex-end;gap:14px}.rp-logo{height:40px;width:auto}'+
-    '.rp-hd h1{font-size:17px;color:#0B5F8D;letter-spacing:.2px;line-height:1;padding-bottom:3px}'+
-    '.rp-hd .co{text-align:right;line-height:1.4}.rp-hd .co-lbl{display:block;font-size:8.5px;text-transform:uppercase;letter-spacing:.5px;color:#7a8699;font-weight:700}.rp-hd .co b{color:#0B5F8D;font-size:14px}'+
-    '.meta{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}'+
-    '.mi{background:#f2f6fa;border:1px solid #dde6ef;border-radius:7px;padding:7px 11px}'+
-    '.mi span{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.5px;color:#7a8699;font-weight:700}.mi b{font-size:12.5px;color:#1a2331}'+
-    '.rp-tbl{border:1px solid #dbe3ee;border-radius:12px;overflow:hidden;margin-bottom:14px}'+
-    'table{width:100%;border-collapse:separate;border-spacing:0}'+
-    'thead th{background:#2578b8;color:#fff;font-size:10px;text-transform:uppercase;letter-spacing:.4px;padding:8px 9px;text-align:left}'+
-    'thead th.r,td.r{text-align:right}'+
-    'tbody td{padding:6px 9px;border-bottom:1px solid #e7edf4;font-size:11.5px}'+
-    'tr.grp td{background:#e8eef5;font-weight:800;color:#0B5F8D;font-size:10.5px;letter-spacing:.4px;padding:7px 9px}'+
-    'tr.sub td{background:#f2f6fa;font-weight:800;color:#1a2331;border-top:1.5px solid #cdd8e4}'+
-    'tr.total td{background:#2578b8;color:#fff;font-weight:800;font-size:13px;padding:10px 9px}'+
-    '.foot{display:flex;justify-content:space-between;gap:24px;margin-top:8px}'+
-    '.resumen{border:1.5px solid #0B5F8D;border-radius:9px;padding:12px 16px;min-width:240px}'+
-    '.resumen h3{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:#0B5F8D;margin-bottom:8px;border-bottom:1px solid #dde6ef;padding-bottom:5px}'+
-    '.resumen .rr{display:flex;justify-content:space-between;padding:3px 0;font-size:12px}.resumen .rr b{font-weight:800}'+
-    '.firmas{display:flex;gap:40px;align-items:flex-end;flex:1;justify-content:space-around;padding:0 10px}'+
-    '.firma{text-align:center;min-width:180px}.firma .ln{border-top:1.5px solid #1a2331;margin-bottom:5px}.firma span{font-size:11px;font-weight:700;color:#3a4759}'+
-    '@media print{body{padding:0}@page{margin:14mm}}'+
-    '</style></head><body>'+
+  const P='#_cfPrintArea ';
+  const css='<style>'+
+    '#_cfPrintArea{display:none}'+
+    '@media print{body>*:not(#_cfPrintArea){display:none !important}#_cfPrintArea{display:block !important;position:static;font-family:Arial,sans-serif;color:#1a2331}@page{margin:14mm}}'+
+    P+'*{margin:0;padding:0;box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact}'+
+    P+'.rp-hd{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:3px solid #0B5F8D;padding-bottom:12px;margin-bottom:14px}'+
+    P+'.rp-hd__l{display:flex;align-items:flex-end;gap:14px}'+P+'.rp-logo{height:40px;width:auto}'+
+    P+'.rp-hd h1{font-size:17px;color:#0B5F8D;line-height:1;padding-bottom:3px}'+
+    P+'.rp-hd .co{text-align:right;line-height:1.4}'+P+'.rp-hd .co-lbl{display:block;font-size:8.5px;text-transform:uppercase;letter-spacing:.5px;color:#7a8699;font-weight:700}'+P+'.rp-hd .co b{color:#0B5F8D;font-size:14px}'+
+    P+'.meta{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}'+
+    P+'.mi{background:#f2f6fa;border:1px solid #dde6ef;border-radius:7px;padding:7px 11px}'+
+    P+'.mi span{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.5px;color:#7a8699;font-weight:700}'+P+'.mi b{font-size:12.5px;color:#1a2331}'+
+    P+'.rp-tbl{border:1px solid #dbe3ee;border-radius:12px;overflow:hidden;margin-bottom:14px}'+
+    P+'table{width:100%;border-collapse:separate;border-spacing:0}'+
+    P+'thead th{background:#2578b8;color:#fff;font-size:10px;text-transform:uppercase;letter-spacing:.4px;padding:8px 9px;text-align:left}'+
+    P+'thead th.r,'+P+'td.r{text-align:right}'+
+    P+'tbody td{padding:6px 9px;border-bottom:1px solid #e7edf4;font-size:11.5px;color:#1a2331}'+
+    P+'tr.grp td{background:#e8eef5;font-weight:800;color:#0B5F8D;font-size:10.5px;padding:7px 9px}'+
+    P+'tr.sub td{background:#f2f6fa;font-weight:800;color:#1a2331;border-top:1.5px solid #cdd8e4}'+
+    P+'tr.total td{background:#2578b8;color:#fff;font-weight:800;font-size:13px;padding:10px 9px}'+
+    P+'.foot{display:flex;justify-content:space-between;gap:24px;margin-top:8px}'+
+    P+'.resumen{border:1.5px solid #0B5F8D;border-radius:9px;padding:12px 16px;min-width:240px}'+
+    P+'.resumen h3{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:#0B5F8D;margin-bottom:8px;border-bottom:1px solid #dde6ef;padding-bottom:5px}'+
+    P+'.resumen .rr{display:flex;justify-content:space-between;padding:3px 0;font-size:12px}'+P+'.resumen .rr b{font-weight:800}'+
+    P+'.firmas{display:flex;gap:40px;align-items:flex-end;flex:1;justify-content:space-around;padding:0 10px}'+
+    P+'.firma{text-align:center;min-width:180px}'+P+'.firma .ln{border-top:1.5px solid #1a2331;margin-bottom:5px}'+P+'.firma span{font-size:11px;font-weight:700;color:#3a4759}'+
+    '</style>';
+  const html=css+
     '<div class="rp-hd"><div class="rp-hd__l"><img class="rp-logo" src="'+logoUrl+'" alt="ALAS"><div><h1>Planilla de Reparto de Flete</h1></div></div>'+
     '<div class="co"><span class="co-lbl">Fecha de emisión</span><b>'+dd(typeof todayISO==='function'?todayISO():new Date().toISOString().slice(0,10))+'</b></div></div>'+
     '<div class="meta">'+meta('Planilla ID',pid)+meta('Semana',wk?dd(wk.desde)+' al '+dd(wk.hasta):'—')+meta('Transportadora',_escp(r.tsNombre||'—'))+meta('Factura Nº',f?_escp(f.nro||'—'):'—')+'</div>'+
@@ -3983,16 +3993,14 @@ function _cfPrint(r){
     '<tr class="total"><td>TOTAL GENERAL</td><td class="r">'+_gs(totM)+'</td><td class="r">'+_gs(totF)+'</td></tr>'+
     '</tbody></table></div>'+
     '<div class="foot"><div class="firmas"><div class="firma"><div class="ln"></div><span>JEFE DE DISTRIBUCIÓN</span></div><div class="firma"><div class="ln"></div><span>JEFE DE LOGÍSTICA</span></div></div>'+
-    '<div class="resumen"><h3>Resumen</h3><div class="rr"><span>Camiones</span><b>'+totN+'</b></div><div class="rr"><span>Monto repartido</span><b>Gs. '+_nnum(totM)+'</b></div><div class="rr"><span>Flete total</span><b>Gs. '+_nnum(totF)+'</b></div>'+(f?'<div class="rr" style="border-top:1px solid #dde6ef;margin-top:5px;padding-top:6px"><span>Monto factura</span><b>Gs. '+_nnum(f.monto)+'</b></div>':'')+'</div></div>'+
-    '<script>window.onload=function(){setTimeout(function(){try{window.focus();window.print();}catch(e){}},300);};<\/script></body></html>';
-  // 1) Pestaña nueva SIN medidas (no la bloquea el navegador en un clic) + auto-print
-  const w=window.open('','_blank');
-  if(w){w.document.open();w.document.write(html);w.document.close();w.focus();return;}
-  // 2) Fallback: iframe con srcdoc (el mismo script se auto-imprime)
-  let ifr=document.getElementById('_cfPrintFrame');if(ifr)ifr.remove();
-  ifr=document.createElement('iframe');ifr.id='_cfPrintFrame';
-  ifr.style.cssText='position:fixed;left:-10000px;top:0;width:800px;height:1120px;border:0';
-  ifr.srcdoc=html;document.body.appendChild(ifr);
+    '<div class="resumen"><h3>Resumen</h3><div class="rr"><span>Camiones</span><b>'+totN+'</b></div><div class="rr"><span>Monto repartido</span><b>Gs. '+_nnum(totM)+'</b></div><div class="rr"><span>Flete total</span><b>Gs. '+_nnum(totF)+'</b></div>'+(f?'<div class="rr" style="border-top:1px solid #dde6ef;margin-top:5px;padding-top:6px"><span>Monto factura</span><b>Gs. '+_nnum(f.monto)+'</b></div>':'')+'</div></div>';
+  // Impresión 100% confiable: inyecta el reporte y print de la página (solo el reporte se ve al imprimir)
+  let cont=document.getElementById('_cfPrintArea');if(cont)cont.remove();
+  cont=document.createElement('div');cont.id='_cfPrintArea';cont.innerHTML=html;
+  document.body.appendChild(cont);
+  const img=cont.querySelector('img');
+  const go=function(){try{window.print();}catch(e){showToast('No se pudo abrir la impresión');}setTimeout(function(){if(cont&&cont.parentNode)cont.remove();},1000);};
+  if(img&&!img.complete){img.onload=go;img.onerror=go;setTimeout(go,1200);}else go();
 }
 </script>
 </body>
