@@ -801,7 +801,7 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .cal-kpi-val.ok{color:#047857}
 .cal-kpi-val.over{color:#DC2626}
 /* Body */
-.cal-modal-body{padding:18px 24px 22px;overflow-y:auto;display:flex;flex-direction:column;gap:16px;flex:1}
+.cal-modal-body{padding:18px 24px 22px;overflow-y:auto;display:flex;flex-direction:column;gap:16px;flex:1;min-height:0}
 /* ── Reparto dentro del modal del día ── */
 .cal-rep{border:1.5px solid var(--gray-200);border-radius:16px;overflow:hidden;background:#fff;box-shadow:0 3px 14px rgba(15,23,42,.05)}
 .cal-rep-hd{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;background:linear-gradient(135deg,#f8fbff,#fff);border-bottom:1px solid var(--gray-100)}
@@ -3039,12 +3039,12 @@ function renderCalReparto(r){
   const cl=r.clientes||[];
   // Agrupado por segmento (Local / Interior / Servicios) con subtotales
   const SEGORD=[['local','Local'],['interior','Interior'],['servicios','Servicios']];
+  const _multiSeg=[...new Set(cl.map(c=>c.seg||'local'))].length>1;
   let rows='';
   SEGORD.forEach(function(pair){const sk=pair[0],slbl=pair[1];const ls=cl.filter(c=>(c.seg||'local')===sk);if(!ls.length)return;let sM=0,sF=0;
-    rows+='<tr class="crt-grp crt-grp--'+sk+'"><td colspan="4">'+slbl+'</td></tr>';
     ls.forEach(function(c){const hasInc=c.inc!==null&&c.inc!==undefined,clOk=hasInc&&c.inc<3,fl=(c.precio||c.gasto)||0;sM+=c.monto||0;sF+=fl;
       rows+='<tr><td class="crt-name">'+esc(c.trDesc||c.nombre||'—')+(c.rep||c.zona?'<div class="crt-sub2">'+[c.rep?esc(c.rep):'',c.zona?esc(c.zona):''].filter(Boolean).join(' · ')+'</div>':'')+'</td><td class="crt-num">'+fmtGs(c.monto||0)+'</td><td class="crt-num">'+(fl?fmtGs(fl):'—')+'</td><td class="crt-inc '+(hasInc?(clOk?'ok':'over'):'')+'">'+(hasInc?c.inc.toFixed(2)+'%':'—')+'</td></tr>';});
-    rows+='<tr class="crt-sub"><td>Subtotal '+slbl+'</td><td class="crt-num">'+fmtGs(sM)+'</td><td class="crt-num">'+fmtGs(sF)+'</td><td></td></tr>';
+    if(_multiSeg)rows+='<tr class="crt-sub"><td>Subtotal '+slbl+'</td><td class="crt-num">'+fmtGs(sM)+'</td><td class="crt-num">'+fmtGs(sF)+'</td><td></td></tr>';
   });
   return`<div class="cal-rep">
     <div class="cal-rep-hd">
@@ -3960,9 +3960,9 @@ function _cfPrint(r){
   const meta=(k,v)=>'<div class="mi"><span>'+k+'</span><b>'+v+'</b></div>';
   const P='#_cfPrintArea ';
   const css='<style>'+
-    '#_cfPrintArea{display:none}'+
-    '@media print{body>*:not(#_cfPrintArea){display:none !important}#_cfPrintArea{display:block !important;position:static;font-family:Arial,sans-serif;color:#1a2331}@page{margin:14mm}}'+
-    P+'*{margin:0;padding:0;box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact}'+
+    '*{margin:0;padding:0;box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact}'+
+    'html,body{font-family:Arial,sans-serif;color:#1a2331;background:#fff}@page{margin:14mm}'+
+    P+'{display:block}'+
     P+'.rp-hd{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:3px solid #0B5F8D;padding-bottom:12px;margin-bottom:14px}'+
     P+'.rp-hd__l{display:flex;align-items:flex-end;gap:14px}'+P+'.rp-logo{height:40px;width:auto}'+
     P+'.rp-hd h1{font-size:17px;color:#0B5F8D;line-height:1;padding-bottom:3px}'+
@@ -3985,7 +3985,7 @@ function _cfPrint(r){
     P+'.firmas{display:flex;gap:40px;align-items:flex-end;flex:1;justify-content:space-around;padding:0 10px}'+
     P+'.firma{text-align:center;min-width:180px}'+P+'.firma .ln{border-top:1.5px solid #1a2331;margin-bottom:5px}'+P+'.firma span{font-size:11px;font-weight:700;color:#3a4759}'+
     '</style>';
-  const html=css+
+  const content=
     '<div class="rp-hd"><div class="rp-hd__l"><img class="rp-logo" src="'+logoUrl+'" alt="ALAS"><div><h1>Planilla de Reparto de Flete</h1></div></div>'+
     '<div class="co"><span class="co-lbl">Fecha de emisión</span><b>'+dd(typeof todayISO==='function'?todayISO():new Date().toISOString().slice(0,10))+'</b></div></div>'+
     '<div class="meta">'+meta('Planilla ID',pid)+meta('Semana',wk?dd(wk.desde)+' al '+dd(wk.hasta):'—')+meta('Transportadora',_escp(r.tsNombre||'—'))+meta('Factura Nº',f?_escp(f.nro||'—'):'—')+'</div>'+
@@ -3994,13 +3994,18 @@ function _cfPrint(r){
     '</tbody></table></div>'+
     '<div class="foot"><div class="firmas"><div class="firma"><div class="ln"></div><span>JEFE DE DISTRIBUCIÓN</span></div><div class="firma"><div class="ln"></div><span>JEFE DE LOGÍSTICA</span></div></div>'+
     '<div class="resumen"><h3>Resumen</h3><div class="rr"><span>Camiones</span><b>'+totN+'</b></div><div class="rr"><span>Monto repartido</span><b>Gs. '+_nnum(totM)+'</b></div><div class="rr"><span>Flete total</span><b>Gs. '+_nnum(totF)+'</b></div>'+(f?'<div class="rr" style="border-top:1px solid #dde6ef;margin-top:5px;padding-top:6px"><span>Monto factura</span><b>Gs. '+_nnum(f.monto)+'</b></div>':'')+'</div></div>';
-  // Impresión 100% confiable: inyecta el reporte y print de la página (solo el reporte se ve al imprimir)
-  let cont=document.getElementById('_cfPrintArea');if(cont)cont.remove();
-  cont=document.createElement('div');cont.id='_cfPrintArea';cont.innerHTML=html;
-  document.body.appendChild(cont);
-  const img=cont.querySelector('img');
-  const go=function(){try{window.print();}catch(e){showToast('No se pudo abrir la impresión');}setTimeout(function(){if(cont&&cont.parentNode)cont.remove();},1000);};
-  if(img&&!img.complete){img.onload=go;img.onerror=go;setTimeout(go,1200);}else go();
+  // Impresión 100% confiable: iframe aislado (no hereda estilos ni estado de la app)
+  const doc='<!doctype html><html><head><meta charset="utf-8"><title>Planilla de Reparto de Flete</title>'+css+'</head><body><div id="_cfPrintArea">'+content+'</div></body></html>';
+  let ifr=document.getElementById('_cfPrintFrame');if(ifr)ifr.remove();
+  ifr=document.createElement('iframe');ifr.id='_cfPrintFrame';
+  ifr.style.cssText='position:fixed;right:0;bottom:0;width:0;height:0;border:0;opacity:0;pointer-events:none';
+  document.body.appendChild(ifr);
+  const idoc=ifr.contentWindow.document;idoc.open();idoc.write(doc);idoc.close();
+  let fired=false;
+  const doPrint=function(){if(fired)return;fired=true;try{ifr.contentWindow.focus();ifr.contentWindow.print();}catch(e){try{showToast('No se pudo abrir la impresión');}catch(_){}}setTimeout(function(){if(ifr&&ifr.parentNode)ifr.remove();},30000);};
+  const imgs=idoc.images;let pend=0;
+  if(imgs&&imgs.length){for(let i=0;i<imgs.length;i++){const im=imgs[i];if(!im.complete){pend++;im.onload=im.onerror=function(){pend--;if(pend<=0)doPrint();};}}if(pend===0)doPrint();else setTimeout(doPrint,1500);}
+  else setTimeout(doPrint,60);
 }
 </script>
 </body>
