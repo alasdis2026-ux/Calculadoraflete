@@ -3585,9 +3585,13 @@ function showSaveAnim(){
   .rre-table .rre-in:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(11,95,141,.12)}
   .rre-del{width:30px;height:30px;border:0;border-radius:8px;background:#FEE2E2;color:#DC2626;font-size:19px;line-height:1;cursor:pointer;font-weight:700;transition:background .15s,color .15s}
   .rre-del:hover{background:#FCA5A5;color:#7f1d1d}
-  .rre-addrow{margin-top:12px;display:inline-flex;align-items:center;gap:7px;border:1.5px dashed rgba(11,95,141,.4);background:rgba(11,95,141,.04);color:var(--primary);border-radius:11px;padding:9px 15px;font:inherit;font-size:12.5px;font-weight:800;cursor:pointer;transition:background .15s,border-color .15s}
+  .rre-addrow{margin:0 0 12px;display:inline-flex;align-items:center;gap:7px;border:1.5px dashed rgba(11,95,141,.4);background:rgba(11,95,141,.04);color:var(--primary);border-radius:11px;padding:9px 15px;font:inherit;font-size:12.5px;font-weight:800;cursor:pointer;transition:background .15s,border-color .15s}
   .rre-addrow:hover{background:rgba(11,95,141,.09);border-color:var(--primary)}
-  .cf-mfoot .save[disabled]{opacity:.6;pointer-events:none}
+  .cf-mfoot .save[disabled]{pointer-events:none}
+  /* Spinner PRO dentro del botón mientras guarda */
+  .cf-spin{display:inline-block;width:15px;height:15px;border:2.5px solid rgba(255,255,255,.32);border-top-color:#fff;border-radius:50%;animation:cfSpin .62s linear infinite;vertical-align:-3px;margin-right:8px}
+  @keyframes cfSpin{to{transform:rotate(360deg)}}
+  .cf-mfoot .ok.is-loading,.cf-btn.is-loading{opacity:.92;pointer-events:none}
   /* Check azul de guardado exitoso */
   .cf-check-ov{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:100000;pointer-events:none}
   .cf-check{width:104px;height:104px;border-radius:999px;background:#fff;box-shadow:0 16px 46px rgba(29,78,216,.3),0 0 0 1px rgba(29,78,216,.08);display:flex;align-items:center;justify-content:center}
@@ -3890,6 +3894,7 @@ function _cfOpenFacturaModal(existing,preset){
     if(!(monto>0)){_cfSetErr(moF,'Che, ingresá el monto de la factura.');bad=true;}
     if(!sel){_cfSetErr(plF,'Elegí a qué planilla corresponde.');bad=true;}
     if(bad){showToast('Revisá los campos marcados 👀');return;}
+    const okB=m.$('.ok'),okTxt=editing?'Guardar cambios':'Guardar factura';if(okB){okB.disabled=true;okB.classList.add('is-loading');okB.innerHTML='<span class="cf-spin"></span>Guardando…';}
     const row={nro:nro,fecha:fecha,monto:monto,transportadora_nombre:sel.ts,semana_desde:sel.semDesde,semana_hasta:sel.semHasta};
     try{
       if(editing){const up=await sb.from('fact_facturas').update(row).eq('id',existing.id);if(up.error)throw up.error;m.close();_cfCheckBurst();showToast('¡Factura actualizada! ✨');}
@@ -3897,7 +3902,7 @@ function _cfOpenFacturaModal(existing,preset){
       window.__cfFac=null; // forzar recarga de facturas para refrescar chips/estado
       const _rrep=document.getElementById('viewRrep');
       if(_rrep&&_rrep.classList.contains('is-active'))renderReporteRepartos(); else renderFacturas();
-    }catch(e){console.error(e);showToast('Uy, no pude guardar la factura. Probá de nuevo.');}
+    }catch(e){console.error(e);showToast('Uy, no pude guardar la factura. Probá de nuevo.');if(okB){okB.disabled=false;okB.classList.remove('is-loading');okB.textContent=okTxt;}}
   });
 }
 
@@ -3992,7 +3997,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
   function findRepId(cl){for(const rp of (g.reps||[])){const r=repartos.find(x=>x.id===rp.id);if(r&&(r.clientes||[]).indexOf(cl)>=0)return r.id;}return (g.reps&&g.reps[0])?g.reps[0].id:null;}
   function targetRepId(){let best=null;(g.reps||[]).forEach(rp=>{if(!best||(rp.fechaISO||'')>(best.fechaISO||''))best=rp;});return best?best.id:null;}
   function buildWork(){work=g.lines.map(cl=>({ref:cl,repId:findRepId(cl),trId:cl.trId||null,trDesc:cl.trDesc||'',seg:cl.seg||'local',monto:+cl.monto||0,precio:(+cl.precio|| +cl.gasto||0),del:false,isNew:false}));}
-  function addRow(){work.push({ref:null,repId:targetRepId(),trId:trucks[0]?trucks[0].id:null,trDesc:trucks[0]?trucks[0].d:'',seg:'local',monto:0,precio:0,del:false,isNew:true});}
+  function addRow(){work.unshift({ref:null,repId:targetRepId(),trId:trucks[0]?trucks[0].id:null,trDesc:trucks[0]?trucks[0].d:'',seg:'local',monto:0,precio:0,del:false,isNew:true});}
   function totals(){const arr=editing?work.filter(w=>!w.del).map(w=>({monto:w.monto,precio:w.precio})):g.lines.map(c=>({monto:+c.monto||0,precio:(+c.precio|| +c.gasto||0)}));const m=arr.reduce((s,x)=>s+(+x.monto||0),0),f=arr.reduce((s,x)=>s+(+x.precio||0),0);return{m,f,inc:m>0?f/m*100:null};}
   function viewBody(){let rows='';SEGORD.forEach(function(pair){const sk=pair[0],slbl=pair[1];const ls=g.lines.filter(c=>(c.seg||'local')===sk);if(!ls.length)return;let sM=0,sF=0;rows+='<tr class="hc-grp hc-grp--'+sk+'"><td colspan="3">'+slbl+'</td></tr>';ls.forEach(c=>{const fl=(c.precio||c.gasto)||0;sM+=c.monto||0;sF+=fl;rows+='<tr><td>'+_escp(c.trDesc||'—')+'</td><td class="r">'+_gs(c.monto||0)+'</td><td class="r">'+_gs(fl)+'</td></tr>';});rows+='<tr class="hc-sub"><td>Subtotal '+slbl+'</td><td class="r">'+_gs(sM)+'</td><td class="r">'+_gs(sF)+'</td></tr>';});const t=totals();return '<table class="cf-table"><thead><tr><th>Camión</th><th class="r">Monto</th><th class="r">Flete</th></tr></thead><tbody>'+rows+'<tr class="rr-tot"><td>TOTAL</td><td class="r">'+_gs(t.m)+'</td><td class="r">'+_gs(t.f)+'</td></tr></tbody></table>';}
   function editBody(){const rws=work.map((w,wi)=>{if(w.del)return '';const trOpts=(!w.trId?'<option value="" selected>— Camión —</option>':'')+(w.trId&&!trucks.some(t=>t.id===w.trId)?'<option value="'+w.trId+'" selected>'+_escp(w.trDesc||'—')+'</option>':'')+trucks.map(t=>'<option value="'+t.id+'"'+(t.id===w.trId?' selected':'')+'>'+_escp(t.d)+'</option>').join('');const segOpts=['local','interior','servicios'].map(s=>'<option value="'+s+'"'+(w.seg===s?' selected':'')+'>'+SEGN[s]+'</option>').join('');return '<tr data-wi="'+wi+'">'+
@@ -4001,8 +4006,8 @@ function _rrOpenDetail(g,periodLbl,wkObj){
         '<td class="r"><input class="rre-in rre-monto r" data-wi="'+wi+'" inputmode="numeric" placeholder="0" value="'+fmt(w.monto)+'"></td>'+
         '<td class="r"><input class="rre-in rre-precio r" data-wi="'+wi+'" inputmode="numeric" placeholder="0" value="'+fmt(w.precio)+'"></td>'+
         '<td class="r"><button class="rre-del" data-wi="'+wi+'" title="Quitar camión">&times;</button></td></tr>';}).join('');
-    return '<table class="cf-table rre-table"><thead><tr><th>Camión</th><th>Segmento</th><th class="r">Monto</th><th class="r">Flete</th><th></th></tr></thead><tbody>'+rws+'</tbody></table>'+
-      '<button class="rre-addrow" type="button"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg> Añadir camión</button>';}
+    return '<table class="cf-table rre-table"><thead><tr><th>Camión</th><th>Segmento</th><th class="r">Monto</th><th class="r">Flete</th><th></th></tr></thead><tbody>'+rws+'</tbody></table>';}
+  const ADDROW='<button class="rre-addrow" type="button"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg> Añadir camión</button>';
   function liveTotals(){const t=totals(),q=s=>bd.querySelector(s);const setPop=(el,v)=>{if(el&&el.textContent!==v){el.textContent=v;pop(el);}};setPop(q('.k-monto'),_gs(t.m));setPop(q('.k-flete'),_gs(t.f));const ki=q('.k-inc');if(ki){const v=t.inc!=null?t.inc.toFixed(2)+'%':'—';if(ki.textContent!==v){ki.textContent=v;pop(ki);}ki.classList.toggle('ok',t.inc!=null&&t.inc<3);}const nc=q('.rrm-ncam');if(nc)nc.textContent=work.filter(w=>!w.del).length;}
   async function save(){
     const rows=work.filter(w=>!w.del);
@@ -4013,7 +4018,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     rows.forEach(w=>{const tr=trucks.find(t=>t.id===w.trId);
       if(w.isNew){const r=repartos.find(x=>x.id===w.repId);if(!r)return;if(!r.clientes)r.clientes=[];r.clientes.push({id:nextClienteId++,trId:w.trId,tsId:tsObj?tsObj.id:g.tsId,seg:w.seg,rep:null,zona:null,monto:w.monto,precio:w.precio,gasto:w.precio,trDesc:tr?tr.d:w.trDesc,tsNombre:g.ts,pct:0,inc:(w.monto>0&&w.precio>0?w.precio/w.monto*100:null)});affected.add(r.id);}
       else if(w.ref){w.ref.monto=w.monto;w.ref.precio=w.precio;w.ref.gasto=w.precio;w.ref.seg=w.seg;if(w.trId){w.ref.trId=w.trId;w.ref.trDesc=tr?tr.d:w.ref.trDesc;w.ref.tsId=tsObj?tsObj.id:w.ref.tsId;}w.ref.inc=(w.monto>0&&w.precio>0?w.precio/w.monto*100:null);affected.add(w.repId);}});
-    const sv=bd.querySelector('.cf-mfoot .save');if(sv){sv.disabled=true;sv.textContent='Guardando…';}
+    const sv=bd.querySelector('.cf-mfoot .save');if(sv){sv.disabled=true;sv.classList.add('is-loading');sv.innerHTML='<span class="cf-spin"></span>Guardando…';}
     try{
       for(const id of affected){const r=repartos.find(x=>x.id===id);if(!r)continue;
         if(!(r.clientes||[]).length){await dbDeleteReparto(r.id);const i=repartos.indexOf(r);if(i>=0)repartos.splice(i,1);continue;}
@@ -4026,7 +4031,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
       const rrep=document.getElementById('viewRrep');if(rrep&&rrep.classList.contains('is-active'))renderReporteRepartos();
       if(!g.lines.length){_rrClose(bd);return;}
       render('toggle');
-    }catch(e){console.error(e);showToast('Uy, no pude guardar los cambios');if(sv){sv.disabled=false;sv.textContent='Guardar cambios';}}
+    }catch(e){console.error(e);showToast('Uy, no pude guardar los cambios');if(sv){sv.disabled=false;sv.classList.remove('is-loading');sv.textContent='Guardar cambios';}}
   }
   function wire(){
     bd.querySelectorAll('.cancel').forEach(b=>b.addEventListener('click',()=>_rrClose(bd)));
@@ -4060,6 +4065,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
       '<div class="rrm-hd"><div><h3 class="rrm-ts">'+_escp(g.ts)+'</h3><div class="rrm-pd">'+periodLbl+' · <span class="rrm-ncam">'+nCam+'</span> camiones'+(editing?' · <b style="color:var(--primary)">Editando</b>':'')+'</div></div><button class="rrm-x '+(editing?'cancel-edit':'cancel')+'" aria-label="Cerrar">&times;</button></div>'+
       actions+
       '<div class="rrm-kpis"><div class="rrm-kpi"><span>Total monto</span><b class="k-monto">'+_gs(t.m)+'</b></div><div class="rrm-kpi"><span>Total flete</span><b class="k-flete">'+_gs(t.f)+'</b></div><div class="rrm-kpi"><span>Incidencia</span><b class="k-inc '+(t.inc!=null&&t.inc<3?'ok':'')+'">'+(t.inc!=null?t.inc.toFixed(2)+'%':'—')+'</b></div></div>'+
+      (editing?ADDROW:'')+
       '<div class="rrm-body">'+(editing?editBody():viewBody())+'</div>'+
       foot+'</div>';
     wire();
@@ -4074,9 +4080,9 @@ function _rrOpenDetail(g,periodLbl,wkObj){
       gs.from(rows,{opacity:0,x:-10,duration:.34,stagger:.03,delay:.22,ease:'power2.out',clearProps:'all'});
       return;}
     if(anim==='add'){
-      const last=rows[rows.length-1];
-      gs.from(rows,{opacity:0,y:6,duration:.26,stagger:.02,ease:'power2.out',clearProps:'all'});
-      if(last){gs.fromTo(last,{backgroundColor:'rgba(11,95,141,.14)'},{backgroundColor:'rgba(11,95,141,0)',duration:1,ease:'power2.out',clearProps:'backgroundColor'});try{last.scrollIntoView({block:'nearest',behavior:'smooth'});}catch(_){}const sel=last.querySelector('.rre-tr');if(sel)setTimeout(()=>{try{sel.focus();}catch(_){}},90);}
+      const first=rows[0],body=bd.querySelector('.rrm-body');
+      if(body)body.scrollTop=0;
+      if(first){gs.from(first,{opacity:0,y:-12,duration:.4,ease:'back.out(1.7)',clearProps:'all'});gs.fromTo(first,{backgroundColor:'rgba(11,95,141,.14)'},{backgroundColor:'rgba(11,95,141,0)',duration:1,ease:'power2.out',clearProps:'backgroundColor'});const sel=first.querySelector('.rre-tr');if(sel)setTimeout(()=>{try{sel.focus();}catch(_){}},90);}
       return;}
     if(anim==='toggle'){
       const body=bd.querySelector('.rrm-body');
