@@ -3514,13 +3514,18 @@ function showSaveAnim(){
   .rr-mnav button{border:0;background:transparent;width:30px;height:30px;border-radius:8px;font-size:18px;color:var(--primary);cursor:pointer;font-weight:800;line-height:1}
   .rr-mnav button:hover{background:#fff}
   .rr-mnav span{font-weight:800;font-size:14px;padding:0 8px;color:var(--gray-800,#1e293b)}
-  .rr-filterbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-left:auto;justify-content:flex-end}
+  .rr-filterbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;width:100%;margin-left:0;justify-content:flex-start}
   .rr-filterbar .rr-mnav{margin-left:0}
   .rr-filterbar .rr-chips{margin:0}
   .rr-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
-  .rr-chip{border:1px solid var(--gray-200,#e2e8f0);background:#fff;border-radius:10px;padding:7px 13px;font:inherit;font-size:12.5px;font-weight:700;color:var(--gray-600,#475569);cursor:pointer;transition:all .15s}
+  .rr-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--gray-200,#e2e8f0);background:#fff;border-radius:10px;padding:7px 12px;font:inherit;font-size:12.5px;font-weight:700;color:var(--gray-600,#475569);cursor:pointer;transition:background .15s,color .15s,border-color .15s}
   .rr-chip:hover{border-color:var(--primary);color:var(--primary)}
   .rr-chip.on{background:var(--primary);border-color:var(--primary);color:#fff}
+  .rr-chip__dot{width:7px;height:7px;border-radius:999px;background:var(--success,#10B981);box-shadow:0 0 0 3px rgba(16,185,129,.18);animation:cfDotPulse 1.8s ease-in-out infinite;flex:0 0 auto}
+  .rr-chip.on .rr-chip__dot{background:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.3)}
+  .rr-chip__n{min-width:19px;height:19px;padding:0 5px;border-radius:999px;background:var(--gray-100,#f1f5f9);color:var(--gray-500,#64748b);font-size:11px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums}
+  .rr-chip:hover .rr-chip__n{background:rgba(11,95,141,.1);color:var(--primary)}
+  .rr-chip.on .rr-chip__n{background:rgba(255,255,255,.22);color:#fff}
   .rr-segfilter{display:flex;align-items:center;justify-content:center;gap:9px;flex-wrap:wrap;margin:4px 0 22px}
   .rr-segfilter__l{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--gray-400,#94a3b8);margin-right:2px}
   .rr-sf{display:inline-flex;align-items:center;gap:7px;border:1.5px solid var(--gray-200,#e2e8f0);background:#fff;border-radius:999px;padding:8px 17px;font:inherit;font-size:12.5px;font-weight:700;color:var(--gray-600,#475569);cursor:pointer;transition:background .18s,color .18s,border-color .18s,box-shadow .18s,transform .12s}
@@ -3573,6 +3578,16 @@ function showSaveAnim(){
   .rrm-act--edit:hover{background:var(--gray-800,#1e293b);color:#fff;border-color:var(--gray-800,#1e293b)}
   .rrm-act--fac{margin-left:auto;background:linear-gradient(180deg,#EAF2FF,#DBEAFE);border-color:rgba(29,78,216,.22);color:#1D4ED8}
   .rrm-act--fac:hover{background:#1D4ED8;color:#fff;border-color:#1D4ED8}
+  /* Edición inline en el modal de planilla */
+  .rre-table td{padding:6px 8px;vertical-align:middle}
+  .rre-table select.rre-in,.rre-table input.rre-in{width:100%;border:1.5px solid var(--gray-200,#e2e8f0);border-radius:9px;padding:7px 9px;font:inherit;font-size:13px;color:var(--gray-800,#1e293b);background:#fff;transition:border-color .15s,box-shadow .15s}
+  .rre-table input.rre-in.r{text-align:right;font-variant-numeric:tabular-nums}
+  .rre-table .rre-in:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(11,95,141,.12)}
+  .rre-del{width:30px;height:30px;border:0;border-radius:8px;background:#FEE2E2;color:#DC2626;font-size:19px;line-height:1;cursor:pointer;font-weight:700;transition:background .15s,color .15s}
+  .rre-del:hover{background:#FCA5A5;color:#7f1d1d}
+  .rre-addrow{margin-top:12px;display:inline-flex;align-items:center;gap:7px;border:1.5px dashed rgba(11,95,141,.4);background:rgba(11,95,141,.04);color:var(--primary);border-radius:11px;padding:9px 15px;font:inherit;font-size:12.5px;font-weight:800;cursor:pointer;transition:background .15s,border-color .15s}
+  .rre-addrow:hover{background:rgba(11,95,141,.09);border-color:var(--primary)}
+  .cf-mfoot .save[disabled]{opacity:.6;pointer-events:none}
   @media(max-width:620px){.rrm-kpis{grid-template-columns:1fr}.rrm-act--fac{margin-left:0}}
   /* ─── Modales PRO (form agrupado + validación) ─── */
   .cf-mbd .cf-mbox--form{max-width:680px;width:min(680px,94vw)}
@@ -3911,7 +3926,7 @@ function _isoD(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'
 function _dispD(iso){return iso?iso.split('-').reverse().join('/'):'—';}
 function _shD(iso){const p=iso.split('-');return p[2]+'/'+p[1];}
 function _weeksOfMonth(mk){const a=mk.split('-').map(Number),y=a[0],mo=a[1];const first=new Date(y,mo-1,1),last=new Date(y,mo,0);let d=new Date(first);d.setDate(d.getDate()-((d.getDay()+6)%7));const w=[];while(d<=last){const mon=new Date(d),sun=new Date(d);sun.setDate(sun.getDate()+6);w.push({desde:_isoD(mon),hasta:_isoD(sun)});d.setDate(d.getDate()+7);}return w;}
-function _rrShiftMonth(delta){const a=_rrMes.split('-').map(Number);const d=new Date(a[0],a[1]-1+delta,1);_rrMes=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');_rrWeek=null;renderReporteRepartos();}
+function _rrShiftMonth(delta){const a=_rrMes.split('-').map(Number);const d=new Date(a[0],a[1]-1+delta,1);_rrMes=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');_rrWeek=undefined;renderReporteRepartos();}
 function _rrGroups(weekDesde){
   const groups={};
   (repartos||[]).forEach(r=>{
@@ -3927,13 +3942,16 @@ function renderReporteRepartos(){
   // Carga las facturas (una vez) para mostrar el estado en cada tarjeta
   if(!window.__cfFac){sb.from('fact_facturas').select('*').then(r=>{window.__cfFac=r.data||[];if(document.getElementById('viewRrep').classList.contains('is-active'))renderReporteRepartos();}).catch(()=>{window.__cfFac=[];});}
   const weeks=_weeksOfMonth(_rrMes);
-  if(_rrWeek===undefined){const today=_isoD(new Date());const cur=weeks.find(w=>today>=w.desde&&today<=w.hasta);_rrWeek=cur?cur.desde:(weeks[0]?weeks[0].desde:null);}
+  const today=_isoD(new Date());
+  // Siempre una semana seleccionada (ya no hay "Mes completo"): la actual si cae en el mes, si no la primera
+  if(_rrWeek===undefined||(_rrWeek&&!weeks.some(w=>w.desde===_rrWeek))){const cur=weeks.find(w=>today>=w.desde&&today<=w.hasta);_rrWeek=cur?cur.desde:(weeks[0]?weeks[0].desde:null);}
   const M=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
   const a=_rrMes.split('-').map(Number),monthLbl=M[a[1]-1]+' '+a[0];
   const groups=_rrGroups(_rrWeek);
   const wkObj=_rrWeek?weeks.find(w=>w.desde===_rrWeek):null;
   const periodLbl=wkObj?(_dispD(wkObj.desde)+' al '+_dispD(wkObj.hasta)):'Mes completo';
-  const chips='<div class="rr-chips"><button class="rr-chip'+(!_rrWeek?' on':'')+'" data-rrw="">Mes completo</button>'+weeks.map(w=>'<button class="rr-chip'+(_rrWeek===w.desde?' on':'')+'" data-rrw="'+w.desde+'">'+_shD(w.desde)+'–'+_shD(w.hasta)+'</button>').join('')+'</div>';
+  // Chips de semana: punto en pulso sobre la semana actual + conteo de planillas por semana
+  const chips='<div class="rr-chips">'+weeks.map(w=>{const isCur=today>=w.desde&&today<=w.hasta;const n=_planillasDe(null,w.desde).length;return '<button class="rr-chip'+(_rrWeek===w.desde?' on':'')+'" data-rrw="'+w.desde+'">'+(isCur?'<span class="rr-chip__dot" title="Semana actual"></span>':'')+_shD(w.desde)+'–'+_shD(w.hasta)+(n?'<span class="rr-chip__n">'+n+'</span>':'')+'</button>';}).join('')+'</div>';
   const nav='<div class="rr-mnav"><button data-rrm="-1" aria-label="Mes anterior">‹</button><span>'+monthLbl+'</span><button data-rrm="1" aria-label="Mes siguiente">›</button></div>';
   // Filtro de segmento PRO: ícono minimalista + label, centrado, con entrada GSAP
   const SEGF=[
@@ -3955,57 +3973,96 @@ function renderReporteRepartos(){
 }
 function _rrOpenDetail(g,periodLbl,wkObj){
   const SEGORD=[['local','Local'],['interior','Interior'],['servicios','Servicios']];
-  let rows='';
-  SEGORD.forEach(function(pair){const sk=pair[0],slbl=pair[1];const ls=g.lines.filter(c=>(c.seg||'local')===sk);if(!ls.length)return;let sM=0,sF=0;rows+='<tr class="hc-grp hc-grp--'+sk+'"><td colspan="3">'+slbl+'</td></tr>';ls.forEach(c=>{const fl=(c.precio||c.gasto)||0;sM+=c.monto||0;sF+=fl;rows+='<tr><td>'+_escp(c.trDesc||'—')+'</td><td class="r">'+_gs(c.monto||0)+'</td><td class="r">'+_gs(fl)+'</td></tr>';});rows+='<tr class="hc-sub"><td>Subtotal '+slbl+'</td><td class="r">'+_gs(sM)+'</td><td class="r">'+_gs(sF)+'</td></tr>';});
-  const inc=g.monto>0?(g.flete/g.monto*100):null;
-  const facReg=wkObj?_facRegistradaDe(g.ts,wkObj.desde):false;
-  const facBtn=(wkObj&&!facReg)?'<button class="rrm-act rrm-act--fac"><svg viewBox="0 0 24 24"><path d="M5 3h14a1 1 0 011 1v17l-3-2-3 2-3-2-3 2-3-2V4a1 1 0 011-1z"/><path d="M12 8v6M9 11h6"/></svg> Registrar factura</button>':'';
-  const bd=document.createElement('div');bd.className='cf-mbd on';
-  bd.innerHTML='<div class="cf-mbox cf-mbox--wide">'+
-    '<div class="rrm-hd"><div><h3 class="rrm-ts">'+_escp(g.ts)+'</h3><div class="rrm-pd">'+periodLbl+' · '+g.lines.length+' camiones</div></div><button class="rrm-x cancel" aria-label="Cerrar">&times;</button></div>'+
-    '<div class="rrm-actions">'+
-      '<button class="rrm-act rrm-act--add"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg> Añadir reparto</button>'+
-      '<button class="rrm-act rrm-act--edit"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-7M18.5 2.5a2.1 2.1 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Editar</button>'+
-      facBtn+
-    '</div>'+
-    '<div class="rrm-kpis"><div class="rrm-kpi"><span>Total monto</span><b>'+_gs(g.monto)+'</b></div><div class="rrm-kpi"><span>Total flete</span><b>'+_gs(g.flete)+'</b></div><div class="rrm-kpi"><span>Incidencia</span><b class="'+(inc!=null&&inc<3?'ok':'')+'">'+(inc!=null?inc.toFixed(2)+'%':'—')+'</b></div></div>'+
-    '<div class="rrm-body"><table class="cf-table"><thead><tr><th>Camión</th><th class="r">Monto</th><th class="r">Flete</th></tr></thead><tbody>'+rows+'<tr class="rr-tot"><td>TOTAL</td><td class="r">'+_gs(g.monto)+'</td><td class="r">'+_gs(g.flete)+'</td></tr></tbody></table></div>'+
-    '<div class="cf-mfoot"><button class="cancel">Cerrar</button><button class="ok"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" width="15" height="15" style="vertical-align:-2px"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6v-8z"/></svg> Imprimir</button></div></div>';
-  document.body.appendChild(bd);
-  bd.querySelectorAll('.cancel').forEach(b=>b.addEventListener('click',()=>_rrClose(bd)));
-  bd.addEventListener('click',e=>{if(e.target===bd)_rrClose(bd);});
-  bd.querySelector('.cf-mfoot .ok').addEventListener('click',()=>{_cfPrint({id:null,tsNombre:g.ts,semanaDesde:wkObj?wkObj.desde:null,semanaHasta:wkObj?wkObj.hasta:null,clientes:g.lines,totalMonto:g.monto,totalFlete:g.flete,incTotal:inc,factura_id:null});});
-  // Añadir reparto: calculadora fresca, con la fecha de la semana precargada
-  bd.querySelector('.rrm-act--add').addEventListener('click',()=>{_rrClose(bd);clearCurrentReparto();if(wkObj&&wkObj.desde){const inpF=document.getElementById('inpFecha');if(inpF){inpF.value=wkObj.desde;const grp=document.getElementById('selFechaGroup');if(grp)grp.classList.add('is-set');currentReparto.fecha=wkObj.desde;if(typeof updateFleteInfo==='function')updateFleteInfo();}}showView('calc');});
-  // Editar: si la planilla es de un solo reparto se abre directo; si son varios, se elige el día
-  bd.querySelector('.rrm-act--edit').addEventListener('click',()=>{const reps=(g.reps||[]).slice().sort((a,b)=>(a.fechaISO||'')<(b.fechaISO||'')?-1:1);if(!reps.length){showToast('No encontré el reparto para editar');return;}if(reps.length===1){_rrClose(bd);loadForEdit(reps[0].id);return;}_rrRepPicker(reps,bd);});
-  // Registrar factura directo (planilla precargada)
-  if(facBtn){bd.querySelector('.rrm-act--fac').addEventListener('click',()=>{_rrClose(bd);_cfOpenFacturaModal(null,{ts:g.ts,semDesde:wkObj.desde,semHasta:wkObj.hasta});});}
-  const box=bd.querySelector('.cf-mbox'),gs=window.gsap,reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if(gs&&!reduce){
-    gs.fromTo(bd,{opacity:0},{opacity:1,duration:.28,ease:'power2.out'});
-    gs.fromTo(box,{y:30,scale:.94,opacity:0},{y:0,scale:1,opacity:1,duration:.5,ease:'back.out(1.6)',clearProps:'transform,opacity'});
-    gs.from(bd.querySelectorAll('.rrm-kpi'),{y:-12,opacity:0,duration:.4,stagger:.08,delay:.12,ease:'power2.out',clearProps:'all'});
-    gs.from(bd.querySelectorAll('.rrm-body tbody tr'),{opacity:0,x:-10,duration:.34,stagger:.03,delay:.2,ease:'power2.out',clearProps:'all'});
+  const SEGN={local:'Local',interior:'Interior',servicios:'Servicios'};
+  const tsObj=(typeof transportistas!=='undefined'?transportistas:[]).find(t=>t.n===g.ts);
+  const trucks=(tsObj&&tsObj.trucks)||[];
+  const bd=document.createElement('div');bd.className='cf-mbd on';document.body.appendChild(bd);
+  let editing=false,work=[],firstDraw=true;
+  const num=v=>parseInt(String(v==null?'':v).replace(/[^\d]/g,''),10)||0;
+  const fmt=n=>n?_nnum(n):'';
+  // Ubica el reparto padre de una línea (g.lines son referencias vivas)
+  function findRepId(cl){for(const rp of (g.reps||[])){const r=repartos.find(x=>x.id===rp.id);if(r&&(r.clientes||[]).indexOf(cl)>=0)return r.id;}return (g.reps&&g.reps[0])?g.reps[0].id:null;}
+  function targetRepId(){let best=null;(g.reps||[]).forEach(rp=>{if(!best||(rp.fechaISO||'')>(best.fechaISO||''))best=rp;});return best?best.id:null;}
+  function buildWork(){work=g.lines.map(cl=>({ref:cl,repId:findRepId(cl),trId:cl.trId||null,trDesc:cl.trDesc||'',seg:cl.seg||'local',monto:+cl.monto||0,precio:(+cl.precio|| +cl.gasto||0),del:false,isNew:false}));}
+  function addRow(){work.push({ref:null,repId:targetRepId(),trId:trucks[0]?trucks[0].id:null,trDesc:trucks[0]?trucks[0].d:'',seg:'local',monto:0,precio:0,del:false,isNew:true});}
+  function totals(){const arr=editing?work.filter(w=>!w.del).map(w=>({monto:w.monto,precio:w.precio})):g.lines.map(c=>({monto:+c.monto||0,precio:(+c.precio|| +c.gasto||0)}));const m=arr.reduce((s,x)=>s+(+x.monto||0),0),f=arr.reduce((s,x)=>s+(+x.precio||0),0);return{m,f,inc:m>0?f/m*100:null};}
+  function viewBody(){let rows='';SEGORD.forEach(function(pair){const sk=pair[0],slbl=pair[1];const ls=g.lines.filter(c=>(c.seg||'local')===sk);if(!ls.length)return;let sM=0,sF=0;rows+='<tr class="hc-grp hc-grp--'+sk+'"><td colspan="3">'+slbl+'</td></tr>';ls.forEach(c=>{const fl=(c.precio||c.gasto)||0;sM+=c.monto||0;sF+=fl;rows+='<tr><td>'+_escp(c.trDesc||'—')+'</td><td class="r">'+_gs(c.monto||0)+'</td><td class="r">'+_gs(fl)+'</td></tr>';});rows+='<tr class="hc-sub"><td>Subtotal '+slbl+'</td><td class="r">'+_gs(sM)+'</td><td class="r">'+_gs(sF)+'</td></tr>';});const t=totals();return '<table class="cf-table"><thead><tr><th>Camión</th><th class="r">Monto</th><th class="r">Flete</th></tr></thead><tbody>'+rows+'<tr class="rr-tot"><td>TOTAL</td><td class="r">'+_gs(t.m)+'</td><td class="r">'+_gs(t.f)+'</td></tr></tbody></table>';}
+  function editBody(){const rws=work.map((w,wi)=>{if(w.del)return '';const trOpts=(!w.trId?'<option value="" selected>— Camión —</option>':'')+(w.trId&&!trucks.some(t=>t.id===w.trId)?'<option value="'+w.trId+'" selected>'+_escp(w.trDesc||'—')+'</option>':'')+trucks.map(t=>'<option value="'+t.id+'"'+(t.id===w.trId?' selected':'')+'>'+_escp(t.d)+'</option>').join('');const segOpts=['local','interior','servicios'].map(s=>'<option value="'+s+'"'+(w.seg===s?' selected':'')+'>'+SEGN[s]+'</option>').join('');return '<tr data-wi="'+wi+'">'+
+        '<td><select class="rre-in rre-tr" data-wi="'+wi+'">'+trOpts+'</select></td>'+
+        '<td><select class="rre-in rre-seg" data-wi="'+wi+'">'+segOpts+'</select></td>'+
+        '<td class="r"><input class="rre-in rre-monto r" data-wi="'+wi+'" inputmode="numeric" placeholder="0" value="'+fmt(w.monto)+'"></td>'+
+        '<td class="r"><input class="rre-in rre-precio r" data-wi="'+wi+'" inputmode="numeric" placeholder="0" value="'+fmt(w.precio)+'"></td>'+
+        '<td class="r"><button class="rre-del" data-wi="'+wi+'" title="Quitar camión">&times;</button></td></tr>';}).join('');
+    return '<table class="cf-table rre-table"><thead><tr><th>Camión</th><th>Segmento</th><th class="r">Monto</th><th class="r">Flete</th><th></th></tr></thead><tbody>'+rws+'</tbody></table>'+
+      '<button class="rre-addrow" type="button"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg> Añadir camión</button>';}
+  function liveTotals(){const t=totals(),q=s=>bd.querySelector(s);if(q('.k-monto'))q('.k-monto').textContent=_gs(t.m);if(q('.k-flete'))q('.k-flete').textContent=_gs(t.f);const ki=q('.k-inc');if(ki){ki.textContent=t.inc!=null?t.inc.toFixed(2)+'%':'—';ki.classList.toggle('ok',t.inc!=null&&t.inc<3);}const nc=q('.rrm-ncam');if(nc)nc.textContent=work.filter(w=>!w.del).length;}
+  async function save(){
+    const rows=work.filter(w=>!w.del);
+    if(!rows.length){showToast('La planilla quedaría sin camiones. Cancelá o agregá al menos uno.');return;}
+    for(const w of rows){if(!w.trId){showToast('Elegí el camión en todas las filas 👀');return;}if(!(w.monto>0)){showToast('Ingresá el monto en todas las filas');return;}}
+    const affected=new Set();
+    work.filter(w=>w.del&&w.ref).forEach(w=>{const r=repartos.find(x=>x.id===w.repId);if(r){const idx=(r.clientes||[]).indexOf(w.ref);if(idx>=0)r.clientes.splice(idx,1);affected.add(r.id);}});
+    rows.forEach(w=>{const tr=trucks.find(t=>t.id===w.trId);
+      if(w.isNew){const r=repartos.find(x=>x.id===w.repId);if(!r)return;if(!r.clientes)r.clientes=[];r.clientes.push({id:nextClienteId++,trId:w.trId,tsId:tsObj?tsObj.id:g.tsId,seg:w.seg,rep:null,zona:null,monto:w.monto,precio:w.precio,gasto:w.precio,trDesc:tr?tr.d:w.trDesc,tsNombre:g.ts,pct:0,inc:(w.monto>0&&w.precio>0?w.precio/w.monto*100:null)});affected.add(r.id);}
+      else if(w.ref){w.ref.monto=w.monto;w.ref.precio=w.precio;w.ref.gasto=w.precio;w.ref.seg=w.seg;if(w.trId){w.ref.trId=w.trId;w.ref.trDesc=tr?tr.d:w.ref.trDesc;w.ref.tsId=tsObj?tsObj.id:w.ref.tsId;}w.ref.inc=(w.monto>0&&w.precio>0?w.precio/w.monto*100:null);affected.add(w.repId);}});
+    const sv=bd.querySelector('.cf-mfoot .save');if(sv){sv.disabled=true;sv.textContent='Guardando…';}
+    try{
+      for(const id of affected){const r=repartos.find(x=>x.id===id);if(!r)continue;
+        if(!(r.clientes||[]).length){await dbDeleteReparto(r.id);const i=repartos.indexOf(r);if(i>=0)repartos.splice(i,1);continue;}
+        const tM=(r.clientes||[]).reduce((s,c)=>s+(+c.monto||0),0),tF=(r.clientes||[]).reduce((s,c)=>s+(+c.precio||0),0),iT=tM>0?tF/tM*100:null;
+        await dbSaveReparto({id:r.id,fechaISO:r.fechaISO,tsId:r.tsId,tsNombre:r.tsNombre,trId:r.trId,trDesc:r.trDesc,km:r.km,precio:r.precio,tipo:r.tipo,totalFlete:tF,totalMonto:tM,incTotal:iT,gastoPermitido:r.gastoPermitido,diferencia:r.diferencia,zona:r.zona,clientes:r.clientes});
+        r.totalMonto=tM;r.totalFlete=tF;r.incTotal=iT;}
+      showToast('¡Cambios guardados! ✨');editing=false;
+      const fresh=_rrGroups(_rrWeek).find(x=>x.ts===g.ts);
+      if(fresh){g.lines=fresh.lines;g.monto=fresh.monto;g.flete=fresh.flete;g.reps=fresh.reps;}else{g.lines=[];g.monto=0;g.flete=0;g.reps=[];}
+      const rrep=document.getElementById('viewRrep');if(rrep&&rrep.classList.contains('is-active'))renderReporteRepartos();
+      if(!g.lines.length){_rrClose(bd);return;}
+      render();
+    }catch(e){console.error(e);showToast('Uy, no pude guardar los cambios');if(sv){sv.disabled=false;sv.textContent='Guardar cambios';}}
   }
+  function wire(){
+    bd.querySelectorAll('.cancel').forEach(b=>b.addEventListener('click',()=>_rrClose(bd)));
+    bd.querySelectorAll('.cancel-edit').forEach(b=>b.addEventListener('click',()=>{editing=false;render();}));
+    if(!editing){
+      const pr=bd.querySelector('.cf-mfoot .print');if(pr)pr.addEventListener('click',()=>{const t=totals();_cfPrint({id:null,tsNombre:g.ts,semanaDesde:wkObj?wkObj.desde:null,semanaHasta:wkObj?wkObj.hasta:null,clientes:g.lines,totalMonto:t.m,totalFlete:t.f,incTotal:t.inc,factura_id:null});});
+      const add=bd.querySelector('.rrm-act--add');if(add)add.addEventListener('click',()=>{buildWork();addRow();editing=true;render();});
+      const ed=bd.querySelector('.rrm-act--edit');if(ed)ed.addEventListener('click',()=>{buildWork();editing=true;render();});
+      const fac=bd.querySelector('.rrm-act--fac');if(fac)fac.addEventListener('click',()=>{_rrClose(bd);_cfOpenFacturaModal(null,{ts:g.ts,semDesde:wkObj.desde,semHasta:wkObj.hasta});});
+    }else{
+      bd.querySelectorAll('.rre-tr').forEach(s=>s.addEventListener('change',()=>{const wi=+s.dataset.wi;work[wi].trId=+s.value||null;const tr=trucks.find(t=>t.id===work[wi].trId);work[wi].trDesc=tr?tr.d:work[wi].trDesc;}));
+      bd.querySelectorAll('.rre-seg').forEach(s=>s.addEventListener('change',()=>{work[+s.dataset.wi].seg=s.value;}));
+      bd.querySelectorAll('.rre-monto').forEach(i=>{i.addEventListener('focus',()=>{const v=work[+i.dataset.wi].monto;i.value=v?String(v):'';});i.addEventListener('input',()=>{work[+i.dataset.wi].monto=num(i.value);liveTotals();});i.addEventListener('blur',()=>{i.value=fmt(work[+i.dataset.wi].monto);});});
+      bd.querySelectorAll('.rre-precio').forEach(i=>{i.addEventListener('focus',()=>{const v=work[+i.dataset.wi].precio;i.value=v?String(v):'';});i.addEventListener('input',()=>{work[+i.dataset.wi].precio=num(i.value);liveTotals();});i.addEventListener('blur',()=>{i.value=fmt(work[+i.dataset.wi].precio);});});
+      bd.querySelectorAll('.rre-del').forEach(b=>b.addEventListener('click',()=>{const wi=+b.dataset.wi;if(work[wi].isNew)work.splice(wi,1);else work[wi].del=true;render();}));
+      const ar=bd.querySelector('.rre-addrow');if(ar)ar.addEventListener('click',()=>{addRow();render();});
+      const sv=bd.querySelector('.cf-mfoot .save');if(sv)sv.addEventListener('click',save);}
+  }
+  function render(){
+    const t=totals();
+    const facReg=wkObj?_facRegistradaDe(g.ts,wkObj.desde):false;
+    const facBtn=(!editing&&wkObj&&!facReg)?'<button class="rrm-act rrm-act--fac"><svg viewBox="0 0 24 24"><path d="M5 3h14a1 1 0 011 1v17l-3-2-3 2-3-2-3 2-3-2V4a1 1 0 011-1z"/><path d="M12 8v6M9 11h6"/></svg> Registrar factura</button>':'';
+    const actions=editing?'':'<div class="rrm-actions">'+
+      '<button class="rrm-act rrm-act--add"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg> Añadir reparto</button>'+
+      '<button class="rrm-act rrm-act--edit"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-7M18.5 2.5a2.1 2.1 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Editar</button>'+facBtn+'</div>';
+    const nCam=editing?work.filter(w=>!w.del).length:g.lines.length;
+    const foot=editing
+      ?'<div class="cf-mfoot"><button class="cancel-edit">Cancelar</button><button class="ok save">Guardar cambios</button></div>'
+      :'<div class="cf-mfoot"><button class="cancel">Cerrar</button><button class="ok print"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" width="15" height="15" style="vertical-align:-2px"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6v-8z"/></svg> Imprimir</button></div>';
+    bd.innerHTML='<div class="cf-mbox cf-mbox--wide">'+
+      '<div class="rrm-hd"><div><h3 class="rrm-ts">'+_escp(g.ts)+'</h3><div class="rrm-pd">'+periodLbl+' · <span class="rrm-ncam">'+nCam+'</span> camiones'+(editing?' · <b style="color:var(--primary)">Editando</b>':'')+'</div></div><button class="rrm-x '+(editing?'cancel-edit':'cancel')+'" aria-label="Cerrar">&times;</button></div>'+
+      actions+
+      '<div class="rrm-kpis"><div class="rrm-kpi"><span>Total monto</span><b class="k-monto">'+_gs(t.m)+'</b></div><div class="rrm-kpi"><span>Total flete</span><b class="k-flete">'+_gs(t.f)+'</b></div><div class="rrm-kpi"><span>Incidencia</span><b class="k-inc '+(t.inc!=null&&t.inc<3?'ok':'')+'">'+(t.inc!=null?t.inc.toFixed(2)+'%':'—')+'</b></div></div>'+
+      '<div class="rrm-body">'+(editing?editBody():viewBody())+'</div>'+
+      foot+'</div>';
+    wire();
+    const gs=window.gsap,reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(firstDraw){firstDraw=false;const box=bd.querySelector('.cf-mbox');if(gs&&!reduce){gs.fromTo(bd,{opacity:0},{opacity:1,duration:.28,ease:'power2.out'});gs.fromTo(box,{y:30,scale:.94,opacity:0},{y:0,scale:1,opacity:1,duration:.5,ease:'back.out(1.6)',clearProps:'transform,opacity'});gs.from(bd.querySelectorAll('.rrm-kpi'),{y:-12,opacity:0,duration:.4,stagger:.08,delay:.12,ease:'power2.out',clearProps:'all'});gs.from(bd.querySelectorAll('.rrm-body tbody tr'),{opacity:0,x:-10,duration:.34,stagger:.03,delay:.2,ease:'power2.out',clearProps:'all'});}}
+    else if(gs&&!reduce){gs.from(bd.querySelectorAll('.rrm-body tbody tr, .rre-addrow'),{opacity:0,y:8,duration:.3,stagger:.03,ease:'power2.out',clearProps:'all'});}
+  }
+  bd.addEventListener('click',e=>{if(e.target===bd&&!editing)_rrClose(bd);});
+  render();
 }
 function _rrClose(bd){const gs=window.gsap,box=bd.querySelector('.cf-mbox');if(gs&&box){gs.to(box,{y:16,scale:.97,opacity:0,duration:.2,ease:'power2.in'});gs.to(bd,{opacity:0,duration:.24,ease:'power2.in',onComplete:()=>bd.remove()});}else bd.remove();}
-// Cuando una planilla agrupa varios repartos (días), elegir cuál editar
-function _rrRepPicker(reps,parentBd){
-  const bd=document.createElement('div');bd.className='cf-mbd on';
-  const items=reps.map(r=>'<button type="button" class="rr-card" data-repid="'+r.id+'" style="cursor:pointer;text-align:left;font:inherit;width:100%;padding:13px 15px"><div class="rr-card__ts" style="font-size:15px">Reparto #'+String(r.id).padStart(4,'0')+'</div><div class="rr-card__pd" style="margin:2px 0 0">'+(r.fecha||r.fechaISO||'—')+'</div></button>').join('');
-  bd.innerHTML='<div class="cf-mbox cf-mbox--form">'+
-    '<div class="rrm-hd"><div><h3 class="rrm-ts">¿Qué día querés editar?</h3><div class="rrm-pd">Esta planilla tiene '+reps.length+' repartos. Elegí uno para modificar precio o camiones.</div></div><button class="rrm-x cancel" aria-label="Cerrar">&times;</button></div>'+
-    '<div style="display:grid;gap:9px;max-height:52vh;overflow:auto">'+items+'</div>'+
-    '<div class="cf-mfoot"><button class="cancel">Cancelar</button></div></div>';
-  document.body.appendChild(bd);
-  bd.querySelectorAll('.cancel').forEach(b=>b.addEventListener('click',()=>_rrClose(bd)));
-  bd.addEventListener('click',e=>{if(e.target===bd)_rrClose(bd);});
-  bd.querySelectorAll('[data-repid]').forEach(b=>b.addEventListener('click',()=>{const id=+b.dataset.repid;_rrClose(bd);if(parentBd)_rrClose(parentBd);loadForEdit(id);}));
-  const gs=window.gsap,box=bd.querySelector('.cf-mbox');
-  if(gs&&box){gs.fromTo(bd,{opacity:0},{opacity:1,duration:.24,ease:'power2.out'});gs.fromTo(box,{y:24,scale:.95,opacity:0},{y:0,scale:1,opacity:1,duration:.42,ease:'back.out(1.6)',clearProps:'transform,opacity'});gs.from(bd.querySelectorAll('.rr-card'),{opacity:0,y:10,duration:.3,stagger:.04,delay:.1,ease:'power2.out',clearProps:'all'});}
-}
-
 /* ════════ IMPRIMIR PLANILLA (formato Control, agrupado por segmento) ════════ */
 function printPlanillaFlete(id){const r=(repartos||[]).find(x=>x.id===id);if(!r){showToast('Planilla no encontrada');return;}_cfPrint(r);}
 function _cfPrint(r){
