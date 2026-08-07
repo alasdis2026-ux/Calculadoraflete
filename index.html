@@ -3661,6 +3661,8 @@ function showSaveAnim(){
   .cf-plbtn__sub{font-size:12px;font-weight:600;color:var(--gray-500,#64748b)}
   .cf-plbtn__ph{font-size:13.5px;font-weight:700;color:var(--gray-400,#94a3b8)}
   .cf-plbtn__act{font-size:12.5px;font-weight:800;color:var(--primary);white-space:nowrap;flex-shrink:0}
+  .cf-plbtn--locked{cursor:default;opacity:1;border-style:solid;border-color:var(--gray-200,#e2e8f0);background:var(--gray-50,#f8fafc)}
+  .cf-plbtn--locked:hover{border-color:var(--gray-200,#e2e8f0);background:var(--gray-50,#f8fafc)}
   .fac-pick-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;max-height:54vh;overflow:auto;padding:3px}
   .cf-segpill.sp-loc{background:#DBEAFE;color:var(--primary)} .cf-segpill.sp-int{background:var(--orange-soft,#FFEDD5);color:var(--orange,#F97316)} .cf-segpill.sp-srv{background:var(--success-soft,#D1FAE5);color:#15803d}
   .cf-empty{text-align:center;color:var(--gray-400,#94a3b8);padding:44px 20px;font-size:14px;font-weight:600}
@@ -3870,8 +3872,11 @@ function _cfOpenFacturaModal(existing,preset){
   if(!sel&&preset&&preset.ts&&preset.semDesde){
     sel={ts:preset.ts,semDesde:preset.semDesde,semHasta:preset.semHasta||_wkHasta(preset.semDesde),flete:_fleteDe(preset.ts,preset.semDesde)};
   }
+  // "Bloqueado" = vino desde una planilla: la planilla ya está fija (sin "Cambiar") y el botón dice "Regresar"
+  const locked=!editing&&!!(preset&&preset.ts&&preset.semDesde);
+  const subTxt=locked?'Cargá los datos de la factura para esta planilla.':'Cargá los datos y elegí la planilla (transportista + semana) que corresponde.';
   const m=_cfModalOpen('<div class="cf-mbox cf-mbox--form">'+
-    '<h3>'+(editing?'Editar factura':'Registrar factura')+'</h3><p class="cf-msub">Cargá los datos y elegí la planilla (transportista + semana) que corresponde.</p>'+
+    '<h3>'+(editing?'Editar factura':'Registrar factura')+'</h3><p class="cf-msub">'+subTxt+'</p>'+
     '<div class="cf-sec"><div class="cf-sec__t">'+_ic('doc')+'Datos de la factura</div>'+
       '<div class="cf-fld" data-fld><label for="cf_fnro">Nº de factura</label><input id="cf_fnro" placeholder="001-001-0000000" autocomplete="off"><span class="cf-fld__err"></span></div>'+
       '<div class="cf-grid2">'+
@@ -3882,21 +3887,22 @@ function _cfOpenFacturaModal(existing,preset){
       '<div class="cf-fld" data-fld><button type="button" class="cf-plbtn" id="cf_plbtn"></button><span class="cf-fld__err"></span></div>'+
       '<div class="cf-live neutral" id="cf_flive">Elegí la planilla y el monto para compararlo con el flete.</div>'+
     '</div>'+
-    '<div class="cf-mfoot"><button class="cancel">Cancelar</button><button class="ok">'+(editing?'Guardar cambios':'Guardar factura')+'</button></div></div>');
+    '<div class="cf-mfoot"><button class="cancel">'+(locked?'Regresar':'Cancelar')+'</button><button class="ok">'+(editing?'Guardar cambios':'Guardar factura')+'</button></div></div>');
   const nroI=m.$('#cf_fnro'),feI=m.$('#cf_ffecha'),mo=m.$('#cf_fmonto'),plBtn=m.$('#cf_plbtn'),live=m.$('#cf_flive');
   const nroF=nroI.closest('[data-fld]'),moF=mo.closest('[data-fld]'),plF=plBtn.closest('[data-fld]');
   feI.value=(editing&&existing.fecha)?existing.fecha:(typeof todayISO==='function'?todayISO():new Date().toISOString().slice(0,10));
   if(editing){nroI.value=existing.nro||'';mo.value=existing.monto?_nnum(existing.monto):'';}
   function renderPlBtn(){
-    if(sel){plBtn.classList.add('set');plBtn.innerHTML='<span class="cf-plbtn__main"><span class="cf-plbtn__ts">'+_escp(sel.ts)+'</span><span class="cf-plbtn__sub">'+_dispD(sel.semDesde)+' al '+_dispD(sel.semHasta)+' · flete '+_gs(sel.flete)+'</span></span><span class="cf-plbtn__act">Cambiar</span>';}
+    if(sel){plBtn.classList.add('set');plBtn.innerHTML='<span class="cf-plbtn__main"><span class="cf-plbtn__ts">'+_escp(sel.ts)+'</span><span class="cf-plbtn__sub">'+_dispD(sel.semDesde)+' al '+_dispD(sel.semHasta)+' · flete '+_gs(sel.flete)+'</span></span>'+(locked?'':'<span class="cf-plbtn__act">Cambiar</span>');}
     else{plBtn.classList.remove('set');plBtn.innerHTML='<span class="cf-plbtn__ph">— Elegir planilla —</span><span class="cf-plbtn__act">Elegir</span>';}
   }
+  if(locked){plBtn.disabled=true;plBtn.classList.add('cf-plbtn--locked');}
   function updLive(){const v=parseInt(mo.value.replace(/[^\d]/g,''),10)||0;if(!sel){live.className='cf-live neutral';live.textContent='Elegí la planilla y el monto para compararlo con el flete.';return;}if(!v){live.className='cf-live neutral';live.textContent='Ingresá el monto para compararlo con el flete ('+_gs(sel.flete)+').';return;}if(Math.round(v)===Math.round(sel.flete)){live.className='cf-live ok';live.textContent='✓ Coincide con el flete — quedará conciliada.';}else{live.className='cf-live diff';live.textContent='▲ No coincide: flete '+_gs(sel.flete)+' vs factura '+_gs(v)+'.';}}
   renderPlBtn();updLive();
   plBtn.addEventListener('click',()=>_facPlanillaPicker(pick=>{sel=pick;_cfClearVal(plF);renderPlBtn();updLive();}));
   nroI.addEventListener('input',()=>{nroI.value.trim()?_cfSetOk(nroF):_cfClearVal(nroF);});
   mo.addEventListener('input',()=>{const n=parseInt(mo.value.replace(/[^\d]/g,''),10)||0;mo.value=n?_nnum(n):'';n>0?_cfSetOk(moF):_cfClearVal(moF);updLive();});
-  m.$('.cancel').addEventListener('click',m.close);
+  m.$('.cancel').addEventListener('click',()=>{m.close();if(locked&&preset&&typeof preset.onBack==='function')setTimeout(preset.onBack,150);});
   m.$('.ok').addEventListener('click',async()=>{
     const nro=nroI.value.trim(),monto=parseInt(mo.value.replace(/[^\d]/g,''),10)||0,fecha=feI.value||null;
     let bad=false;
@@ -4067,7 +4073,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
       const pr=bd.querySelector('.cf-mfoot .print');if(pr)pr.addEventListener('click',()=>{const t=totals();_cfPrint({id:null,tsNombre:g.ts,semanaDesde:wkObj?wkObj.desde:null,semanaHasta:wkObj?wkObj.hasta:null,clientes:g.lines,totalMonto:t.m,totalFlete:t.f,incTotal:t.inc,factura_id:null});});
       const add=bd.querySelector('.rrm-act--add');if(add)add.addEventListener('click',()=>{buildWork();addRow();editing=true;render('toggle');});
       const ed=bd.querySelector('.rrm-act--edit');if(ed)ed.addEventListener('click',()=>{buildWork();editing=true;render('toggle');});
-      const fac=bd.querySelector('.rrm-act--fac');if(fac)fac.addEventListener('click',()=>{_rrClose(bd);_cfOpenFacturaModal(null,{ts:g.ts,semDesde:wkObj.desde,semHasta:wkObj.hasta});});
+      const fac=bd.querySelector('.rrm-act--fac');if(fac)fac.addEventListener('click',()=>{_rrClose(bd);_cfOpenFacturaModal(null,{ts:g.ts,semDesde:wkObj.desde,semHasta:wkObj.hasta,onBack:()=>_rrOpenDetail(g,periodLbl,wkObj)});});
     }else{
       bd.querySelectorAll('.rre-tr').forEach(s=>s.addEventListener('change',()=>{const wi=+s.dataset.wi;work[wi].trId=+s.value||null;const tr=trucks.find(t=>t.id===work[wi].trId);work[wi].trDesc=tr?tr.d:work[wi].trDesc;}));
       bd.querySelectorAll('.rre-seg').forEach(s=>s.addEventListener('change',()=>{work[+s.dataset.wi].seg=s.value;}));
