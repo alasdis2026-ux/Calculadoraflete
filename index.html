@@ -3515,6 +3515,9 @@ function showSaveAnim(){
   .rr-mnav button:hover{background:#fff}
   .rr-mnav span{font-weight:800;font-size:14px;padding:0 8px;color:var(--gray-800,#1e293b)}
   .rr-filterbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;width:100%;margin-left:0;justify-content:flex-start}
+  .rr-toolbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:2px 0 20px}
+  .rr-toolbar .rr-search{flex:1 1 260px;margin:0}
+  .rr-toolbar .rr-segfilter{margin:0 0 0 auto}
   .rr-search{position:relative;margin:0 0 18px;max-width:440px}
   .rr-search>svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:17px;height:17px;fill:none;stroke:var(--gray-400,#94a3b8);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
   .rr-search input{width:100%;border:1.5px solid var(--gray-200,#e2e8f0);border-radius:12px;padding:11px 40px 11px 40px;font:inherit;font-size:14px;color:var(--gray-800,#1e293b);background:#fff;transition:border-color .15s,box-shadow .15s}
@@ -3993,7 +3996,7 @@ function renderReporteRepartos(){
   if(!groups.length){cards='<div class="cf-card"><div class="cf-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 3h13v13H1zm13 5h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg><b>¡Vaya! No hay repartos en '+periodLbl+'</b><span>Calculá y guardá un flete en la Calculadora y va a aparecer acá agrupado por transportista.</span></div></div>';}
   else{cards='<div class="rr-grid">'+groups.map((g,i)=>{const chip=_facChipDe(g,_rrWeek);const sk=_escp((g.ts+' '+g.lines.map(l=>l.trDesc||'').join(' ')).toLowerCase());return '<div class="rr-card" data-rrts="'+i+'" data-search="'+sk+'"><div class="rr-card__ts">'+_escp(g.ts)+'</div><div class="rr-card__pd">'+periodLbl+'</div>'+(chip?'<div class="rr-card__st">'+chip+'</div>':'')+'<div class="rr-card__foot"><div><b>'+g.lines.length+'</b><span>Camiones</span></div><div style="text-align:right"><b>'+_gs(g.flete)+'</b><span>Flete total</span></div></div><div class="rr-card__monto">Monto repartido: <b>'+_gs(g.monto)+'</b></div><div class="rr-card__go">Ver planilla ›</div></div>';}).join('')+'</div>'+
     '<div class="rr-noresults cf-card" style="display:none"><div class="cf-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><b>Sin resultados para “<span class="rr-nq"></span>”</b><span>Probá con otro nombre de transportista o de camión.</span></div></div>';}
-  host.innerHTML='<div class="cf-hd"><h2><img src="logo-alas-s.a.png">Reporte de Repartos</h2><span class="cf-count">'+groups.length+'</span><div class="rr-filterbar">'+nav+chips+'</div></div>'+search+segFilter+cards;
+  host.innerHTML='<div class="cf-hd"><h2><img src="logo-alas-s.a.png">Reporte de Repartos</h2><span class="cf-count">'+groups.length+'</span><div class="rr-filterbar">'+nav+chips+'</div></div><div class="rr-toolbar">'+search+segFilter+'</div>'+cards;
   host.querySelectorAll('[data-rrm]').forEach(b=>b.addEventListener('click',()=>_rrShiftMonth(+b.dataset.rrm)));
   host.querySelectorAll('[data-rrw]').forEach(b=>b.addEventListener('click',()=>{_rrWeek=b.dataset.rrw||null;renderReporteRepartos();}));
   host.querySelectorAll('[data-rrseg]').forEach(b=>b.addEventListener('click',()=>{if(_rrSeg===b.dataset.rrseg)return;_rrSeg=b.dataset.rrseg;renderReporteRepartos();}));
