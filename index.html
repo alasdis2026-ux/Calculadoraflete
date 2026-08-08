@@ -3597,12 +3597,10 @@ function showSaveAnim(){
   .rre-in:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(11,95,141,.12)}
   .rre-del{width:32px;height:32px;flex:0 0 auto;border:0;border-radius:8px;background:#FEE2E2;color:#DC2626;font-size:19px;line-height:1;cursor:pointer;font-weight:700;transition:background .15s,color .15s}
   .rre-del:hover{background:#FCA5A5;color:#7f1d1d}
-  /* Tablero por segmento — lineal (secciones apiladas, filas horizontales) */
-  .rre-board{display:flex;flex-direction:column;gap:14px;padding:2px}
-  .rre-col{width:100%;background:var(--gray-50,#f8fafc);border:1px solid var(--gray-200,#e2e8f0);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:9px}
+  /* Tablero por segmento (kanban — columnas lado a lado) */
+  .rre-board{display:flex;gap:14px;align-items:flex-start;padding:2px}
+  .rre-col{flex:1 1 0;min-width:250px;background:var(--gray-50,#f8fafc);border:1px solid var(--gray-200,#e2e8f0);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:10px}
   .rre-col-hd{display:flex;align-items:center;gap:8px;font-family:Sora,Inter,sans-serif;font-weight:800;font-size:12.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--gray-700,#334155)}
-  .rre-sec-sub{margin-left:auto;font-family:Inter,sans-serif;text-transform:none;letter-spacing:0;font-size:12px;font-weight:700;color:var(--gray-500,#64748b)}
-  .rre-sec-sub b{font-family:Sora,Inter,sans-serif;font-size:14px;color:var(--primary);font-variant-numeric:tabular-nums;margin-left:4px}
   .rre-col-dot{width:9px;height:9px;border-radius:999px;flex:0 0 auto}
   .rre-col--local .rre-col-dot{background:var(--primary)}
   .rre-col--interior .rre-col-dot{background:var(--orange,#F97316)}
@@ -3610,19 +3608,21 @@ function showSaveAnim(){
   .rre-col-n{margin-left:auto;background:#fff;border:1px solid var(--gray-200,#e2e8f0);border-radius:999px;min-width:22px;height:22px;padding:0 6px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--gray-500,#64748b)}
   .rre-col-body{display:flex;flex-direction:column;gap:8px}
   .rre-col-empty{font-size:12px;color:var(--gray-400,#94a3b8);text-align:center;padding:16px 0;border:1.5px dashed var(--gray-200,#e2e8f0);border-radius:10px}
-  .rrv-row{background:#fff;border:1px solid var(--gray-200,#e2e8f0);border-radius:10px;padding:9px 13px;display:grid;grid-template-columns:auto auto 1fr 150px 140px;align-items:center;gap:10px;transition:border-color .15s,box-shadow .15s}
+  .rrv-row{background:#fff;border:1px solid var(--gray-200,#e2e8f0);border-radius:10px;padding:9px 12px;display:grid;grid-template-columns:auto auto 1fr auto;align-items:center;gap:10px;transition:border-color .15s,box-shadow .15s}
   .rrv-row:hover{border-color:var(--gray-300,#cbd5e1);box-shadow:0 3px 10px rgba(15,23,42,.06)}
   .rrv-i{width:20px;height:20px;flex:0 0 auto;border-radius:6px;background:var(--gray-100,#f1f5f9);color:var(--gray-500,#64748b);font-size:10.5px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums}
   .rrv-tk{display:inline-flex;width:15px;height:15px;color:var(--gray-400,#94a3b8)}
   .rrv-tk svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+  .rrv-nm{min-width:0}
   .rrv-name{font-weight:700;font-size:13px;color:var(--gray-800,#1e293b);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .rrv-monto,.rrv-flete{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
-  .rrv-monto{font-size:13px;font-weight:700;color:var(--gray-700,#334155)}
-  .rrv-flete{font-family:Sora,Inter,sans-serif;font-weight:800;font-size:14px;color:var(--primary)}
-  .rrv-monto em,.rrv-flete em{display:block;font-style:normal;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-400,#94a3b8);margin-bottom:1px}
-  .rre-card{display:grid;grid-template-columns:auto minmax(150px,1fr) 116px 116px auto auto;align-items:center;gap:9px;background:#fff;border:1.5px solid var(--gray-200,#e2e8f0);border-radius:12px;padding:9px 11px;box-shadow:0 1px 2px rgba(15,23,42,.04);transition:border-color .15s,box-shadow .18s}
-  .rre-card:hover{box-shadow:0 6px 16px rgba(15,23,42,.09)}
-  .rre-card--sel{border-color:var(--primary);box-shadow:0 0 0 3px rgba(11,95,141,.15),0 6px 16px rgba(11,95,141,.12)}
+  .rrv-sub{font-size:11px;font-weight:600;color:var(--gray-500,#64748b);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+  .rrv-flete{font-family:Sora,Inter,sans-serif;font-weight:800;font-size:14px;color:var(--primary);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+  .rre-col-foot{margin-top:2px;display:flex;align-items:baseline;gap:8px;justify-content:space-between;border-top:1px dashed var(--gray-300,#cbd5e1);padding-top:9px;font-size:12px;font-weight:700;color:var(--gray-600,#475569)}
+  .rre-col-foot b{font-family:Sora,Inter,sans-serif;font-size:15px;color:var(--primary);font-variant-numeric:tabular-nums}
+  .rre-card{background:#fff;border:1.5px solid var(--gray-200,#e2e8f0);border-radius:13px;padding:11px;display:flex;flex-direction:column;gap:9px;box-shadow:0 1px 2px rgba(15,23,42,.04);transition:border-color .15s,box-shadow .18s}
+  .rre-card:hover{box-shadow:0 7px 18px rgba(15,23,42,.09)}
+  .rre-card--sel{border-color:var(--primary);box-shadow:0 0 0 3px rgba(11,95,141,.15),0 7px 18px rgba(11,95,141,.13)}
+  .rre-card-top{display:flex;align-items:center;gap:8px}
   .rre-i{width:24px;height:24px;flex:0 0 auto;border-radius:8px;background:var(--gray-100,#f1f5f9);color:var(--gray-500,#64748b);font-size:11.5px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums;transition:background .15s,color .15s}
   .rre-card--sel .rre-i{background:var(--primary);color:#fff}
   .rre-trbtn__ic{display:inline-flex;width:16px;height:16px;flex:0 0 auto;color:var(--primary)}
@@ -4100,17 +4100,18 @@ function _rrOpenDetail(g,periodLbl,wkObj){
   function addRow(seg){const it={uid:_wuid++,ref:null,repId:targetRepId(),trId:trucks[0]?trucks[0].id:null,trDesc:trucks[0]?trucks[0].d:'',seg:seg||'local',monto:0,precio:0,del:false,isNew:true};work.unshift(it);selUid=it.uid;return it;}
   function totals(){const arr=editing?work.filter(w=>!w.del).map(w=>({monto:w.monto,precio:w.precio})):g.lines.map(c=>({monto:+c.monto||0,precio:(+c.precio|| +c.gasto||0)}));const m=arr.reduce((s,x)=>s+(+x.monto||0),0),f=arr.reduce((s,x)=>s+(+x.precio||0),0);return{m,f,inc:m>0?f/m*100:null};}
   // Vista en tablero (kanban) por segmento
-  function viewBody(){const secs=SEGL.map(function(sk){const ls=g.lines.filter(c=>(c.seg||'local')===sk);if(!ls.length)return '';let sF=0;const rows=ls.map(function(c,idx){const fl=(c.precio||c.gasto)||0;sF+=fl;return '<div class="rrv-row"><span class="rrv-i">'+(idx+1)+'</span><span class="rrv-tk">'+TRUCKICON+'</span><div class="rrv-name" title="'+_escp(c.trDesc||'—')+'">'+_escp(c.trDesc||'—')+'</div><div class="rrv-monto"><em>Monto</em>'+_gs(c.monto||0)+'</div><div class="rrv-flete"><em>Flete</em>'+_gs(fl)+'</div></div>';}).join('');return '<div class="rre-col rre-col--'+sk+'"><div class="rre-col-hd"><span class="rre-col-dot"></span>'+SEGN[sk]+'<span class="rre-col-n">'+ls.length+'</span><span class="rre-sec-sub">Subtotal flete <b>'+_gs(sF)+'</b></span></div><div class="rre-col-body">'+rows+'</div></div>';}).filter(Boolean).join('');return '<div class="rre-board">'+secs+'</div>';}
+  function viewBody(){const cols=SEGL.map(function(sk){const ls=g.lines.filter(c=>(c.seg||'local')===sk);let sF=0;const rows=ls.map(function(c,idx){const fl=(c.precio||c.gasto)||0;sF+=fl;const sub=[c.rep,c.zona].filter(Boolean).map(_escp).join(' · ');return '<div class="rrv-row"><span class="rrv-i">'+(idx+1)+'</span><span class="rrv-tk">'+TRUCKICON+'</span><div class="rrv-nm"><div class="rrv-name" title="'+_escp(c.trDesc||'—')+'">'+_escp(c.trDesc||'—')+'</div>'+(sub?'<div class="rrv-sub">'+sub+'</div>':'')+'</div><div class="rrv-flete">'+_gs(fl)+'</div></div>';}).join('')||'<div class="rre-col-empty">Sin camiones</div>';return '<div class="rre-col rre-col--'+sk+'"><div class="rre-col-hd"><span class="rre-col-dot"></span>'+SEGN[sk]+'<span class="rre-col-n">'+ls.length+'</span></div><div class="rre-col-body">'+rows+'</div>'+(ls.length?'<div class="rre-col-foot"><span>Subtotal flete</span><b>'+_gs(sF)+'</b></div>':'')+'</div>';}).join('');return '<div class="rre-board">'+cols+'</div>';}
   // Edición en tablero: cada segmento una columna; cambiar el segmento muda la tarjeta de columna
   function editBody(){const cols=SEGL.map(function(sk){const items=work.filter(w=>!w.del&&w.seg===sk);const cards=items.map(function(w,idx){const trLbl=w.trId?(((trucks.find(t=>t.id===w.trId)||{}).d)||w.trDesc||'—'):'';return '<div class="rre-card'+(w.uid===selUid?' rre-card--sel':'')+'" data-uid="'+w.uid+'">'+
-        '<span class="rre-i">'+(idx+1)+'</span>'+
-        '<button type="button" class="rre-trbtn'+(w.trId?' set':'')+'" data-uid="'+w.uid+'"><span class="rre-trbtn__ic">'+TRUCKICON+'</span><span class="rre-trbtn__t'+(w.trId?'':' ph')+'">'+(w.trId?_escp(trLbl):'— Elegir camión —')+'</span><svg class="rre-trbtn__arr" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>'+
-        '<label class="rre-fld"><span>Monto</span><input class="rre-in rre-monto" data-uid="'+w.uid+'" inputmode="numeric" placeholder="0" value="'+fmt(w.monto)+'"></label>'+
+        '<div class="rre-card-top">'+
+          '<span class="rre-i">'+(idx+1)+'</span>'+
+          '<button type="button" class="rre-trbtn'+(w.trId?' set':'')+'" data-uid="'+w.uid+'"><span class="rre-trbtn__ic">'+TRUCKICON+'</span><span class="rre-trbtn__t'+(w.trId?'':' ph')+'">'+(w.trId?_escp(trLbl):'— Elegir camión —')+'</span><svg class="rre-trbtn__arr" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>'+
+          '<button type="button" class="rre-del" data-uid="'+w.uid+'" title="Quitar camión" aria-label="Quitar">&times;</button>'+
+        '</div>'+
         '<label class="rre-fld"><span>Flete</span><input class="rre-in rre-precio" data-uid="'+w.uid+'" inputmode="numeric" placeholder="0" value="'+fmt(w.precio)+'"></label>'+
         '<div class="rre-segctl" data-uid="'+w.uid+'">'+SEGL.map(s=>'<button type="button" class="rre-segbtn rre-segbtn--'+s+(w.seg===s?' on':'')+'" data-uid="'+w.uid+'" data-seg="'+s+'">'+SEGN[s]+'</button>').join('')+'</div>'+
-        '<button type="button" class="rre-del" data-uid="'+w.uid+'" title="Quitar camión" aria-label="Quitar">&times;</button>'+
       '</div>';}).join('')||'<div class="rre-col-empty">Sin camiones</div>';return '<div class="rre-col rre-col--'+sk+'"><div class="rre-col-hd"><span class="rre-col-dot"></span>'+SEGN[sk]+'<span class="rre-col-n">'+items.length+'</span></div><div class="rre-col-body">'+cards+'</div><button class="rre-coladd" data-seg="'+sk+'" type="button"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg> Añadir camión</button></div>';}).join('');return '<div class="rre-board rre-board--edit">'+cols+'</div>';}
-  function liveTotals(){const t=totals(),q=s=>bd.querySelector(s);const setPop=(el,v)=>{if(el&&el.textContent!==v){el.textContent=v;pop(el);}};setPop(q('.k-flete'),_gs(t.f));const ki=q('.k-inc');if(ki){const v=t.inc!=null?t.inc.toFixed(2)+'%':'—';if(ki.textContent!==v){ki.textContent=v;pop(ki);}ki.classList.toggle('ok',t.inc!=null&&t.inc<3);}const n=work.filter(w=>!w.del).length;const nc=q('.rrm-ncam');if(nc)nc.textContent=n;const kn=q('.k-ncam');if(kn)kn.textContent=n;}
+  function liveTotals(){const t=totals(),q=s=>bd.querySelector(s);const setPop=(el,v)=>{if(el&&el.textContent!==v){el.textContent=v;pop(el);}};setPop(q('.k-flete'),_gs(t.f));const n=work.filter(w=>!w.del).length;const nc=q('.rrm-ncam');if(nc)nc.textContent=n;const kn=q('.k-ncam');if(kn)kn.textContent=n;}
   // Dropdown PRO de camión (portal fijo, con búsqueda y animación)
   function closeTruckDrop(instant){if(!_ddEl)return;const el=_ddEl,cl=_ddCleanup,b=_ddBtn;_ddEl=null;_ddCleanup=null;_ddBtn=null;if(cl)cl();if(b)b.classList.remove('dd-open');const gs=window.gsap;if(gs&&!instant&&!reduce()){gs.to(el,{opacity:0,y:el.classList.contains('up')?4:-4,duration:.13,ease:'power2.in',onComplete:()=>el.remove()});}else el.remove();}
   function openTruckDrop(btn){const w=W(btn.dataset.uid);if(!w)return;if(_ddBtn===btn){closeTruckDrop();return;}closeTruckDrop(true);
@@ -4131,7 +4132,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
   async function save(){
     const rows=work.filter(w=>!w.del);
     if(!rows.length){showToast('La planilla quedaría sin camiones. Cancelá o agregá al menos uno.');return;}
-    for(const w of rows){if(!w.trId){showToast('Elegí el camión en todas las filas 👀');return;}if(!(w.monto>0)){showToast('Ingresá el monto en todas las filas');return;}}
+    for(const w of rows){if(!w.trId){showToast('Elegí el camión en todas las filas 👀');return;}if(!(w.precio>0)){showToast('Ingresá el flete en todas las filas');return;}}
     const affected=new Set();
     work.filter(w=>w.del&&w.ref).forEach(w=>{const r=repartos.find(x=>x.id===w.repId);if(r){const idx=(r.clientes||[]).indexOf(w.ref);if(idx>=0)r.clientes.splice(idx,1);affected.add(r.id);}});
     rows.forEach(w=>{const tr=trucks.find(t=>t.id===w.trId);
@@ -4186,7 +4187,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     bd.innerHTML='<div class="cf-mbox cf-mbox--wide">'+
       '<div class="rrm-hd"><div><h3 class="rrm-ts">'+_escp(g.ts)+'</h3><div class="rrm-pd">'+periodLbl+' · <span class="rrm-ncam">'+nCam+'</span> camiones'+(editing?' · <b style="color:var(--primary)">Editando</b>':'')+'</div></div><button class="rrm-x '+(editing?'cancel-edit':'cancel')+'" aria-label="Cerrar">&times;</button></div>'+
       actions+
-      '<div class="rrm-kpis"><div class="rrm-kpi"><span>Total flete</span><b class="k-flete">'+_gs(t.f)+'</b></div><div class="rrm-kpi"><span>Incidencia</span><b class="k-inc '+(t.inc!=null&&t.inc<3?'ok':'')+'">'+(t.inc!=null?t.inc.toFixed(2)+'%':'—')+'</b></div><div class="rrm-kpi"><span>Camiones</span><b class="k-ncam">'+nCam+'</b></div></div>'+
+      '<div class="rrm-kpis"><div class="rrm-kpi"><span>Total flete</span><b class="k-flete">'+_gs(t.f)+'</b></div><div class="rrm-kpi"><span>Camiones</span><b class="k-ncam">'+nCam+'</b></div></div>'+
       '<div class="rrm-body">'+(editing?editBody():viewBody())+'</div>'+
       foot+'</div>';
     wire();
