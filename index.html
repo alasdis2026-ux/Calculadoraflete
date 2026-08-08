@@ -3605,6 +3605,8 @@ function showSaveAnim(){
   .cf-mfoot .ok.is-loading,.cf-btn.is-loading{opacity:.92;pointer-events:none}
   /* Check azul de guardado exitoso */
   .cf-check-ov{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:100000;pointer-events:none}
+  .cf-check-wrap{display:flex;flex-direction:column;align-items:center;gap:15px}
+  .cf-check-lbl{font-family:Sora,Inter,sans-serif;font-weight:800;font-size:18px;letter-spacing:1px;text-transform:uppercase;color:#1D4ED8;text-shadow:0 2px 12px rgba(29,78,216,.18)}
   .cf-check{width:104px;height:104px;border-radius:999px;background:#fff;box-shadow:0 16px 46px rgba(29,78,216,.3),0 0 0 1px rgba(29,78,216,.08);display:flex;align-items:center;justify-content:center}
   .cf-check svg{width:66px;height:66px}
   .cf-check__c{fill:none;stroke:#2563EB;stroke-width:2.5;opacity:.35}
@@ -3917,8 +3919,8 @@ function _cfOpenFacturaModal(existing,preset){
     const okB=m.$('.ok'),okTxt=editing?'Guardar cambios':'Guardar factura';if(okB){okB.disabled=true;okB.classList.add('is-loading');okB.innerHTML='<span class="cf-spin"></span>Guardando…';}
     const row={nro:nro,fecha:fecha,monto:monto,transportadora_nombre:sel.ts,semana_desde:sel.semDesde,semana_hasta:sel.semHasta};
     try{
-      if(editing){const up=await sb.from('fact_facturas').update(row).eq('id',existing.id);if(up.error)throw up.error;m.close();_cfCheckBurst();showToast('¡Factura actualizada! ✨');}
-      else{const ins=await sb.from('fact_facturas').insert(row);if(ins.error)throw ins.error;m.close();_cfCheckBurst();showToast('¡Factura guardada correctamente! 🎉');}
+      if(editing){const up=await sb.from('fact_facturas').update(row).eq('id',existing.id);if(up.error)throw up.error;m.close();_cfCheckBurst('Registrado');}
+      else{const ins=await sb.from('fact_facturas').insert(row);if(ins.error)throw ins.error;m.close();_cfCheckBurst('Registrado');}
       window.__cfFac=null; // forzar recarga de facturas para refrescar chips/estado
       const _rrep=document.getElementById('viewRrep');
       if(_rrep&&_rrep.classList.contains('is-active'))renderReporteRepartos(); else renderFacturas();
@@ -4062,7 +4064,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
         const tM=(r.clientes||[]).reduce((s,c)=>s+(+c.monto||0),0),tF=(r.clientes||[]).reduce((s,c)=>s+(+c.precio||0),0),iT=tM>0?tF/tM*100:null;
         await dbSaveReparto({id:r.id,fechaISO:r.fechaISO,tsId:r.tsId,tsNombre:r.tsNombre,trId:r.trId,trDesc:r.trDesc,km:r.km,precio:r.precio,tipo:r.tipo,totalFlete:tF,totalMonto:tM,incTotal:iT,gastoPermitido:r.gastoPermitido,diferencia:r.diferencia,zona:r.zona,clientes:r.clientes});
         r.totalMonto=tM;r.totalFlete=tF;r.incTotal=iT;}
-      _cfCheckBurst();showToast('¡Cambios guardados! ✨');editing=false;
+      _cfCheckBurst('Guardado');editing=false;
       const fresh=_rrGroups(_rrWeek).find(x=>x.ts===g.ts);
       if(fresh){g.lines=fresh.lines;g.monto=fresh.monto;g.flete=fresh.flete;g.reps=fresh.reps;}else{g.lines=[];g.monto=0;g.flete=0;g.reps=[];}
       const rrep=document.getElementById('viewRrep');if(rrep&&rrep.classList.contains('is-active'))renderReporteRepartos();
@@ -4138,21 +4140,24 @@ function _rrOpenDetail(g,periodLbl,wkObj){
 }
 function _rrClose(bd){const gs=window.gsap,box=bd.querySelector('.cf-mbox');if(gs&&box){gs.to(box,{y:16,scale:.97,opacity:0,duration:.2,ease:'power2.in'});gs.to(bd,{opacity:0,duration:.24,ease:'power2.in',onComplete:()=>bd.remove()});}else bd.remove();}
 // Check azul animado al centro cuando algo se guarda con éxito
-function _cfCheckBurst(){
+function _cfCheckBurst(label){
+  label=(label==null?'Registrado':label);
   const reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const ov=document.createElement('div');ov.className='cf-check-ov';
-  ov.innerHTML='<div class="cf-check"><svg viewBox="0 0 52 52"><circle class="cf-check__c" cx="26" cy="26" r="24"/><path class="cf-check__k" d="M15 26.5l7.5 7.5L37 18"/></svg></div>';
+  ov.innerHTML='<div class="cf-check-wrap"><div class="cf-check"><svg viewBox="0 0 52 52"><circle class="cf-check__c" cx="26" cy="26" r="24"/><path class="cf-check__k" d="M15 26.5l7.5 7.5L37 18"/></svg></div><div class="cf-check-lbl">'+_escp(label)+'</div></div>';
   document.body.appendChild(ov);
-  const gs=window.gsap,disc=ov.querySelector('.cf-check'),k=ov.querySelector('.cf-check__k'),c=ov.querySelector('.cf-check__c');
-  if(!gs||reduce){setTimeout(()=>ov.remove(),1000);return;}
+  const gs=window.gsap,disc=ov.querySelector('.cf-check'),lbl=ov.querySelector('.cf-check-lbl'),k=ov.querySelector('.cf-check__k'),c=ov.querySelector('.cf-check__c');
+  if(!gs||reduce){setTimeout(()=>ov.remove(),1100);return;}
   const len=(k.getTotalLength&&k.getTotalLength())||60;
   gs.set(k,{strokeDasharray:len,strokeDashoffset:len});
   gs.set(disc,{scale:.4,opacity:0});
-  gs.timeline({onComplete:()=>gs.to(ov,{opacity:0,duration:.3,delay:.55,ease:'power2.in',onComplete:()=>ov.remove()})})
+  gs.set(lbl,{y:10,opacity:0});
+  gs.timeline({onComplete:()=>gs.to(ov,{opacity:0,duration:.3,delay:.7,ease:'power2.in',onComplete:()=>ov.remove()})})
     .to(disc,{scale:1,opacity:1,duration:.42,ease:'back.out(1.9)'})
     .fromTo(c,{scale:.6,transformOrigin:'26px 26px'},{scale:1,duration:.4,ease:'back.out(2)'},'-=.3')
     .to(k,{strokeDashoffset:0,duration:.34,ease:'power2.out'},'-=.18')
-    .to(disc,{scale:1.06,duration:.14,yoyo:true,repeat:1,ease:'power1.inOut'},'-=.05');
+    .to(disc,{scale:1.06,duration:.14,yoyo:true,repeat:1,ease:'power1.inOut'},'-=.05')
+    .to(lbl,{y:0,opacity:1,duration:.34,ease:'power2.out'},'-=.2');
 }
 /* ════════ IMPRIMIR PLANILLA (formato Control, agrupado por segmento) ════════ */
 function printPlanillaFlete(id){const r=(repartos||[]).find(x=>x.id===id);if(!r){showToast('Planilla no encontrada');return;}_cfPrint(r);}
