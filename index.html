@@ -2060,10 +2060,10 @@ function openNCModal(){
   ncCloseTsPop();
   document.getElementById('ncTsNew').value='';
   document.getElementById('ncDesc').value='';
-  document.getElementById('modalNC').classList.add('is-open');
+  _mbShow(document.getElementById('modalNC'));
   setTimeout(()=>document.getElementById('ncDesc').focus(),140);
 }
-function closeNCModal(){ document.getElementById('modalNC').classList.remove('is-open'); ncCloseTsPop(); _ncCl=null; }
+function closeNCModal(){ _mbHide(document.getElementById('modalNC')); ncCloseTsPop(); _ncCl=null; }
 document.getElementById('ncSelBtn').addEventListener('click',e=>{ e.stopPropagation(); const pop=document.getElementById('ncSelPop'); if(pop.hidden)ncOpenTsPop(); else ncCloseTsPop(); });
 document.getElementById('ncSelSearch').addEventListener('input',e=>ncRenderTsList(e.target.value));
 document.addEventListener('click',e=>{ if(!document.getElementById('ncSelPop').hidden && !e.target.closest('#ncSel'))ncCloseTsPop(); });
@@ -2437,11 +2437,11 @@ function openClienteModal(existing){
   document.getElementById('mCltNombre').value=existing?existing.nombre:'';
   const monto=document.getElementById('mCltMonto');
   monto.value=existing&&existing.monto>0?formatMoney(existing.monto):'';
-  document.getElementById('modalCliente').classList.add('is-open');
+  _mbShow(document.getElementById('modalCliente'));
   setTimeout(()=>document.getElementById('mCltNombre').focus(),100);
 }
-document.getElementById('mCltCancel').addEventListener('click',()=>document.getElementById('modalCliente').classList.remove('is-open'));
-document.getElementById('modalCliente').addEventListener('click',e=>{if(e.target===document.getElementById('modalCliente'))document.getElementById('modalCliente').classList.remove('is-open');});
+document.getElementById('mCltCancel').addEventListener('click',()=>_mbHide(document.getElementById('modalCliente')));
+document.getElementById('modalCliente').addEventListener('click',e=>{if(e.target===document.getElementById('modalCliente'))_mbHide(document.getElementById('modalCliente'));});
 document.getElementById('mCltConfirm').addEventListener('click',()=>{
   const nombre=document.getElementById('mCltNombre').value.trim();
   const monto=parseMoney(document.getElementById('mCltMonto').value);
@@ -2453,7 +2453,7 @@ document.getElementById('mCltConfirm').addEventListener('click',()=>{
   } else {
     currentReparto.clientes.push({id:nextClienteId++,nombre,monto});
   }
-  document.getElementById('modalCliente').classList.remove('is-open');
+  _mbHide(document.getElementById('modalCliente'));
   renderClientesTable();updateResultCard();
 });
 document.getElementById('mCltNombre').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('mCltMonto').focus();});
@@ -2690,16 +2690,16 @@ document.getElementById('detailDelTs').addEventListener('click',async()=>{
 
 /* Modal Transportista */
 const modalTs=document.getElementById('modalTs'),mTsName=document.getElementById('mTsName');
-document.getElementById('btnAddTs').addEventListener('click',()=>{mTsName.value='';modalTs.classList.add('is-open');setTimeout(()=>mTsName.focus(),100);});
-document.getElementById('mTsCancel').addEventListener('click',()=>modalTs.classList.remove('is-open'));
-modalTs.addEventListener('click',e=>{if(e.target===modalTs)modalTs.classList.remove('is-open');});
+document.getElementById('btnAddTs').addEventListener('click',()=>{mTsName.value='';_mbShow(modalTs);setTimeout(()=>mTsName.focus(),100);});
+document.getElementById('mTsCancel').addEventListener('click',()=>_mbHide(modalTs));
+modalTs.addEventListener('click',e=>{if(e.target===modalTs)_mbHide(modalTs);});
 document.getElementById('mTsConfirm').addEventListener('click',async()=>{
   const n=mTsName.value.trim().toUpperCase();
   if(!n){showToast('Parece que olvidaste el nombre del transportista');mTsName.classList.add('is-err');mTsName.focus();mTsName.addEventListener('input',()=>mTsName.classList.remove('is-err'),{once:true});return;}
   try{
     const id=await dbAddTs(n);
     transportistas.push({id,n,trucks:[]});
-    modalTs.classList.remove('is-open');renderTsList();selectTs(id);populateTsSelect();
+    _mbHide(modalTs);renderTsList();selectTs(id);populateTsSelect();
     showToast('¡Listo! Agregué el transportista');
   }catch(err){showToast('Uy, no pude guardar el transportista. Probá de nuevo.');}
 });
@@ -2738,10 +2738,10 @@ function openModalTr(tsId){
   document.getElementById('mTrTipoKm').classList.add('is-active');
   document.getElementById('mTrPrecioLbl').textContent='Precio por km (Gs.)';
   document.getElementById('mTrSub').textContent='Se multiplica por los km del viaje.';
-  modalTr.classList.add('is-open');setTimeout(()=>mTrDesc.focus(),100);
+  _mbShow(modalTr);setTimeout(()=>mTrDesc.focus(),100);
 }
-document.getElementById('mTrCancel').addEventListener('click',()=>modalTr.classList.remove('is-open'));
-modalTr.addEventListener('click',e=>{if(e.target===modalTr)modalTr.classList.remove('is-open');});
+document.getElementById('mTrCancel').addEventListener('click',()=>_mbHide(modalTr));
+modalTr.addEventListener('click',e=>{if(e.target===modalTr)_mbHide(modalTr);});
 document.getElementById('mTrConfirm').addEventListener('click',async()=>{
   const d=mTrDesc.value.trim();
   if(!d){showToast('Falta la descripción del camión');mTrDesc.classList.add('is-err');mTrDesc.focus();mTrDesc.addEventListener('input',()=>mTrDesc.classList.remove('is-err'),{once:true});return;}
@@ -2750,7 +2750,7 @@ document.getElementById('mTrConfirm').addEventListener('click',async()=>{
   try{
     const id=await dbAddTruck(ts.id,d,precio,mTrTipoActual);
     ts.trucks.push({id,d,precio,tipo:mTrTipoActual,lastKm:0,seg:'local'});
-    modalTr.classList.remove('is-open');renderTsList();
+    _mbHide(modalTr);renderTsList();
     if(selectedTsId===pendingTsId){
       renderDetailBody(ts);
       document.getElementById('detailChip').textContent=ts.trucks.length+' camión'+(ts.trucks.length!==1?'es':'');
@@ -3163,7 +3163,7 @@ document.getElementById('btnViewList').addEventListener('click',()=>setHistView(
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){
     closeCalModal();
-    [modalTs,modalTr,document.getElementById('modalCliente')].forEach(m=>m.classList.remove('is-open'));
+    [modalTs,modalTr,document.getElementById('modalCliente'),document.getElementById('modalNC')].forEach(m=>_mbHide(m));
   }
 });
 
@@ -3779,6 +3779,9 @@ function _cfModalOpen(html){
   if(g&&box&&!reduce){g.fromTo(bd,{opacity:0},{opacity:1,duration:.24,ease:'power2.out'});g.fromTo(box,{y:26,scale:.95,opacity:0},{y:0,scale:1,opacity:1,duration:.44,ease:'back.out(1.5)',clearProps:'transform,opacity'});}
   return {bd,box,close,$:s=>bd.querySelector(s)};
 }
+// Apertura/cierre con GSAP para los modales fijos (.modal-bd + .modal-box): cliente, transportista, camión, camión nuevo
+function _mbShow(el){if(!el)return;el.classList.add('is-open');const box=el.querySelector('.modal-box'),g=window.gsap,reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;if(g&&box&&!reduce){g.killTweensOf(box);g.fromTo(box,{y:26,scale:.95,opacity:0},{y:0,scale:1,opacity:1,duration:.42,ease:'back.out(1.6)',clearProps:'transform,opacity'});}}
+function _mbHide(el){if(!el||!el.classList.contains('is-open'))return;const box=el.querySelector('.modal-box'),g=window.gsap,reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;if(g&&box&&!reduce){g.killTweensOf(box);g.to(box,{y:16,scale:.97,opacity:0,duration:.2,ease:'power2.in',onComplete:()=>{el.classList.remove('is-open');g.set(box,{clearProps:'all'});}});}else el.classList.remove('is-open');}
 function _cfSetErr(fld,msg){if(!fld)return;fld.classList.remove('is-ok');fld.classList.add('is-err');const e=fld.querySelector('.cf-fld__err');if(e)e.textContent=msg;}
 function _cfSetOk(fld){if(!fld)return;fld.classList.remove('is-err');fld.classList.add('is-ok');const e=fld.querySelector('.cf-fld__err');if(e)e.textContent='';}
 function _cfClearVal(fld){if(!fld)return;fld.classList.remove('is-err','is-ok');const e=fld.querySelector('.cf-fld__err');if(e)e.textContent='';}
