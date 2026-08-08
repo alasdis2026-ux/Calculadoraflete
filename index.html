@@ -3606,16 +3606,23 @@ function showSaveAnim(){
   .rre-col-n{margin-left:auto;background:#fff;border:1px solid var(--gray-200,#e2e8f0);border-radius:999px;min-width:22px;height:22px;padding:0 6px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--gray-500,#64748b)}
   .rre-col-body{display:flex;flex-direction:column;gap:8px}
   .rre-col-empty{font-size:12px;color:var(--gray-400,#94a3b8);text-align:center;padding:16px 0;border:1.5px dashed var(--gray-200,#e2e8f0);border-radius:10px}
-  .rrv-row{background:#fff;border:1px solid var(--gray-200,#e2e8f0);border-radius:10px;padding:9px 12px;display:grid;grid-template-columns:1fr auto;gap:2px 8px}
+  .rrv-row{background:#fff;border:1px solid var(--gray-200,#e2e8f0);border-radius:10px;padding:9px 12px;display:grid;grid-template-columns:auto auto 1fr auto;align-items:center;gap:2px 8px}
+  .rrv-i{width:20px;height:20px;flex:0 0 auto;border-radius:6px;background:var(--gray-100,#f1f5f9);color:var(--gray-500,#64748b);font-size:10.5px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums}
+  .rrv-tk{display:inline-flex;width:15px;height:15px;color:var(--gray-400,#94a3b8)}
+  .rrv-tk svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
   .rrv-name{font-weight:700;font-size:13px;color:var(--gray-800,#1e293b);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .rrv-flete{font-family:Sora,Inter,sans-serif;font-weight:800;font-size:13.5px;color:var(--primary);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
-  .rrv-monto{grid-column:1/-1;font-size:11.5px;font-weight:600;color:var(--gray-500,#64748b)}
+  .rrv-monto{grid-column:3/-1;font-size:11.5px;font-weight:600;color:var(--gray-500,#64748b)}
   .rre-col-foot{margin-top:2px;display:flex;align-items:baseline;gap:8px;justify-content:space-between;flex-wrap:wrap;border-top:1px dashed var(--gray-300,#cbd5e1);padding-top:9px;font-size:12px;font-weight:700;color:var(--gray-600,#475569)}
   .rre-col-foot b{font-family:Sora,Inter,sans-serif;font-size:15px;color:var(--primary);font-variant-numeric:tabular-nums}
   .rre-card{background:#fff;border:1.5px solid var(--gray-200,#e2e8f0);border-radius:13px;padding:11px;display:flex;flex-direction:column;gap:9px;box-shadow:0 1px 2px rgba(15,23,42,.04);transition:border-color .15s,box-shadow .18s,transform .15s}
   .rre-card:hover{box-shadow:0 7px 18px rgba(15,23,42,.09)}
   .rre-card--sel{border-color:var(--primary);box-shadow:0 0 0 3px rgba(11,95,141,.15),0 7px 18px rgba(11,95,141,.13)}
   .rre-card-top{display:flex;align-items:center;gap:8px}
+  .rre-i{width:24px;height:24px;flex:0 0 auto;border-radius:8px;background:var(--gray-100,#f1f5f9);color:var(--gray-500,#64748b);font-size:11.5px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums;transition:background .15s,color .15s}
+  .rre-card--sel .rre-i{background:var(--primary);color:#fff}
+  .rre-trbtn__ic{display:inline-flex;width:16px;height:16px;flex:0 0 auto;color:var(--primary)}
+  .rre-trbtn__ic svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
   .rre-trbtn{flex:1 1 auto;min-width:0;display:flex;align-items:center;gap:8px;border:1.5px solid var(--gray-200,#e2e8f0);border-radius:10px;background:#fff;padding:8px 11px;font:inherit;cursor:pointer;text-align:left;transition:border-color .15s,box-shadow .15s,background .15s}
   .rre-trbtn:hover,.rre-trbtn.dd-open{border-color:var(--primary);box-shadow:0 0 0 3px rgba(11,95,141,.1)}
   .rre-trbtn.dd-open{background:var(--gray-50,#f8fafc)}
@@ -4072,6 +4079,7 @@ function renderReporteRepartos(){
 }
 function _rrOpenDetail(g,periodLbl,wkObj){
   const SEGN={local:'Local',interior:'Interior',servicios:'Servicios'};
+  const TRUCKICON='<svg viewBox="0 0 24 24"><rect x="2.5" y="7" width="11" height="8" rx="1"/><path d="M13.5 9.5H17l3.5 3.5V15h-7z"/><circle cx="7" cy="17.5" r="1.6"/><circle cx="17.5" cy="17.5" r="1.6"/></svg>';
   const tsObj=(typeof transportistas!=='undefined'?transportistas:[]).find(t=>t.n===g.ts);
   const trucks=(tsObj&&tsObj.trucks)||[];
   const bd=document.createElement('div');bd.className='cf-mbd on';document.body.appendChild(bd);
@@ -4089,11 +4097,12 @@ function _rrOpenDetail(g,periodLbl,wkObj){
   function addRow(seg){const it={uid:_wuid++,ref:null,repId:targetRepId(),trId:trucks[0]?trucks[0].id:null,trDesc:trucks[0]?trucks[0].d:'',seg:seg||'local',monto:0,precio:0,del:false,isNew:true};work.unshift(it);selUid=it.uid;return it;}
   function totals(){const arr=editing?work.filter(w=>!w.del).map(w=>({monto:w.monto,precio:w.precio})):g.lines.map(c=>({monto:+c.monto||0,precio:(+c.precio|| +c.gasto||0)}));const m=arr.reduce((s,x)=>s+(+x.monto||0),0),f=arr.reduce((s,x)=>s+(+x.precio||0),0);return{m,f,inc:m>0?f/m*100:null};}
   // Vista en tablero (kanban) por segmento
-  function viewBody(){const cols=SEGL.map(function(sk){const ls=g.lines.filter(c=>(c.seg||'local')===sk);let sM=0,sF=0;const rows=ls.map(function(c){const fl=(c.precio||c.gasto)||0;sM+=c.monto||0;sF+=fl;return '<div class="rrv-row"><div class="rrv-name" title="'+_escp(c.trDesc||'—')+'">'+_escp(c.trDesc||'—')+'</div><div class="rrv-flete">'+_gs(fl)+'</div><div class="rrv-monto">Monto '+_gs(c.monto||0)+'</div></div>';}).join('')||'<div class="rre-col-empty">Sin camiones</div>';return '<div class="rre-col rre-col--'+sk+'"><div class="rre-col-hd"><span class="rre-col-dot"></span>'+SEGN[sk]+'<span class="rre-col-n">'+ls.length+'</span></div><div class="rre-col-body">'+rows+'</div>'+(ls.length?'<div class="rre-col-foot"><span>Subtotal</span><b>'+_gs(sF)+'</b><span class="rrv-monto">Monto '+_gs(sM)+'</span></div>':'')+'</div>';}).join('');return '<div class="rre-board">'+cols+'</div>';}
+  function viewBody(){const cols=SEGL.map(function(sk){const ls=g.lines.filter(c=>(c.seg||'local')===sk);let sM=0,sF=0;const rows=ls.map(function(c,idx){const fl=(c.precio||c.gasto)||0;sM+=c.monto||0;sF+=fl;return '<div class="rrv-row"><span class="rrv-i">'+(idx+1)+'</span><span class="rrv-tk">'+TRUCKICON+'</span><div class="rrv-name" title="'+_escp(c.trDesc||'—')+'">'+_escp(c.trDesc||'—')+'</div><div class="rrv-flete">'+_gs(fl)+'</div><div class="rrv-monto">Monto '+_gs(c.monto||0)+'</div></div>';}).join('')||'<div class="rre-col-empty">Sin camiones</div>';return '<div class="rre-col rre-col--'+sk+'"><div class="rre-col-hd"><span class="rre-col-dot"></span>'+SEGN[sk]+'<span class="rre-col-n">'+ls.length+'</span></div><div class="rre-col-body">'+rows+'</div>'+(ls.length?'<div class="rre-col-foot"><span>Subtotal</span><b>'+_gs(sF)+'</b><span class="rrv-monto">Monto '+_gs(sM)+'</span></div>':'')+'</div>';}).join('');return '<div class="rre-board">'+cols+'</div>';}
   // Edición en tablero: cada segmento una columna; cambiar el segmento muda la tarjeta de columna
-  function editBody(){const cols=SEGL.map(function(sk){const items=work.filter(w=>!w.del&&w.seg===sk);const cards=items.map(function(w){const trLbl=w.trId?(((trucks.find(t=>t.id===w.trId)||{}).d)||w.trDesc||'—'):'';return '<div class="rre-card'+(w.uid===selUid?' rre-card--sel':'')+'" data-uid="'+w.uid+'">'+
+  function editBody(){const cols=SEGL.map(function(sk){const items=work.filter(w=>!w.del&&w.seg===sk);const cards=items.map(function(w,idx){const trLbl=w.trId?(((trucks.find(t=>t.id===w.trId)||{}).d)||w.trDesc||'—'):'';return '<div class="rre-card'+(w.uid===selUid?' rre-card--sel':'')+'" data-uid="'+w.uid+'">'+
         '<div class="rre-card-top">'+
-          '<button type="button" class="rre-trbtn'+(w.trId?' set':'')+'" data-uid="'+w.uid+'"><span class="rre-trbtn__t'+(w.trId?'':' ph')+'">'+(w.trId?_escp(trLbl):'— Elegir camión —')+'</span><svg class="rre-trbtn__arr" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>'+
+          '<span class="rre-i">'+(idx+1)+'</span>'+
+          '<button type="button" class="rre-trbtn'+(w.trId?' set':'')+'" data-uid="'+w.uid+'"><span class="rre-trbtn__ic">'+TRUCKICON+'</span><span class="rre-trbtn__t'+(w.trId?'':' ph')+'">'+(w.trId?_escp(trLbl):'— Elegir camión —')+'</span><svg class="rre-trbtn__arr" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>'+
           '<button type="button" class="rre-del" data-uid="'+w.uid+'" title="Quitar camión" aria-label="Quitar">&times;</button>'+
         '</div>'+
         '<div class="rre-card-grid">'+
