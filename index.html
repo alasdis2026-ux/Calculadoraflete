@@ -312,9 +312,10 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .ac-name{flex:1;font-size:13px;font-weight:600;color:var(--gray-800);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ac-cod{font-size:11px;color:var(--gray-400);font-variant-numeric:tabular-nums;flex-shrink:0}
 .ac-empty{padding:24px 16px;font-size:13px;color:var(--gray-400);text-align:center}
-.cl-money-inp{height:34px;width:150px;padding:0 11px;border:1.5px solid var(--gray-200);border-radius:8px;background:#fff;font-size:15px;font-weight:800;color:var(--gray-800);outline:none;text-align:right;font-variant-numeric:tabular-nums;transition:border-color var(--fast)}
-.cl-money-inp:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(59,130,246,.1)}
-.cl-money-inp::placeholder{color:var(--gray-300);font-weight:400}
+.cl-money-inp,.cl-peso-inp{height:34px;width:150px;padding:0 11px;border:1.5px solid var(--gray-200);border-radius:8px;background:#fff;font-size:15px;font-weight:800;color:var(--gray-800);outline:none;text-align:right;font-variant-numeric:tabular-nums;transition:border-color var(--fast)}
+.cl-peso-inp{width:100px;font-size:14px;font-weight:700;color:var(--gray-600)}
+.cl-money-inp:focus,.cl-peso-inp:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(59,130,246,.1)}
+.cl-money-inp::placeholder,.cl-peso-inp::placeholder{color:var(--gray-300);font-weight:400}
 /* Trigger de camión por fila (minimalista) + subtexto transportista */
 .row-truck{display:flex;align-items:center;gap:8px;width:100%;min-width:210px;height:36px;padding:0 10px;border:1.5px solid var(--gray-200);border-radius:9px;background:#fff;cursor:pointer;font-family:inherit;font-size:14px;font-weight:700;color:var(--gray-800);text-align:left;outline:none;transition:border-color var(--fast),box-shadow var(--fast)}
 .row-truck:hover{border-color:var(--gray-300);box-shadow:0 2px 8px rgba(0,0,0,.06)}
@@ -1877,6 +1878,7 @@ function renderClientesTable(){
     `<th style="width:108px">Segmento</th>`+
     `<th style="width:150px">Repartidor</th>`+
     `<th style="width:150px">Zona</th>`+
+    `<th class="r" style="width:110px">Peso (kg)</th>`+
     `<th class="r">Monto</th>`+
     `<th class="r">Precio flete</th>`+
     `<th class="r">Incidencia</th>`+
@@ -1903,6 +1905,7 @@ function renderClientesTable(){
       <td style="padding:6px 8px">
         <button type="button" class="cl-chip cl-zonabtn" data-clid="${cl.id}"><span class="cl-chip__lbl${cl.zona?'':' ph'}">${cl.zona?esc(cl.zona):'— Zona —'}</span><svg class="cl-chip__arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg></button>
       </td>
+      <td style="padding:6px 10px;text-align:right"><input class="cl-peso-inp" type="text" value="${cl.peso>0?formatMoney(cl.peso):''}" placeholder="0" data-clid="${cl.id}" inputmode="numeric"></td>
       <td style="padding:6px 10px;text-align:right"><input class="cl-money-inp" type="text" value="${cl.monto>0?formatMoney(cl.monto):''}" placeholder="0" data-clid="${cl.id}" inputmode="numeric"></td>
       <td style="padding:6px 10px;text-align:right"><input class="cl-precio-inp" type="text" value="${cl.precio>0?formatMoney(cl.precio):''}" placeholder="0" data-clid="${cl.id}" inputmode="numeric"></td>
       <td class="r incid-col ${incClass}" data-col="incid">${cl.inc!==null?fmtPct(cl.inc):'—'}</td>
@@ -1911,6 +1914,7 @@ function renderClientesTable(){
   }).join('');
   tfoot.innerHTML=`<tr>
     <td colspan="5" class="lbl">TOTAL</td>
+    <td class="val r" data-col="tot-peso">${(function(){const tp=c.clientes.reduce((s,x)=>s+(+x.peso||0),0);return tp>0?formatMoney(tp)+' kg':'—';})()}</td>
     <td class="val r" data-col="tot-monto">${fmtGs(c.totalMonto)}</td>
     <td class="val r" data-col="tot-flete">${c.totalFlete>0?fmtGs(c.totalFlete):'—'}</td>
     <td class="val r" data-col="tot-inc">${c.incTotal!==null?fmtPct(c.incTotal):'—'}</td>
@@ -2197,12 +2201,14 @@ function _updateCalcCells(comp){
 document.getElementById('clientesTbody').addEventListener('input',e=>{
   const isMonto=e.target.classList.contains('cl-money-inp');
   const isPrecio=e.target.classList.contains('cl-precio-inp');
-  if(!isMonto&&!isPrecio)return;
+  const isPeso=e.target.classList.contains('cl-peso-inp');
+  if(!isMonto&&!isPrecio&&!isPeso)return;
   const val=_liveMoney(e.target);
   const cl=currentReparto.clientes.find(c=>c.id===+e.target.dataset.clid);
   if(cl){
-    if(isMonto)cl.monto=val; else cl.precio=val;
-    const comp=computeReparto();_updateCalcCells(comp);updateResultCard();updateEstimador(comp);
+    if(isMonto)cl.monto=val; else if(isPrecio)cl.precio=val; else cl.peso=val;
+    if(isPeso){const tp=currentReparto.clientes.reduce((s,x)=>s+(+x.peso||0),0);const el=document.querySelector('[data-col="tot-peso"]');if(el)el.textContent=tp>0?formatMoney(tp)+' kg':'—';}
+    else{const comp=computeReparto();_updateCalcCells(comp);updateResultCard();updateEstimador(comp);}
   }
 });
 
@@ -2486,7 +2492,7 @@ document.getElementById('btnGuardar').addEventListener('click',async()=>{
     totalMonto:c.totalMonto,incTotal:c.incTotal,
     gastoPermitido:c.gastoPermitido,diferencia:c.diferencia,
     zona:'',
-    clientes:c.clientes.map(cl=>({id:cl.id,trId:cl.trId,tsId:cl.tsId,trDesc:cl.trDesc,tsNombre:cl.tsNombre,seg:cl.seg||'local',rep:cl.rep||null,zona:cl.zona||null,km:cl.km||0,precioKm:cl.precioKm||0,monto:cl.monto,precio:cl.precio,gasto:cl.gasto,inc:cl.inc,pct:cl.pct})),
+    clientes:c.clientes.map(cl=>({id:cl.id,trId:cl.trId,tsId:cl.tsId,trDesc:cl.trDesc,tsNombre:cl.tsNombre,seg:cl.seg||'local',rep:cl.rep||null,zona:cl.zona||null,peso:cl.peso||0,km:cl.km||0,precioKm:cl.precioKm||0,monto:cl.monto,precio:cl.precio,gasto:cl.gasto,inc:cl.inc,pct:cl.pct})),
   };
   try{
     const savedId=await dbSaveReparto(snap);
@@ -2521,7 +2527,7 @@ function loadForEdit(id){
   const r=repartos.find(x=>x.id===id);if(!r)return;
   // Cada fila del reparto guardado es un camión: {trId, tsId, monto, precio}
   currentReparto={id:r.id,fecha:r.fechaISO||'',
-    clientes:(r.clientes||[]).map(c=>({id:c.id,trId:c.trId||null,tsId:c.tsId||null,seg:c.seg||'local',rep:c.rep||null,zona:c.zona||null,km:c.km||0,precioKm:c.precioKm||0,monto:c.monto||0,precio:c.precio||c.gasto||0}))};
+    clientes:(r.clientes||[]).map(c=>({id:c.id,trId:c.trId||null,tsId:c.tsId||null,seg:c.seg||'local',rep:c.rep||null,zona:c.zona||null,peso:c.peso||0,km:c.km||0,precioKm:c.precioKm||0,monto:c.monto||0,precio:c.precio||c.gasto||0}))};
   const maxCid=currentReparto.clientes.reduce((m,c)=>Math.max(m,c.id),0);
   if(maxCid>=nextClienteId)nextClienteId=maxCid+1;
   const inpF=document.getElementById('inpFecha');
