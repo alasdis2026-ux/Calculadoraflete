@@ -2977,10 +2977,13 @@ function openCalModal(iso){
   const g=window.gsap;
   if(g){
     g.killTweensOf(wrap);
-    g.fromTo(wrap,{opacity:0,y:14},{opacity:1,y:0,duration:.35,ease:'power2.out',clearProps:'transform,opacity'});
-    g.from('#calModalKpis .cal-kpi',{y:-12,opacity:0,duration:.4,stagger:.08,delay:.05,ease:'power2.out',clearProps:'all'});
-    g.from('#calModalBody .cal-rep',{y:18,opacity:0,duration:.42,stagger:.1,delay:.08,ease:'power2.out',clearProps:'all'});
-    g.from('#calModalBody .cal-rep-table tbody tr',{opacity:0,x:-10,duration:.34,stagger:.04,delay:.2,ease:'power2.out',clearProps:'all'});
+    const tl=g.timeline({defaults:{ease:'power2.out'}});
+    tl.fromTo(wrap,{opacity:0,y:18},{opacity:1,y:0,duration:.5,ease:'power3.out',clearProps:'transform,opacity'},0);
+    tl.from('#calDayBack',{opacity:0,x:-10,duration:.45,ease:'back.out(1.7)',clearProps:'all'},.08);
+    tl.from('#calDayWrap .cal-day-ttl',{opacity:0,x:-8,duration:.45,ease:'back.out(1.6)',clearProps:'all'},.12);
+    tl.from('#calModalKpis .cal-kpi',{opacity:0,y:-12,scale:.94,duration:.5,stagger:.08,ease:'back.out(1.7)',clearProps:'all'},.16);
+    tl.from('#calModalBody .cal-rep',{opacity:0,y:22,scale:.96,duration:.55,stagger:.12,ease:'back.out(1.7)',clearProps:'all'},.3);
+    tl.from('#calModalBody .cal-rep-table tbody tr',{opacity:0,x:-10,duration:.4,stagger:.03,ease:'power2.out',clearProps:'all'},.52);
   }
 }
 
@@ -2999,10 +3002,40 @@ function renderCalDay(anim){
     '<div class="cal-kpi"><span class="cal-kpi-lbl">Total monto</span><span class="cal-kpi-val k-daymonto">'+fmtGs(totMonto)+'</span></div>'+
     '<div class="cal-kpi"><span class="cal-kpi-lbl">Total flete</span><span class="cal-kpi-val k-dayflete">'+fmtGs(totFlete)+'</span></div>'+
     (incProm!==null?'<div class="cal-kpi"><span class="cal-kpi-lbl">Incidencia promedio</span><span class="cal-kpi-val '+(incOk?'ok':'over')+'">'+incProm.toFixed(2)+'%</span></div>':'');
-  document.getElementById('calModalBody').innerHTML=list.length
+  const body=document.getElementById('calModalBody');
+  body.innerHTML=list.length
     ? list.map(r=>(calEditRepId===r.id?calRepEditHTML(r):renderCalReparto(r))).join('')
     : '<div class="cal-day-empty">Este día ya no tiene repartos.</div>';
-  if(anim){const g=window.gsap;if(g){g.from('#calModalBody .cal-rep',{opacity:0,y:14,duration:.34,stagger:.06,ease:'power2.out',clearProps:'all'});g.from('#calModalBody .cal-rep-table tbody tr',{opacity:0,x:-8,duration:.3,stagger:.025,delay:.05,ease:'power2.out',clearProps:'all'});}}
+  const g=window.gsap;
+  if(!g||!anim)return;
+  const cards=body.querySelectorAll('.cal-rep');
+  const editCard=body.querySelector('.cal-rep--edit');
+  if(anim==='edit'&&editCard){
+    const rest=[].slice.call(cards).filter(x=>x!==editCard);
+    if(rest.length)g.from(rest,{opacity:0,y:4,duration:.24,stagger:.02,ease:'power2.out',clearProps:'all'});
+    g.fromTo(editCard,{opacity:0,y:-12,scale:.97,transformOrigin:'top center'},{opacity:1,y:0,scale:1,duration:.6,ease:'back.out(1.5)',clearProps:'transform,opacity'});
+    g.fromTo(editCard,{boxShadow:'0 0 0 4px rgba(37,120,184,.32)'},{boxShadow:'0 8px 24px rgba(37,120,184,.14)',duration:1.2,ease:'power2.out'});
+    g.from(editCard.querySelectorAll('.cal-rep-hd, thead'),{opacity:0,y:10,duration:.44,stagger:.09,delay:.1,ease:'power3.out',clearProps:'all'});
+    g.from(editCard.querySelectorAll('tbody tr'),{opacity:0,x:-10,duration:.42,stagger:.045,delay:.18,ease:'back.out(1.6)',clearProps:'all'});
+    try{editCard.scrollIntoView({block:'nearest',behavior:'smooth'});}catch(_){}
+    return;
+  }
+  if(anim==='add'&&editCard){
+    const rows=[].slice.call(editCard.querySelectorAll('tbody tr'));
+    const first=rows[0],rest=rows.filter(x=>x!==first);
+    if(rest.length)g.from(rest,{opacity:0,y:3,duration:.2,stagger:.012,ease:'power2.out',clearProps:'all'});
+    if(first){g.fromTo(first,{opacity:0,y:-24,scale:.95},{opacity:1,y:0,scale:1,duration:.72,ease:'back.out(1.6)',clearProps:'transform,opacity'});const sel=first.querySelector('.cal-e-tr');if(sel)setTimeout(()=>{try{sel.focus();}catch(_){}},240);}
+    return;
+  }
+  if(anim==='rows'&&editCard){
+    g.from(editCard.querySelectorAll('tbody tr'),{opacity:0,y:12,scale:.96,duration:.38,stagger:.03,ease:'back.out(1.7)',clearProps:'all'});
+    return;
+  }
+  // 'toggle' / default: fade del body + stagger de tarjetas + pulse de KPIs
+  g.fromTo(body,{opacity:0,y:10},{opacity:1,y:0,duration:.36,ease:'power3.out',clearProps:'transform,opacity'});
+  if(cards.length)g.from(cards,{opacity:0,y:18,scale:.96,duration:.5,stagger:.09,delay:.05,ease:'back.out(1.7)',clearProps:'all'});
+  g.from(body.querySelectorAll('.cal-rep-table tbody tr'),{opacity:0,x:-8,duration:.34,stagger:.02,delay:.16,ease:'power2.out',clearProps:'all'});
+  g.fromTo(document.querySelectorAll('#calModalKpis .cal-kpi'),{scale:.97},{scale:1,duration:.42,stagger:.05,ease:'back.out(2)',clearProps:'transform'});
 }
 
 const CAL_TRASH='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="15" height="15"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M10 11v6M14 11v6"/></svg>';
@@ -3054,7 +3087,7 @@ function calLiveTotals(){
 
 async function calSaveEdit(){
   const r=calDayRepartos().find(x=>x.id===calEditRepId);
-  if(!r){calEditRepId=null;calWork=null;renderCalDay(true);return;}
+  if(!r){calEditRepId=null;calWork=null;renderCalDay('toggle');return;}
   const rows=calWork.filter(w=>!w.del);
   for(const w of rows){if(!w.trId){showToast('Elegí el camión en todas las filas 👀');return;}}
   const ts=(transportistas||[]).find(t=>t.id===r.tsId)||{};
@@ -3066,7 +3099,7 @@ async function calSaveEdit(){
       await dbDeleteReparto(r.id);
       calEditRepId=null;calWork=null;
       if(!calDayRepartos().length){closeCalModal();return;}
-      renderCalDay(true);return;
+      renderCalDay('toggle');return;
     }
     const newClientes=rows.map(function(w){const tr=(ts.trucks||[]).find(t=>t.id===w.trId);return {id:w.cId||nextClienteId++,trId:w.trId,tsId:r.tsId,tsNombre:r.tsNombre,seg:w.seg,rep:(w.rep||'').trim()||null,zona:(w.zona||'').trim()||null,monto:w.monto,precio:w.precio,gasto:w.precio,trDesc:tr?tr.d:(w.trDesc||''),pct:0,inc:(w.monto>0&&w.precio>0?w.precio/w.monto*100:null)};});
     const tM=newClientes.reduce((s,c)=>s+(+c.monto||0),0);
@@ -3076,7 +3109,7 @@ async function calSaveEdit(){
     await dbSaveReparto({id:r.id,fechaISO:r.fechaISO,tsId:r.tsId,tsNombre:r.tsNombre,trId:r.trId,trDesc:r.trDesc,km:r.km,precio:r.precio,tipo:r.tipo,totalFlete:tF,totalMonto:tM,incTotal:iT,gastoPermitido:gp,diferencia:dif,zona:r.zona,clientes:newClientes});
     calEditRepId=null;calWork=null;
     if(typeof _cfCheckBurst==='function')_cfCheckBurst('Guardado');else showToast('Guardado ✓');
-    renderCalDay(true);
+    renderCalDay('toggle');
   }catch(err){console.error(err);showToast('Uy, no pude guardar los cambios');if(saveBtn){saveBtn.disabled=false;saveBtn.textContent='Guardar';}}
 }
 
@@ -3157,18 +3190,18 @@ document.getElementById('calModalBody').addEventListener('click',async e=>{
   const cancelBtn=e.target.closest('[data-cal-cancel]');
   const saveBtn=e.target.closest('[data-cal-save]');
   const delUid=e.target.closest('[data-cal-deluid]');
-  if(editBtn){const id=+editBtn.dataset.editr;const r=calDayRepartos().find(x=>x.id===id);if(!r)return;calEditRepId=id;calWork=calBuildWork(r);renderCalDay(true);return;}
-  if(addBtn){if(!calWork)return;calWork.unshift({uid:_calUid++,cId:null,trId:null,trDesc:'',seg:'local',rep:'',zona:'',monto:0,precio:0,del:false,isNew:true});renderCalDay(true);return;}
-  if(cancelBtn){calEditRepId=null;calWork=null;renderCalDay(true);return;}
+  if(editBtn){const id=+editBtn.dataset.editr;const r=calDayRepartos().find(x=>x.id===id);if(!r)return;calEditRepId=id;calWork=calBuildWork(r);renderCalDay('edit');return;}
+  if(addBtn){if(!calWork)return;calWork.unshift({uid:_calUid++,cId:null,trId:null,trDesc:'',seg:'local',rep:'',zona:'',monto:0,precio:0,del:false,isNew:true});renderCalDay('add');return;}
+  if(cancelBtn){calEditRepId=null;calWork=null;renderCalDay('toggle');return;}
   if(saveBtn){await calSaveEdit();return;}
-  if(delUid){if(!calWork)return;const w=calWork.find(x=>x.uid===+delUid.dataset.calDeluid);if(w){if(w.isNew)calWork=calWork.filter(x=>x!==w);else w.del=true;}renderCalDay(true);return;}
+  if(delUid){if(!calWork)return;const w=calWork.find(x=>x.uid===+delUid.dataset.calDeluid);if(w){if(w.isNew)calWork=calWork.filter(x=>x!==w);else w.del=true;}renderCalDay('rows');return;}
   if(delBtn){
     const id=+delBtn.dataset.delr;
     if(confirm('¿Eliminar este reparto del historial?')){
       repartos=repartos.filter(r=>r.id!==id);
       dbDeleteReparto(id).catch(()=>showToast('Error al eliminar reparto'));
       if(!calDayRepartos().length){closeCalModal();return;}
-      renderCalDay(true);
+      renderCalDay('toggle');
     }
   }
 });
