@@ -546,12 +546,13 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .seg-ctrl__b.on.seg-local{background:var(--primary)}
 .seg-ctrl__b.on.seg-interior{background:var(--orange)}
 .seg-ctrl__b.on.seg-servicios{background:var(--success)}
+.seg-ctrl__b.on.seg-transportadora{background:#7c3aed}
 /* Chips animados (Segmento / Repartidor en la tabla de camiones) */
 .cl-chip{display:flex;align-items:center;gap:7px;width:100%;padding:8px 9px;border:1px solid var(--gray-200,#d1d5db);border-radius:9px;background:#fff;font:inherit;font-size:12px;font-weight:700;color:var(--gray-800,#334155);cursor:pointer;transition:border-color var(--fast),box-shadow var(--fast);text-align:left}
 .cl-chip:hover{border-color:var(--gray-400,#94a3b8)}
 .cl-chip.is-open{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.12)}
 .cl-chip__dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
-.cl-chip__dot.seg-local{background:var(--primary)}.cl-chip__dot.seg-interior{background:var(--orange)}.cl-chip__dot.seg-servicios{background:var(--success)}
+.cl-chip__dot.seg-local{background:var(--primary)}.cl-chip__dot.seg-interior{background:var(--orange)}.cl-chip__dot.seg-servicios{background:var(--success)}.cl-chip__dot.seg-transportadora{background:#7c3aed}
 .cl-chip__lbl{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cl-chip__lbl.ph{color:var(--gray-400,#94a3b8);font-weight:600}
 .cl-chip__arr{width:13px;height:13px;color:var(--gray-400,#94a3b8);flex-shrink:0;transition:transform .2s}
@@ -811,6 +812,7 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .crs--local{background:var(--accent-soft);color:var(--primary)}
 .crs--interior{background:var(--orange-soft);color:var(--orange)}
 .crs--servicios{background:var(--success-soft);color:#15803d}
+.crs--transportadora{background:#ede9fe;color:#6d28d9}
 .cal-rep-count{font-family:Sora,Inter,sans-serif;font-size:18px;font-weight:800;color:var(--gray-800);font-variant-numeric:tabular-nums}
 .cal-rep-count small{font-size:12px;font-weight:700;color:var(--gray-400);letter-spacing:.2px}
 .cal-rep-actions{display:flex;gap:8px;flex-shrink:0}
@@ -829,6 +831,7 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .cal-rep-table tr.crt-grp td{background:#e8eef5;font-weight:800;color:var(--primary);font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;padding:7px 18px}
 .cal-rep-table tr.crt-grp--interior td{background:var(--orange-soft);color:var(--orange)}
 .cal-rep-table tr.crt-grp--servicios td{background:var(--success-soft);color:#15803d}
+.cal-rep-table tr.crt-grp--transportadora td{background:#ede9fe;color:#6d28d9}
 .cal-rep-table tr.crt-sub td{background:var(--gray-50);font-weight:800;color:var(--gray-800);border-top:1px solid var(--gray-200)}
 .crt-num{text-align:right;font-weight:700;font-variant-numeric:tabular-nums;color:var(--gray-800)}
 .crt-inc{text-align:right;font-weight:800;font-variant-numeric:tabular-nums}
@@ -1892,7 +1895,7 @@ function renderClientesTable(){
         </button>
       </td>
       <td style="padding:6px 8px">
-        <button type="button" class="cl-chip cl-segbtn" data-clid="${cl.id}"><span class="cl-chip__dot seg-${cl.seg||'local'}"></span><span class="cl-chip__lbl">${({local:'Local',interior:'Interior',servicios:'Servicios'}[cl.seg||'local'])}</span><svg class="cl-chip__arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg></button>
+        <button type="button" class="cl-chip cl-segbtn" data-clid="${cl.id}"><span class="cl-chip__dot seg-${cl.seg||'local'}"></span><span class="cl-chip__lbl">${({local:'Local',interior:'Interior',servicios:'Servicios',transportadora:'Transportadora'}[cl.seg||'local'])}</span><svg class="cl-chip__arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg></button>
       </td>
       <td style="padding:6px 8px">
         <button type="button" class="cl-chip cl-repbtn" data-clid="${cl.id}"><span class="cl-chip__lbl${cl.rep?'':' ph'}">${cl.rep?esc(cl.rep):'— Repartidor —'}</span><svg class="cl-chip__arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg></button>
@@ -2254,7 +2257,7 @@ function openChipPop(anchor,opts){
 document.getElementById('clientesTbody').addEventListener('click',e=>{
   const segb=e.target.closest('.cl-segbtn');
   if(segb){const cl=currentReparto.clientes.find(c=>c.id===+segb.dataset.clid);if(!cl)return;
-    openChipPop(segb,{value:cl.seg||'local',options:[{v:'local',label:'Local',dot:'#0B5F8D'},{v:'interior',label:'Interior',dot:'#F97316'},{v:'servicios',label:'Servicios',dot:'#10B981'}],onPick:v=>{cl.seg=v;if(cl.zona&&!_zonasFor(v).some(z=>z.n===cl.zona))cl.zona=null;renderClientesTable();}});return;}
+    openChipPop(segb,{value:cl.seg||'local',options:[{v:'local',label:'Local',dot:'#0B5F8D'},{v:'interior',label:'Interior',dot:'#F97316'},{v:'servicios',label:'Servicios',dot:'#10B981'},{v:'transportadora',label:'Transportadora',dot:'#7c3aed'}],onPick:v=>{cl.seg=v;if(cl.zona&&!_zonasFor(v).some(z=>z.n===cl.zona))cl.zona=null;renderClientesTable();}});return;}
   const repb=e.target.closest('.cl-repbtn');
   if(repb){const cl=currentReparto.clientes.find(c=>c.id===+repb.dataset.clid);if(!cl)return;
     openChipPop(repb,{value:cl.rep||'',search:true,addLabel:'Agregar repartidor nuevo',options:_repartidores.map(n=>({v:n,label:n})),onPick:v=>{cl.rep=v;renderClientesTable();},onAdd:()=>_openAddRepartidor(name=>{cl.rep=name;renderClientesTable();})});return;}
@@ -2602,7 +2605,7 @@ function renderDetailBody(ts){
       const lp=lastPriceForTruck(tr.id);
       return`<div class="tr-row" data-trid="${tr.id}" data-tsid="${ts.id}">
         <span class="tr-row__n">${i+1}</span>
-        <span class="tr-row__desc"><span class="tr-row__name">${esc(tr.d)}</span><div class="seg-ctrl" data-trid="${tr.id}" data-tsid="${ts.id}">${[['local','Local'],['interior','Interior'],['servicios','Servicios']].map(s=>`<button type="button" class="seg-ctrl__b seg-${s[0]}${(tr.seg||'local')===s[0]?' on':''}" data-seg="${s[0]}">${s[1]}</button>`).join('')}</div></span>
+        <span class="tr-row__desc"><span class="tr-row__name">${esc(tr.d)}</span><div class="seg-ctrl" data-trid="${tr.id}" data-tsid="${ts.id}">${[['local','Local'],['interior','Interior'],['servicios','Servicios'],['transportadora','Transportadora']].map(s=>`<button type="button" class="seg-ctrl__b seg-${s[0]}${(tr.seg||'local')===s[0]?' on':''}" data-seg="${s[0]}">${s[1]}</button>`).join('')}</div></span>
         <button class="tipo-badge ${tr.tipo==='fijo'?'is-fijo':'is-km'}" type="button" data-toggle-tipo data-trid="${tr.id}" data-tsid="${ts.id}" title="Cambiar tipo">${tr.tipo==='fijo'?'FIJO':'KM'}</button>
         <span class="tr-row__price">${lp.precio?`<span class="tr-lp-val">Gs. ${formatMoney(lp.precio)}</span>${lp.fecha?`<span class="tr-lp-date">${isoToDisplay(lp.fecha)}</span>`:''}`:'<span class="tr-lp-none">Sin usar</span>'}</span>
         <button class="del-btn" type="button" data-deltr="${tr.id}" data-tsid="${ts.id}"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg></button>
@@ -2806,10 +2809,10 @@ function renderCard(r,opts={}){
   const clList=r.clientes||[];
   // Estado de la planilla según la factura vinculada
   const _st=!r.factura_id?{k:'proc',l:'En proceso'}:(()=>{const f=(window.__cfFac||[]).find(x=>x.id===r.factura_id);if(!f)return{k:'ok',l:'Facturada'};return Math.round(f.monto||0)===Math.round(r.totalFlete||0)?{k:'ok',l:'Conciliada'}:{k:'diff',l:'Con diferencia'};})();
-  const SEGLBL={interior:['Interior','sp-int'],servicios:['Servicios','sp-srv'],local:['Local','sp-loc']};
+  const SEGLBL={interior:['Interior','sp-int'],servicios:['Servicios','sp-srv'],local:['Local','sp-loc'],transportadora:['Transportadora','sp-trp']};
   const anim=opts.noAnim?'style="animation:none"':'';
   // Detalle agrupado por segmento (Local / Interior / Servicios) con subtotales
-  const SEGORD=[['local','Local'],['interior','Interior'],['servicios','Servicios']];
+  const SEGORD=[['local','Local'],['interior','Interior'],['servicios','Servicios'],['transportadora','Transportadora']];
   let clientRows='',_ci=0;
   SEGORD.forEach(([sk,slbl])=>{
     const lines=clList.filter(c=>(c.seg||'local')===sk);
@@ -3035,7 +3038,7 @@ function renderCalReparto(r){
   const incOk=r.incTotal!==null&&r.incTotal<3;
   const cl=r.clientes||[];
   // Agrupado por segmento (Local / Interior / Servicios) con subtotales
-  const SEGORD=[['local','Local'],['interior','Interior'],['servicios','Servicios']];
+  const SEGORD=[['local','Local'],['interior','Interior'],['servicios','Servicios'],['transportadora','Transportadora']];
   const _multiSeg=[...new Set(cl.map(c=>c.seg||'local'))].length>1;
   let rows='';
   SEGORD.forEach(function(pair){const sk=pair[0],slbl=pair[1];const ls=cl.filter(c=>(c.seg||'local')===sk);if(!ls.length)return;let sM=0,sF=0;
@@ -3046,7 +3049,7 @@ function renderCalReparto(r){
   return`<div class="cal-rep">
     <div class="cal-rep-hd">
       <div class="cal-rep-hd-left">
-        <span class="cal-rep-seg">${(function(){const SL={local:'LOCAL',interior:'INTERIOR',servicios:'SERVICIOS'};const segs=[...new Set(cl.map(c=>c.seg||'local'))];return segs.map(s=>'<span class="crs crs--'+s+'">'+(SL[s]||s.toUpperCase())+'</span>').join('');})()}</span>
+        <span class="cal-rep-seg">${(function(){const SL={local:'LOCAL',interior:'INTERIOR',servicios:'SERVICIOS',transportadora:'TRANSPORTADORA'};const segs=[...new Set(cl.map(c=>c.seg||'local'))];return segs.map(s=>'<span class="crs crs--'+s+'">'+(SL[s]||s.toUpperCase())+'</span>').join('');})()}</span>
         <span class="cal-rep-count">${cl.length} <small>camión${cl.length!==1?'es':''}</small></span>
       </div>
       <div class="cal-rep-actions">
@@ -3506,6 +3509,7 @@ function showSaveAnim(){
   .hc-detail-table tr.hc-grp td{background:#e8eef5;font-weight:800;color:var(--primary);font-size:10.5px;letter-spacing:.4px;padding:6px 10px;text-transform:uppercase}
   .hc-detail-table tr.hc-grp--interior td{background:var(--orange-soft,#FFEDD5);color:var(--orange,#F97316)}
   .hc-detail-table tr.hc-grp--servicios td{background:var(--success-soft,#D1FAE5);color:#15803d}
+  .hc-detail-table tr.hc-grp--transportadora td{background:#ede9fe;color:#6d28d9}
   .hc-detail-table tr.hc-sub td{background:#f2f6fa;font-weight:800;color:var(--gray-800,#1e293b);border-top:1px solid #cdd8e4;font-size:11px}
   .cf-segpill{display:inline-block;font-size:10.5px;font-weight:800;padding:2px 8px;border-radius:999px;white-space:nowrap}
   /* Reporte de Repartos */
@@ -3562,6 +3566,7 @@ function showSaveAnim(){
   .cf-table tr.hc-grp td{background:#e8eef5;font-weight:800;color:var(--primary);font-size:10.5px;letter-spacing:.4px;text-transform:uppercase;padding:6px 10px}
   .cf-table tr.hc-grp--interior td{background:var(--orange-soft,#FFEDD5);color:var(--orange,#F97316)}
   .cf-table tr.hc-grp--servicios td{background:var(--success-soft,#D1FAE5);color:#15803d}
+  .cf-table tr.hc-grp--transportadora td{background:#ede9fe;color:#6d28d9}
   .cf-table tr.hc-sub td{background:#f2f6fa;font-weight:800}
   .cf-table tr.rr-tot td{background:var(--primary);color:#fff;font-weight:800;font-size:14px}
   /* Modal ampliado Reporte de Repartos */
@@ -3626,13 +3631,14 @@ function showSaveAnim(){
   .rrm-act.is-loading{opacity:.92;pointer-events:none}
   .rr-detail .rrm-body{flex:none;max-height:none;overflow:visible;border:0;border-radius:0;padding:0}
   /* Tablero por segmento (kanban — columnas lado a lado) */
-  .rre-board{display:flex;gap:14px;align-items:flex-start;padding:2px}
-  .rre-col{flex:1 1 0;min-width:250px;background:var(--gray-50,#f8fafc);border:1px solid var(--gray-200,#e2e8f0);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:10px}
+  .rre-board{display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap;padding:2px}
+  .rre-col{flex:1 1 250px;min-width:0;background:var(--gray-50,#f8fafc);border:1px solid var(--gray-200,#e2e8f0);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:10px}
   .rre-col-hd{display:flex;align-items:center;gap:8px;font-family:Sora,Inter,sans-serif;font-weight:800;font-size:12.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--gray-700,#334155)}
   .rre-col-dot{width:9px;height:9px;border-radius:999px;flex:0 0 auto}
   .rre-col--local .rre-col-dot{background:var(--primary)}
   .rre-col--interior .rre-col-dot{background:var(--orange,#F97316)}
   .rre-col--servicios .rre-col-dot{background:var(--success,#10B981)}
+  .rre-col--transportadora .rre-col-dot{background:#7c3aed}
   .rre-col-n{background:#fff;border:1px solid var(--gray-200,#e2e8f0);border-radius:999px;min-width:22px;height:22px;padding:0 6px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--gray-500,#64748b)}
   .rre-col-body{display:flex;flex-direction:column;gap:8px}
   .rre-col-empty{font-size:12px;color:var(--gray-400,#94a3b8);text-align:center;padding:16px 0;border:1.5px dashed var(--gray-200,#e2e8f0);border-radius:10px}
@@ -3683,6 +3689,9 @@ function showSaveAnim(){
   .rre-segbtn--local.on{background:var(--primary)}
   .rre-segbtn--interior.on{background:var(--orange,#F97316)}
   .rre-segbtn--servicios.on{background:var(--success,#10B981)}
+  .rre-segbtn--transportadora.on{background:#7c3aed}
+  .rre-segctl{flex-wrap:wrap}
+  .rre-segbtn{flex:1 1 40%}
   /* Dropdown PRO de camión (portal) */
   .rre-dd{position:fixed;z-index:100001;background:#fff;border:1px solid var(--gray-200,#e2e8f0);border-radius:12px;box-shadow:0 20px 48px rgba(15,23,42,.22);overflow:hidden;display:flex;flex-direction:column;max-height:330px}
   .rre-dd-head{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--gray-100,#f1f5f9)}
@@ -3764,7 +3773,7 @@ function showSaveAnim(){
   .cf-plbtn--locked{cursor:default;opacity:1;border-style:solid;border-color:var(--gray-200,#e2e8f0);background:var(--gray-50,#f8fafc)}
   .cf-plbtn--locked:hover{border-color:var(--gray-200,#e2e8f0);background:var(--gray-50,#f8fafc)}
   .fac-pick-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;max-height:54vh;overflow:auto;padding:3px}
-  .cf-segpill.sp-loc{background:#DBEAFE;color:var(--primary)} .cf-segpill.sp-int{background:var(--orange-soft,#FFEDD5);color:var(--orange,#F97316)} .cf-segpill.sp-srv{background:var(--success-soft,#D1FAE5);color:#15803d}
+  .cf-segpill.sp-loc{background:#DBEAFE;color:var(--primary)} .cf-segpill.sp-int{background:var(--orange-soft,#FFEDD5);color:var(--orange,#F97316)} .cf-segpill.sp-srv{background:var(--success-soft,#D1FAE5);color:#15803d} .cf-segpill.sp-trp{background:#ede9fe;color:#6d28d9}
   .cf-empty{text-align:center;color:var(--gray-400,#94a3b8);padding:44px 20px;font-size:14px;font-weight:600}
   /* modal simple */
   .cf-mbd{position:fixed;inset:0;background:rgba(15,23,42,.5);display:none;align-items:center;justify-content:center;z-index:200;padding:20px}
@@ -4099,7 +4108,8 @@ function renderReporteRepartos(){
     ['todos','Todos','<svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>'],
     ['local','Local','<svg viewBox="0 0 24 24"><path d="M3 21h18"/><path d="M5 21V8l7-4 7 4v13"/><path d="M9 21v-5h6v5"/><path d="M9 11h.01M15 11h.01"/></svg>'],
     ['interior','Interior','<svg viewBox="0 0 24 24"><path d="M1 3h13v13H1z"/><path d="M14 8h4l3 3v5h-7z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="17.5" cy="18.5" r="2.5"/></svg>'],
-    ['servicios','Servicios','<svg viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 01-5.4 5.4L4 17v3h3l5.3-5.3a4 4 0 015.4-5.4l-2.5 2.5-2-2 2.5-2.5z"/></svg>']
+    ['servicios','Servicios','<svg viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 01-5.4 5.4L4 17v3h3l5.3-5.3a4 4 0 015.4-5.4l-2.5 2.5-2-2 2.5-2.5z"/></svg>'],
+    ['transportadora','Transportadora','<svg viewBox="0 0 24 24"><path d="M3 21h18"/><path d="M6 21V5a1 1 0 011-1h6a1 1 0 011 1v16"/><path d="M14 21V9h4a1 1 0 011 1v11"/><path d="M9 8h1M9 12h1M9 16h1"/></svg>']
   ];
   const segFilter='<div class="rr-segfilter">'+SEGF.map(s=>'<button class="rr-sf rr-sf--'+s[0]+(_rrSeg===s[0]?' on':'')+'" data-rrseg="'+s[0]+'"><span class="rr-sf__ico">'+s[2]+'</span>'+s[1]+'</button>').join('')+'</div>';
   const search='<div class="rr-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input type="text" placeholder="Buscar transportista o camión…" value="'+_escp(_rrQ)+'" autocomplete="off"><button class="rr-search__clear'+(_rrQ?' show':'')+'" aria-label="Limpiar">&times;</button></div>';
@@ -4119,7 +4129,7 @@ function renderReporteRepartos(){
   if(_rrQ)_rrApplySearch();
 }
 function _rrOpenDetail(g,periodLbl,wkObj){
-  const SEGN={local:'Local',interior:'Interior',servicios:'Servicios'};
+  const SEGN={local:'Local',interior:'Interior',servicios:'Servicios',transportadora:'Transportadora'};
   const TRUCKICON='<svg viewBox="0 0 24 24"><rect x="2.5" y="7" width="11" height="8" rx="1"/><path d="M13.5 9.5H17l3.5 3.5V15h-7z"/><circle cx="7" cy="17.5" r="1.6"/><circle cx="17.5" cy="17.5" r="1.6"/></svg>';
   const tsObj=(typeof transportistas!=='undefined'?transportistas:[]).find(t=>t.n===g.ts);
   const trucks=(tsObj&&tsObj.trucks)||[];
@@ -4128,7 +4138,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
   try{(document.scrollingElement||document.documentElement).scrollTop=0;}catch(_){}
   function goBack(){closeTruckDrop(true);const gs=window.gsap;if(gs&&!reduce())gs.to(bd,{opacity:0,y:10,duration:.2,ease:'power2.in',onComplete:renderReporteRepartos});else renderReporteRepartos();}
   let editing=false,work=[],firstDraw=true,_wuid=1,selUid=null,_ddEl=null,_ddCleanup=null,_ddBtn=null;
-  const SEGL=['local','interior','servicios'];
+  const SEGL=['local','interior','servicios','transportadora'];
   const W=uid=>work.find(w=>w.uid===+uid);
   const num=v=>parseInt(String(v==null?'':v).replace(/[^\d]/g,''),10)||0;
   const fmt=n=>n?_nnum(n):'';
@@ -4312,7 +4322,7 @@ function printPlanillaFlete(id){const r=(repartos||[]).find(x=>x.id===id);if(!r)
 function _cfPrint(r){
   const lines=r.clientes||[];if(!lines.length){showToast('La planilla no tiene camiones');return;}
   const f=(window.__cfFac||[]).find(x=>x.id===r.factura_id)||null;
-  const SEGP=[['local','LOCAL'],['interior','INTERIOR'],['servicios','SERVICIOS ADICIONALES']];
+  const SEGP=[['local','LOCAL'],['interior','INTERIOR'],['servicios','SERVICIOS ADICIONALES'],['transportadora','TRANSPORTADORA']];
   let body='',totM=0,totF=0,totN=0;
   SEGP.forEach(([sk,slbl])=>{
     const g=lines.filter(c=>(c.seg||'local')===sk);if(!g.length)return;
