@@ -3793,6 +3793,13 @@ function showSaveAnim(){
   .rre-flete-out{display:flex;align-items:baseline;justify-content:space-between;gap:8px;background:linear-gradient(180deg,#f5faff,#eef6fd);border:1px solid rgba(11,95,141,.16);border-radius:9px;padding:7px 11px}
   .rre-flete-out>span{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-400,#94a3b8)}
   .rre-flete-b{font-family:Sora,Inter,sans-serif;font-weight:800;font-size:15px;color:var(--primary);font-variant-numeric:tabular-nums;transform-origin:right center;display:inline-block}
+  .rre-cardacts{display:flex;gap:8px;margin-top:2px}
+  .rre-cardbtn{display:inline-flex;align-items:center;justify-content:center;gap:6px;flex:1 1 0;border-radius:10px;padding:9px 12px;font:inherit;font-size:13px;font-weight:800;cursor:pointer;transition:background .15s,color .15s,border-color .15s,box-shadow .15s,transform .1s}
+  .rre-cardcancel{border:1.5px solid var(--gray-200,#e2e8f0);background:#fff;color:var(--gray-600,#475569)}
+  .rre-cardcancel:hover{border-color:var(--gray-300,#cbd5e1);color:var(--gray-800,#1e293b);background:var(--gray-50,#f8fafc)}
+  .rre-cardsave{border:1.5px solid transparent;background:linear-gradient(180deg,#0d6aa0,#0B5F8D);color:#fff;box-shadow:0 4px 12px rgba(11,95,141,.28)}
+  .rre-cardsave:hover{box-shadow:0 6px 16px rgba(11,95,141,.36)}
+  .rre-cardsave svg{width:15px;height:15px}
   .rre-segctl{display:flex;gap:4px;background:var(--gray-100,#f1f5f9);border-radius:10px;padding:3px}
   .rre-segbtn{flex:1 1 0;min-width:0;border:0;background:transparent;border-radius:8px;padding:6px 4px;font:inherit;font-size:11.5px;font-weight:800;color:var(--gray-500,#64748b);cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:background .16s,color .16s,box-shadow .16s}
   .rre-segbtn:hover{color:var(--gray-800,#1e293b)}
@@ -4301,7 +4308,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     const topSel=isTr
       ?'<span class="rre-trbtn rre-trbtn--tr set"><span class="rre-trbtn__ic">'+TRUCKICON+'</span><span class="rre-trbtn__t">Transportadora (total)</span></span>'
       :'<button type="button" class="rre-trbtn'+(w.trId?' set':'')+'" data-uid="'+w.uid+'"><span class="rre-trbtn__ic">'+TRUCKICON+'</span><span class="rre-trbtn__t'+(w.trId?'':' ph')+'">'+(w.trId?_escp(trLbl):'— Elegir camión —')+'</span><svg class="rre-trbtn__arr" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>';
-    return '<div class="rre-card rre-card--sel" data-uid="'+w.uid+'"><div class="rre-card-top"><span class="rre-i">'+(idx+1)+'</span>'+topSel+(w.isNew?'':'<button type="button" class="rre-del" data-uid="'+w.uid+'" title="Quitar camión" aria-label="Quitar camión"><svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg></button>')+'<button type="button" class="rre-close" data-uid="'+w.uid+'" title="Cerrar edición" aria-label="Cerrar edición">&times;</button></div>'+body+metaFlds+'<div class="rre-segctl" data-uid="'+w.uid+'">'+SEGL.map(s=>'<button type="button" class="rre-segbtn rre-segbtn--'+s+(w.seg===s?' on':'')+'" data-uid="'+w.uid+'" data-seg="'+s+'">'+SEGN[s]+'</button>').join('')+'</div></div>';}
+    return '<div class="rre-card rre-card--sel" data-uid="'+w.uid+'"><div class="rre-card-top"><span class="rre-i">'+(idx+1)+'</span>'+topSel+(w.isNew?'':'<button type="button" class="rre-del" data-uid="'+w.uid+'" title="Quitar camión" aria-label="Quitar camión"><svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg></button>')+'</div>'+body+metaFlds+'<div class="rre-cardacts"><button type="button" class="rre-cardbtn rre-cardcancel" data-uid="'+w.uid+'">Cancelar</button><button type="button" class="rre-cardbtn rre-cardsave" data-uid="'+w.uid+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>Guardar</button></div></div>';}
   function boardBody(){const cols=SEGL.map(function(sk){const items=work.filter(w=>!w.del&&w.seg===sk).slice().sort((a,b)=>{if(a.isNew!==b.isNew)return a.isNew?-1:1;const fa=a.fecha||'',fb=b.fecha||'';if(fa!==fb)return fa<fb?-1:1;return 0;});let sF=0;items.forEach(w=>sF+=(+w.precio||0));const nCam=items.reduce((s,w)=>s+camCount(w),0);const inner=items.map(function(w,idx){return (w.edit||w.isNew)?formHTML(w,idx):rowHTML(w,idx);}).join('')||'<div class="rre-col-empty">Sin camiones</div>';return '<div class="rre-col rre-col--'+sk+'"><div class="rre-col-hd"><span class="rre-col-dot"></span>'+SEGN[sk]+'<span class="rre-col-n">'+nCam+'</span><div class="rre-col-hdacts"><button class="rre-vadd" data-seg="'+sk+'" type="button"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg> Añadir</button></div></div><div class="rre-col-body">'+inner+'</div>'+(items.length?'<div class="rre-col-foot"><span class="rre-foot-n">'+nCam+' camión'+(nCam===1?'':'es')+'</span><span class="rre-foot-sub">Subtotal flete <b>'+_gs(sF)+'</b></span></div>':'')+'</div>';}).join('');return '<div class="rre-board">'+cols+'</div>';}
   function liveTotals(){const t=totals(),q=s=>bd.querySelector(s);const setPop=(el,v)=>{if(el&&el.textContent!==v){el.textContent=v;pop(el);}};setPop(q('.k-flete'),_gs(t.f));_lastTotal=t.f;const n=totalCam();const nc=q('.rrm-ncam');if(nc)nc.textContent=n;const kn=q('.k-ncam');if(kn)kn.textContent=n;}
   // Dropdown PRO de camión (portal fijo, con búsqueda y animación)
@@ -4370,8 +4377,10 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     bd.querySelectorAll('.rre-zona').forEach(i=>i.addEventListener('input',()=>{const w=W(i.dataset.uid);if(w)w.zona=i.value;}));
     bd.querySelectorAll('.rre-obs').forEach(i=>i.addEventListener('input',()=>{const w=W(i.dataset.uid);if(w)w.obs=i.value;}));
     bd.querySelectorAll('.rre-del').forEach(b=>b.addEventListener('click',()=>{const w=W(b.dataset.uid);if(w)confirmDelete(w);}));
-    // × = cerrar/colapsar la edición (no borra); si es nuevo, cancela el alta
-    bd.querySelectorAll('.rre-close').forEach(b=>b.addEventListener('click',()=>{const w=W(b.dataset.uid),card=b.closest('.rre-card'),gs=window.gsap;if(!w)return;const apply=()=>{if(w.isNew){const idx=work.indexOf(w);if(idx>=0)work.splice(idx,1);}else w.edit=false;if(selUid===w.uid)selUid=null;render('rows');};if(gs&&card&&!reduce())gs.to(card,{opacity:0,scale:.97,duration:.16,ease:'power2.in',onComplete:apply});else apply();}));
+    // Cancelar = cerrar/colapsar la edición (no borra); si es nuevo, cancela el alta
+    bd.querySelectorAll('.rre-cardcancel, .rre-close').forEach(b=>b.addEventListener('click',()=>{const w=W(b.dataset.uid),card=b.closest('.rre-card'),gs=window.gsap;if(!w)return;const apply=()=>{if(w.isNew){const idx=work.indexOf(w);if(idx>=0)work.splice(idx,1);}else w.edit=false;if(selUid===w.uid)selUid=null;render('rows');};if(gs&&card&&!reduce())gs.to(card,{opacity:0,scale:.97,duration:.16,ease:'power2.in',onComplete:apply});else apply();}));
+    // Guardar dentro de la tarjeta = guarda todos los cambios (mismo flujo que el botón superior)
+    bd.querySelectorAll('.rre-cardsave').forEach(b=>b.addEventListener('click',()=>save()));
   }
   function render(anim){
     closeTruckDrop(true);
@@ -4425,7 +4434,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
         // desglose PRO: las partes internas entran en cascada (más pausado)
         const inner=card.querySelectorAll('.rre-card-top, .rre-fld, .rre-km2, .rre-flete-out, .rre-meta2');
         if(inner.length)gs.from(inner,{opacity:0,y:12,duration:.5,stagger:.11,delay:.16,ease:'power3.out',clearProps:'all'});
-        gs.from(card.querySelectorAll('.rre-segbtn'),{opacity:0,y:8,scale:.88,duration:.46,stagger:.06,delay:.42,ease:'back.out(1.8)',clearProps:'all'});
+        gs.from(card.querySelectorAll('.rre-cardbtn'),{opacity:0,y:8,scale:.88,duration:.46,stagger:.06,delay:.42,ease:'back.out(1.8)',clearProps:'all'});
         try{card.scrollIntoView({block:'nearest',behavior:'smooth'});}catch(_){}
         if(anim==='add'){const b=card.querySelector('.rre-trbtn');if(b)setTimeout(()=>{try{b.focus();}catch(_){}},260);}
       }
