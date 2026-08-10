@@ -3573,10 +3573,10 @@ function showSaveAnim(){
   .rrm-pd{font-size:12.5px;font-weight:600;color:var(--gray-500,#64748b);margin-top:3px}
   .rrm-x{border:0;background:var(--gray-100,#f1f5f9);color:var(--gray-500,#64748b);width:36px;height:36px;border-radius:11px;font-size:24px;line-height:1;cursor:pointer;flex-shrink:0}
   .rrm-x:hover{background:var(--gray-200,#e2e8f0);color:var(--gray-800,#1e293b)}
-  .rrm-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:11px;margin-bottom:16px}
-  .rrm-kpi{background:var(--gray-50,#f8fafc);border:1px solid var(--gray-200,#e2e8f0);border-radius:14px;padding:14px 18px}
-  .rrm-kpi span{display:block;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-400,#94a3b8);margin-bottom:4px}
-  .rrm-kpi b{display:inline-block;font-family:Sora,Inter,sans-serif;font-size:24px;font-weight:800;color:var(--primary);font-variant-numeric:tabular-nums;transform-origin:left center}
+  .rrm-kpis{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+  .rrm-kpi{flex:0 1 220px;text-align:center;background:var(--gray-50,#f8fafc);border:1px solid var(--gray-200,#e2e8f0);border-radius:14px;padding:11px 18px}
+  .rrm-kpi span{display:block;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-400,#94a3b8);margin-bottom:3px}
+  .rrm-kpi b{display:inline-block;font-family:Sora,Inter,sans-serif;font-size:22px;font-weight:800;color:var(--primary);font-variant-numeric:tabular-nums;transform-origin:center}
   .rrm-kpi b.ok{color:var(--success,#10B981)}
   .rrm-body{flex:1 1 auto;min-height:0;overflow:auto;border:1px solid var(--gray-200,#e2e8f0);border-radius:13px}
   .rrm-body table{margin:0}
@@ -4271,6 +4271,17 @@ function _cfCheckBurst(label){
     .to(disc,{scale:1.06,duration:.14,yoyo:true,repeat:1,ease:'power1.inOut'},'-=.05')
     .to(lbl,{y:0,opacity:1,duration:.34,ease:'power2.out'},'-=.2');
 }
+/* ── Micro-interacción PRO: "press" táctil con GSAP en botones y tarjetas ── */
+(function(){
+  var RM=function(){return window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;};
+  var _pb=null;
+  function down(e){var gs=window.gsap;if(!gs||RM())return;var t=e.target;if(!t||!t.closest)return;if(t.closest('input,textarea,select'))return;var b=t.closest('button, .rr-card');if(!b||b.disabled)return;_pb=b;gs.killTweensOf(b);gs.to(b,{scale:.955,duration:.1,ease:'power2.out'});}
+  function up(){var gs=window.gsap;if(!gs||!_pb)return;var b=_pb;_pb=null;gs.to(b,{scale:1,duration:.36,ease:'back.out(2.6)',clearProps:'transform'});}
+  document.addEventListener('pointerdown',down,true);
+  document.addEventListener('pointerup',up,true);
+  document.addEventListener('pointercancel',up,true);
+  window.addEventListener('blur',up);
+})();
 /* ════════ IMPRIMIR PLANILLA (formato Control, agrupado por segmento) ════════ */
 function printPlanillaFlete(id){const r=(repartos||[]).find(x=>x.id===id);if(!r){showToast('Planilla no encontrada');return;}_cfPrint(r);}
 function _cfPrint(r){
