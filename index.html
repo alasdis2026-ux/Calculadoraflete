@@ -730,6 +730,11 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .hist-view-btn{width:34px;height:34px;border-radius:9px;border:1.5px solid var(--gray-200);background:#fff;color:var(--gray-400);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all var(--fast)}
 .hist-view-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
 .hist-view-btn:not(.active):hover{background:var(--gray-100);color:var(--primary)}
+/* ── Vista día inline (estilo Reporte de Repartos) ── */
+.cal-day-wrap{flex:1;min-height:0;display:flex;flex-direction:column;gap:14px;overflow-y:auto}
+.cal-day-topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:14px;background:#fff;padding:4px 0 12px;border-bottom:1px solid var(--gray-100)}
+.cal-day-ttl{display:flex;align-items:center;gap:12px;min-width:0}
+.cal-day-ttl h2{font-family:Sora,Inter,sans-serif;font-size:20px;font-weight:800;color:var(--primary);margin:0;white-space:nowrap}
 /* ── Calendario estilo CajaVenta ── */
 .cal-wrap{flex:1;min-height:0;display:flex;flex-direction:column;gap:12px;overflow:hidden}
 .cal-top-bar{display:flex;justify-content:space-between;align-items:center}
@@ -1173,14 +1178,6 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
   <div class="hist-hd">
     <h2 style="display:flex;align-items:center;gap:10px;line-height:1"><img src="logo-alas-s.a.png" style="height:36px;object-fit:contain;flex-shrink:0">Historial de repartos</h2>
     <span id="histCount" style="font-size:12px;font-weight:700;color:var(--gray-400);padding:3px 10px;border-radius:999px;background:var(--gray-100)">0</span>
-    <div class="hist-view-btns">
-      <button class="hist-view-btn active" id="btnViewCal" title="Calendario" type="button">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-      </button>
-      <button class="hist-view-btn" id="btnViewList" title="Lista" type="button">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
-      </button>
-    </div>
   </div>
 
   <!-- Vista calendario -->
@@ -1213,49 +1210,14 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
     </div>
   </div>
 
-  <!-- Modal día calendario -->
-  <div class="cal-modal-bd" id="calModalBd">
-    <div class="cal-modal-box">
-      <div class="cal-modal-hd">
-        <div class="cal-modal-title-wrap">
-          <span class="cal-modal-title" id="calModalTitle"></span>
-          <span class="cal-modal-badge" id="calModalBadge"></span>
-        </div>
-        <button class="cal-modal-close" id="calModalClose" type="button">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14"><path stroke-linecap="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
-        </button>
-      </div>
-      <!-- KPIs del día -->
-      <div class="cal-modal-kpis" id="calModalKpis"></div>
-      <div class="cal-modal-body" id="calModalBody"></div>
+  <!-- Vista del día (inline, estilo Reporte de Repartos) -->
+  <div id="calDayWrap" class="cal-day-wrap" style="display:none">
+    <div class="cal-day-topbar">
+      <button class="rrd-back" id="calDayBack" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg> Volver</button>
+      <div class="cal-day-ttl"><h2 id="calModalTitle"></h2><span class="cal-modal-badge" id="calModalBadge"></span></div>
     </div>
-  </div>
-
-  <!-- Vista lista (filtros + grid) -->
-  <div id="histListWrap" style="display:none;flex-direction:column;gap:12px;flex:1;min-height:0">
-    <div class="hist-filters">
-      <div class="hf-chips">
-        <button class="hf-chip is-active" data-hf="all">Todo</button>
-        <button class="hf-chip" data-hf="week">Esta semana</button>
-        <button class="hf-chip" data-hf="month">Este mes</button>
-        <button class="hf-chip" data-hf="custom">Por fecha</button>
-      </div>
-      <div class="hf-range" id="hfRange" style="display:none">
-        <div class="hf-date-group">
-          <label class="hf-date-lbl">Desde</label>
-          <input type="date" class="hf-date-inp" id="hfDesde">
-        </div>
-        <span class="hf-date-sep">→</span>
-        <div class="hf-date-group">
-          <label class="hf-date-lbl">Hasta</label>
-          <input type="date" class="hf-date-inp" id="hfHasta">
-        </div>
-        <button class="btn btn-sm btn-primary" id="hfApply">Aplicar</button>
-      </div>
-    </div>
-    <div class="hist-wrap">
-      <div class="hist-grid" id="histGrid"></div>
-    </div>
+    <div class="cal-modal-kpis" id="calModalKpis"></div>
+    <div class="cal-modal-body" id="calModalBody"></div>
   </div>
 </section>
 
@@ -2899,6 +2861,7 @@ function renderCard(r,opts={}){
 
 function renderHistorial(){
   const grid=document.getElementById('histGrid');
+  if(!grid){renderCalendar();return;}
   const filtered=getFilteredRepartos();
   document.getElementById('histCount').textContent=filtered.length+' de '+repartos.length;
   if(!repartos.length){
@@ -2911,21 +2874,6 @@ function renderHistorial(){
   }
   grid.innerHTML=filtered.map(r=>renderCard(r)).join('');
 }
-document.getElementById('histGrid').addEventListener('click',async e=>{
-  const printBtn=e.target.closest('[data-printr]');
-  if(printBtn){printPlanillaFlete(+printBtn.dataset.printr);return;}
-  const editBtn=e.target.closest('[data-editr]');
-  const delBtn=e.target.closest('[data-delr]');
-  if(editBtn)loadForEdit(+editBtn.dataset.editr);
-  if(delBtn){
-    const id=+delBtn.dataset.delr;
-    if(confirm('¿Eliminar este reparto del historial?')){
-      repartos=repartos.filter(r=>r.id!==id);renderHistorial();
-      dbDeleteReparto(id).catch(()=>showToast('Error al eliminar reparto'));
-    }
-  }
-});
-
 /* ════════ CALENDARIO HISTORIAL (estilo CajaVenta) ══════════════ */
 let calYear=new Date().getFullYear(), calMonth=new Date().getMonth();
 let calSelectedDate=null;
@@ -3023,18 +2971,17 @@ function openCalModal(iso,list){
     </div>`:''}`;
 
   document.getElementById('calModalBody').innerHTML=list.map(renderCalReparto).join('');
-  document.getElementById('calModalBd').classList.add('open');
+  document.getElementById('histCalWrap').style.display='none';
+  const wrap=document.getElementById('calDayWrap');wrap.style.display='flex';
 
-  // Animación GSAP de entrada
-  const box=document.querySelector('.cal-modal-box');
-  const g=window.gsap, reduce=false/*anim siempre on*/;
-  if(g&&box&&!reduce){
-    g.killTweensOf(box);
-    g.fromTo('#calModalBd',{opacity:0},{opacity:1,duration:.3,ease:'power2.out'});
-    g.fromTo(box,{y:30,scale:.94,opacity:0},{y:0,scale:1,opacity:1,duration:.5,ease:'back.out(1.6)',clearProps:'transform,opacity'});
-    g.from('#calModalKpis .cal-kpi',{y:-12,opacity:0,duration:.4,stagger:.08,delay:.14,ease:'power2.out',clearProps:'all'});
-    g.from('#calModalBody .cal-rep',{y:18,opacity:0,duration:.42,stagger:.1,delay:.16,ease:'power2.out',clearProps:'all'});
-    g.from('#calModalBody .cal-rep-table tbody tr',{opacity:0,x:-10,duration:.34,stagger:.04,delay:.3,ease:'power2.out',clearProps:'all'});
+  // Animación GSAP de entrada (inline, estilo Reporte de Repartos)
+  const g=window.gsap;
+  if(g){
+    g.killTweensOf(wrap);
+    g.fromTo(wrap,{opacity:0,y:14},{opacity:1,y:0,duration:.35,ease:'power2.out',clearProps:'transform,opacity'});
+    g.from('#calModalKpis .cal-kpi',{y:-12,opacity:0,duration:.4,stagger:.08,delay:.05,ease:'power2.out',clearProps:'all'});
+    g.from('#calModalBody .cal-rep',{y:18,opacity:0,duration:.42,stagger:.1,delay:.08,ease:'power2.out',clearProps:'all'});
+    g.from('#calModalBody .cal-rep-table tbody tr',{opacity:0,x:-10,duration:.34,stagger:.04,delay:.2,ease:'power2.out',clearProps:'all'});
   }
 }
 
@@ -3084,15 +3031,11 @@ function renderCalReparto(r){
 }
 
 function closeCalModal(){
-  const bd=document.getElementById('calModalBd'), box=bd.querySelector('.cal-modal-box');
-  const g=window.gsap, reduce=false/*anim siempre on*/;
-  if(g&&box&&!reduce){
-    g.killTweensOf(box);
-    g.to(box,{y:16,scale:.97,opacity:0,duration:.18,ease:'power2.in'});
-    g.to(bd,{opacity:0,duration:.22,ease:'power2.in',onComplete:()=>{bd.classList.remove('open');g.set(bd,{clearProps:'all'});g.set(box,{clearProps:'all'});}});
-  } else bd.classList.remove('open');
-  calSelectedDate=null;
-  renderCalendar();
+  const wrap=document.getElementById('calDayWrap');if(!wrap)return;
+  const g=window.gsap;
+  const done=()=>{wrap.style.display='none';document.getElementById('histCalWrap').style.display='flex';calSelectedDate=null;renderCalendar();};
+  if(g&&wrap.style.display!=='none'){g.killTweensOf(wrap);g.to(wrap,{opacity:0,y:10,duration:.18,ease:'power2.in',onComplete:done});}
+  else done();
 }
 
 // Click en día
@@ -3116,15 +3059,14 @@ document.getElementById('calModalBody').addEventListener('click',async e=>{
     const id=+delBtn.dataset.delr;
     if(confirm('¿Eliminar este reparto del historial?')){
       repartos=repartos.filter(r=>r.id!==id);
-      closeCalModal();renderHistorial();
+      closeCalModal();
       dbDeleteReparto(id).catch(()=>showToast('Error al eliminar reparto'));
     }
   }
 });
 
 // Navegación
-document.getElementById('calModalClose').addEventListener('click',closeCalModal);
-document.getElementById('calModalBd').addEventListener('click',e=>{if(e.target===e.currentTarget)closeCalModal();});
+document.getElementById('calDayBack').addEventListener('click',closeCalModal);
 
 /* Toggle "Ver detalles" — delegado global para historial y modal */
 document.addEventListener('click',e=>{
@@ -3155,19 +3097,14 @@ document.getElementById('calTodayBtn').addEventListener('click',()=>{
   calSelectedDate=null;renderCalendar();
 });
 
-// Toggle vistas
-function setHistView(mode){
-  histViewMode=mode;
-  document.getElementById('histCalWrap').style.display=mode==='cal'?'flex':'none';
-  document.getElementById('histListWrap').style.display=mode==='list'?'flex':'none';
-  document.getElementById('btnViewCal').classList.toggle('active',mode==='cal');
-  document.getElementById('btnViewList').classList.toggle('active',mode==='list');
-  if(mode==='cal'){calSelectedDate=null;renderCalendar();}
-  else renderHistorial();
-  document.getElementById('histCount').textContent=mode==='list'?(getFilteredRepartos().length+' de '+repartos.length):repartos.length+' total';
+// Vista única: calendario (la vista lista fue removida)
+function setHistView(){
+  histViewMode='cal';
+  const dw=document.getElementById('calDayWrap');if(dw)dw.style.display='none';
+  document.getElementById('histCalWrap').style.display='flex';
+  calSelectedDate=null;renderCalendar();
+  document.getElementById('histCount').textContent=repartos.length+' total';
 }
-document.getElementById('btnViewCal').addEventListener('click',()=>setHistView('cal'));
-document.getElementById('btnViewList').addEventListener('click',()=>setHistView('list'));
 
 /* ── Global ──────────────────────────────────────── */
 document.addEventListener('keydown',e=>{
@@ -3385,23 +3322,6 @@ function renderDashboard(){
   }
 }
 
-/* ── Historial filters ── */
-document.querySelectorAll('.hf-chip').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    document.querySelectorAll('.hf-chip').forEach(b=>b.classList.remove('is-active'));
-    btn.classList.add('is-active');
-    histFilter=btn.dataset.hf;
-    document.getElementById('hfRange').style.display=histFilter==='custom'?'flex':'none';
-    if(histFilter!=='custom')renderHistorial();
-  });
-});
-document.getElementById('hfApply').addEventListener('click',()=>{
-  const d=document.getElementById('hfDesde').value;
-  const h=document.getElementById('hfHasta').value;
-  histDesde=d?new Date(d+'T00:00:00'):null;
-  histHasta=h?new Date(h+'T23:59:59'):null;
-  renderHistorial();
-});
 
 
 function showSaveAnim(){
