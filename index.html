@@ -854,6 +854,10 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .cal-rep-dif svg{width:15px;height:15px;flex-shrink:0}
 .cal-rep-dif.ok{background:#ecfdf5;color:#047857}
 .cal-rep-dif.over{background:#fef2f2;color:#DC2626}
+.cal-rep-dif-chip{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:800;padding:4px 11px;border-radius:999px;white-space:nowrap;letter-spacing:.1px}
+.cal-rep-dif-chip svg{flex-shrink:0}
+.cal-rep-dif-chip.ok{background:#ecfdf5;color:#047857;box-shadow:inset 0 0 0 1px rgba(4,120,87,.18)}
+.cal-rep-dif-chip.over{background:#fef2f2;color:#DC2626;box-shadow:inset 0 0 0 1px rgba(220,38,38,.2)}
 /* ── Edición inline del día ── */
 .cal-rep--edit{border-color:var(--accent);box-shadow:0 8px 24px rgba(37,120,184,.14)}
 .cal-rep--edit .cal-rep-hd{background:linear-gradient(135deg,#fffbeb,#fff);border-bottom:2px solid #FCD34D}
@@ -3136,6 +3140,7 @@ function renderCalReparto(r){
       <div class="cal-rep-hd-left">
         <span class="cal-rep-seg">${(function(){const SL={local:'LOCAL',interior:'INTERIOR',servicios:'SERVICIOS',transportadora:'TRANSPORTADORA'};const segs=[...new Set(cl.map(c=>c.seg||'local'))];return segs.map(s=>'<span class="crs crs--'+s+'">'+(SL[s]||s.toUpperCase())+'</span>').join('');})()}</span>
         <span class="cal-rep-count">${cl.length} <small>camión${cl.length!==1?'es':''}</small></span>
+        <span class="cal-rep-dif-chip ${over?'over':'ok'}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="${over?'M13 17h8m0 0V9m0 8l-8-8-4 4-6-6':'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6'}"/></svg>${over?'Sobre el objetivo':'Dentro del objetivo'} (3%)${over?' · +'+fmtGs(r.diferencia):''}</span>
       </div>
       <div class="cal-rep-actions">
         <button class="cal-rep-btn edit" type="button" data-editr="${r.id}"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="15" height="15"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>Editar</button>
@@ -3153,10 +3158,6 @@ function renderCalReparto(r){
           <td class="crt-inc ${incOk?'ok':'over'}">${inc}</td>
         </tr></tfoot>
       </table>
-    </div>
-    <div class="cal-rep-dif ${over?'over':'ok'}">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="15" height="15"><path d="${over?'M13 17h8m0 0V9m0 8l-8-8-4 4-6-6':'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6'}"/></svg>
-      ${over?'+ '+fmtGs(r.diferencia)+' sobre el objetivo (3%)':'Dentro del objetivo (3%)'}
     </div>
   </div>`;
 }
