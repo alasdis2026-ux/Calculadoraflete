@@ -3600,13 +3600,19 @@ function showSaveAnim(){
   .rre-del:hover{background:#FEE2E2;color:#DC2626}
   /* Detalle de planilla como sub-vista (no modal) */
   .rr-detail{display:block}
-  .rrd-topbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:18px}
-  .rrd-back{display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--gray-200,#e2e8f0);background:#fff;border-radius:11px;padding:9px 15px;font:inherit;font-size:13px;font-weight:800;color:var(--gray-700,#334155);cursor:pointer;transition:border-color .15s,color .15s,transform .15s,box-shadow .15s}
+  .rrd-topbar{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:14px;margin-bottom:18px}
+  .rrd-left{display:flex;align-items:center;gap:14px;min-width:0}
+  .rrd-topbar .rrm-kpis{margin:0;flex-wrap:nowrap}
+  .rrd-topbar .rrm-kpi{flex:0 0 auto;padding:8px 18px;border-radius:12px}
+  .rrd-topbar .rrm-kpi span{font-size:9.5px;margin-bottom:1px}
+  .rrd-topbar .rrm-kpi b{font-size:18px}
+  .rrd-back{display:inline-flex;align-items:center;gap:6px;flex:0 0 auto;border:1.5px solid var(--gray-200,#e2e8f0);background:#fff;border-radius:11px;padding:9px 15px;font:inherit;font-size:13px;font-weight:800;color:var(--gray-700,#334155);cursor:pointer;transition:border-color .15s,color .15s,transform .15s,box-shadow .15s}
   .rrd-back svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
   .rrd-back:hover{border-color:var(--primary);color:var(--primary);transform:translateX(-2px);box-shadow:0 4px 12px rgba(11,95,141,.1)}
   .rrd-ttl{min-width:0}
   .rrd-ttl h2{margin:0;font-family:Sora,Inter,sans-serif;font-size:22px;font-weight:800;color:var(--primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .rrd-acts{margin-left:auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .rrd-acts{justify-self:end;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  @media(max-width:1040px){.rrd-topbar{grid-template-columns:1fr;justify-items:center}.rrd-left{justify-self:stretch}.rrd-acts{justify-self:center}}
   .rrd-acts .rrm-act{padding:10px 18px;font-size:13px;border-radius:12px}
   .rrd-acts .rrm-act svg{width:16px;height:16px}
   .rrm-act--save{background:var(--primary);color:#fff;border-color:var(--primary);min-width:150px;justify-content:center}
@@ -4227,11 +4233,11 @@ function _rrOpenDetail(g,periodLbl,wkObj){
       ?'<button class="rrm-act rrm-act--save ok save">Guardar cambios</button>'
       :facBtn+'<button class="rrm-act rrm-act--print ok print"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6v-8z"/></svg> Imprimir</button>';
     bd.innerHTML=
-      '<div class="rrd-topbar">'+back+
-        '<div class="rrd-ttl"><h2>'+_escp(g.ts)+'</h2><div class="rrm-pd">'+periodLbl+' · <span class="rrm-ncam">'+nCam+'</span> camiones'+(editing?' · <b style="color:var(--primary)">Editando</b>':'')+'</div></div>'+
+      '<div class="rrd-topbar">'+
+        '<div class="rrd-left">'+back+'<div class="rrd-ttl"><h2>'+_escp(g.ts)+'</h2><div class="rrm-pd">'+periodLbl+' · <span class="rrm-ncam">'+nCam+'</span> camiones'+(editing?' · <b style="color:var(--primary)">Editando</b>':'')+'</div></div></div>'+
+        '<div class="rrm-kpis"><div class="rrm-kpi"><span>Total flete</span><b class="k-flete">'+_gs(t.f)+'</b></div><div class="rrm-kpi"><span>Camiones</span><b class="k-ncam">'+nCam+'</b></div></div>'+
         '<div class="rrd-acts">'+acts+'</div>'+
       '</div>'+
-      '<div class="rrm-kpis"><div class="rrm-kpi"><span>Total flete</span><b class="k-flete">'+_gs(t.f)+'</b></div><div class="rrm-kpi"><span>Camiones</span><b class="k-ncam">'+nCam+'</b></div></div>'+
       '<div class="rrm-body">'+(editing?editBody():viewBody())+'</div>';
     wire();
     const gs=window.gsap;
