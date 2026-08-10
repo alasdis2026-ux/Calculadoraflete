@@ -834,6 +834,7 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .cal-rep-table td{padding:12px 18px;border-bottom:1px solid var(--gray-100);font-size:14px;color:var(--gray-700);vertical-align:middle}
 .cal-rep-table tbody tr:hover td{background:#f8fbff}
 .crt-name{font-weight:700;color:var(--gray-800)}
+.crt-txt{font-weight:600;font-size:13px;color:var(--gray-600)}
 .crt-sub2{font-size:11px;font-weight:600;color:var(--gray-400);margin-top:2px}
 .cal-rep-table tr.crt-grp td{background:#e8eef5;font-weight:800;color:var(--primary);font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;padding:7px 18px}
 .cal-rep-table tr.crt-grp--interior td{background:var(--orange-soft);color:var(--orange)}
@@ -3011,13 +3012,15 @@ function calRepEditHTML(r){
   const optsTr=function(w){const has=trucks.some(t=>t.id===w.trId);let o='<option value="">— Elegir camión —</option>';if(w.trId&&!has)o+='<option value="'+w.trId+'" selected>'+esc(w.trDesc||'—')+'</option>';return o+trucks.map(t=>'<option value="'+t.id+'"'+(t.id===w.trId?' selected':'')+'>'+esc(t.d)+'</option>').join('');};
   const rows=calWork.filter(w=>!w.del).map(function(w){
     return '<tr data-caluid="'+w.uid+'">'+
-      '<td><select class="cal-e-tr" data-uid="'+w.uid+'">'+optsTr(w)+'</select><div class="cal-e-sub"><input class="cal-e-rep" data-uid="'+w.uid+'" placeholder="Repartidor" value="'+esc(w.rep||'')+'"><input class="cal-e-zona" data-uid="'+w.uid+'" placeholder="Zona" value="'+esc(w.zona||'')+'"></div></td>'+
+      '<td><select class="cal-e-tr" data-uid="'+w.uid+'">'+optsTr(w)+'</select></td>'+
+      '<td><input class="cal-e-rep" data-uid="'+w.uid+'" placeholder="Repartidor" value="'+esc(w.rep||'')+'"></td>'+
+      '<td><input class="cal-e-zona" data-uid="'+w.uid+'" placeholder="Zona" value="'+esc(w.zona||'')+'"></td>'+
       '<td><select class="cal-e-seg" data-uid="'+w.uid+'">'+SEGO.map(s=>'<option value="'+s[0]+'"'+(w.seg===s[0]?' selected':'')+'>'+s[1]+'</option>').join('')+'</select></td>'+
       '<td class="r"><input class="cal-e-in cal-e-monto" data-uid="'+w.uid+'" inputmode="numeric" placeholder="0" value="'+(w.monto?_nnum(w.monto):'')+'"></td>'+
       '<td class="r"><input class="cal-e-in cal-e-flete" data-uid="'+w.uid+'" inputmode="numeric" placeholder="0" value="'+(w.precio?_nnum(w.precio):'')+'"></td>'+
       '<td class="r"><button class="cal-e-del" type="button" data-cal-deluid="'+w.uid+'" title="Quitar">'+CAL_TRASH+'</button></td>'+
     '</tr>';
-  }).join('')||'<tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:18px">Sin camiones — usá “+ Añadir camión”.</td></tr>';
+  }).join('')||'<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:18px">Sin camiones — usá “+ Añadir camión”.</td></tr>';
   const tM=calWork.filter(w=>!w.del).reduce((s,w)=>s+(+w.monto||0),0);
   const tF=calWork.filter(w=>!w.del).reduce((s,w)=>s+(+w.precio||0),0);
   return '<div class="cal-rep cal-rep--edit" data-editing="'+r.id+'">'+
@@ -3026,9 +3029,9 @@ function calRepEditHTML(r){
       '<div class="cal-rep-actions"><button class="cal-rep-btn" type="button" data-cal-add><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="14" height="14"><path d="M12 5v14M5 12h14"/></svg>Añadir camión</button><button class="cal-rep-btn" type="button" data-cal-cancel>Cancelar</button><button class="cal-rep-btn edit cal-save-btn" type="button" data-cal-save><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="15" height="15"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>Guardar</button></div>'+
     '</div>'+
     '<div class="cal-rep-table-wrap"><table class="cal-rep-table cal-rep-table--edit">'+
-      '<thead><tr><th>Camión</th><th>Segmento</th><th class="r">Monto</th><th class="r">Flete</th><th class="r"></th></tr></thead>'+
+      '<thead><tr><th>Camión</th><th>Repartidor</th><th>Zona</th><th>Segmento</th><th class="r">Monto</th><th class="r">Flete</th><th class="r"></th></tr></thead>'+
       '<tbody>'+rows+'</tbody>'+
-      '<tfoot><tr class="crt-total"><td colspan="2">TOTAL</td><td class="crt-num cal-e-totm">'+fmtGs(tM)+'</td><td class="crt-num cal-e-totf">'+fmtGs(tF)+'</td><td></td></tr></tfoot>'+
+      '<tfoot><tr class="crt-total"><td colspan="4">TOTAL</td><td class="crt-num cal-e-totm">'+fmtGs(tM)+'</td><td class="crt-num cal-e-totf">'+fmtGs(tF)+'</td><td></td></tr></tfoot>'+
     '</table></div>'+
   '</div>';
 }
@@ -3082,11 +3085,14 @@ function renderCalReparto(r){
   // Agrupado por segmento (Local / Interior / Servicios) con subtotales
   const SEGORD=[['local','Local'],['interior','Interior'],['servicios','Servicios'],['transportadora','Transportadora']];
   const _multiSeg=[...new Set(cl.map(c=>c.seg||'local'))].length>1;
+  const SEGCLR={local:'crt-grp',interior:'crt-grp crt-grp--interior',servicios:'crt-grp crt-grp--servicios',transportadora:'crt-grp crt-grp--transportadora'};
   let rows='';
   SEGORD.forEach(function(pair){const sk=pair[0],slbl=pair[1];const ls=cl.filter(c=>(c.seg||'local')===sk);if(!ls.length)return;let sM=0,sF=0;
+    if(_multiSeg)rows+='<tr class="'+SEGCLR[sk]+'"><td colspan="6">'+slbl+'</td></tr>';
     ls.forEach(function(c){const hasInc=c.inc!==null&&c.inc!==undefined,clOk=hasInc&&c.inc<3,fl=(c.precio||c.gasto)||0;sM+=c.monto||0;sF+=fl;
-      rows+='<tr><td class="crt-name">'+esc(c.trDesc||c.nombre||'—')+(c.rep||c.zona?'<div class="crt-sub2">'+[c.rep?esc(c.rep):'',c.zona?esc(c.zona):''].filter(Boolean).join(' · ')+'</div>':'')+'</td><td class="crt-num">'+fmtGs(c.monto||0)+'</td><td class="crt-num">'+(fl?fmtGs(fl):'—')+'</td><td class="crt-inc '+(hasInc?(clOk?'ok':'over'):'')+'">'+(hasInc?c.inc.toFixed(2)+'%':'—')+'</td></tr>';});
-    if(_multiSeg)rows+='<tr class="crt-sub"><td>Subtotal '+slbl+'</td><td class="crt-num">'+fmtGs(sM)+'</td><td class="crt-num">'+fmtGs(sF)+'</td><td></td></tr>';
+      const kmS=(sk==='interior'&&+c.km>0)?('<div class="crt-sub2">'+(+c.km)+' km × '+fmtGs(+c.precioKm||0)+'</div>'):'';
+      rows+='<tr><td class="crt-name">'+esc(c.trDesc||c.nombre||'—')+kmS+'</td><td class="crt-txt">'+(c.rep?esc(c.rep):'—')+'</td><td class="crt-txt">'+(c.zona?esc(c.zona):'—')+'</td><td class="crt-num">'+fmtGs(c.monto||0)+'</td><td class="crt-num">'+(fl?fmtGs(fl):'—')+'</td><td class="crt-inc '+(hasInc?(clOk?'ok':'over'):'')+'">'+(hasInc?c.inc.toFixed(2)+'%':'—')+'</td></tr>';});
+    if(_multiSeg)rows+='<tr class="crt-sub"><td colspan="3">Subtotal '+slbl+'</td><td class="crt-num">'+fmtGs(sM)+'</td><td class="crt-num">'+fmtGs(sF)+'</td><td></td></tr>';
   });
   return`<div class="cal-rep">
     <div class="cal-rep-hd">
@@ -3101,10 +3107,10 @@ function renderCalReparto(r){
     </div>
     <div class="cal-rep-table-wrap">
       <table class="cal-rep-table">
-        <thead><tr><th>Camión</th><th class="r">Monto</th><th class="r">Flete</th><th class="r">Incid.</th></tr></thead>
+        <thead><tr><th>Camión</th><th>Repartidor</th><th>Zona</th><th class="r">Monto</th><th class="r">Flete</th><th class="r">Incid.</th></tr></thead>
         <tbody>${rows}</tbody>
         <tfoot><tr class="crt-total">
-          <td>TOTAL</td>
+          <td colspan="3">TOTAL</td>
           <td class="crt-num">${fmtGs(r.totalMonto)}</td>
           <td class="crt-num">${fmtGs(r.totalFlete)}</td>
           <td class="crt-inc ${incOk?'ok':'over'}">${inc}</td>
@@ -3120,10 +3126,14 @@ function renderCalReparto(r){
 
 function closeCalModal(){
   const wrap=document.getElementById('calDayWrap');if(!wrap)return;
-  const g=window.gsap;
-  const done=()=>{wrap.style.display='none';document.getElementById('histCalWrap').style.display='flex';calSelectedDate=null;renderCalendar();};
-  if(g&&wrap.style.display!=='none'){g.killTweensOf(wrap);g.to(wrap,{opacity:0,y:10,duration:.18,ease:'power2.in',onComplete:done});}
-  else done();
+  const cal=document.getElementById('histCalWrap');const g=window.gsap;
+  calEditRepId=null;calWork=null;calSelectedDate=null;
+  // Estados de display SÍNCRONOS: nunca quedan ambos visibles
+  if(g)g.killTweensOf(wrap);
+  wrap.style.display='none';wrap.style.opacity='';wrap.style.transform='';
+  cal.style.display='flex';
+  renderCalendar();
+  if(g)g.fromTo(cal,{opacity:0,y:8},{opacity:1,y:0,duration:.28,ease:'power2.out',clearProps:'transform,opacity'});
 }
 
 // Click en día
