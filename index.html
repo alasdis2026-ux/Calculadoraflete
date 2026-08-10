@@ -4162,8 +4162,8 @@ function renderReporteRepartos(){
       .from('#rrepHost .rr-mnav',{opacity:0,x:-8,duration:.4,clearProps:'all'},.08)
       .from('#rrepHost .rr-chip',{opacity:0,y:-8,scale:.9,duration:.42,stagger:.04,ease:'back.out(1.7)',clearProps:'all'},.14)
       .from('#rrepHost .rr-search',{opacity:0,y:8,duration:.4,clearProps:'all'},.2)
-      .from('#rrepHost .rr-sf',{opacity:0,y:12,scale:.85,duration:.5,stagger:.06,ease:'back.out(1.9)',clearProps:'all'},.26)
-      .from('#rrepHost .rr-card',{opacity:0,y:36,scale:.9,duration:.72,stagger:.075,ease:'back.out(1.9)',clearProps:'all'},.38);
+      .from('#rrepHost .rr-sf',{opacity:0,y:12,scale:.85,duration:.5,stagger:.06,ease:'back.out(1.8)',clearProps:'all'},.28)
+      .from('#rrepHost .rr-card',{opacity:0,y:25,scale:.9,duration:.6,stagger:.07,ease:'back.out(1.8)',clearProps:'all'},.42);
   }
   if(_rrQ)_rrApplySearch();
 }
@@ -4179,7 +4179,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
   let work=[],firstDraw=true,_wuid=1,selUid=null,_ddEl=null,_ddCleanup=null,_ddBtn=null,_lastTotal=null;
   const SEGL=['local','interior','servicios','transportadora'];
   // Conteo animado (el total "sube" con pop) — estilo prototipo, con nuestra lógica
-  function countTo(el,from,to,delay){if(!el)return;const gs=window.gsap;if(!gs||reduce()||from===to){el.textContent=_gs(to);return;}delay=delay||0;const o={v:from};el.textContent=_gs(from);gs.to(o,{v:to,duration:.9,delay:delay,ease:'power2.out',onUpdate:()=>{el.textContent=_gs(Math.round(o.v));},onComplete:()=>{el.textContent=_gs(to);}});gs.fromTo(el,{scale:1.16},{scale:1,duration:.55,delay:delay,ease:'back.out(2)',clearProps:'transform'});}
+  function countTo(el,from,to,delay){if(!el)return;const gs=window.gsap;if(!gs||from===to){el.textContent=_gs(to);return;}delay=delay||0;const o={v:from};el.textContent=_gs(from);gs.to(o,{v:to,duration:.8,delay:delay,ease:'power2.out',onUpdate:()=>{el.textContent=_gs(Math.round(o.v));},onComplete:()=>{el.textContent=_gs(to);}});gs.fromTo(el,{scale:1.15,textShadow:'0 0 30px rgba(21,128,61,.55)'},{scale:1,textShadow:'0 0 0px rgba(21,128,61,0)',duration:.55,delay:delay,ease:'back.out(2)',clearProps:'transform,textShadow'});}
   const W=uid=>work.find(w=>w.uid===+uid);
   const num=v=>parseInt(String(v==null?'':v).replace(/[^\d]/g,''),10)||0;
   const fmt=n=>n?_nnum(n):'';
@@ -4193,7 +4193,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
   function buildWork(){work=g.lines.map(cl=>{const w={uid:_wuid++,ref:cl,repId:findRepId(cl),trId:cl.trId||null,trDesc:cl.trDesc||'',seg:cl.seg||'local',rep:cl.rep||'',zona:cl.zona||'',km:+cl.km||0,precioKm:+cl.precioKm||0,monto:+cl.monto||0,precio:(+cl.precio|| +cl.gasto||0),del:false,isNew:false,edit:false};ensureKm(w);return w;});}
   function addRow(seg){const tr=trucks[0]||null;const it={uid:_wuid++,ref:null,repId:targetRepId(),trId:tr?tr.id:null,trDesc:tr?tr.d:'',seg:seg||'local',rep:'',zona:'',km:0,precioKm:0,monto:0,precio:0,del:false,isNew:true,edit:true};ensureKm(it);work.unshift(it);selUid=it.uid;return it;}
   function openEdit(uid){const w=W(uid);if(!w)return;w.edit=true;selUid=w.uid;render('edit');}
-  function delItem(w){const card=bd.querySelector('.rre-card[data-uid="'+w.uid+'"], .rrv-row[data-edituid="'+w.uid+'"]'),gs=window.gsap;const apply=()=>{if(w.isNew){const idx=work.indexOf(w);if(idx>=0)work.splice(idx,1);}else w.del=true;if(selUid===w.uid)selUid=null;render('rows');};if(gs&&card&&!reduce())gs.to(card,{opacity:0,x:26,height:0,marginBottom:0,duration:.26,ease:'power2.in',onComplete:apply});else apply();}
+  function delItem(w){const card=bd.querySelector('.rre-card[data-uid="'+w.uid+'"], .rrv-row[data-edituid="'+w.uid+'"]'),gs=window.gsap;const apply=()=>{if(w.isNew){const idx=work.indexOf(w);if(idx>=0)work.splice(idx,1);}else w.del=true;if(selUid===w.uid)selUid=null;render('rows');};if(gs&&card)gs.to(card,{opacity:0,scale:.8,y:-20,duration:.3,ease:'power2.in',onComplete:apply});else apply();}
   function confirmDelete(w){const trLbl=w.trId?(((trucks.find(t=>t.id===w.trId)||{}).d)||w.trDesc||'este camión'):'este camión';
     const m=_cfModalOpen('<div class="cf-mbox cf-confirm-box"><div class="cf-confirm-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M10 11v6M14 11v6"/></svg></div><h3>¿Quitar el camión?</h3><p class="cf-msub"><b>'+_escp(trLbl)+'</b> se va a eliminar de la planilla.</p><div class="cf-mfoot cf-mfoot--center"><button class="cancel">Cancelar</button><button class="ok danger">Sí, eliminar</button></div></div>');
     const gs=window.gsap,ic=m.$('.cf-confirm-ic');if(gs&&ic&&!reduce()){gs.fromTo(ic,{scale:0,rotate:-14},{scale:1,rotate:0,duration:.5,ease:'back.out(2.2)',delay:.08});gs.fromTo(ic.querySelector('svg'),{y:-2},{y:1,duration:.45,yoyo:true,repeat:1,delay:.5,ease:'power1.inOut'});}
@@ -4309,8 +4309,8 @@ function _rrOpenDetail(g,periodLbl,wkObj){
       tl.from('.rrd-back',{opacity:0,x:-10,duration:.45,ease:'back.out(1.7)',clearProps:'all'},.08);
       if(actsEl.length)tl.from(actsEl,{opacity:0,y:-10,scale:.9,duration:.5,stagger:.06,ease:'back.out(1.8)',clearProps:'all'},.12);
       tl.from(bd.querySelectorAll('.rrm-kpi'),{opacity:0,y:-12,scale:.94,duration:.5,stagger:.08,ease:'back.out(1.7)',clearProps:'all'},.16);
-      tl.from(cols,{opacity:0,y:28,scale:.95,duration:.62,stagger:.12,ease:'back.out(1.7)',clearProps:'all'},.26);
-      tl.from(items,{opacity:0,y:30,scale:.9,duration:.66,stagger:.06,ease:'back.out(1.9)',clearProps:'all'},.42);
+      tl.from(cols,{opacity:0,y:20,scale:.96,duration:.55,stagger:.15,ease:'back.out(1.7)',clearProps:'all'},.3);
+      tl.from(items,{opacity:0,y:25,scale:.9,duration:.6,stagger:.07,ease:'back.out(1.8)',clearProps:'all'},.55);
       return;}
     if(anim==='add'||anim==='move'||anim==='edit'){
       const card=selCard();
@@ -4332,13 +4332,13 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     if(anim==='toggle'){
       const body=bd.querySelector('.rrm-body');
       gs.fromTo(body,{opacity:0,y:10},{opacity:1,y:0,duration:.36,ease:'power3.out',clearProps:'transform,opacity'});
-      gs.from(cols,{opacity:0,y:12,scale:.98,duration:.42,stagger:.06,ease:'back.out(1.6)',clearProps:'all'});
-      gs.from(items,{opacity:0,y:14,scale:.95,duration:.44,stagger:.035,delay:.08,ease:'back.out(1.8)',clearProps:'all'});
+      gs.from(cols,{opacity:0,y:14,scale:.97,duration:.5,stagger:.1,ease:'back.out(1.7)',clearProps:'all'});
+      gs.from(items,{opacity:0,y:25,scale:.9,duration:.5,stagger:.05,delay:.12,ease:'back.out(1.8)',clearProps:'all'});
       if(actsEl.length)gs.from(actsEl,{opacity:0,y:-6,scale:.94,duration:.36,stagger:.05,ease:'back.out(1.7)',clearProps:'all'});
       gs.fromTo(bd.querySelectorAll('.rrm-kpi'),{scale:.96},{scale:1,duration:.44,stagger:.05,ease:'back.out(2)',clearProps:'transform'});
       return;}
-    // default ('rows'): re-stagger tras borrar
-    gs.from(items,{opacity:0,y:12,scale:.96,duration:.42,stagger:.035,ease:'back.out(1.8)',clearProps:'all'});
+    // default ('rows'): re-stagger tras borrar (como el prototipo)
+    gs.from(items,{opacity:0,y:15,scale:.95,duration:.4,stagger:.04,ease:'back.out(1.8)',clearProps:'all'});
   }
   buildWork();
   render();
