@@ -3710,6 +3710,8 @@ function showSaveAnim(){
   .rre-fld{display:flex;flex-direction:column;gap:2px;min-width:0}
   .rre-fld>span{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-400,#94a3b8)}
   .rre-km2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .rre-meta2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+  .rre-fld--obs{margin-top:8px}
   .rre-flete-out{display:flex;align-items:baseline;justify-content:space-between;gap:8px;background:linear-gradient(180deg,#f5faff,#eef6fd);border:1px solid rgba(11,95,141,.16);border-radius:9px;padding:7px 11px}
   .rre-flete-out>span{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-400,#94a3b8)}
   .rre-flete-b{font-family:Sora,Inter,sans-serif;font-weight:800;font-size:15px;color:var(--primary);font-variant-numeric:tabular-nums;transform-origin:right center;display:inline-block}
@@ -4116,7 +4118,7 @@ function _rrGroups(weekDesde){
     const wk=(typeof isoWeekRange==='function'&&r.fechaISO)?isoWeekRange(r.fechaISO):null;
     if(weekDesde){if(!wk||wk.desde!==weekDesde)return;}
     else{if((r.fechaISO||'').slice(0,7)!==_rrMes)return;}
-    (r.clientes||[]).forEach(cl=>{if(_rrSeg!=='todos'&&(cl.seg||'local')!==_rrSeg)return;const ts=cl.tsNombre||'—';const g=groups[ts]||(groups[ts]={ts:ts,tsId:cl.tsId,lines:[],monto:0,flete:0,reps:[]});g.lines.push(cl);g.monto+=+cl.monto||0;g.flete+=+cl.precio||0;if(!g.reps.some(x=>x.id===r.id))g.reps.push({id:r.id,fecha:r.fecha,fechaISO:r.fechaISO});});
+    (r.clientes||[]).forEach(cl=>{if(_rrSeg!=='todos'&&(cl.seg||'local')!==_rrSeg)return;const ts=cl.tsNombre||'—';const g=groups[ts]||(groups[ts]={ts:ts,tsId:cl.tsId,lines:[],monto:0,flete:0,reps:[]});cl._fecha=r.fechaISO||r.fecha||null;g.lines.push(cl);g.monto+=+cl.monto||0;g.flete+=+cl.precio||0;if(!g.reps.some(x=>x.id===r.id))g.reps.push({id:r.id,fecha:r.fecha,fechaISO:r.fechaISO});});
   });
   return Object.values(groups).sort((a,b)=>b.flete-a.flete);
 }
@@ -4192,8 +4194,8 @@ function _rrOpenDetail(g,periodLbl,wkObj){
   function targetRepId(){let best=null;(g.reps||[]).forEach(rp=>{if(!best||(rp.fechaISO||'')>(best.fechaISO||''))best=rp;});return best?best.id:null;}
   // Interior se cobra por km × precio/km. Rellena precio/km del camión y reconstruye el km de líneas viejas.
   function ensureKm(w){if(w.seg!=='interior')return;if(!(w.precioKm>0)){const tr=trucks.find(t=>t.id===w.trId);if(tr&&(+tr.precio>0))w.precioKm=+tr.precio;}if(!(w.km>0)&&w.precioKm>0&&w.precio>0)w.km=Math.round(w.precio/w.precioKm);if(w.km>0&&w.precioKm>0)w.precio=Math.round(w.km*w.precioKm);}
-  function buildWork(){work=g.lines.map(cl=>{const w={uid:_wuid++,ref:cl,repId:findRepId(cl),trId:cl.trId||null,trDesc:cl.trDesc||'',seg:cl.seg||'local',rep:cl.rep||'',zona:cl.zona||'',km:+cl.km||0,precioKm:+cl.precioKm||0,monto:+cl.monto||0,precio:(+cl.precio|| +cl.gasto||0),del:false,isNew:false,edit:false};ensureKm(w);return w;});}
-  function addRow(seg){const tr=trucks[0]||null;const it={uid:_wuid++,ref:null,repId:targetRepId(),trId:tr?tr.id:null,trDesc:tr?tr.d:'',seg:seg||'local',rep:'',zona:'',km:0,precioKm:0,monto:0,precio:0,del:false,isNew:true,edit:true};ensureKm(it);work.unshift(it);selUid=it.uid;return it;}
+  function buildWork(){work=g.lines.map(cl=>{const w={uid:_wuid++,ref:cl,repId:findRepId(cl),trId:cl.trId||null,trDesc:cl.trDesc||'',seg:cl.seg||'local',rep:cl.rep||'',zona:cl.zona||'',obs:cl.obs||'',km:+cl.km||0,precioKm:+cl.precioKm||0,monto:+cl.monto||0,precio:(+cl.precio|| +cl.gasto||0),del:false,isNew:false,edit:false};ensureKm(w);return w;});}
+  function addRow(seg){const tr=trucks[0]||null;const it={uid:_wuid++,ref:null,repId:targetRepId(),trId:tr?tr.id:null,trDesc:tr?tr.d:'',seg:seg||'local',rep:'',zona:'',obs:'',km:0,precioKm:0,monto:0,precio:0,del:false,isNew:true,edit:true};ensureKm(it);work.unshift(it);selUid=it.uid;return it;}
   function openEdit(uid){const w=W(uid);if(!w)return;w.edit=true;selUid=w.uid;render('edit');}
   function delItem(w){const card=bd.querySelector('.rre-card[data-uid="'+w.uid+'"], .rrv-row[data-edituid="'+w.uid+'"]'),gs=window.gsap;const apply=()=>{if(w.isNew){const idx=work.indexOf(w);if(idx>=0)work.splice(idx,1);}else w.del=true;if(selUid===w.uid)selUid=null;render('rows');};if(gs&&card)gs.to(card,{opacity:0,scale:.8,y:-20,duration:.3,ease:'power2.in',onComplete:apply});else apply();}
   function confirmDelete(w){const trLbl=w.trId?(((trucks.find(t=>t.id===w.trId)||{}).d)||w.trDesc||'este camión'):'este camión';
@@ -4204,12 +4206,17 @@ function _rrOpenDetail(g,periodLbl,wkObj){
   const isEditing=()=>work.some(w=>w.edit||w.isNew||w.del);
   function totals(){const arr=work.filter(w=>!w.del);const m=arr.reduce((s,x)=>s+(+x.monto||0),0),f=arr.reduce((s,x)=>s+(+x.precio||0),0);return{m,f,inc:m>0?f/m*100:null};}
   // Fila de lectura (con botón para editar solo esa)
-  function rowHTML(w,idx){const fl=+w.precio||0;const kmStr=(w.seg==='interior'&&+w.km>0)?((+w.km)+' km × '+_gs(+w.precioKm||0)):'';const sub=[w.rep?_escp(w.rep):'',w.zona?_escp(w.zona):'',kmStr].filter(Boolean).join(' · ');const trLbl=w.trId?(((trucks.find(t=>t.id===w.trId)||{}).d)||w.trDesc||'—'):'—';return '<div class="rrv-row" data-edituid="'+w.uid+'"><span class="rrv-i">'+(idx+1)+'</span><span class="rrv-tk">'+TRUCKICON+'</span><div class="rrv-nm"><div class="rrv-name" title="'+_escp(trLbl)+'">'+_escp(trLbl)+'</div>'+(sub?'<div class="rrv-sub">'+sub+'</div>':'')+'</div><div class="rrv-flete">'+_gs(fl)+'</div><button type="button" class="rrv-del" data-deluid="'+w.uid+'" title="Quitar camión" aria-label="Quitar camión"><svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M10 11v6M14 11v6"/></svg></button></div>';}
+  function rowHTML(w,idx){const fl=+w.precio||0;const kmStr=(w.seg==='interior'&&+w.km>0)?((+w.km)+' km × '+_gs(+w.precioKm||0)):'';const sub=[w.rep?_escp(w.rep):'',w.zona?_escp(w.zona):'',kmStr,(w.seg==='servicios'&&w.obs)?('“'+_escp(w.obs)+'”'):''].filter(Boolean).join(' · ');const trLbl=w.trId?(((trucks.find(t=>t.id===w.trId)||{}).d)||w.trDesc||'—'):'—';return '<div class="rrv-row" data-edituid="'+w.uid+'"><span class="rrv-i">'+(idx+1)+'</span><span class="rrv-tk">'+TRUCKICON+'</span><div class="rrv-nm"><div class="rrv-name" title="'+_escp(trLbl)+'">'+_escp(trLbl)+'</div>'+(sub?'<div class="rrv-sub">'+sub+'</div>':'')+'</div><div class="rrv-flete">'+_gs(fl)+'</div><button type="button" class="rrv-del" data-deluid="'+w.uid+'" title="Quitar camión" aria-label="Quitar camión"><svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M10 11v6M14 11v6"/></svg></button></div>';}
   // Tarjeta-formulario (solo para la línea en edición)
   function formHTML(w,idx){const isInt=w.seg==='interior';const trLbl=w.trId?(((trucks.find(t=>t.id===w.trId)||{}).d)||w.trDesc||'—'):'';const body=isInt
       ?'<div class="rre-km2"><label class="rre-fld"><span>Km</span><input class="rre-in rre-km" data-uid="'+w.uid+'" inputmode="numeric" placeholder="0" value="'+(w.km||'')+'"></label><label class="rre-fld"><span>Precio/km</span><input class="rre-in rre-pkm" data-uid="'+w.uid+'" inputmode="numeric" placeholder="0" value="'+fmt(w.precioKm)+'"></label></div><div class="rre-flete-out"><span>Flete</span><b class="rre-flete-b" data-uid="'+w.uid+'">'+_gs(w.precio||0)+'</b></div>'
       :'<label class="rre-fld"><span>Flete</span><input class="rre-in rre-precio" data-uid="'+w.uid+'" inputmode="numeric" placeholder="0" value="'+fmt(w.precio)+'"></label>';
-    return '<div class="rre-card rre-card--sel" data-uid="'+w.uid+'"><div class="rre-card-top"><span class="rre-i">'+(idx+1)+'</span><button type="button" class="rre-trbtn'+(w.trId?' set':'')+'" data-uid="'+w.uid+'"><span class="rre-trbtn__ic">'+TRUCKICON+'</span><span class="rre-trbtn__t'+(w.trId?'':' ph')+'">'+(w.trId?_escp(trLbl):'— Elegir camión —')+'</span><svg class="rre-trbtn__arr" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>'+(w.isNew?'':'<button type="button" class="rre-del" data-uid="'+w.uid+'" title="Quitar camión" aria-label="Quitar camión"><svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg></button>')+'<button type="button" class="rre-close" data-uid="'+w.uid+'" title="Cerrar edición" aria-label="Cerrar edición">&times;</button></div>'+body+'<div class="rre-segctl" data-uid="'+w.uid+'">'+SEGL.map(s=>'<button type="button" class="rre-segbtn rre-segbtn--'+s+(w.seg===s?' on':'')+'" data-uid="'+w.uid+'" data-seg="'+s+'">'+SEGN[s]+'</button>').join('')+'</div></div>';}
+    const metaFlds='<div class="rre-meta2">'+
+        '<label class="rre-fld"><span>Repartidor</span><input class="rre-in rre-rep" data-uid="'+w.uid+'" placeholder="—" value="'+_escp(w.rep||'')+'"></label>'+
+        '<label class="rre-fld"><span>Zona</span><input class="rre-in rre-zona" data-uid="'+w.uid+'" placeholder="—" value="'+_escp(w.zona||'')+'"></label>'+
+      '</div>'+
+      (w.seg==='servicios'?'<label class="rre-fld rre-fld--obs"><span>Observaciones</span><input class="rre-in rre-obs" data-uid="'+w.uid+'" placeholder="¿En qué servicio usamos este camión?" value="'+_escp(w.obs||'')+'"></label>':'');
+    return '<div class="rre-card rre-card--sel" data-uid="'+w.uid+'"><div class="rre-card-top"><span class="rre-i">'+(idx+1)+'</span><button type="button" class="rre-trbtn'+(w.trId?' set':'')+'" data-uid="'+w.uid+'"><span class="rre-trbtn__ic">'+TRUCKICON+'</span><span class="rre-trbtn__t'+(w.trId?'':' ph')+'">'+(w.trId?_escp(trLbl):'— Elegir camión —')+'</span><svg class="rre-trbtn__arr" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>'+(w.isNew?'':'<button type="button" class="rre-del" data-uid="'+w.uid+'" title="Quitar camión" aria-label="Quitar camión"><svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg></button>')+'<button type="button" class="rre-close" data-uid="'+w.uid+'" title="Cerrar edición" aria-label="Cerrar edición">&times;</button></div>'+body+metaFlds+'<div class="rre-segctl" data-uid="'+w.uid+'">'+SEGL.map(s=>'<button type="button" class="rre-segbtn rre-segbtn--'+s+(w.seg===s?' on':'')+'" data-uid="'+w.uid+'" data-seg="'+s+'">'+SEGN[s]+'</button>').join('')+'</div></div>';}
   function boardBody(){const cols=SEGL.map(function(sk){const items=work.filter(w=>!w.del&&w.seg===sk);let sF=0;items.forEach(w=>sF+=(+w.precio||0));const inner=items.map(function(w,idx){return (w.edit||w.isNew)?formHTML(w,idx):rowHTML(w,idx);}).join('')||'<div class="rre-col-empty">Sin camiones</div>';return '<div class="rre-col rre-col--'+sk+'"><div class="rre-col-hd"><span class="rre-col-dot"></span>'+SEGN[sk]+'<span class="rre-col-n">'+items.length+'</span><div class="rre-col-hdacts"><button class="rre-vadd" data-seg="'+sk+'" type="button"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg> Añadir</button></div></div><div class="rre-col-body">'+inner+'</div>'+(items.length?'<div class="rre-col-foot"><span class="rre-foot-n">'+items.length+' camión'+(items.length===1?'':'es')+'</span><span class="rre-foot-sub">Subtotal flete <b>'+_gs(sF)+'</b></span></div>':'')+'</div>';}).join('');return '<div class="rre-board">'+cols+'</div>';}
   function liveTotals(){const t=totals(),q=s=>bd.querySelector(s);const setPop=(el,v)=>{if(el&&el.textContent!==v){el.textContent=v;pop(el);}};setPop(q('.k-flete'),_gs(t.f));_lastTotal=t.f;const n=work.filter(w=>!w.del).length;const nc=q('.rrm-ncam');if(nc)nc.textContent=n;const kn=q('.k-ncam');if(kn)kn.textContent=n;}
   // Dropdown PRO de camión (portal fijo, con búsqueda y animación)
@@ -4237,8 +4244,8 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     work.filter(w=>w.del&&w.ref).forEach(w=>{const r=repartos.find(x=>x.id===w.repId);if(r){const idx=(r.clientes||[]).indexOf(w.ref);if(idx>=0)r.clientes.splice(idx,1);affected.add(r.id);}});
     rows.forEach(w=>{const tr=trucks.find(t=>t.id===w.trId);
       const km=w.seg==='interior'?(w.km||0):0,pkm=w.seg==='interior'?(w.precioKm||0):0;
-      if(w.isNew){const r=repartos.find(x=>x.id===w.repId);if(!r)return;if(!r.clientes)r.clientes=[];r.clientes.push({id:nextClienteId++,trId:w.trId,tsId:tsObj?tsObj.id:g.tsId,seg:w.seg,rep:null,zona:null,km:km,precioKm:pkm,monto:w.monto,precio:w.precio,gasto:w.precio,trDesc:tr?tr.d:w.trDesc,tsNombre:g.ts,pct:0,inc:(w.monto>0&&w.precio>0?w.precio/w.monto*100:null)});affected.add(r.id);}
-      else if(w.ref){w.ref.monto=w.monto;w.ref.precio=w.precio;w.ref.gasto=w.precio;w.ref.seg=w.seg;w.ref.km=km;w.ref.precioKm=pkm;if(w.trId){w.ref.trId=w.trId;w.ref.trDesc=tr?tr.d:w.ref.trDesc;w.ref.tsId=tsObj?tsObj.id:w.ref.tsId;}w.ref.inc=(w.monto>0&&w.precio>0?w.precio/w.monto*100:null);affected.add(w.repId);}});
+      if(w.isNew){const r=repartos.find(x=>x.id===w.repId);if(!r)return;if(!r.clientes)r.clientes=[];r.clientes.push({id:nextClienteId++,trId:w.trId,tsId:tsObj?tsObj.id:g.tsId,seg:w.seg,rep:(w.rep||'').trim()||null,zona:(w.zona||'').trim()||null,obs:(w.seg==='servicios'?(w.obs||'').trim():'')||null,km:km,precioKm:pkm,monto:w.monto,precio:w.precio,gasto:w.precio,trDesc:tr?tr.d:w.trDesc,tsNombre:g.ts,pct:0,inc:(w.monto>0&&w.precio>0?w.precio/w.monto*100:null)});affected.add(r.id);}
+      else if(w.ref){w.ref.monto=w.monto;w.ref.precio=w.precio;w.ref.gasto=w.precio;w.ref.seg=w.seg;w.ref.km=km;w.ref.precioKm=pkm;w.ref.rep=(w.rep||'').trim()||null;w.ref.zona=(w.zona||'').trim()||null;w.ref.obs=(w.seg==='servicios'?(w.obs||'').trim():'')||null;if(w.trId){w.ref.trId=w.trId;w.ref.trDesc=tr?tr.d:w.ref.trDesc;w.ref.tsId=tsObj?tsObj.id:w.ref.tsId;}w.ref.inc=(w.monto>0&&w.precio>0?w.precio/w.monto*100:null);affected.add(w.repId);}});
     const sv=bd.querySelector('.save');if(sv){sv.disabled=true;sv.classList.add('is-loading');sv.innerHTML='<span class="cf-spin"></span>Guardando…';}
     try{
       for(const id of affected){const r=repartos.find(x=>x.id===id);if(!r)continue;
@@ -4270,6 +4277,9 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     const upFlete=uid=>{const w=W(uid);if(!w)return;w.precio=Math.round((w.km||0)*(w.precioKm||0));const b=bd.querySelector('.rre-flete-b[data-uid="'+uid+'"]');if(b){b.textContent=_gs(w.precio||0);pop(b);}liveTotals();};
     bd.querySelectorAll('.rre-km').forEach(i=>{i.addEventListener('input',()=>{const w=W(i.dataset.uid);if(w){w.km=num(i.value);upFlete(i.dataset.uid);}});});
     bd.querySelectorAll('.rre-pkm').forEach(i=>{i.addEventListener('focus',()=>{const w=W(i.dataset.uid);i.value=w&&w.precioKm?String(w.precioKm):'';});i.addEventListener('input',()=>{const w=W(i.dataset.uid);if(w){w.precioKm=num(i.value);upFlete(i.dataset.uid);}});i.addEventListener('blur',()=>{const w=W(i.dataset.uid);if(w)i.value=fmt(w.precioKm);});});
+    bd.querySelectorAll('.rre-rep').forEach(i=>i.addEventListener('input',()=>{const w=W(i.dataset.uid);if(w)w.rep=i.value;}));
+    bd.querySelectorAll('.rre-zona').forEach(i=>i.addEventListener('input',()=>{const w=W(i.dataset.uid);if(w)w.zona=i.value;}));
+    bd.querySelectorAll('.rre-obs').forEach(i=>i.addEventListener('input',()=>{const w=W(i.dataset.uid);if(w)w.obs=i.value;}));
     bd.querySelectorAll('.rre-del').forEach(b=>b.addEventListener('click',()=>{const w=W(b.dataset.uid);if(w)confirmDelete(w);}));
     // × = cerrar/colapsar la edición (no borra); si es nuevo, cancela el alta
     bd.querySelectorAll('.rre-close').forEach(b=>b.addEventListener('click',()=>{const w=W(b.dataset.uid),card=b.closest('.rre-card'),gs=window.gsap;if(!w)return;const apply=()=>{if(w.isNew){const idx=work.indexOf(w);if(idx>=0)work.splice(idx,1);}else w.edit=false;if(selUid===w.uid)selUid=null;render('rows');};if(gs&&card&&!reduce())gs.to(card,{opacity:0,scale:.97,duration:.16,ease:'power2.in',onComplete:apply});else apply();}));
@@ -4324,7 +4334,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
         else gs.from(card,{scale:.9,duration:.7,ease:'back.out(1.7)',clearProps:'transform'});
         gs.fromTo(card,{boxShadow:'0 0 0 4px rgba(11,95,141,.32)'},{boxShadow:'0 0 0 3px rgba(11,95,141,.15),0 7px 18px rgba(11,95,141,.13)',duration:1.3,ease:'power2.out'});
         // desglose PRO: las partes internas entran en cascada (más pausado)
-        const inner=card.querySelectorAll('.rre-card-top, .rre-fld, .rre-km2, .rre-flete-out');
+        const inner=card.querySelectorAll('.rre-card-top, .rre-fld, .rre-km2, .rre-flete-out, .rre-meta2');
         if(inner.length)gs.from(inner,{opacity:0,y:12,duration:.5,stagger:.11,delay:.16,ease:'power3.out',clearProps:'all'});
         gs.from(card.querySelectorAll('.rre-segbtn'),{opacity:0,y:8,scale:.88,duration:.46,stagger:.06,delay:.42,ease:'back.out(1.8)',clearProps:'all'});
         try{card.scrollIntoView({block:'nearest',behavior:'smooth'});}catch(_){}
@@ -4380,15 +4390,18 @@ function _cfCheckBurst(label){
 function printPlanillaFlete(id){const r=(repartos||[]).find(x=>x.id===id);if(!r){showToast('Planilla no encontrada');return;}_cfPrint(r);}
 function _cfPrint(r){
   const lines=r.clientes||[];if(!lines.length){showToast('La planilla no tiene camiones');return;}
-  const f=(window.__cfFac||[]).find(x=>x.id===r.factura_id)||null;
+  const f=(window.__cfFac||[]).find(x=>x.id===r.factura_id)
+    ||(r.semanaDesde?(window.__cfFac||[]).find(x=>(x.transportadora_nombre||x.tsNombre||'')===(r.tsNombre||'')&&(x.semana_desde||x.semanaDesde||'')===r.semanaDesde):null)
+    ||null;
   const SEGP=[['local','LOCAL'],['interior','INTERIOR'],['servicios','SERVICIOS ADICIONALES'],['transportadora','TRANSPORTADORA']];
   let body='',totM=0,totF=0,totN=0;
   SEGP.forEach(([sk,slbl])=>{
     const g=lines.filter(c=>(c.seg||'local')===sk);if(!g.length)return;
     let sM=0,sF=0;
-    body+='<tr class="grp"><td colspan="3">REPARTO: '+slbl+'</td></tr>';
-    g.forEach(c=>{const fl=(c.precio||c.gasto)||0;sM+=c.monto||0;sF+=fl;body+='<tr><td>'+_escp(c.trDesc||'—')+'</td><td class="r">'+_gs(c.monto||0)+'</td><td class="r">'+_gs(fl)+'</td></tr>';});
-    body+='<tr class="sub"><td>SUBTOTAL '+slbl+'</td><td class="r">'+_gs(sM)+'</td><td class="r">'+_gs(sF)+'</td></tr>';
+    const ddc=iso=>iso?String(iso).slice(0,10).split('-').reverse().join('/'):'—';
+    body+='<tr class="grp"><td colspan="5">REPARTO: '+slbl+'</td></tr>';
+    g.forEach(c=>{const fl=(c.precio||c.gasto)||0;sM+=c.monto||0;sF+=fl;body+='<tr><td>'+ddc(c._fecha)+'</td><td>'+_escp(c.trDesc||'—')+((sk==='servicios'&&c.obs)?'<br><small style="color:#7a8699;font-size:9.5px">'+_escp(c.obs)+'</small>':'')+'</td><td>'+_escp(c.zona||'—')+'</td><td class="r">'+_gs(c.monto||0)+'</td><td class="r">'+_gs(fl)+'</td></tr>';});
+    body+='<tr class="sub"><td colspan="3">SUBTOTAL '+slbl+'</td><td class="r">'+_gs(sM)+'</td><td class="r">'+_gs(sF)+'</td></tr>';
     totM+=sM;totF+=sF;totN+=g.length;
   });
   const pid=r.id?('#'+String(r.id).padStart(4,'0')):'Semanal';
@@ -4427,8 +4440,8 @@ function _cfPrint(r){
     '<div class="rp-hd"><div class="rp-hd__l"><img class="rp-logo" src="'+logoUrl+'" alt="ALAS"><div><h1>Planilla de Reparto de Flete</h1></div></div>'+
     '<div class="co"><span class="co-lbl">Fecha de emisión</span><b>'+dd(typeof todayISO==='function'?todayISO():new Date().toISOString().slice(0,10))+'</b></div></div>'+
     '<div class="meta">'+meta('Planilla ID',pid)+meta('Semana',wk?dd(wk.desde)+' al '+dd(wk.hasta):'—')+meta('Transportadora',_escp(r.tsNombre||'—'))+meta('Factura Nº',f?_escp(f.nro||'—'):'—')+'</div>'+
-    '<div class="rp-tbl"><table><thead><tr><th>Camión</th><th class="r">Monto (Gs.)</th><th class="r">Flete (Gs.)</th></tr></thead><tbody>'+body+
-    '<tr class="total"><td>TOTAL GENERAL</td><td class="r">'+_gs(totM)+'</td><td class="r">'+_gs(totF)+'</td></tr>'+
+    '<div class="rp-tbl"><table><thead><tr><th>Fecha</th><th>Camión</th><th>Zona</th><th class="r">Monto (Gs.)</th><th class="r">Flete (Gs.)</th></tr></thead><tbody>'+body+
+    '<tr class="total"><td colspan="3">TOTAL GENERAL</td><td class="r">'+_gs(totM)+'</td><td class="r">'+_gs(totF)+'</td></tr>'+
     '</tbody></table></div>'+
     '<div class="foot"><div class="firmas"><div class="firma"><div class="ln"></div><span>JEFE DE DISTRIBUCIÓN</span></div><div class="firma"><div class="ln"></div><span>JEFE DE LOGÍSTICA</span></div></div>'+
     '<div class="resumen"><h3>Resumen</h3><div class="rr"><span>Camiones</span><b>'+totN+'</b></div><div class="rr"><span>Monto repartido</span><b>Gs. '+_nnum(totM)+'</b></div><div class="rr"><span>Flete total</span><b>Gs. '+_nnum(totF)+'</b></div>'+(f?'<div class="rr" style="border-top:1px solid #dde6ef;margin-top:5px;padding-top:6px"><span>Monto factura</span><b>Gs. '+_nnum(f.monto)+'</b></div>':'')+'</div></div>';
