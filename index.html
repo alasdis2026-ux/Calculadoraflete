@@ -4210,7 +4210,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
   const totalCam=()=>work.filter(w=>!w.del).reduce((s,w)=>s+camCount(w),0);
   function totals(){const arr=work.filter(w=>!w.del);const m=arr.reduce((s,x)=>s+(+x.monto||0),0),f=arr.reduce((s,x)=>s+(+x.precio||0),0);return{m,f,inc:m>0?f/m*100:null};}
   // Fila de lectura (con botón para editar solo esa)
-  function rowHTML(w,idx){const isTr=w.seg==='transportadora';const fl=+w.precio||0;const kmStr=(w.seg==='interior'&&+w.km>0)?((+w.km)+' km × '+_gs(+w.precioKm||0)):'';const sub=isTr?'Total transportadora':[w.rep?_escp(w.rep):'',w.zona?_escp(w.zona):'',kmStr,(w.seg==='servicios'&&w.obs)?('“'+_escp(w.obs)+'”'):''].filter(Boolean).join(' · ');const trLbl=isTr?((+w.cant||0)+' camión'+((+w.cant||0)===1?'':'es')):(w.trId?(((trucks.find(t=>t.id===w.trId)||{}).d)||w.trDesc||'—'):'—');return '<div class="rrv-row" data-edituid="'+w.uid+'"><span class="rrv-i">'+(idx+1)+'</span><span class="rrv-tk">'+TRUCKICON+'</span><div class="rrv-nm"><div class="rrv-name" title="'+_escp(trLbl)+'">'+_escp(trLbl)+'</div>'+(sub?'<div class="rrv-sub">'+sub+'</div>':'')+'</div><div class="rrv-flete">'+_gs(fl)+'</div><button type="button" class="rrv-del" data-deluid="'+w.uid+'" title="Quitar camión" aria-label="Quitar camión"><svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M10 11v6M14 11v6"/></svg></button></div>';}
+  function rowHTML(w,idx){const isTr=w.seg==='transportadora';const fl=+w.precio||0;const kmStr=(w.seg==='interior'&&+w.km>0)?((+w.km)+' km × '+_gs(+w.precioKm||0)):'';const sub=isTr?'Total transportadora':[w.zona?_escp(w.zona):'',kmStr,(w.seg==='servicios'&&w.obs)?('“'+_escp(w.obs)+'”'):''].filter(Boolean).join(' · ');const trLbl=isTr?((+w.cant||0)+' camión'+((+w.cant||0)===1?'':'es')):(w.trId?(((trucks.find(t=>t.id===w.trId)||{}).d)||w.trDesc||'—'):'—');return '<div class="rrv-row" data-edituid="'+w.uid+'"><span class="rrv-i">'+(idx+1)+'</span><span class="rrv-tk">'+TRUCKICON+'</span><div class="rrv-nm"><div class="rrv-name" title="'+_escp(trLbl)+'">'+_escp(trLbl)+'</div>'+(sub?'<div class="rrv-sub">'+sub+'</div>':'')+'</div><div class="rrv-flete">'+_gs(fl)+'</div><button type="button" class="rrv-del" data-deluid="'+w.uid+'" title="Quitar camión" aria-label="Quitar camión"><svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M10 11v6M14 11v6"/></svg></button></div>';}
   // Tarjeta-formulario (solo para la línea en edición)
   function formHTML(w,idx){const isInt=w.seg==='interior';const isTr=w.seg==='transportadora';const trLbl=w.trId?(((trucks.find(t=>t.id===w.trId)||{}).d)||w.trDesc||'—'):'';const body=isTr
       ?'<div class="rre-km2"><label class="rre-fld"><span>Cantidad de camiones</span><input class="rre-in rre-cant" data-uid="'+w.uid+'" inputmode="numeric" placeholder="0" value="'+(w.cant||'')+'"></label><label class="rre-fld"><span>Flete total</span><input class="rre-in rre-precio" data-uid="'+w.uid+'" inputmode="numeric" placeholder="0" value="'+fmt(w.precio)+'"></label></div>'
@@ -4413,8 +4413,10 @@ function _cfPrint(r){
     let sM=0,sF=0;
     const ddc=iso=>iso?String(iso).slice(0,10).split('-').reverse().join('/'):'—';
     body+='<tr class="grp"><td colspan="5">REPARTO: '+slbl+'</td></tr>';
-    g.forEach(c=>{const fl=(c.precio||c.gasto)||0;sM+=c.monto||0;sF+=fl;body+='<tr><td>'+ddc(c._fecha)+'</td><td>'+_escp(c.trDesc||'—')+((sk==='servicios'&&c.obs)?'<br><small style="color:#7a8699;font-size:9.5px">'+_escp(c.obs)+'</small>':'')+'</td><td>'+_escp(c.zona||'—')+'</td><td class="r">'+_gs(c.monto||0)+'</td><td class="r">'+_gs(fl)+'</td></tr>';});
-    body+='<tr class="sub"><td colspan="3">SUBTOTAL '+slbl+'</td><td class="r">'+_gs(sM)+'</td><td class="r">'+_gs(sF)+'</td></tr>';
+    g.forEach(c=>{const fl=(c.precio||c.gasto)||0;sM+=c.monto||0;sF+=fl;
+      const det=sk==='interior'?((+c.km>0)?(_escp(String(c.km))+' km × '+_gs(+c.precioKm||0)):'—'):sk==='servicios'?(c.obs?_escp(c.obs):'—'):'—';
+      body+='<tr><td>'+ddc(c._fecha)+'</td><td>'+_escp(c.trDesc||'—')+'</td><td>'+_escp(c.zona||'—')+'</td><td>'+det+'</td><td class="r">'+_gs(fl)+'</td></tr>';});
+    body+='<tr class="sub"><td colspan="4">SUBTOTAL '+slbl+'</td><td class="r">'+_gs(sF)+'</td></tr>';
     totM+=sM;totF+=sF;totN+=sk==='transportadora'?g.reduce((s,c)=>s+(+c.cant||1),0):g.length;
   });
   const pid=r.id?('#'+String(r.id).padStart(4,'0')):'Semanal';
@@ -4453,8 +4455,8 @@ function _cfPrint(r){
     '<div class="rp-hd"><div class="rp-hd__l"><img class="rp-logo" src="'+logoUrl+'" alt="ALAS"><div><h1>Planilla de Reparto de Flete</h1></div></div>'+
     '<div class="co"><span class="co-lbl">Fecha de emisión</span><b>'+dd(typeof todayISO==='function'?todayISO():new Date().toISOString().slice(0,10))+'</b></div></div>'+
     '<div class="meta">'+meta('Planilla ID',pid)+meta('Semana',wk?dd(wk.desde)+' al '+dd(wk.hasta):'—')+meta('Transportadora',_escp(r.tsNombre||'—'))+meta('Factura Nº',f?_escp(f.nro||'—'):'—')+'</div>'+
-    '<div class="rp-tbl"><table><thead><tr><th>Fecha</th><th>Camión</th><th>Zona</th><th class="r">Monto (Gs.)</th><th class="r">Flete (Gs.)</th></tr></thead><tbody>'+body+
-    '<tr class="total"><td colspan="3">TOTAL GENERAL</td><td class="r">'+_gs(totM)+'</td><td class="r">'+_gs(totF)+'</td></tr>'+
+    '<div class="rp-tbl"><table><thead><tr><th>Fecha</th><th>Camión</th><th>Zona</th><th>Detalle</th><th class="r">Flete (Gs.)</th></tr></thead><tbody>'+body+
+    '<tr class="total"><td colspan="4">TOTAL GENERAL</td><td class="r">'+_gs(totF)+'</td></tr>'+
     '</tbody></table></div>'+
     '<div class="foot"><div class="firmas"><div class="firma"><div class="ln"></div><span>JEFE DE DISTRIBUCIÓN</span></div><div class="firma"><div class="ln"></div><span>JEFE DE LOGÍSTICA</span></div></div>'+
     '<div class="resumen"><h3>Resumen</h3><div class="rr"><span>Camiones</span><b>'+totN+'</b></div><div class="rr"><span>Monto repartido</span><b>Gs. '+_nnum(totM)+'</b></div><div class="rr"><span>Flete total</span><b>Gs. '+_nnum(totF)+'</b></div>'+(f?'<div class="rr" style="border-top:1px solid #dde6ef;margin-top:5px;padding-top:6px"><span>Monto factura</span><b>Gs. '+_nnum(f.monto)+'</b></div>':'')+'</div></div>';
