@@ -1676,7 +1676,7 @@ function showView(v){
     if(on&&!was&&window.gsap){const ic=b.querySelector('svg,i');if(ic)gsap.fromTo(ic,{scale:.7},{scale:1,duration:.4,ease:'back.out(2.2)',clearProps:'transform'});}
   });
   // Entrada orquestada de la vista (patrón Control de Facturas): hijos directos en cascada
-  if(v!==_lastView&&window.gsap&&!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)){
+  if(v!==_lastView&&window.gsap&&!(false/*anim siempre on*/)){
     const st=document.getElementById('view'+v.charAt(0).toUpperCase()+v.slice(1));
     if(st){const kids=Array.from(st.children).slice(0,8);if(kids.length){gsap.killTweensOf(kids);gsap.from(kids,{opacity:0,y:14,duration:.4,stagger:.05,ease:'power3.out',clearProps:'all'});}}
   }
@@ -3026,7 +3026,7 @@ function openCalModal(iso,list){
 
   // Animación GSAP de entrada
   const box=document.querySelector('.cal-modal-box');
-  const g=window.gsap, reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const g=window.gsap, reduce=false/*anim siempre on*/;
   if(g&&box&&!reduce){
     g.killTweensOf(box);
     g.fromTo('#calModalBd',{opacity:0},{opacity:1,duration:.3,ease:'power2.out'});
@@ -3084,7 +3084,7 @@ function renderCalReparto(r){
 
 function closeCalModal(){
   const bd=document.getElementById('calModalBd'), box=bd.querySelector('.cal-modal-box');
-  const g=window.gsap, reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const g=window.gsap, reduce=false/*anim siempre on*/;
   if(g&&box&&!reduce){
     g.killTweensOf(box);
     g.to(box,{y:16,scale:.97,opacity:0,duration:.18,ease:'power2.in'});
@@ -3912,13 +3912,13 @@ function _cfModalOpen(html){
   const close=()=>{const g=window.gsap;if(g&&box){g.to(box,{y:16,scale:.97,opacity:0,duration:.18,ease:'power2.in'});g.to(bd,{opacity:0,duration:.22,ease:'power2.in',onComplete:()=>bd.remove()});}else bd.remove();};
   bd.addEventListener('click',e=>{if(e.target===bd)close();});
   document.addEventListener('keydown',function esc(ev){if(ev.key==='Escape'){close();document.removeEventListener('keydown',esc);}});
-  const g=window.gsap,reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const g=window.gsap,reduce=false/*anim siempre on*/;
   if(g&&box&&!reduce){g.fromTo(bd,{opacity:0},{opacity:1,duration:.24,ease:'power2.out'});g.fromTo(box,{y:26,scale:.95,opacity:0},{y:0,scale:1,opacity:1,duration:.44,ease:'back.out(1.5)',clearProps:'transform,opacity'});}
   return {bd,box,close,$:s=>bd.querySelector(s)};
 }
 // Apertura/cierre con GSAP para los modales fijos (.modal-bd + .modal-box): cliente, transportista, camión, camión nuevo
-function _mbShow(el){if(!el)return;el.classList.add('is-open');const box=el.querySelector('.modal-box'),g=window.gsap,reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;if(g&&box&&!reduce){g.killTweensOf(box);g.fromTo(box,{y:26,scale:.95,opacity:0},{y:0,scale:1,opacity:1,duration:.42,ease:'back.out(1.6)',clearProps:'transform,opacity'});}}
-function _mbHide(el){if(!el||!el.classList.contains('is-open'))return;const box=el.querySelector('.modal-box'),g=window.gsap,reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;if(g&&box&&!reduce){g.killTweensOf(box);g.to(box,{y:16,scale:.97,opacity:0,duration:.2,ease:'power2.in',onComplete:()=>{el.classList.remove('is-open');g.set(box,{clearProps:'all'});}});}else el.classList.remove('is-open');}
+function _mbShow(el){if(!el)return;el.classList.add('is-open');const box=el.querySelector('.modal-box'),g=window.gsap,reduce=false/*anim siempre on*/;if(g&&box&&!reduce){g.killTweensOf(box);g.fromTo(box,{y:26,scale:.95,opacity:0},{y:0,scale:1,opacity:1,duration:.42,ease:'back.out(1.6)',clearProps:'transform,opacity'});}}
+function _mbHide(el){if(!el||!el.classList.contains('is-open'))return;const box=el.querySelector('.modal-box'),g=window.gsap,reduce=false/*anim siempre on*/;if(g&&box&&!reduce){g.killTweensOf(box);g.to(box,{y:16,scale:.97,opacity:0,duration:.2,ease:'power2.in',onComplete:()=>{el.classList.remove('is-open');g.set(box,{clearProps:'all'});}});}else el.classList.remove('is-open');}
 function _cfSetErr(fld,msg){if(!fld)return;fld.classList.remove('is-ok');fld.classList.add('is-err');const e=fld.querySelector('.cf-fld__err');if(e)e.textContent=msg;}
 function _cfSetOk(fld){if(!fld)return;fld.classList.remove('is-err');fld.classList.add('is-ok');const e=fld.querySelector('.cf-fld__err');if(e)e.textContent='';}
 function _cfClearVal(fld){if(!fld)return;fld.classList.remove('is-err','is-ok');const e=fld.querySelector('.cf-fld__err');if(e)e.textContent='';}
@@ -4155,7 +4155,7 @@ function renderReporteRepartos(){
   const _si=host.querySelector('.rr-search input'),_sc=host.querySelector('.rr-search__clear');
   if(_si){_si.addEventListener('input',()=>{_rrQ=_si.value;if(_sc)_sc.classList.toggle('show',!!_rrQ);_rrApplySearch();});}
   if(_sc){_sc.addEventListener('click',()=>{_rrQ='';if(_si){_si.value='';_si.focus();}_sc.classList.remove('show');_rrApplySearch();});}
-  if(window.gsap&&!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)){
+  if(window.gsap){
     const tl=gsap.timeline({defaults:{ease:'power2.out'}});
     tl.from('#rrepHost .cf-hd',{opacity:0,y:-18,duration:.6,ease:'back.out(1.6)',clearProps:'all'},0)
       .from('#rrepHost .rr-mnav',{opacity:0,x:-8,duration:.4,clearProps:'all'},.08)
@@ -4182,7 +4182,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
   const W=uid=>work.find(w=>w.uid===+uid);
   const num=v=>parseInt(String(v==null?'':v).replace(/[^\d]/g,''),10)||0;
   const fmt=n=>n?_nnum(n):'';
-  const reduce=()=>!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const reduce=()=>false;// animaciones siempre activas (pedido explícito): ignora prefers-reduced-motion
   const pop=el=>{const gs=window.gsap;if(gs&&el&&!reduce())gs.fromTo(el,{scale:1.14},{scale:1,duration:.34,ease:'back.out(2.2)',clearProps:'transform'});};
   // Ubica el reparto padre de una línea (g.lines son referencias vivas)
   function findRepId(cl){for(const rp of (g.reps||[])){const r=repartos.find(x=>x.id===rp.id);if(r&&(r.clientes||[]).indexOf(cl)>=0)return r.id;}return (g.reps&&g.reps[0])?g.reps[0].id:null;}
@@ -4345,7 +4345,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
 // Check azul animado al centro cuando algo se guarda con éxito
 function _cfCheckBurst(label){
   label=(label==null?'Registrado':label);
-  const reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const reduce=false/*anim siempre on*/;
   const ov=document.createElement('div');ov.className='cf-check-ov';
   ov.innerHTML='<div class="cf-check-wrap"><div class="cf-check"><svg viewBox="0 0 52 52"><circle class="cf-check__c" cx="26" cy="26" r="24"/><path class="cf-check__k" d="M15 26.5l7.5 7.5L37 18"/></svg></div><div class="cf-check-lbl">'+_escp(label)+'</div></div>';
   document.body.appendChild(ov);
@@ -4364,7 +4364,7 @@ function _cfCheckBurst(label){
 }
 /* ── Micro-interacción PRO: "press" táctil con GSAP en botones y tarjetas ── */
 (function(){
-  var RM=function(){return window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;};
+  var RM=function(){return false/*anim siempre on*/;};
   var _pb=null;
   function down(e){var gs=window.gsap;if(!gs||RM())return;var t=e.target;if(!t||!t.closest)return;if(t.closest('input,textarea,select'))return;var b=t.closest('button, .rr-card');if(!b||b.disabled)return;_pb=b;gs.killTweensOf(b);gs.to(b,{scale:.955,duration:.1,ease:'power2.out'});}
   function up(){var gs=window.gsap;if(!gs||!_pb)return;var b=_pb;_pb=null;gs.to(b,{scale:1,duration:.36,ease:'back.out(2.6)',clearProps:'transform'});}
