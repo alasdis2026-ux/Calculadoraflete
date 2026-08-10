@@ -731,6 +731,10 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .hist-view-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
 .hist-view-btn:not(.active):hover{background:var(--gray-100);color:var(--primary)}
 /* ── Vista día inline (estilo Reporte de Repartos) ── */
+/* Exclusión mutua robusta: sólo una de las dos vistas visible a la vez */
+#viewHist #calDayWrap{display:none}
+#viewHist.is-dayview #histCalWrap{display:none}
+#viewHist.is-dayview #calDayWrap{display:flex}
 .cal-day-wrap{flex:1;min-height:0;display:flex;flex-direction:column;gap:14px;overflow-y:auto}
 .cal-day-topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:14px;background:#fff;padding:4px 0 12px;border-bottom:1px solid var(--gray-100)}
 .cal-day-ttl{display:flex;align-items:center;gap:12px;min-width:0}
@@ -1228,7 +1232,7 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
   </div>
 
   <!-- Vista del día (inline, estilo Reporte de Repartos) -->
-  <div id="calDayWrap" class="cal-day-wrap" style="display:none">
+  <div id="calDayWrap" class="cal-day-wrap">
     <div class="cal-day-topbar">
       <button class="rrd-back" id="calDayBack" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg> Volver</button>
       <div class="cal-day-ttl"><h2 id="calModalTitle"></h2><span class="cal-modal-badge" id="calModalBadge"></span></div>
@@ -2967,8 +2971,8 @@ function calDayRepartos(){return (typeof repByDate==='function'?(repByDate().get
 
 function openCalModal(iso){
   calDayIso=iso; calEditRepId=null; calWork=null;
-  document.getElementById('histCalWrap').style.display='none';
-  const wrap=document.getElementById('calDayWrap');wrap.style.display='flex';
+  document.getElementById('viewHist').classList.add('is-dayview');
+  const wrap=document.getElementById('calDayWrap');
   renderCalDay(false);
   const g=window.gsap;
   if(g){
@@ -3125,15 +3129,12 @@ function renderCalReparto(r){
 }
 
 function closeCalModal(){
-  const wrap=document.getElementById('calDayWrap');if(!wrap)return;
+  const sec=document.getElementById('viewHist');if(!sec)return;
   const cal=document.getElementById('histCalWrap');const g=window.gsap;
   calEditRepId=null;calWork=null;calSelectedDate=null;
-  // Estados de display SÍNCRONOS: nunca quedan ambos visibles
-  if(g)g.killTweensOf(wrap);
-  wrap.style.display='none';wrap.style.opacity='';wrap.style.transform='';
-  cal.style.display='flex';
+  sec.classList.remove('is-dayview'); // exclusión mutua vía clase → nunca quedan ambos visibles
   renderCalendar();
-  if(g)g.fromTo(cal,{opacity:0,y:8},{opacity:1,y:0,duration:.28,ease:'power2.out',clearProps:'transform,opacity'});
+  if(g&&cal)g.fromTo(cal,{opacity:0,y:8},{opacity:1,y:0,duration:.28,ease:'power2.out',clearProps:'transform,opacity'});
 }
 
 // Click en día
@@ -3221,9 +3222,8 @@ document.getElementById('calTodayBtn').addEventListener('click',()=>{
 // Vista única: calendario (la vista lista fue removida)
 function setHistView(){
   histViewMode='cal';
-  const dw=document.getElementById('calDayWrap');if(dw)dw.style.display='none';
-  document.getElementById('histCalWrap').style.display='flex';
-  calSelectedDate=null;renderCalendar();
+  const sec=document.getElementById('viewHist');if(sec)sec.classList.remove('is-dayview');
+  calEditRepId=null;calWork=null;calSelectedDate=null;renderCalendar();
   document.getElementById('histCount').textContent=repartos.length+' total';
 }
 
