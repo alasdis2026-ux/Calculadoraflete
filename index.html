@@ -3794,8 +3794,13 @@ function showSaveAnim(){
   @media(max-width:900px){.rep2 .main-grid{grid-template-columns:1fr}.rep2 .channel-grid{grid-template-columns:1fr}}
   /* ── Estadísticas del gasto ── */
   .gstat{padding-bottom:24px}
-  .gstat-tsbar{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 12px;margin-bottom:6px;scrollbar-width:thin}
-  .gstat-tsbar::-webkit-scrollbar{height:6px}
+  .gstat-tswrap{margin-bottom:14px}
+  .gstat-tssearch{position:relative;margin-bottom:10px;max-width:340px}
+  .gstat-tssearch svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--gray-400);pointer-events:none}
+  .gstat-tssearch input{width:100%;border:1.5px solid var(--gray-200);border-radius:11px;padding:9px 12px 9px 36px;font:inherit;font-size:13px;font-weight:600;color:var(--gray-800);background:#fff;outline:none;transition:border-color .15s,box-shadow .15s}
+  .gstat-tssearch input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,120,184,.12)}
+  .gstat-tsbar{display:flex;flex-wrap:wrap;gap:8px;max-height:90px;overflow-y:auto;padding:2px;scrollbar-width:thin}
+  .gstat-tsbar::-webkit-scrollbar{width:6px}
   .gstat-tsbar::-webkit-scrollbar-thumb{background:var(--gray-200);border-radius:99px}
   .gstat-tschip{flex-shrink:0;border:1.5px solid var(--gray-200);background:#fff;border-radius:999px;padding:8px 15px;font:inherit;font-size:12.5px;font-weight:700;color:var(--gray-600);cursor:pointer;white-space:nowrap;transition:background .15s,border-color .15s,color .15s}
   .gstat-tschip:hover{border-color:var(--accent);color:var(--primary)}
@@ -4502,7 +4507,10 @@ function _cfOpenStats(){
   const host=document.getElementById('factHost');if(!host)return;
   const mk=_facMes,s=_gastoStats(mk,_cfStatsTs);
   const allTs=_gastoStats(mk,null).tsList; // todas las que tuvieron gasto este mes (para los botones)
-  const tsBtns='<div class="gstat-tsbar"><button class="gstat-tschip'+(!_cfStatsTs?' on':'')+'" data-tsf="" type="button">Todos</button>'+allTs.map(t=>'<button class="gstat-tschip'+(_cfStatsTs===t.id?' on':'')+'" data-tsf="'+t.id+'" type="button">'+esc(t.nombre)+'</button>').join('')+'</div>';
+  const tsBtns='<div class="gstat-tswrap">'+
+    '<div class="gstat-tssearch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input type="text" id="gstatTsSearch" placeholder="Buscar transportadora…" autocomplete="off"></div>'+
+    '<div class="gstat-tsbar" id="gstatTsBar"><button class="gstat-tschip'+(!_cfStatsTs?' on':'')+'" data-tsf="" data-nm="todos" type="button">Todos</button>'+allTs.map(t=>'<button class="gstat-tschip'+(_cfStatsTs===t.id?' on':'')+'" data-tsf="'+t.id+'" data-nm="'+esc((t.nombre||'').toLowerCase())+'" type="button">'+esc(t.nombre)+'</button>').join('')+'</div>'+
+  '</div>';
   const SEGN={local:'Local',interior:'Interior',servicios:'Servicios',transportadora:'Transportadora'},SEGC={local:'#0B5F8D',interior:'#F97316',servicios:'#10B981',transportadora:'#7c3aed'};
   const bars=(items,fmt)=>{const max=Math.max(1,...items.map(i=>i.value));return '<div class="gstat-bars">'+items.map(function(it){const pct=it.value>0?Math.max(3,it.value/max*100):0;return '<div class="gstat-bar" title="'+esc(it.label)+': '+esc(fmt(it.value))+'"><div class="gstat-bar__top"><span class="gstat-bar__lbl">'+(it.rank?'<span class="gstat-rank">'+it.rank+'</span>':'')+esc(it.label)+'</span><span class="gstat-bar__val">'+fmt(it.value)+'</span></div><div class="gstat-bar__track"><div class="gstat-bar__fill" style="width:'+pct.toFixed(1)+'%;background:'+(it.color||'var(--primary)')+'"></div></div>'+(it.sub?'<div class="gstat-bar__sub">'+esc(it.sub)+'</div>':'')+'</div>';}).join('')+'</div>';};
   const _gsShort=n=>{n=Math.round(n||0);const neg=n<0?'-':'';n=Math.abs(n);if(n>=1e9)return neg+(n/1e9).toFixed(1).replace('.',',')+' MM';if(n>=1e6)return neg+(n/1e6).toFixed(1).replace('.',',')+' M';if(n>=1e3)return neg+Math.round(n/1e3)+' K';return neg+n;};
@@ -4540,6 +4548,7 @@ function _cfOpenStats(){
   host.querySelectorAll('[data-statm]').forEach(b=>b.addEventListener('click',()=>{const a=_facMes.split('-').map(Number),d=new Date(a[0],a[1]-1+(+b.dataset.statm),1);_facMes=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');_cfOpenStats();}));
   const stt=host.querySelector('[data-stattoday]');if(stt)stt.addEventListener('click',()=>{const d=new Date();_facMes=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');_cfOpenStats();});
   host.querySelectorAll('[data-tsf]').forEach(b=>b.addEventListener('click',()=>{_cfStatsTs=b.dataset.tsf?+b.dataset.tsf:null;_cfOpenStats();}));
+  const tsSearch=document.getElementById('gstatTsSearch');if(tsSearch)tsSearch.addEventListener('input',()=>{const q=tsSearch.value.trim().toLowerCase();host.querySelectorAll('#gstatTsBar .gstat-tschip').forEach(b=>{const nm=b.dataset.nm||'';b.style.display=(!q||nm==='todos'||nm.indexOf(q)>=0)?'':'none';});});
   if(window.gsap){const g=window.gsap;
     g.from('#factHost .gstat-tschip',{opacity:0,y:-6,duration:.3,stagger:.015,ease:'power2.out',clearProps:'all'});
     g.from('#factHost .gstat-kpi',{opacity:0,y:12,duration:.4,stagger:.05,ease:'power3.out',clearProps:'all'});
