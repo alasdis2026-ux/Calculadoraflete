@@ -3830,19 +3830,28 @@ function showSaveAnim(){
   /* KPIs con la forma del "Meta mensual · avance" (gauge 150px + info, izquierda) */
   .gstat-hero{background:linear-gradient(135deg,#0B4F8A,#1466B0)!important;color:#fff;border:none!important;align-items:stretch;text-align:left;padding:20px 24px;justify-content:flex-start}
   .gstat-hero h3{color:rgba(255,255,255,.72)!important;letter-spacing:.7px;margin-bottom:8px}
-  .ghero-wrap{flex:1;display:flex;align-items:center;gap:26px;flex-wrap:wrap}
+  .ghero-top{display:flex;align-items:center;gap:26px;flex-wrap:wrap}
   .ghero-info{flex:1;min-width:170px}
-  .ghero-big{font-family:Sora,Inter,sans-serif;font-size:30px;font-weight:800;letter-spacing:-.5px;line-height:1.05;font-variant-numeric:tabular-nums}
-  .ghero-big .u{font-size:16px;font-weight:600;color:rgba(255,255,255,.7);margin-right:4px}
-  .ghero-big small{font-size:15px;font-weight:600;opacity:.82}
+  .ghero-big{font-family:Sora,Inter,sans-serif;font-size:34px;font-weight:800;letter-spacing:-.5px;line-height:1.05;font-variant-numeric:tabular-nums}
+  .ghero-big .u{font-size:17px;font-weight:600;color:rgba(255,255,255,.7);margin-right:4px}
+  .ghero-big small{font-size:16px;font-weight:600;opacity:.82}
+  .ghero-stats{display:flex;margin-top:16px;border-top:1px solid rgba(255,255,255,.2);padding-top:14px}
+  .ghero-st{flex:1;padding:0 20px;border-right:1px solid rgba(255,255,255,.2);min-width:0}
+  .ghero-st:first-child{padding-left:0}
+  .ghero-st:last-child{border-right:none}
+  .ghero-st b{display:block;font-family:Sora,Inter,sans-serif;font-size:19px;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ghero-st span{display:block;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:rgba(255,255,255,.72);margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .gstat-hero-row{display:flex;align-items:center;justify-content:flex-start;gap:9px;margin-top:9px;flex-wrap:wrap}
   .gstat-hero-sub{font-size:11.5px;color:rgba(255,255,255,.82);font-weight:600}
   .gchip{display:inline-flex;align-items:center;gap:3px;font-size:12.5px;font-weight:800;padding:4px 11px;border-radius:20px;white-space:nowrap}
   .gchip.up{background:#fff;color:#127a4b}
   .gchip.down{background:#fff;color:#C0392B}
   .gchip.flat{background:rgba(255,255,255,.2);color:#fff}
-  .ghd-chart{position:relative;width:172px;height:172px;flex-shrink:0}
-  .ghd-svg{width:172px;height:172px;display:block;filter:drop-shadow(0 4px 12px rgba(0,0,0,.24))}
+  .ghd-chart{position:relative;width:168px;height:168px;flex-shrink:0}
+  .ghd-svg{width:168px;height:168px;display:block;filter:drop-shadow(0 4px 12px rgba(0,0,0,.24))}
+  .ghd-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;color:#fff}
+  .ghd-center b{font-family:Sora,Inter,sans-serif;font-size:26px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
+  .ghd-center span{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;opacity:.72;margin-top:4px}
   .ghd-legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:14px}
   .ghd-leg{font-size:11.5px;font-weight:700;color:rgba(255,255,255,.9);display:inline-flex;align-items:center;gap:6px}
   .ghd-leg i{width:10px;height:10px;border-radius:3px;display:inline-block}
@@ -4565,15 +4574,17 @@ function _cfOpenStats(){
   const prevTotal=_gastoStats(_prevMk,_cfStatsTs).total,trend=prevTotal>0?((s.total-prevTotal)/prevTotal):null;
   const gchip=trend===null?'<span class="gchip flat">sin mes previo</span>':'<span class="gchip '+(trend>0?'up':(trend<0?'down':'flat'))+'">'+(trend>0?'▲ ':(trend<0?'▼ ':''))+_pct(Math.abs(trend))+'</span>';
   const camPct=Math.min(100,Math.round(s.camList.length/Math.max(1,allTs.reduce((a,t)=>a+t.cam,0))*100));
-  const heroDonut=items=>{const total=items.reduce((a,i)=>a+i.value,0)||1,C=2*Math.PI*46,gap=3;let cum=0;const arcs=items.map(it=>{const len=(it.value/total)*C,vis=Math.max(0,len-gap),c='<circle cx="60" cy="60" r="46" fill="none" stroke="'+it.lc+'" stroke-width="16" stroke-dasharray="'+vis.toFixed(2)+' '+(C-vis).toFixed(2)+'" stroke-dashoffset="'+(-cum).toFixed(2)+'"/>';cum+=len;return c;}).join('');return '<div class="ghd-chart"><svg viewBox="0 0 120 120" class="ghd-svg"><g transform="rotate(-90 60 60)">'+arcs+'</g></svg></div>';};
-  const heroGauge=pct=>{const C=2*Math.PI*46,vis=Math.max(0,Math.min(1,pct))*C;return '<div class="ghd-chart"><svg viewBox="0 0 120 120" class="ghd-svg"><g transform="rotate(-90 60 60)"><circle cx="60" cy="60" r="46" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="16"/><circle cx="60" cy="60" r="46" fill="none" stroke="#9FD3FF" stroke-width="16" stroke-linecap="round" stroke-dasharray="'+vis.toFixed(2)+' '+(C-vis).toFixed(2)+'"/></g></svg></div>';};
-  const legend=segItems.map(it=>'<span class="ghd-leg"><i style="background:'+it.lc+'"></i>'+esc(it.label)+' <b>'+_pct(it.value/(s.total||1))+'</b></span>').join('');
+  const heroDonut=(items,cb,cl)=>{const total=items.reduce((a,i)=>a+i.value,0)||1,C=2*Math.PI*46,gap=3;let cum=0;const arcs=items.map(it=>{const len=(it.value/total)*C,vis=Math.max(0,len-gap),c='<circle cx="60" cy="60" r="46" fill="none" stroke="'+it.lc+'" stroke-width="16" stroke-dasharray="'+vis.toFixed(2)+' '+(C-vis).toFixed(2)+'" stroke-dashoffset="'+(-cum).toFixed(2)+'"/>';cum+=len;return c;}).join('');return '<div class="ghd-chart"><svg viewBox="0 0 120 120" class="ghd-svg"><g transform="rotate(-90 60 60)">'+arcs+'</g></svg><div class="ghd-center"><b>'+cb+'</b><span>'+cl+'</span></div></div>';};
+  const heroGauge=(pct,cb,cl)=>{const C=2*Math.PI*46,vis=Math.max(0,Math.min(1,pct))*C;return '<div class="ghd-chart"><svg viewBox="0 0 120 120" class="ghd-svg"><g transform="rotate(-90 60 60)"><circle cx="60" cy="60" r="46" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="16"/><circle cx="60" cy="60" r="46" fill="none" stroke="#9FD3FF" stroke-width="16" stroke-linecap="round" stroke-dasharray="'+vis.toFixed(2)+' '+(C-vis).toFixed(2)+'"/></g></svg><div class="ghd-center"><b>'+cb+'</b><span>'+cl+'</span></div></div>';};
+  const st=(v,l)=>'<div class="ghero-st"><b>'+v+'</b><span>'+l+'</span></div>';
   const kpis='<div class="gstat-topgrid">'+
     '<div class="card gstat-hero"><h3>Gasto total del mes</h3>'+
-      '<div class="ghero-wrap">'+heroDonut(segItems)+'<div class="ghero-info"><div class="ghero-big"><span class="u">Gs.</span>'+_nnum(s.total)+'</div><div class="gstat-hero-row">'+gchip+'<span class="gstat-hero-sub">vs '+_mesLbl(_prevMk)+'</span></div><div class="ghd-legend">'+legend+'</div></div></div>'+
+      '<div class="ghero-top">'+heroDonut(segItems,_gsShort(s.total),'gasto')+'<div class="ghero-info"><div class="ghero-big"><span class="u">Gs.</span>'+_nnum(s.total)+'</div><div class="gstat-hero-row">'+gchip+'<span class="gstat-hero-sub">vs '+_mesLbl(_prevMk)+'</span></div></div></div>'+
+      '<div class="ghero-stats">'+segItems.map(it=>st(_gs(it.value),esc(it.label)+' · '+_pct(it.value/(s.total||1)))).join('')+'</div>'+
     '</div>'+
     '<div class="card gstat-hero"><h3>Camiones usados</h3>'+
-      '<div class="ghero-wrap">'+heroGauge(camPct/100)+'<div class="ghero-info"><div class="ghero-big">'+_nnum(s.camList.length)+'<small> usados</small></div><div class="gstat-hero-row"><span class="gchip flat">'+_nnum(s.tsList.length)+' transportadoras</span></div><div class="gstat-hero-sub" style="margin-top:9px">'+_nnum(s.intKm)+' km interior · '+camPct+'% de la flota</div></div></div>'+
+      '<div class="ghero-top">'+heroGauge(camPct/100,camPct+'%','flota')+'<div class="ghero-info"><div class="ghero-big">'+_nnum(s.camList.length)+'<small> usados</small></div><div class="gstat-hero-row"><span class="gchip flat">'+_nnum(s.tsList.length)+' transportadoras</span></div></div></div>'+
+      '<div class="ghero-stats">'+st(_nnum(s.tsList.length),'Transportadoras')+st(_nnum(s.intKm),'Km interior')+st(_nnum(s.camList.length),'Camiones usados')+'</div>'+
     '</div>'+
   '</div>';
   const nav='<div class="rr-mnav"><button data-statm="-1" aria-label="Mes anterior">‹</button><span>'+_mesLbl(mk)+'</span><button data-statm="1" aria-label="Mes siguiente">›</button><button class="rr-mnav__today" data-stattoday type="button">Hoy</button></div>';
