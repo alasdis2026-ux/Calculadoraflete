@@ -3145,16 +3145,19 @@ function renderCalReparto(r){
   // Agrupado por segmento (Local / Interior / Servicios) con subtotales
   const SEGORD=[['local','Local'],['interior','Interior'],['servicios','Servicios'],['transportadora','Transportadora']];
   const _multiSeg=[...new Set(cl.map(c=>c.seg||'local'))].length>1;
+  const showKm=cl.some(c=>(c.seg||'local')==='interior');
+  const nCols=showKm?8:7;
   const SEGCLR={local:'crt-grp',interior:'crt-grp crt-grp--interior',servicios:'crt-grp crt-grp--servicios',transportadora:'crt-grp crt-grp--transportadora'};
   let rows='';
-  SEGORD.forEach(function(pair){const sk=pair[0],slbl=pair[1];const ls=cl.filter(c=>(c.seg||'local')===sk);if(!ls.length)return;let sM=0,sF=0,sP=0;
-    if(_multiSeg)rows+='<tr class="'+SEGCLR[sk]+'"><td colspan="7">'+slbl+'</td></tr>';
-    ls.forEach(function(c){const hasInc=c.inc!==null&&c.inc!==undefined,clOk=hasInc&&c.inc<3,fl=(c.precio||c.gasto)||0;sM+=c.monto||0;sF+=fl;sP+=+c.peso||0;
-      const kmS=(sk==='interior'&&+c.km>0)?('<div class="crt-sub2">'+(+c.km)+' km × '+fmtGs(+c.precioKm||0)+'</div>'):'';
-      rows+='<tr><td class="crt-name">'+esc(c.trDesc||c.nombre||'—')+kmS+'</td><td class="crt-txt">'+(c.rep?esc(c.rep):'—')+'</td><td class="crt-txt">'+(c.zona?esc(c.zona):'—')+'</td><td class="crt-num">'+(+c.peso>0?_nnum(+c.peso):'—')+'</td><td class="crt-num">'+fmtGs(c.monto||0)+'</td><td class="crt-num">'+(fl?fmtGs(fl):'—')+'</td><td class="crt-inc '+(hasInc?(clOk?'ok':'over'):'')+'">'+(hasInc?c.inc.toFixed(2)+'%':'—')+'</td></tr>';});
-    if(_multiSeg)rows+='<tr class="crt-sub"><td colspan="3">Subtotal '+slbl+'</td><td class="crt-num">'+(sP>0?_nnum(sP):'—')+'</td><td class="crt-num">'+fmtGs(sM)+'</td><td class="crt-num">'+fmtGs(sF)+'</td><td></td></tr>';
+  SEGORD.forEach(function(pair){const sk=pair[0],slbl=pair[1];const ls=cl.filter(c=>(c.seg||'local')===sk);if(!ls.length)return;let sM=0,sF=0,sP=0,sK=0;
+    if(_multiSeg)rows+='<tr class="'+SEGCLR[sk]+'"><td colspan="'+nCols+'">'+slbl+'</td></tr>';
+    ls.forEach(function(c){const hasInc=c.inc!==null&&c.inc!==undefined,clOk=hasInc&&c.inc<3,fl=(c.precio||c.gasto)||0;sM+=c.monto||0;sF+=fl;sP+=+c.peso||0;sK+=(sk==='interior'?(+c.km||0):0);
+      const kmCell=showKm?'<td class="crt-num">'+(sk==='interior'&&+c.km>0?_nnum(+c.km):'—')+'</td>':'';
+      rows+='<tr><td class="crt-name">'+esc(c.trDesc||c.nombre||'—')+'</td><td class="crt-txt">'+(c.rep?esc(c.rep):'—')+'</td><td class="crt-txt">'+(c.zona?esc(c.zona):'—')+'</td>'+kmCell+'<td class="crt-num">'+(+c.peso>0?_nnum(+c.peso):'—')+'</td><td class="crt-num">'+fmtGs(c.monto||0)+'</td><td class="crt-num">'+(fl?fmtGs(fl):'—')+'</td><td class="crt-inc '+(hasInc?(clOk?'ok':'over'):'')+'">'+(hasInc?c.inc.toFixed(2)+'%':'—')+'</td></tr>';});
+    if(_multiSeg)rows+='<tr class="crt-sub"><td colspan="3">Subtotal '+slbl+'</td>'+(showKm?'<td class="crt-num">'+(sK>0?_nnum(sK):'—')+'</td>':'')+'<td class="crt-num">'+(sP>0?_nnum(sP):'—')+'</td><td class="crt-num">'+fmtGs(sM)+'</td><td class="crt-num">'+fmtGs(sF)+'</td><td></td></tr>';
   });
   const totPeso=cl.reduce((s,c)=>s+(+c.peso||0),0);
+  const totKm=cl.reduce((s,c)=>s+((c.seg||'local')==='interior'?(+c.km||0):0),0);
   return`<div class="cal-rep">
     <div class="cal-rep-hd">
       <div class="cal-rep-hd-left">
@@ -3169,10 +3172,11 @@ function renderCalReparto(r){
     </div>
     <div class="cal-rep-table-wrap">
       <table class="cal-rep-table">
-        <thead><tr><th>Camión</th><th>Repartidor</th><th>Zona</th><th class="r">Peso (kg)</th><th class="r">Monto</th><th class="r">Flete</th><th class="r">Incid.</th></tr></thead>
+        <thead><tr><th>Camión</th><th>Repartidor</th><th>Zona</th>${showKm?'<th class="r">Km</th>':''}<th class="r">Peso (kg)</th><th class="r">Monto</th><th class="r">Flete</th><th class="r">Incid.</th></tr></thead>
         <tbody>${rows}</tbody>
         <tfoot><tr class="crt-total">
           <td colspan="3">TOTAL</td>
+          ${showKm?'<td class="crt-num">'+(totKm>0?_nnum(totKm):'—')+'</td>':''}
           <td class="crt-num">${totPeso>0?_nnum(totPeso):'—'}</td>
           <td class="crt-num">${fmtGs(r.totalMonto)}</td>
           <td class="crt-num">${fmtGs(r.totalFlete)}</td>
