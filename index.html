@@ -4125,7 +4125,7 @@ function showSaveAnim(){
   .rrv-tk{display:inline-flex;width:15px;height:15px;color:var(--gray-400,#94a3b8)}
   .rrv-tk svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
   .rrv-nm{min-width:0}
-  .rrv-name{font-weight:700;font-size:13px;color:var(--gray-800,#1e293b);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rrv-name{font-weight:700;font-size:13px;color:var(--gray-800,#1e293b);line-height:1.25;white-space:normal;overflow-wrap:break-word}
   .rrv-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}
   .rrv-chip{display:inline-flex;align-items:center;gap:5px;max-width:100%;font-size:11px;font-weight:700;color:var(--gray-600,#475569);background:var(--gray-100,#f1f5f9);padding:3px 9px;border-radius:8px;line-height:1.25}
   .rrv-chip>span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -4198,6 +4198,7 @@ function showSaveAnim(){
   .rre-dd-opt.on{background:rgba(11,95,141,.09);color:var(--primary);font-weight:800}
   .rre-dd-chk{width:16px;height:16px;margin-left:auto;flex:0 0 auto;fill:none;stroke:var(--primary);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
   .rre-dd-empty{padding:16px;text-align:center;color:var(--gray-400,#94a3b8);font-size:12.5px}
+  @media(max-width:1200px){.rre-col{flex:1 1 46%}}
   @media(max-width:860px){.rre-board{flex-wrap:wrap}.rre-col{flex:1 1 100%}}
   .cf-mfoot .save[disabled]{pointer-events:none}
   /* Spinner PRO dentro del botón mientras guarda */
