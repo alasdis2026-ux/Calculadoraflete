@@ -3560,6 +3560,103 @@ function showSaveAnim(){
   .cf-btn{display:inline-flex;align-items:center;gap:7px;background:var(--primary);color:#fff;border:0;font:inherit;font-weight:700;font-size:13px;padding:9px 15px;border-radius:10px;cursor:pointer}
   .cf-btn svg{width:15px;height:15px}
   /* KPIs */
+  /* ════════ Reporte General (diseño mensual PRO) ════════ */
+  .rep2{--line:#E5E7EB;--soft-line:#F0F0F0;--muted:#6B7280;--text:#1A1A1A;--primary-dark:#08486A;--radius:14px;--fast:150ms cubic-bezier(.16,1,.3,1);--base:280ms cubic-bezier(.16,1,.3,1);color:var(--gray-700,#334155)}
+  .rep2 .rep2-hd{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+  .rep2 .rep2-hd h2{display:flex;align-items:center;gap:10px;font-family:Sora,Inter,sans-serif;font-size:20px;font-weight:800;color:var(--primary);margin:0}
+  .rep2 .rep2-hd h2 img{height:30px}
+  .rep2 .rep2-spacer{flex:1}
+  .rep2 .section-label{display:flex;align-items:center;gap:10px;margin:20px 0 12px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--accent,#3B82F6)}
+  .rep2 .section-label:after{content:"";flex:1;height:1px;background:linear-gradient(90deg,rgba(59,130,246,.25),transparent)}
+  /* Hero */
+  .rep2 .hero-bar{display:flex;flex-wrap:wrap;background:#fff;border-radius:var(--radius);box-shadow:0 1px 3px rgba(15,23,42,.06),0 10px 26px rgba(15,23,42,.06);border:1px solid var(--line);overflow:hidden}
+  .rep2 .hero-seg{flex:1 1 180px;padding:20px 26px;border-right:1px solid var(--soft-line);display:flex;flex-direction:column;justify-content:center}
+  .rep2 .hero-seg:last-child{border-right:none}
+  .rep2 .hero-seg .hl{font-size:11.5px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--muted)}
+  .rep2 .hv-row{display:flex;align-items:baseline;gap:6px;margin-top:10px;min-width:0}
+  .rep2 .hero-seg .hv{font-family:Sora,Inter,sans-serif;font-size:30px;font-weight:800;color:var(--text);line-height:1;letter-spacing:-.025em;font-variant-numeric:tabular-nums}
+  .rep2 .hero-seg .hu{font-size:13px;color:var(--muted);font-weight:700;flex-shrink:0}
+  .rep2 .hero-seg.ring{flex:1.6 1 340px;position:relative;overflow:hidden;background:radial-gradient(130% 140% at 12% 0%,#14739F 0%,var(--primary) 48%,var(--primary-dark) 100%);padding:16px 24px}
+  .rep2 .hero-seg.ring:before{content:"";position:absolute;right:-70px;top:-80px;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,.045);pointer-events:none}
+  .rep2 .hero-seg.ring .hl{color:rgba(255,255,255,.62);position:relative}
+  .rep2 .ring-body{display:flex;align-items:center;gap:24px;margin-top:8px;position:relative;flex-wrap:wrap}
+  .rep2 .ring-gauge{position:relative;width:200px;height:125px;flex-shrink:0}
+  .rep2 .ring-gauge svg{display:block;width:200px;height:125px}
+  .rep2 .g-track{stroke:rgba(255,255,255,.15)}
+  .rep2 .g-arc{filter:drop-shadow(0 2px 5px rgba(2,32,54,.35))}
+  .rep2 .ring-value{position:absolute;left:0;right:0;top:60px;text-align:center;font-family:Sora,Inter,sans-serif;font-size:28px;font-weight:800;color:#fff;line-height:1;letter-spacing:-.035em;font-variant-numeric:tabular-nums}
+  .rep2 .ring-value i{font-size:15px;font-style:normal;font-weight:800;color:rgba(255,255,255,.62);margin-left:2px}
+  .rep2 .ring-sub{position:absolute;left:0;right:0;top:96px;text-align:center;font-size:8.5px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:rgba(255,255,255,.42)}
+  .rep2 .ring-foot{display:flex;flex-direction:column;justify-content:center;gap:11px;min-width:0;flex:1}
+  .rep2 .rf-item{display:flex;flex-direction:column;gap:3px;min-width:0;padding:10px 14px;border-radius:11px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.09)}
+  .rep2 .rf-item.is-key{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.2)}
+  .rep2 .rf-l{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;color:rgba(255,255,255,.55)}
+  .rep2 .rf-v{font-size:16px;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
+  /* Grid principal */
+  .rep2 .main-grid{display:grid;grid-template-columns:1.65fr 1fr;gap:20px;align-items:start;margin-top:4px}
+  .rep2 .main-col-left,.rep2 .main-col-right{min-width:0}
+  .rep2 .main-col-right{display:flex;flex-direction:column}
+  .rep2 .main-col-right .panel{margin-bottom:16px}
+  .rep2 .main-col-right .panel:last-child{margin-bottom:0}
+  .rep2 .panel{background:#fff;border-radius:var(--radius);border:1px solid var(--line);box-shadow:0 1px 3px rgba(15,23,42,.04);overflow:hidden}
+  .rep2 .panel-title{display:flex;align-items:center;justify-content:space-between;padding:13px 20px;border-bottom:1px solid var(--soft-line)}
+  .rep2 .panel-title h3{margin:0;font-size:13.5px;font-weight:800;color:var(--text)}
+  /* Tarjetas por canal */
+  .rep2 .channel-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;align-items:stretch}
+  .rep2 .ch-card{display:flex;flex-direction:column;background:#fff;border-radius:var(--radius);border:1px solid var(--line);box-shadow:0 1px 3px rgba(15,23,42,.05);overflow:hidden;transition:box-shadow var(--base),transform var(--base)}
+  .rep2 .ch-card:hover{box-shadow:0 8px 22px rgba(15,23,42,.09);transform:translateY(-2px)}
+  .rep2 .ch-top{height:4px;background:var(--ch-color)}
+  .rep2 .ch-card[data-ch="int"]{--ch-color:#0B5F8D;--ch-soft:#E0EDF6}
+  .rep2 .ch-card[data-ch="loc"]{--ch-color:#3B82F6;--ch-soft:#DBEAFE}
+  .rep2 .ch-card[data-ch="trans"]{--ch-color:#7C6BF0;--ch-soft:#E9E6FD}
+  .rep2 .ch-head{display:flex;align-items:center;gap:8px;padding:13px 16px 0}
+  .rep2 .ch-dot{width:9px;height:9px;border-radius:50%;background:var(--ch-color);flex-shrink:0}
+  .rep2 .ch-name{font-size:12.5px;font-weight:800;color:var(--text)}
+  .rep2 .ch-hero{padding:8px 16px 14px;border-bottom:1px solid var(--soft-line)}
+  .rep2 .ch-hero-l{display:block;font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--muted)}
+  .rep2 .ch-hero-v{display:flex;align-items:baseline;gap:4px;margin-top:5px}
+  .rep2 .ch-hero-v .ch-val{flex:1;min-width:0;font-family:Sora,Inter,sans-serif;font-size:21px;font-weight:800;color:var(--text);font-variant-numeric:tabular-nums}
+  .rep2 .ch-hero-v .ch-u{font-size:10.5px;font-weight:700;color:var(--gray-400);flex-shrink:0}
+  .rep2 .ch-rows{flex:1;padding:4px 0}
+  .rep2 .ch-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 18px;transition:background var(--fast)}
+  .rep2 .ch-row:hover{background:var(--gray-50)}
+  .rep2 .ch-rl{font-size:12px;font-weight:600;color:var(--gray-500)}
+  .rep2 .ch-rv{display:flex;align-items:baseline;justify-content:flex-end;gap:3px;flex-shrink:0;font-size:13.5px;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums}
+  .rep2 .ch-rv.man{color:var(--accent,#3B82F6)}
+  .rep2 .ch-rv .unit{font-size:9.5px;font-weight:700;color:var(--gray-400);font-style:normal}
+  .rep2 .ch-foot{margin-top:auto}
+  .rep2 .ch-total{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 16px;background:var(--ch-soft);border-top:1px solid var(--soft-line)}
+  .rep2 .ch-total span{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--primary-dark)}
+  .rep2 .ch-total b{font-size:13px;font-weight:800;color:var(--primary-dark);white-space:nowrap;font-variant-numeric:tabular-nums}
+  .rep2 .ch-inc{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:11px 16px;background:var(--ch-color)}
+  .rep2 .ch-inc span{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:rgba(255,255,255,.72)}
+  .rep2 .ch-inc b{font-size:16px;font-weight:800;color:#fff;white-space:nowrap;font-variant-numeric:tabular-nums}
+  /* Camiones */
+  .rep2 .mini-bar{display:flex;border-top:1px solid var(--soft-line)}
+  .rep2 .mini-seg{flex:1;padding:12px 18px;border-right:1px solid var(--soft-line)}
+  .rep2 .mini-seg:last-child{border-right:none}
+  .rep2 .mini-seg .ml{display:block;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)}
+  .rep2 .mini-seg .mv{display:block;font-weight:800;font-size:16px;color:var(--text);padding-top:4px;font-variant-numeric:tabular-nums}
+  .rep2 .mini-seg.total{background:var(--accent,#3B82F6)}
+  .rep2 .mini-seg.total .ml{color:rgba(255,255,255,.75)}
+  .rep2 .mini-seg.total .mv{color:#fff}
+  /* Ledger (resumen + facturación) */
+  .rep2 table.ledger{width:100%;border-collapse:collapse}
+  .rep2 table.ledger td{padding:10px 20px;border-bottom:1px solid var(--soft-line);font-size:13px}
+  .rep2 table.ledger tr:last-child td{border-bottom:none}
+  .rep2 table.ledger tr:hover td{background:var(--gray-50)}
+  .rep2 table.ledger td:first-child{color:var(--muted);font-weight:600;width:58%}
+  .rep2 table.ledger td:last-child{text-align:right;font-weight:800;color:var(--text);font-variant-numeric:tabular-nums}
+  .rep2 table.ledger td.man{color:var(--accent,#3B82F6)}
+  .rep2 table.ledger .unit{font-size:10.5px;font-weight:600;color:var(--gray-400);margin-left:4px}
+  .rep2 table.ledger tr.row-calc td{background:var(--accent-soft,#DBEAFE)}
+  .rep2 table.ledger tr.row-calc td:first-child,.rep2 table.ledger tr.row-calc td:last-child{color:var(--primary-dark)}
+  .rep2 table.ledger tr.row-highlight td{background:var(--accent,#3B82F6)}
+  .rep2 table.ledger tr.row-highlight td:first-child{color:rgba(255,255,255,.8)}
+  .rep2 table.ledger tr.row-highlight td:last-child{color:#fff;font-size:14.5px}
+  .rep2 small.hint{display:block;font-size:10.5px;color:var(--gray-400);padding:10px 20px 14px}
+  .rep2 .rep2-manhint{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:700;color:var(--accent,#3B82F6);background:var(--accent-soft,#DBEAFE);padding:3px 9px;border-radius:999px}
+  @media(max-width:900px){.rep2 .main-grid{grid-template-columns:1fr}.rep2 .channel-grid{grid-template-columns:1fr}}
   .cf-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:13px;margin-bottom:16px}
   .cf-kpi{position:relative;display:flex;align-items:center;gap:13px;padding:16px;border:1px solid var(--gray-200,#e2e8f0);border-radius:15px;background:#fff;overflow:hidden}
   .cf-kpi::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px}
@@ -3953,7 +4050,7 @@ async function _cfLoadFac(){try{const res=await sb.from('fact_facturas').select(
 let _cfReporte={};      // {mes:{...manual...}} desde fact_reporte
 let _cfRepMes=null;     // mes seleccionado; null = Total
 function _cfMonthKeys(){const s=new Set();(repartos||[]).forEach(r=>{const k=(r.fechaISO||'').slice(0,7);if(k)s.add(k);});return[...s].sort().reverse();}
-function _cfLines(mk){const out=[];(repartos||[]).forEach(r=>{if(mk&&(r.fechaISO||'').slice(0,7)!==mk)return;(r.clientes||[]).forEach(cl=>out.push({seg:cl.seg||'local',monto:+cl.monto||0,flete:+cl.precio||0,cam:(cl.trDesc||'').toUpperCase()}));});return out;}
+function _cfLines(mk){const out=[];(repartos||[]).forEach(r=>{if(mk&&(r.fechaISO||'').slice(0,7)!==mk)return;(r.clientes||[]).forEach(cl=>out.push({seg:cl.seg||'local',monto:+cl.monto||0,flete:+cl.precio||0,cam:(cl.trDesc||'').toUpperCase(),km:+cl.km||0}));});return out;}
 
 function _cfReporteModel(mk){
   const auto={interior:{monto:0,flete:0,cam:{}},local:{monto:0,flete:0,cam:{}},transportadora:{monto:0,flete:0,cam:{}}};
@@ -3975,28 +4072,82 @@ async function renderReporte(){
   try{const res=await sb.from('fact_reporte').select('*');_cfReporte={};(res.data||[]).forEach(r=>_cfReporte[r.mes]=r.data||{});}catch(e){console.error('[reporte]',e);}
   const m=_cfReporteModel(_cfRepMes);
   const months=_cfMonthKeys();
+  const intKm=_cfLines(_cfRepMes).filter(l=>l.seg==='interior').reduce((s,l)=>s+(+l.km||0),0);
+  const nivel=m.gen.facturacionTotal>0?(m.gen.disponible/m.gen.facturacionTotal):0; // Nivel de entrega = disponible ÷ facturación
+  const nn=v=>_nnum(v), pn=r=>_pct(r).replace('%','').trim();
+  const pctCap=Math.max(0,Math.min(nivel*100,100)),totalLen=Math.PI*64,off=totalLen-(totalLen*pctCap/100),ang=Math.PI*(pctCap/100);
+  const dotX=(80-64*Math.cos(ang)).toFixed(1),dotY=(84-64*Math.sin(ang)).toFixed(1),excede=nivel*100>100;
   const segBtns='<div class="cf-seg"><button class="'+(!_cfRepMes?'on':'')+'" data-rmes="">Total</button>'+months.map(k=>'<button class="'+(_cfRepMes===k?'on':'')+'" data-rmes="'+k+'">'+_mesLbl(k)+'</button>').join('')+'</div>';
-  function kpi(cls,l,v,s){return '<div class="cf-kpi '+cls+'"><div><div class="cf-kpi__l">'+l+'</div><div class="cf-kpi__v">'+v+'</div><div class="cf-kpi__s">'+s+'</div></div></div>';}
-  const kpis='<div class="cf-kpis">'+kpi('k1','Incidencia',_pct(m.gen.incidencia),'gasto ÷ monto')+kpi('k2','Nivel de entrega',_pct(m.gen.nivel),'monto ÷ disponible')+kpi('k3','Facturación total',_gs(m.gen.facturacionTotal),'mes + últ. día')+kpi('k4','Disponible p/reparto',_gs(m.gen.disponible),'fact. total − retira')+'</div>';
-  function row(l,v,cls){return '<div class="cf-row '+(cls||'')+'"><span class="cf-row__l">'+l+'</span><b class="cf-row__v">'+v+'</b></div>';}
-  function panel(t,s,opts){var rows;if(opts.flete){rows=row('Monto repartido',_gs(s.monto))+row('Importe flete',_gs(s.flete),'auto')+row('Incidencia',_pct(s.incidencia),'blue');}else{rows=row('Monto repartido',_gs(s.monto))+row('Peso',_nnum(s.peso))+row('Pago a transportadoras',_gs(s.flete),'auto')+(opts.gratif?row('Gratificaciones',_gs(s.gratificaciones)):'')+row('Gasto viático',_gs(s.viatico))+row('Gasto total',_gs(s.gastoTotal),'green')+row('Incidencia',_pct(s.incidencia),'blue');}return '<div class="cf-sp"><div class="cf-sp__h">'+t+'</div>'+rows+'</div>';}
-  const panels='<div class="cf-segs">'+panel('Reparto Interior',m.interior,{gratif:true})+panel('Reparto Local',m.local,{})+panel('Transportadora',m.transportadora,{flete:true})+'</div>';
-  function tile(l,v,cls){return '<div class="cf-tile '+(cls||'')+'"><b class="cf-tile__v">'+v+'</b><span class="cf-tile__l">'+l+'</span></div>';}
-  const resumen='<div class="cf-2col"><div class="cf-card"><div class="cf-card__h">Resumen del reparto</div><div class="cf-tiles">'+tile('Disponible',_gs(m.gen.disponible))+tile('Peso',_nnum(m.gen.peso))+tile('Peso en hierros',_nnum(m.gen.pesoEnHierros))+tile('Monto repartido',_gs(m.gen.monto))+tile('Gasto',_gs(m.gen.gasto),'green')+tile('Incidencia',_pct(m.gen.incidencia),'blue')+'</div></div>'+
-    '<div class="cf-card"><div class="cf-card__h">Resumen facturación</div><div class="cf-tiles">'+tile('Fac. mes pasado',_gs(m.fac.factUltimoDiaMesPasado))+tile('Retira',_gs(m.fac.retira))+tile('Nota de crédito',_gs(m.fac.notaCredito))+tile('Facturación mes',_gs(m.fac.facturacionMes))+tile('Facturación total',_gs(m.gen.facturacionTotal),'green')+'</div></div></div>';
-  const bottom='<div class="cf-2col"><div class="cf-card"><div class="cf-card__h">🚚 Camiones movilizados</div><div class="cf-tiles">'+tile('Interior',_nnum(m.camiones.interior))+tile('Periferia',_nnum(m.camiones.periferia))+tile('Total',_nnum(m.camiones.total),'green')+'</div></div>'+
-    '<div class="cf-card" style="display:flex;flex-direction:column;align-items:center"><div class="cf-card__h">Nivel de entrega</div>'+_cfGauge(m.gen.nivel)+'</div></div>';
-  const editBtn=_cfRepMes?'<button class="cf-btn" id="cfRepEdit"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><path d="M11 4H4a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-7M18.5 2.5a2.1 2.1 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Cargar valores</button>':'';
-  host.innerHTML='<div class="cf-hd"><h2><img src="logo-alas-s.a.png">Reporte General</h2>'+segBtns+'<div class="cf-spacer"></div>'+editBtn+'</div>'+kpis+panels+resumen+bottom;
+  const editBtn=_cfRepMes?'<button class="cf-btn" id="cfRepEdit"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><path d="M11 4H4a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-7M18.5 2.5a2.1 2.1 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Cargar valores manuales</button>':'<span class="rep2-manhint">Elegí un mes para cargar los valores manuales</span>';
+  const man=(v,u)=>'<span class="ch-rv man">'+nn(v)+(u?'<i class="unit">'+u+'</i>':'')+'</span>';
+  const aut=(v,u)=>'<span class="ch-rv">'+nn(v)+(u?'<i class="unit">'+u+'</i>':'')+'</span>';
+  host.innerHTML='<div class="rep2">'+
+    '<div class="rep2-hd"><h2><img src="logo-alas-s.a.png">Reporte General</h2>'+segBtns+'<div class="rep2-spacer"></div>'+editBtn+'</div>'+
+    '<div class="hero-bar">'+
+      '<div class="hero-seg"><span class="hl">Monto repartido</span><div class="hv-row"><span class="hv">'+nn(m.gen.monto)+'</span><span class="hu">Gs.</span></div></div>'+
+      '<div class="hero-seg"><span class="hl">Gasto total</span><div class="hv-row"><span class="hv">'+nn(m.gen.gasto)+'</span><span class="hu">Gs.</span></div></div>'+
+      '<div class="hero-seg"><span class="hl">Incidencia general</span><div class="hv-row"><span class="hv">'+pn(m.gen.incidencia)+'</span><span class="hu">%</span></div></div>'+
+      '<div class="hero-seg ring" title="Nivel de entrega = Disponible ÷ Facturación total"><span class="hl">Nivel de entrega</span>'+
+        '<div class="ring-body"><div class="ring-gauge"><svg viewBox="0 0 160 100"><defs><linearGradient id="repGaugeGrad" x1="0" y1="1" x2="1" y2="0"><stop offset="0%" stop-color="#22D3EE"/><stop offset="45%" stop-color="#7DD3FC"/><stop offset="100%" stop-color="#FFFFFF"/></linearGradient></defs>'+
+          '<path class="g-track" d="M 16 84 A 64 64 0 0 1 144 84" fill="none" stroke-width="13" stroke-linecap="round"/>'+
+          '<path id="repGaugeArc" class="g-arc" d="M 16 84 A 64 64 0 0 1 144 84" fill="none" stroke="'+(excede?'#FBBF24':'url(#repGaugeGrad)')+'" stroke-width="13" stroke-linecap="round" stroke-dasharray="'+totalLen.toFixed(1)+'" stroke-dashoffset="'+off.toFixed(1)+'"/>'+
+          '<circle id="repGaugeDot" class="g-dot" cx="'+dotX+'" cy="'+dotY+'" r="4" fill="#fff"/></svg>'+
+          '<div class="ring-value"><span>'+pn(nivel)+'</span><i>%</i></div><div class="ring-sub">de lo facturado</div></div>'+
+          '<div class="ring-foot"><div class="rf-item is-key"><span class="rf-l">Disponible p/reparto</span><span class="rf-v">'+nn(m.gen.disponible)+'</span></div>'+
+            '<div class="rf-item"><span class="rf-l">Facturación total</span><span class="rf-v">'+nn(m.gen.facturacionTotal)+'</span></div></div>'+
+        '</div></div>'+
+    '</div>'+
+    '<div class="main-grid"><div class="main-col-left"><div class="section-label">Reparto por canal</div><div class="channel-grid">'+
+      '<div class="ch-card" data-ch="int"><div class="ch-top"></div><div class="ch-head"><span class="ch-dot"></span><span class="ch-name">Interior</span></div>'+
+        '<div class="ch-hero"><span class="ch-hero-l">Monto repartido</span><div class="ch-hero-v"><span class="ch-val">'+nn(m.interior.monto)+'</span><span class="ch-u">Gs.</span></div></div>'+
+        '<div class="ch-rows"><div class="ch-row"><span class="ch-rl">Peso</span>'+man(m.interior.peso,'Kg')+'</div>'+
+          '<div class="ch-row"><span class="ch-rl">Km recorridos</span>'+aut(intKm,'Km')+'</div>'+
+          '<div class="ch-row"><span class="ch-rl">Pago a transportadoras</span>'+aut(m.interior.flete)+'</div>'+
+          '<div class="ch-row"><span class="ch-rl">Gratificaciones</span>'+man(m.interior.gratificaciones)+'</div>'+
+          '<div class="ch-row"><span class="ch-rl">Gasto viático</span>'+man(m.interior.viatico)+'</div></div>'+
+        '<div class="ch-foot"><div class="ch-total"><span>Gasto total</span><b>'+nn(m.interior.gastoTotal)+' Gs.</b></div><div class="ch-inc"><span>Incidencia</span><b>'+_pct(m.interior.incidencia)+'</b></div></div></div>'+
+      '<div class="ch-card" data-ch="loc"><div class="ch-top"></div><div class="ch-head"><span class="ch-dot"></span><span class="ch-name">Local</span></div>'+
+        '<div class="ch-hero"><span class="ch-hero-l">Monto repartido</span><div class="ch-hero-v"><span class="ch-val">'+nn(m.local.monto)+'</span><span class="ch-u">Gs.</span></div></div>'+
+        '<div class="ch-rows"><div class="ch-row"><span class="ch-rl">Peso</span>'+man(m.local.peso,'Kg')+'</div>'+
+          '<div class="ch-row"><span class="ch-rl">Pago a transportadoras</span>'+aut(m.local.flete)+'</div>'+
+          '<div class="ch-row"><span class="ch-rl">Gasto viático</span>'+man(m.local.viatico)+'</div></div>'+
+        '<div class="ch-foot"><div class="ch-total"><span>Gasto total</span><b>'+nn(m.local.gastoTotal)+' Gs.</b></div><div class="ch-inc"><span>Incidencia</span><b>'+_pct(m.local.incidencia)+'</b></div></div></div>'+
+      '<div class="ch-card" data-ch="trans"><div class="ch-top"></div><div class="ch-head"><span class="ch-dot"></span><span class="ch-name">Transportadora</span></div>'+
+        '<div class="ch-hero"><span class="ch-hero-l">Monto de factura</span><div class="ch-hero-v"><span class="ch-val">'+nn(m.transportadora.monto)+'</span><span class="ch-u">Gs.</span></div></div>'+
+        '<div class="ch-rows"><div class="ch-row"><span class="ch-rl">Importe flete</span>'+aut(m.transportadora.flete)+'</div></div>'+
+        '<div class="ch-foot"><div class="ch-total"><span>Gasto total</span><b>'+nn(m.transportadora.flete)+' Gs.</b></div><div class="ch-inc"><span>Incidencia</span><b>'+_pct(m.transportadora.incidencia)+'</b></div></div></div>'+
+    '</div>'+
+      '<div class="panel" style="margin-top:14px"><div class="mini-bar">'+
+        '<div class="mini-seg"><span class="ml">Camiones interior</span><span class="mv">'+nn(m.camiones.interior)+'</span></div>'+
+        '<div class="mini-seg"><span class="ml">Camiones periferia</span><span class="mv">'+nn(m.camiones.periferia)+'</span></div>'+
+        '<div class="mini-seg total"><span class="ml">Camiones total</span><span class="mv">'+nn(m.camiones.total)+'</span></div>'+
+      '</div></div></div>'+
+      '<div class="main-col-right"><div class="section-label">Resumen y facturación</div>'+
+        '<div class="panel"><div class="panel-title"><h3>Resumen del reparto</h3></div><table class="ledger">'+
+          '<tr class="row-calc"><td>Peso total</td><td>'+nn(m.gen.peso)+'</td></tr>'+
+          '<tr><td>Peso en hierros</td><td class="man">'+nn(m.gen.pesoEnHierros)+'<span class="unit">Kg</span></td></tr>'+
+          '<tr class="row-highlight"><td>Disponible p/reparto</td><td>'+nn(m.gen.disponible)+'</td></tr>'+
+        '</table></div>'+
+        '<div class="panel"><div class="panel-title"><h3>Facturación</h3></div><table class="ledger">'+
+          '<tr><td>Fac. mes pasado</td><td class="man">'+nn(m.fac.factUltimoDiaMesPasado)+'</td></tr>'+
+          '<tr><td>Retira</td><td class="man">'+nn(m.fac.retira)+'</td></tr>'+
+          '<tr><td>Nota de crédito</td><td class="man">'+nn(m.fac.notaCredito)+'</td></tr>'+
+          '<tr><td>Facturación mes</td><td class="man">'+nn(m.fac.facturacionMes)+'</td></tr>'+
+          '<tr class="row-highlight"><td>Facturación total</td><td>'+nn(m.gen.facturacionTotal)+' Gs.</td></tr>'+
+        '</table><small class="hint">Los valores en azul son los que cargás a mano por mes (botón «Cargar valores manuales»). La nota de crédito es informativa y no se resta del disponible.</small></div>'+
+      '</div></div>'+
+  '</div>';
   host.querySelectorAll('[data-rmes]').forEach(b=>b.addEventListener('click',()=>{_cfRepMes=b.dataset.rmes||null;renderReporte();}));
   const eb=document.getElementById('cfRepEdit');if(eb)eb.addEventListener('click',()=>_cfOpenReporteEdit(_cfRepMes));
   if(window.gsap){
-    gsap.from('#repHost .cf-kpi',{opacity:0,y:14,duration:.4,stagger:.05,ease:'power3.out',clearProps:'all'});
-    gsap.from('#repHost .cf-sp',{opacity:0,y:16,duration:.4,stagger:.06,delay:.08,ease:'power3.out',clearProps:'all'});
-    gsap.from('#repHost .cf-card',{opacity:0,y:16,duration:.42,stagger:.08,delay:.18,ease:'power3.out',clearProps:'all'});
-    gsap.from('#repHost .cf-tile',{opacity:0,y:8,duration:.32,stagger:.02,delay:.26,ease:'power2.out',clearProps:'all'});
-    gsap.from('#repHost .cf-gauge__fg',{opacity:0,duration:.7,delay:.35,ease:'power2.out'});
-    gsap.from('#repHost .cf-gauge__val',{opacity:0,duration:.5,delay:.5,ease:'power2.out'});
+    const g=window.gsap;
+    g.from('#repHost .hero-seg',{opacity:0,y:14,duration:.42,stagger:.07,ease:'power3.out',clearProps:'opacity,transform'});
+    g.from('#repHost .ch-card',{opacity:0,y:16,duration:.45,stagger:.1,delay:.1,ease:'back.out(1.5)',clearProps:'opacity,transform'});
+    g.from('#repHost .main-col-right .panel',{opacity:0,y:16,duration:.42,stagger:.08,delay:.2,ease:'power3.out',clearProps:'opacity,transform'});
+    g.from('#repHost .mini-seg',{opacity:0,y:8,duration:.32,stagger:.05,delay:.28,ease:'power2.out',clearProps:'opacity,transform'});
+    const arc=document.getElementById('repGaugeArc'),dot=document.getElementById('repGaugeDot');
+    if(arc)g.fromTo(arc,{strokeDashoffset:totalLen},{strokeDashoffset:off,duration:.9,ease:'power3.out'});
+    if(dot)g.fromTo(dot,{attr:{cx:16,cy:84}},{attr:{cx:dotX,cy:dotY},duration:.9,ease:'power3.out'});
   }
 }
 
