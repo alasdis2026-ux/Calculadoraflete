@@ -870,7 +870,15 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .cal-rep-editbadge i{width:7px;height:7px;border-radius:50%;background:#F59E0B;animation:calpulse 1.4s ease-in-out infinite}
 @keyframes calpulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(.7)}}
 .cal-rep-table--edit td{padding:9px 12px;vertical-align:top}
-.cal-e-tr,.cal-e-seg{width:100%;min-width:150px;border:1.5px solid var(--gray-200);border-radius:9px;padding:8px 9px;font:inherit;font-size:13px;color:var(--gray-800);background:#fff;cursor:pointer;transition:border-color .15s,box-shadow .15s}
+.cal-e-sel{position:relative;display:block}
+.cal-e-tr,.cal-e-seg{width:100%;min-width:140px;-webkit-appearance:none;-moz-appearance:none;appearance:none;border:1.5px solid var(--gray-200);border-radius:10px;padding:9px 30px 9px 11px;font:inherit;font-size:13px;font-weight:600;color:var(--gray-800);background:#fff;cursor:pointer;transition:border-color .15s,box-shadow .15s;text-overflow:ellipsis;white-space:nowrap;overflow:hidden}
+.cal-e-tr:hover,.cal-e-seg:hover{border-color:var(--gray-300,#cbd5e1)}
+.cal-e-arrow{position:absolute;right:9px;top:50%;transform:translateY(-50%);color:var(--gray-400);pointer-events:none;transition:color .15s,transform .2s}
+.cal-e-sel:focus-within .cal-e-arrow{color:var(--accent);transform:translateY(-50%) rotate(180deg)}
+.cal-e-sel--seg .cal-e-seg{font-weight:800;padding-left:26px}
+.cal-e-sel--seg:before{content:'';position:absolute;left:11px;top:50%;transform:translateY(-50%);width:8px;height:8px;border-radius:50%;pointer-events:none;z-index:1;background:var(--primary)}
+.cal-e-seg-interior:before{background:var(--orange,#F97316)} .cal-e-seg-servicios:before{background:var(--success,#10B981)} .cal-e-seg-transportadora:before{background:#7c3aed}
+.cal-e-seg-local .cal-e-seg{color:var(--primary)} .cal-e-seg-interior .cal-e-seg{color:#c2410c} .cal-e-seg-servicios .cal-e-seg{color:#15803d} .cal-e-seg-transportadora .cal-e-seg{color:#6d28d9}
 .cal-e-sub{display:flex;gap:6px;margin-top:6px}
 .cal-e-rep,.cal-e-zona{flex:1;min-width:0;width:100%;border:1.5px solid var(--gray-200);border-radius:8px;padding:6px 8px;font:inherit;font-size:12px;color:var(--gray-700);background:#fff}
 .cal-e-in{width:140px;max-width:100%;text-align:right;border:1.5px solid var(--gray-200);border-radius:9px;padding:8px 10px;font:inherit;font-size:13px;font-variant-numeric:tabular-nums;color:var(--gray-800);background:#fff;transition:border-color .15s,box-shadow .15s}
@@ -3070,28 +3078,33 @@ function calRepEditHTML(r){
   const trucks=ts.trucks||[];
   const SEGO=[['local','Local'],['interior','Interior'],['servicios','Servicios'],['transportadora','Transportadora']];
   const optsTr=function(w){const has=trucks.some(t=>t.id===w.trId);let o='<option value="">— Elegir camión —</option>';if(w.trId&&!has)o+='<option value="'+w.trId+'" selected>'+esc(w.trDesc||'—')+'</option>';return o+trucks.map(t=>'<option value="'+t.id+'"'+(t.id===w.trId?' selected':'')+'>'+esc(t.d)+'</option>').join('');};
+  const segArrow='<svg class="cal-e-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="14" height="14"><path d="M6 9l6 6 6-6"/></svg>';
   const rows=calWork.filter(w=>!w.del).map(function(w){
     return '<tr data-caluid="'+w.uid+'">'+
-      '<td><select class="cal-e-tr" data-uid="'+w.uid+'">'+optsTr(w)+'</select></td>'+
-      '<td><input class="cal-e-rep" list="repList" autocomplete="off" data-uid="'+w.uid+'" placeholder="Repartidor" value="'+esc(w.rep||'')+'"></td>'+
+      '<td><div class="cal-e-sel"><select class="cal-e-tr" data-uid="'+w.uid+'">'+optsTr(w)+'</select>'+segArrow+'</div></td>'+
+      '<td><input class="cal-e-rep" list="repList" autocomplete="off" data-uid="'+w.uid+'" placeholder="Tercerizado" value="'+esc(w.rep||'')+'"></td>'+
       '<td><input class="cal-e-zona" data-uid="'+w.uid+'" placeholder="Zona" value="'+esc(w.zona||'')+'"></td>'+
-      '<td><select class="cal-e-seg" data-uid="'+w.uid+'">'+SEGO.map(s=>'<option value="'+s[0]+'"'+(w.seg===s[0]?' selected':'')+'>'+s[1]+'</option>').join('')+'</select></td>'+
+      '<td><div class="cal-e-sel cal-e-sel--seg cal-e-seg-'+(w.seg||'local')+'"><select class="cal-e-seg" data-uid="'+w.uid+'">'+SEGO.map(s=>'<option value="'+s[0]+'"'+(w.seg===s[0]?' selected':'')+'>'+s[1]+'</option>').join('')+'</select>'+segArrow+'</div></td>'+
+      '<td class="r"><input class="cal-e-in cal-e-peso" data-uid="'+w.uid+'" inputmode="numeric" placeholder="0" value="'+(w.peso?_nnum(w.peso):'')+'"></td>'+
       '<td class="r"><input class="cal-e-in cal-e-monto" data-uid="'+w.uid+'" inputmode="numeric" placeholder="0" value="'+(w.monto?_nnum(w.monto):'')+'"></td>'+
       '<td class="r"><input class="cal-e-in cal-e-flete" data-uid="'+w.uid+'" inputmode="numeric" placeholder="0" value="'+(w.precio?_nnum(w.precio):'')+'"></td>'+
-      '<td class="r"><button class="cal-e-del" type="button" data-cal-deluid="'+w.uid+'" title="Quitar">'+CAL_TRASH+'</button></td>'+
+      '<td class="r"><button class="cal-e-del" type="button" data-cal-deluid="'+w.uid+'" title="Quitar camión">'+CAL_TRASH+'</button></td>'+
     '</tr>';
-  }).join('')||'<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:18px">Sin camiones — usá “+ Añadir camión”.</td></tr>';
-  const tM=calWork.filter(w=>!w.del).reduce((s,w)=>s+(+w.monto||0),0);
-  const tF=calWork.filter(w=>!w.del).reduce((s,w)=>s+(+w.precio||0),0);
+  }).join('')||'<tr><td colspan="8" style="text-align:center;color:var(--gray-400);padding:18px">Sin camiones — usá “+ Añadir camión”.</td></tr>';
+  const alive=calWork.filter(w=>!w.del);
+  const tM=alive.reduce((s,w)=>s+(+w.monto||0),0),tF=alive.reduce((s,w)=>s+(+w.precio||0),0),tP=alive.reduce((s,w)=>s+(+w.peso||0),0);
+  const SL={local:'LOCAL',interior:'INTERIOR',servicios:'SERVICIOS',transportadora:'TRANSPORTADORA'};
+  const segs=[...new Set(alive.map(w=>w.seg||'local'))];
+  const segChips=segs.length?segs.map(s=>'<span class="crs crs--'+s+'">'+(SL[s]||s.toUpperCase())+'</span>').join(''):'<span class="crs crs--local">REPARTO</span>';
   return '<div class="cal-rep cal-rep--edit" data-editing="'+r.id+'">'+
     '<div class="cal-rep-hd">'+
-      '<div class="cal-rep-hd-left"><span class="cal-rep-editbadge"><i></i>Editando</span><span class="cal-rep-count" style="font-size:14px">'+esc(r.tsNombre||'')+'</span></div>'+
+      '<div class="cal-rep-hd-left"><span class="cal-rep-editbadge"><i></i>Editando</span><span class="cal-rep-seg">'+segChips+'</span><span class="cal-rep-count" style="font-size:13px;color:var(--gray-400)">'+alive.length+' <small>camión'+(alive.length===1?'':'es')+'</small></span></div>'+
       '<div class="cal-rep-actions"><button class="cal-rep-btn" type="button" data-cal-add><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="14" height="14"><path d="M12 5v14M5 12h14"/></svg>Añadir camión</button><button class="cal-rep-btn" type="button" data-cal-cancel>Cancelar</button><button class="cal-rep-btn edit cal-save-btn" type="button" data-cal-save><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="15" height="15"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>Guardar</button></div>'+
     '</div>'+
     '<div class="cal-rep-table-wrap"><table class="cal-rep-table cal-rep-table--edit">'+
-      '<thead><tr><th>Camión</th><th>Repartidor</th><th>Zona</th><th>Segmento</th><th class="r">Monto</th><th class="r">Flete</th><th class="r"></th></tr></thead>'+
+      '<thead><tr><th>Camión</th><th>Repartidor</th><th>Zona</th><th>Segmento</th><th class="r">Peso (kg)</th><th class="r">Monto</th><th class="r">Flete</th><th class="r"></th></tr></thead>'+
       '<tbody>'+rows+'</tbody>'+
-      '<tfoot><tr class="crt-total"><td colspan="4">TOTAL</td><td class="crt-num cal-e-totm">'+fmtGs(tM)+'</td><td class="crt-num cal-e-totf">'+fmtGs(tF)+'</td><td></td></tr></tfoot>'+
+      '<tfoot><tr class="crt-total"><td colspan="4">TOTAL</td><td class="crt-num cal-e-totp">'+(tP>0?_nnum(tP):'—')+'</td><td class="crt-num cal-e-totm">'+fmtGs(tM)+'</td><td class="crt-num cal-e-totf">'+fmtGs(tF)+'</td><td></td></tr></tfoot>'+
     '</table></div>'+
   '</div>';
 }
@@ -3100,8 +3113,10 @@ function calLiveTotals(){
   if(!calWork)return;
   const tM=calWork.filter(w=>!w.del).reduce((s,w)=>s+(+w.monto||0),0);
   const tF=calWork.filter(w=>!w.del).reduce((s,w)=>s+(+w.precio||0),0);
+  const tP=calWork.filter(w=>!w.del).reduce((s,w)=>s+(+w.peso||0),0);
   const totm=document.querySelector('.cal-e-totm');if(totm)totm.textContent=fmtGs(tM);
   const totf=document.querySelector('.cal-e-totf');if(totf)totf.textContent=fmtGs(tF);
+  const totp=document.querySelector('.cal-e-totp');if(totp)totp.textContent=(tP>0?_nnum(tP):'—');
   let dM=0,dF=0;
   calDayRepartos().forEach(r=>{if(r.id===calEditRepId){dM+=tM;dF+=tF;}else{dM+=r.totalMonto||0;dF+=r.totalFlete||0;}});
   const km=document.querySelector('.k-daymonto');if(km)km.textContent=fmtGs(dM);
@@ -3220,7 +3235,10 @@ document.getElementById('calModalBody').addEventListener('click',async e=>{
   if(addBtn){if(!calWork)return;calWork.unshift({uid:_calUid++,cId:null,trId:null,trDesc:'',seg:'local',rep:'',zona:'',monto:0,precio:0,peso:0,km:0,precioKm:0,obs:null,cant:null,del:false,isNew:true});renderCalDay('add');return;}
   if(cancelBtn){calEditRepId=null;calWork=null;renderCalDay('toggle');return;}
   if(saveBtn){await calSaveEdit();return;}
-  if(delUid){if(!calWork)return;const w=calWork.find(x=>x.uid===+delUid.dataset.calDeluid);if(w){if(w.isNew)calWork=calWork.filter(x=>x!==w);else w.del=true;}renderCalDay('rows');return;}
+  if(delUid){if(!calWork)return;const w=calWork.find(x=>x.uid===+delUid.dataset.calDeluid);if(!w)return;
+    const doDel=()=>{if(w.isNew)calWork=calWork.filter(x=>x!==w);else w.del=true;renderCalDay('rows');};
+    if(w.isNew)doDel();else _cfConfirm('¿Quitar el camión?','<b>'+esc(w.trDesc||'Este camión')+'</b> se va a quitar de la planilla.',doDel,'Sí, quitar');
+    return;}
   if(delBtn){
     const id=+delBtn.dataset.delr;
     if(confirm('¿Eliminar este reparto del historial?')){
@@ -3237,13 +3255,14 @@ document.getElementById('calModalBody').addEventListener('input',e=>{
   const _pn=v=>parseInt(String(v||'').replace(/[^\d]/g,''),10)||0;
   if(t.classList.contains('cal-e-monto')){w.monto=_pn(t.value);calLiveTotals();}
   else if(t.classList.contains('cal-e-flete')){w.precio=_pn(t.value);calLiveTotals();}
+  else if(t.classList.contains('cal-e-peso')){w.peso=_pn(t.value);calLiveTotals();}
   else if(t.classList.contains('cal-e-rep'))w.rep=t.value;
   else if(t.classList.contains('cal-e-zona'))w.zona=t.value;
 });
 document.getElementById('calModalBody').addEventListener('change',e=>{
   if(!calWork)return;const t=e.target;const w=calWork.find(x=>x.uid===+t.dataset.uid);if(!w)return;
   if(t.classList.contains('cal-e-tr')){const id=+t.value||null;w.trId=id;const r=calDayRepartos().find(x=>x.id===calEditRepId);const ts=(transportistas||[]).find(x=>r&&x.id===r.tsId);const tr=ts&&(ts.trucks||[]).find(x=>x.id===id);w.trDesc=tr?tr.d:w.trDesc;}
-  else if(t.classList.contains('cal-e-seg'))w.seg=t.value;
+  else if(t.classList.contains('cal-e-seg')){w.seg=t.value;const wrap=t.closest('.cal-e-sel--seg');if(wrap)wrap.className='cal-e-sel cal-e-sel--seg cal-e-seg-'+t.value;}
 });
 
 // Navegación
