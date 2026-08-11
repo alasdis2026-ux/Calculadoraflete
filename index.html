@@ -3182,15 +3182,15 @@ function calOpenPick(btn){
     openChipPop(btn,{value:w.trId?String(w.trId):'',search:true,addLabel:'Nuevo camión',options:optsFn,
       onPick:v=>{const t=(ts?ts.trucks:[]).find(x=>String(x.id)===v);w.trId=+v||null;w.trDesc=t?t.d:w.trDesc;rerender();},
       onAdd:()=>{if(!ts){showToast('Este reparto no tiene transportadora');return;}_calAddCamion(ts.id,(id,d)=>{w.trId=id;w.trDesc=d;rerender();});},
-      onDelete:(v,refresh)=>{if(String(w.trId)===v){w.trId=null;w.trDesc='';}_calDeleteCamion(v,ts,refresh);}});
+      onDelete:v=>{const t=(ts?ts.trucks:[]).find(x=>String(x.id)===v);_closeChipPop();_cfConfirm('¿Borrar el camión?','<b>'+esc(t?t.d:'Este camión')+'</b> se va a eliminar de la transportadora.',()=>{if(String(w.trId)===v){w.trId=null;w.trDesc='';}_calDeleteCamion(v,ts);rerender();},'Sí, borrar');}});
   }else if(kind==='rep'){
     openChipPop(btn,{value:w.rep||'',search:true,addLabel:'Agregar repartidor nuevo',options:()=>(_repartidores||[]).map(n=>({v:n,label:n,del:true})),
       onPick:v=>{w.rep=v;rerender();},onAdd:()=>_openAddRepartidor(name=>{w.rep=name;rerender();}),
-      onDelete:(v,refresh)=>{if(w.rep===v)w.rep='';_deleteRepartidor(v,refresh);}});
+      onDelete:v=>{_closeChipPop();_cfConfirm('¿Borrar repartidor?','<b>'+esc(v)+'</b> se va a quitar de la lista.',()=>{if(w.rep===v)w.rep='';_deleteRepartidor(v);rerender();},'Sí, borrar');}});
   }else if(kind==='zona'){
     openChipPop(btn,{value:w.zona||'',search:true,addLabel:'Usar otra zona',options:()=>_zonasFor(w.seg||'local').map(z=>({v:z.n,label:z.n,del:true})),
       onPick:v=>{w.zona=v;rerender();},onAdd:q=>{if(q){w.zona=q;rerender();}},
-      onDelete:(v,refresh)=>{const i=_ZONAS.findIndex(z=>z.n===v);if(i>=0)_ZONAS.splice(i,1);if(w.zona===v)w.zona='';showToast('Zona quitada (de esta sesión)');refresh();}});
+      onDelete:v=>{_closeChipPop();_cfConfirm('¿Quitar la zona?','<b>'+esc(v)+'</b> se quita de la lista (solo en esta sesión).',()=>{const i=_ZONAS.findIndex(z=>z.n===v);if(i>=0)_ZONAS.splice(i,1);if(w.zona===v)w.zona='';rerender();},'Sí, quitar');}});
   }else if(kind==='seg'){
     openChipPop(btn,{value:w.seg||'local',options:[{v:'local',label:'Local',dot:'#0B5F8D'},{v:'interior',label:'Interior',dot:'#F97316'},{v:'servicios',label:'Servicios',dot:'#10B981'},{v:'transportadora',label:'Transportadora',dot:'#7c3aed'}],onPick:v=>{w.seg=v;if(w.zona&&!_zonasFor(v).some(z=>z.n===w.zona))w.zona=null;rerender();}});
   }
