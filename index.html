@@ -4329,7 +4329,7 @@ async function renderReporte(){
   const dotX=(80-64*Math.cos(ang)).toFixed(1),dotY=(84-64*Math.sin(ang)).toFixed(1),excede=nivel*100>100;
   const curStep=_cfRepMes||months[0]||(new Date().getFullYear()+'-'+String(new Date().getMonth()+1).padStart(2,'0'));
   const segBtns='<div class="rr-mnav"><button data-repm="-1" aria-label="Mes anterior">‹</button><span>'+_mesLbl(curStep)+'</span><button data-repm="1" aria-label="Mes siguiente">›</button><button class="rr-mnav__today'+(!_cfRepMes?' on':'')+'" data-reptotal type="button">Total</button></div>';
-  const editBtn=_cfRepMes?'<button class="cf-btn" id="cfRepEdit"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><path d="M11 4H4a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-7M18.5 2.5a2.1 2.1 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Cargar valores manuales</button>':'<span class="rep2-manhint">Elegí un mes para cargar los valores manuales</span>';
+  const editBtn=_cfRepMes?'<button class="cf-btn" id="cfRepEdit"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><path d="M11 4H4a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-7M18.5 2.5a2.1 2.1 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Cargar valores manuales</button>':'';
   const man=(v,u)=>'<span class="ch-rv man">'+nn(v)+(u?'<i class="unit">'+u+'</i>':'')+'</span>';
   const aut=(v,u)=>'<span class="ch-rv">'+nn(v)+(u?'<i class="unit">'+u+'</i>':'')+'</span>';
   // Monto e incidencia por zona (gráfico de barras + tabla, uno al lado del otro)
