@@ -4598,7 +4598,7 @@ function _gastoStats(mk,tsId){
       const key=(c.trId||c.trDesc||'—')+'';
       const C=byCam[key]||(byCam[key]={trId:c.trId||null,trDesc:c.trDesc||'—',tsNombre:tsn,gasto:0,n:0,km:false,precioKm:0,fijo:0,last:''});
       C.gasto+=fl;C.n++;
-      if(sk==='interior'){C.km=true;intGasto+=fl;intKm+=+c.km||0;if(d>=C.last){C.precioKm=+c.precioKm||0;C.last=d;}}
+      if(sk==='interior'){C.km=true;intGasto+=fl;intKm+=+c.km||0;const pk=(+c.precioKm>0)?+c.precioKm:((+c.km>0)?fl/(+c.km):0);if(pk>0&&d>=C.last){C.precioKm=pk;C.last=d;}}
       else if(d>=C.last){C.fijo=fl;C.last=d;}
     });
   });
