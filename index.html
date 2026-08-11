@@ -510,6 +510,33 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .ts-grid-search .md-search:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.12)}
 .ts-grid{flex:1;min-height:0;overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(196px,1fr));gap:12px;align-content:start;padding:2px 4px 8px}
 .ts-grid::-webkit-scrollbar{width:5px}.ts-grid::-webkit-scrollbar-thumb{background:var(--gray-200);border-radius:99px}
+/* Tablero tipo Trello: columnas = transportistas, cards = camiones */
+.ts-board{flex:1;min-height:0;overflow-x:auto;overflow-y:hidden;display:flex;gap:12px;align-items:stretch;padding:2px 4px 12px;scroll-snap-type:x proximity}
+.ts-board::-webkit-scrollbar{height:9px}.ts-board::-webkit-scrollbar-thumb{background:var(--gray-200);border-radius:99px}.ts-board::-webkit-scrollbar-track{background:transparent}
+.ts-col{flex:0 0 248px;width:248px;display:flex;flex-direction:column;background:var(--gray-50);border:1.5px solid var(--gray-200);border-radius:14px;overflow:hidden;max-height:100%;scroll-snap-align:start}
+.ts-col__hd{display:flex;align-items:center;gap:9px;padding:12px 13px;cursor:pointer;border-bottom:1.5px solid var(--gray-200);background:#fff;transition:background var(--fast)}
+.ts-col__hd:hover{background:var(--accent-soft)}
+.ts-col__ico{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:var(--gray-100);color:var(--gray-400);flex-shrink:0;transition:background var(--fast),color var(--fast)}
+.ts-col__hd:hover .ts-col__ico{background:#fff;color:var(--primary)}
+.ts-col__meta{flex:1;min-width:0}
+.ts-col__name{font-family:Sora,Inter,sans-serif;font-size:13.5px;font-weight:800;color:var(--gray-800);letter-spacing:-.2px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ts-col__sub{font-size:10.5px;font-weight:600;color:var(--gray-400);margin-top:2px;display:flex;align-items:center;gap:5px}
+.ts-col__sub.has{color:#059669}
+.ts-col__chip{min-width:26px;height:22px;padding:0 8px;display:inline-flex;align-items:center;justify-content:center;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-size:12px;font-weight:800;flex-shrink:0;font-variant-numeric:tabular-nums}
+.ts-col__body{flex:1;min-height:0;overflow-y:auto;padding:9px;display:flex;flex-direction:column;gap:8px}
+.ts-col__body::-webkit-scrollbar{width:5px}.ts-col__body::-webkit-scrollbar-thumb{background:var(--gray-200);border-radius:99px}
+.ts-tcard{background:#fff;border:1.5px solid var(--gray-200);border-radius:11px;padding:10px 11px;display:flex;flex-direction:column;gap:8px;cursor:pointer;transition:border-color var(--fast),transform var(--fast),box-shadow var(--fast)}
+.ts-tcard:hover{border-color:var(--accent);transform:translateY(-1px);box-shadow:0 6px 16px rgba(15,23,42,.08)}
+.ts-tcard__top{display:flex;align-items:center;gap:8px}
+.ts-tcard__ico{width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:var(--gray-100);color:var(--gray-400);flex-shrink:0}
+.ts-tcard__name{font-size:12.5px;font-weight:800;color:var(--gray-800);line-height:1.2;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ts-tcard__foot{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.ts-ttag{font-size:9.5px;font-weight:800;letter-spacing:.4px;padding:3px 8px;border-radius:999px}
+.ts-ttag.is-km{background:#DBEAFE;color:var(--primary)}
+.ts-ttag.is-fijo{background:#DCFCE7;color:#15803D}
+.ts-tprice{font-size:11px;font-weight:700;color:var(--gray-500);font-variant-numeric:tabular-nums}
+.ts-tprice.none{color:var(--gray-300)}
+.ts-col__empty{padding:16px 8px;text-align:center;font-size:11.5px;color:var(--gray-400)}
 .ts-card{position:relative;display:flex;flex-direction:column;gap:11px;padding:15px 16px;border:1.5px solid var(--gray-200);border-radius:14px;background:#fff;cursor:pointer;text-align:left;font-family:inherit;overflow:hidden;transition:transform var(--alas-dur-normal) var(--alas-ease-spring),box-shadow var(--alas-dur-normal) var(--alas-ease),border-color var(--fast)}
 .ts-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent);transform:scaleY(0);transform-origin:top;transition:transform var(--fast)}
 .ts-card:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(15,23,42,.11);border-color:var(--accent)}
@@ -1222,7 +1249,7 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
         <svg class="md-search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
         <input class="md-search" type="search" id="tsSearch" placeholder="Buscar transportista...">
       </div>
-      <div class="ts-grid" id="tsList"></div>
+      <div class="ts-board" id="tsList"></div>
     </div>
     <!-- Estado DETALLE (al entrar a un transportista) -->
     <div class="ts-detail-state" id="tsDetailState" style="display:none">
@@ -2648,11 +2675,22 @@ function renderTsList(){
   if(!list.length){grid.innerHTML=`<div class="md-empty">${q?'Sin resultados':'Sin transportistas'}</div>`;return;}
   grid.innerHTML=list.map(t=>{
     const last=tsLastUsed(t);
-    return`<button type="button" class="ts-card" data-tsid="${t.id}">
-      <div class="ts-card__top"><span class="ts-card__ico">${getTrIco('',20)}</span><span class="ts-card__chip">${t.trucks.length}</span></div>
-      <div class="ts-card__name">${esc(t.n)}</div>
-      <div class="ts-card__foot${last?' has':''}"><span class="ts-card__dot"></span>${last?'Último '+isoToDisplay(last):'Sin repartos'}</div>
-    </button>`;
+    const trucks=q?(t.trucks||[]).filter(tr=>t.n.toLowerCase().includes(q)||(tr.d||'').toLowerCase().includes(q)):(t.trucks||[]);
+    const cards=trucks.length?trucks.map(tr=>{
+      const lp=lastPriceForTruck(tr.id),km=tr.tipo!=='fijo';
+      return`<div class="ts-tcard" data-tsid="${t.id}" data-trid="${tr.id}">
+        <div class="ts-tcard__top"><span class="ts-tcard__ico">${getTrIco(tr.d,15)}</span><span class="ts-tcard__name">${esc(tr.d)}</span></div>
+        <div class="ts-tcard__foot"><span class="ts-ttag ${km?'is-km':'is-fijo'}">${km?'KM':'FIJO'}</span><span class="ts-tprice${lp.precio?'':' none'}">${lp.precio?'Gs. '+formatMoney(lp.precio):'Sin usar'}</span></div>
+      </div>`;
+    }).join(''):`<div class="ts-col__empty">Sin camiones</div>`;
+    return`<div class="ts-col">
+      <div class="ts-col__hd" data-tsid="${t.id}">
+        <span class="ts-col__ico">${getTrIco('',18)}</span>
+        <div class="ts-col__meta"><div class="ts-col__name">${esc(t.n)}</div><div class="ts-col__sub${last?' has':''}">${last?'Último '+isoToDisplay(last):'Sin repartos'}</div></div>
+        <span class="ts-col__chip">${t.trucks.length}</span>
+      </div>
+      <div class="ts-col__body">${cards}</div>
+    </div>`;
   }).join('');
 }
 tsListEl.addEventListener('click',e=>{const item=e.target.closest('[data-tsid]');if(item)selectTs(+item.dataset.tsid);});
@@ -2670,7 +2708,7 @@ function tsBackToGrid(){
   document.getElementById('tsDetailState').style.display='none';
   document.getElementById('tsGridState').style.display='';
   renderTsList();
-  if(window.gsap)gsap.from('#tsList .ts-card',{opacity:0,y:12,duration:.3,stagger:.015,ease:'power2.out',clearProps:'all'});
+  if(window.gsap)gsap.from('#tsList .ts-col',{opacity:0,x:16,duration:.34,stagger:.03,ease:'power3.out',clearProps:'all'});
 }
 document.getElementById('tsBack').addEventListener('click',tsBackToGrid);
 
