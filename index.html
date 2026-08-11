@@ -4684,7 +4684,7 @@ function _cfPrint(r){
     ||(r.semanaDesde?(window.__cfFac||[]).find(x=>(x.transportadora_nombre||x.tsNombre||'')===(r.tsNombre||'')&&(x.semana_desde||x.semanaDesde||'')===r.semanaDesde):null)
     ||null;
   const SEGP=[['local','LOCAL'],['interior','INTERIOR'],['servicios','SERVICIOS ADICIONALES'],['transportadora','TRANSPORTADORA']];
-  let body='',totM=0,totF=0,totN=0;
+  let body='',totM=0,totF=0,totN=0,totKm=0;
   SEGP.forEach(([sk,slbl])=>{
     const g=lines.filter(c=>(c.seg||'local')===sk);if(!g.length)return;
     let sM=0,sF=0;
@@ -4694,7 +4694,7 @@ function _cfPrint(r){
       const det=sk==='interior'?((+c.km>0)?(_escp(String(c.km))+' km × '+_gs(+c.precioKm||0)):'—'):sk==='servicios'?(c.obs?_escp(c.obs):'—'):'—';
       body+='<tr><td>'+ddc(c._fecha)+'</td><td>'+_escp(c.trDesc||'—')+'</td><td>'+_escp(c.zona||'—')+'</td><td>'+det+'</td><td class="r">'+_gs(fl)+'</td></tr>';});
     body+='<tr class="sub"><td colspan="4">SUBTOTAL '+slbl+'</td><td class="r">'+_gs(sF)+'</td></tr>';
-    totM+=sM;totF+=sF;totN+=sk==='transportadora'?g.reduce((s,c)=>s+(+c.cant||1),0):g.length;
+    totM+=sM;totF+=sF;totN+=sk==='transportadora'?g.reduce((s,c)=>s+(+c.cant||1),0):g.length;totKm+=g.reduce((s,c)=>s+(+c.km||0),0);
   });
   const pid=r.id?('#'+String(r.id).padStart(4,'0')):'Semanal';
   const logoUrl=new URL('logo-alas-s.a.png',window.location.href).href;
@@ -4736,7 +4736,7 @@ function _cfPrint(r){
     '<tr class="total"><td colspan="4">TOTAL GENERAL</td><td class="r">'+_gs(totF)+'</td></tr>'+
     '</tbody></table></div>'+
     '<div class="foot"><div class="firmas"><div class="firma"><div class="ln"></div><span>JEFE DE DISTRIBUCIÓN</span></div><div class="firma"><div class="ln"></div><span>JEFE DE LOGÍSTICA</span></div></div>'+
-    '<div class="resumen"><h3>Resumen</h3><div class="rr"><span>Camiones</span><b>'+totN+'</b></div><div class="rr"><span>Monto repartido</span><b>Gs. '+_nnum(totM)+'</b></div><div class="rr"><span>Flete total</span><b>Gs. '+_nnum(totF)+'</b></div>'+(f?'<div class="rr" style="border-top:1px solid #dde6ef;margin-top:5px;padding-top:6px"><span>Monto factura</span><b>Gs. '+_nnum(f.monto)+'</b></div>':'')+'</div></div>';
+    '<div class="resumen"><h3>Resumen</h3><div class="rr"><span>Camiones</span><b>'+totN+'</b></div>'+(totKm>0?'<div class="rr"><span>Km total</span><b>'+_nnum(totKm)+' km</b></div>':'')+'<div class="rr"><span>Flete total</span><b>Gs. '+_nnum(totF)+'</b></div>'+(f?'<div class="rr" style="border-top:1px solid #dde6ef;margin-top:5px;padding-top:6px"><span>Monto factura</span><b>Gs. '+_nnum(f.monto)+'</b></div>':'')+'</div></div>';
   // Impresión 100% confiable: iframe aislado con dimensiones reales fuera de pantalla
   // (un iframe 0x0 no imprime en Chrome). Fallback a ventana nueva si el iframe falla.
   const doc='<!doctype html><html><head><meta charset="utf-8"><title>Planilla de Reparto de Flete</title>'+css+'</head><body><div id="_cfPrintArea">'+content+'</div></body></html>';
