@@ -3726,10 +3726,14 @@ function showSaveAnim(){
   .cf-segpill{display:inline-block;font-size:10.5px;font-weight:800;padding:2px 8px;border-radius:999px;white-space:nowrap}
   /* Reporte de Repartos */
   .cf-count{font-size:12px;font-weight:800;color:var(--gray-500,#64748b);background:var(--gray-100,#f1f5f9);padding:3px 11px;border-radius:999px}
-  .rr-mnav{display:inline-flex;align-items:center;gap:4px;background:var(--gray-100,#f1f5f9);border:1px solid var(--gray-200,#e2e8f0);border-radius:11px;padding:3px 4px;margin-left:10px}
-  .rr-mnav button{border:0;background:transparent;width:30px;height:30px;border-radius:8px;font-size:18px;color:var(--primary);cursor:pointer;font-weight:800;line-height:1}
-  .rr-mnav button:hover{background:#fff}
-  .rr-mnav span{font-weight:800;font-size:14px;padding:0 8px;color:var(--gray-800,#1e293b)}
+  /* Nav de mes unificado (mismo estilo que el calendario de Historial de repartos) */
+  .rr-mnav{display:inline-flex;align-items:center;gap:10px;margin-left:10px}
+  .rr-mnav button{border:1px solid var(--gray-200,#e2e8f0);background:#fff;width:34px;height:34px;border-radius:10px;font-size:18px;color:var(--gray-400,#94a3b8);cursor:pointer;font-weight:800;line-height:1;display:flex;align-items:center;justify-content:center;transition:all var(--fast)}
+  .rr-mnav button:hover{background:var(--primary);color:#fff;border-color:var(--primary);transform:scale(1.08)}
+  .rr-mnav span{font-family:Sora,Inter,sans-serif;font-weight:700;font-size:16px;padding:0;min-width:150px;text-align:center;text-transform:capitalize;color:var(--primary)}
+  .rr-mnav .rr-mnav__today{width:auto;height:auto;border:none;background:var(--accent-soft,#DBEAFE);color:var(--accent,#3B82F6);font-family:inherit;font-size:12px;font-weight:700;padding:6px 14px;border-radius:8px;margin-left:-2px}
+  .rr-mnav .rr-mnav__today:hover{background:var(--accent,#3B82F6);color:#fff;transform:none}
+  .rr-mnav .rr-mnav__today.on{background:var(--primary);color:#fff}
   .rr-filterbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;width:100%;margin-left:0;justify-content:flex-start}
   .rr-toolbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:2px 0 20px}
   .rr-toolbar .rr-search{flex:0 1 400px;margin:0}
@@ -4083,7 +4087,8 @@ async function renderReporte(){
   const nn=v=>_nnum(v), pn=r=>_pct(r).replace('%','').trim();
   const pctCap=Math.max(0,Math.min(nivel*100,100)),totalLen=Math.PI*64,off=totalLen-(totalLen*pctCap/100),ang=Math.PI*(pctCap/100);
   const dotX=(80-64*Math.cos(ang)).toFixed(1),dotY=(84-64*Math.sin(ang)).toFixed(1),excede=nivel*100>100;
-  const segBtns='<div class="cf-seg"><button class="'+(!_cfRepMes?'on':'')+'" data-rmes="">Total</button>'+months.map(k=>'<button class="'+(_cfRepMes===k?'on':'')+'" data-rmes="'+k+'">'+_mesLbl(k)+'</button>').join('')+'</div>';
+  const curStep=_cfRepMes||months[0]||(new Date().getFullYear()+'-'+String(new Date().getMonth()+1).padStart(2,'0'));
+  const segBtns='<div class="rr-mnav"><button data-repm="-1" aria-label="Mes anterior">‹</button><span>'+_mesLbl(curStep)+'</span><button data-repm="1" aria-label="Mes siguiente">›</button><button class="rr-mnav__today'+(!_cfRepMes?' on':'')+'" data-reptotal type="button">Total</button></div>';
   const editBtn=_cfRepMes?'<button class="cf-btn" id="cfRepEdit"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><path d="M11 4H4a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-7M18.5 2.5a2.1 2.1 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Cargar valores manuales</button>':'<span class="rep2-manhint">Elegí un mes para cargar los valores manuales</span>';
   const man=(v,u)=>'<span class="ch-rv man">'+nn(v)+(u?'<i class="unit">'+u+'</i>':'')+'</span>';
   const aut=(v,u)=>'<span class="ch-rv">'+nn(v)+(u?'<i class="unit">'+u+'</i>':'')+'</span>';
@@ -4143,7 +4148,8 @@ async function renderReporte(){
         '</table><small class="hint">Los valores en azul son los que cargás a mano por mes (botón «Cargar valores manuales»). La nota de crédito es informativa y no se resta del disponible.</small></div>'+
       '</div></div>'+
   '</div>';
-  host.querySelectorAll('[data-rmes]').forEach(b=>b.addEventListener('click',()=>{_cfRepMes=b.dataset.rmes||null;renderReporte();}));
+  host.querySelectorAll('[data-repm]').forEach(b=>b.addEventListener('click',()=>{const base=_cfRepMes||curStep;const a=base.split('-').map(Number);const d=new Date(a[0],a[1]-1+(+b.dataset.repm),1);_cfRepMes=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');renderReporte();}));
+  const rtt=host.querySelector('[data-reptotal]');if(rtt)rtt.addEventListener('click',()=>{_cfRepMes=null;renderReporte();});
   const eb=document.getElementById('cfRepEdit');if(eb)eb.addEventListener('click',()=>_cfOpenReporteEdit(_cfRepMes));
   if(window.gsap){
     const g=window.gsap;
@@ -4252,7 +4258,7 @@ async function renderFacturas(){
   const totalFact=shown.reduce((s,f)=>s+(+f.monto||0),0),nOk=shown.filter(f=>f._st==='ok').length,nDiff=shown.filter(f=>f._st==='diff').length;
   function kpi(cls,l,v,s){return '<div class="cf-kpi '+cls+'"><div><div class="cf-kpi__l">'+l+'</div><div class="cf-kpi__v">'+v+'</div><div class="cf-kpi__s">'+s+'</div></div></div>';}
   const kpis='<div class="cf-kpis">'+kpi('k3','Total facturado',_gs(totalFact),(_facWeek?'esta semana':'este mes'))+kpi('k2','Facturas registradas',shown.length,nOk+' conciliada'+(nOk===1?'':'s'))+kpi('k1','Con diferencia',nDiff,nDiff?'revisá el monto':'todo en orden')+'</div>';
-  const nav='<div class="rr-mnav"><button data-facm="-1" aria-label="Mes anterior">‹</button><span>'+_mesLbl(_facMes)+'</span><button data-facm="1" aria-label="Mes siguiente">›</button></div>';
+  const nav='<div class="rr-mnav"><button data-facm="-1" aria-label="Mes anterior">‹</button><span>'+_mesLbl(_facMes)+'</span><button data-facm="1" aria-label="Mes siguiente">›</button><button class="rr-mnav__today" data-factoday type="button">Hoy</button></div>';
   const chips='<div class="rr-chips"><button class="rr-chip'+(!_facWeek?' on':'')+'" data-facw="">Mes completo</button>'+weeks.map(w=>'<button class="rr-chip'+(_facWeek===w.desde?' on':'')+'" data-facw="'+w.desde+'">'+_shD(w.desde)+'–'+_shD(w.hasta)+'</button>').join('')+'</div>';
   let table;
   if(!shown.length){table='<div class="cf-card"><div class="cf-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 3h14a1 1 0 011 1v17l-3-2-3 2-3-2-3 2-3-2V4a1 1 0 011-1z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><b>No hay facturas en este período</b><span>Registrá una y elegí la planilla del transportista que corresponde.</span></div></div>';}
@@ -4265,6 +4271,7 @@ async function renderFacturas(){
   host.innerHTML='<div class="cf-hd"><h2><img src="logo-alas-s.a.png">Facturas registradas</h2>'+nav+'<div class="cf-spacer"></div><button class="cf-btn" id="cfNewFac"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Registrar factura</button></div>'+chips+kpis+table;
   document.getElementById('cfNewFac').addEventListener('click',()=>_cfOpenFacturaModal(null));
   host.querySelectorAll('[data-facm]').forEach(b=>b.addEventListener('click',()=>{const a=_facMes.split('-').map(Number),d=new Date(a[0],a[1]-1+(+b.dataset.facm),1);_facMes=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');_facWeek=null;renderFacturas();}));
+  const facToday=host.querySelector('[data-factoday]');if(facToday)facToday.addEventListener('click',()=>{const d=new Date();_facMes=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');_facWeek=null;renderFacturas();});
   host.querySelectorAll('[data-facw]').forEach(b=>b.addEventListener('click',()=>{_facWeek=b.dataset.facw||null;renderFacturas();}));
   host.querySelectorAll('[data-delfac]').forEach(b=>b.addEventListener('click',()=>_cfDeleteFactura(+b.dataset.delfac)));
   host.querySelectorAll('[data-editfac]').forEach(b=>b.addEventListener('click',()=>{const f=(window.__cfFac||[]).find(x=>x.id===+b.dataset.editfac);if(f)_cfOpenFacturaModal(f);}));
@@ -4406,7 +4413,7 @@ function renderReporteRepartos(){
   const periodLbl=wkObj?(_dispD(wkObj.desde)+' al '+_dispD(wkObj.hasta)):'Mes completo';
   // Chips de semana: punto en pulso sobre la semana actual + conteo de planillas por semana
   const chips='<div class="rr-chips">'+weeks.map(w=>{const isCur=today>=w.desde&&today<=w.hasta;const n=_planillasDe(null,w.desde).length;return '<button class="rr-chip'+(_rrWeek===w.desde?' on':'')+'" data-rrw="'+w.desde+'">'+(isCur?'<span class="rr-chip__dot" title="Semana actual"></span>':'')+_shD(w.desde)+'–'+_shD(w.hasta)+(n?'<span class="rr-chip__n">'+n+'</span>':'')+'</button>';}).join('')+'</div>';
-  const nav='<div class="rr-mnav"><button data-rrm="-1" aria-label="Mes anterior">‹</button><span>'+monthLbl+'</span><button data-rrm="1" aria-label="Mes siguiente">›</button></div>';
+  const nav='<div class="rr-mnav"><button data-rrm="-1" aria-label="Mes anterior">‹</button><span>'+monthLbl+'</span><button data-rrm="1" aria-label="Mes siguiente">›</button><button class="rr-mnav__today" data-rrtoday type="button">Hoy</button></div>';
   // Filtro de segmento PRO: ícono minimalista + label, centrado, con entrada GSAP
   const SEGF=[
     ['todos','Todos','<svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>'],
@@ -4423,6 +4430,7 @@ function renderReporteRepartos(){
     '<div class="rr-noresults cf-card" style="display:none"><div class="cf-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><b>Sin resultados para “<span class="rr-nq"></span>”</b><span>Probá con otro nombre de transportista o de camión.</span></div></div>';}
   host.innerHTML='<div class="cf-hd"><h2><img src="logo-alas-s.a.png">Reporte de Repartos</h2><span class="cf-count">'+groups.length+'</span><div class="rr-filterbar">'+nav+chips+'</div></div><div class="rr-toolbar">'+search+segFilter+'</div>'+cards;
   host.querySelectorAll('[data-rrm]').forEach(b=>b.addEventListener('click',()=>_rrShiftMonth(+b.dataset.rrm)));
+  const rrToday=host.querySelector('[data-rrtoday]');if(rrToday)rrToday.addEventListener('click',()=>{const d=new Date();_rrMes=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');_rrWeek=undefined;renderReporteRepartos();});
   host.querySelectorAll('[data-rrw]').forEach(b=>b.addEventListener('click',()=>{_rrWeek=b.dataset.rrw||null;renderReporteRepartos();}));
   host.querySelectorAll('[data-rrseg]').forEach(b=>b.addEventListener('click',()=>{if(_rrSeg===b.dataset.rrseg)return;_rrSeg=b.dataset.rrseg;renderReporteRepartos();}));
   host.querySelectorAll('[data-rrts]').forEach(b=>b.addEventListener('click',()=>_rrOpenDetail(groups[+b.dataset.rrts],periodLbl,wkObj)));
