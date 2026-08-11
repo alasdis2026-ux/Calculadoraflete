@@ -740,6 +740,10 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .cal-day-topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:14px;background:#fff;padding:6px 2px 12px;margin:0 -6px;padding-left:8px;padding-right:8px;border-bottom:1px solid var(--gray-100)}
 .cal-day-ttl{display:flex;align-items:center;gap:12px;min-width:0}
 .cal-day-ttl h2{font-family:Sora,Inter,sans-serif;font-size:20px;font-weight:800;color:var(--primary);margin:0;white-space:nowrap}
+.cal-day-editbadge{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#B45309;background:#FEF3C7;border:1px solid #FCD34D;border-radius:999px;padding:5px 12px;white-space:nowrap}
+.cal-day-editbadge i{width:7px;height:7px;border-radius:50%;background:#F59E0B;animation:calpulse 1.4s ease-in-out infinite}
+#calDayWrap.is-editing .cal-day-topbar{border-bottom:2px solid #FCD34D;box-shadow:0 6px 16px rgba(245,158,11,.1)}
+#calDayWrap.is-editing .cal-day-ttl h2{color:#B45309}
 /* ── Calendario estilo CajaVenta ── */
 .cal-wrap{flex:1;min-height:0;display:flex;flex-direction:column;gap:12px;overflow:hidden}
 .cal-top-bar{display:flex;justify-content:space-between;align-items:center}
@@ -1240,7 +1244,7 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
   <div id="calDayWrap" class="cal-day-wrap">
     <div class="cal-day-topbar">
       <button class="rrd-back" id="calDayBack" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg> Volver</button>
-      <div class="cal-day-ttl"><h2 id="calModalTitle"></h2><span class="cal-modal-badge" id="calModalBadge"></span></div>
+      <div class="cal-day-ttl"><h2 id="calModalTitle"></h2><span class="cal-modal-badge" id="calModalBadge"></span><span class="cal-day-editbadge" id="calDayEditBadge" style="display:none"><i></i>Editando</span></div>
     </div>
     <div class="cal-modal-kpis" id="calModalKpis"></div>
     <div class="cal-modal-body" id="calModalBody"></div>
@@ -3008,6 +3012,10 @@ function renderCalDay(anim){
   const [y,m,d]=iso.split('-').map(Number);
   document.getElementById('calModalTitle').textContent=`${d} de ${MESES_LARGO[m-1]} de ${y}`;
   document.getElementById('calModalBadge').textContent=`${list.length} reparto${list.length!==1?'s':''}`;
+  const editing=calEditRepId!=null;
+  const wrapEl=document.getElementById('calDayWrap');if(wrapEl)wrapEl.classList.toggle('is-editing',editing);
+  const eb=document.getElementById('calDayEditBadge');if(eb)eb.style.display=editing?'inline-flex':'none';
+  const cb=document.getElementById('calModalBadge');if(cb)cb.style.display=editing?'none':'';
   const totMonto=list.reduce((a,r)=>a+(r.totalMonto||0),0);
   const totFlete=list.reduce((a,r)=>a+(r.totalFlete||0),0);
   const incs=list.filter(r=>r.incTotal!==null&&r.incTotal!==undefined).map(r=>r.incTotal);
