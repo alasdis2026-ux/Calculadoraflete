@@ -1681,7 +1681,7 @@ function showView(v){
   // Entrada orquestada de la vista (patrón Control de Facturas): hijos directos en cascada
   if(v!==_lastView&&window.gsap&&!(false/*anim siempre on*/)){
     const st=document.getElementById('view'+v.charAt(0).toUpperCase()+v.slice(1));
-    if(st){const kids=Array.from(st.children).slice(0,8);if(kids.length){gsap.killTweensOf(kids);gsap.from(kids,{opacity:0,y:14,duration:.4,stagger:.05,ease:'power3.out',clearProps:'all'});}}
+    if(st){const kids=Array.from(st.children).filter(k=>k.style.display!=='none').slice(0,8);if(kids.length){gsap.killTweensOf(kids);gsap.from(kids,{opacity:0,y:14,duration:.4,stagger:.05,ease:'power3.out',clearProps:'opacity,transform'});}}
   }
   _lastView=v;
   if(v==='trans'){ selectedTsId=null; const gs=document.getElementById('tsGridState'),ds=document.getElementById('tsDetailState'); if(gs)gs.style.display=''; if(ds)ds.style.display='none'; renderTsList(); }
