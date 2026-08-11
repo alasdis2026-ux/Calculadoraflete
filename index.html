@@ -571,6 +571,12 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .chip-pop__item .dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
 .chip-pop__add{border-top:1px solid var(--gray-100,#f1f5f9);color:var(--primary);font-weight:800}
 .chip-pop__empty{padding:16px;text-align:center;color:var(--gray-400,#94a3b8);font-size:12.5px;font-weight:600}
+.chip-pop__lbl{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chip-pop__row{display:flex;align-items:center;gap:2px}
+.chip-pop__row .chip-pop__item{flex:1;min-width:0}
+.chip-pop__del{flex-shrink:0;width:28px;height:28px;border:0;border-radius:8px;background:transparent;color:var(--gray-300,#cbd5e1);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .12s,color .12s}
+.chip-pop__del:hover{background:#FEF2F2;color:#DC2626}
+.chip-pop__del svg{width:15px;height:15px}
 .rb-item-meta{display:flex;justify-content:space-between;gap:10px;font-size:11px;font-weight:600;color:var(--gray-400,#94a3b8);margin-top:5px}
 .rb-item-meta b{color:var(--gray-600,#475569);font-weight:800}
 .tr-row__price{text-align:right;white-space:nowrap}
@@ -841,6 +847,9 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .cal-rep-btn[data-cal-add]{border-color:var(--accent,#3B82F6);color:var(--accent,#3B82F6);background:var(--accent-soft,#DBEAFE)}
 .cal-rep-btn[data-cal-add]:hover{background:var(--accent,#3B82F6);color:#fff;border-color:var(--accent,#3B82F6)}
 .cal-rep-btn[data-cal-add]:hover svg{stroke:#fff}
+/* Cancelar: rojo minimalista */
+.cal-rep-btn[data-cal-cancel]{color:#DC2626;border-color:#FCA5A5;background:#fff}
+.cal-rep-btn[data-cal-cancel]:hover{background:#FEF2F2;border-color:#DC2626}
 /* Basura: rojo */
 .cal-rep-btn.del{padding:0 11px;color:#DC2626;border-color:#FCA5A5;background:#FEF2F2}
 .cal-rep-btn.del:hover{border-color:#DC2626;color:#fff;background:#DC2626}
@@ -2276,14 +2285,21 @@ function openChipPop(anchor,opts){
   const p=_ensureChipPop();_chipAnchor=anchor;anchor.classList.add('is-open');
   const searchWrap=p.querySelector('.chip-pop__search'),searchInp=searchWrap.querySelector('input'),list=p.querySelector('.chip-pop__list');
   searchWrap.style.display=opts.search?'':'none';searchInp.value='';
+  const CHIP_TRASH='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M10 11v6M14 11v6"/></svg>';
+  const getOpts=()=>typeof opts.options==='function'?(opts.options()||[]):(opts.options||[]);
   function render(q){
     q=(q||'').toLowerCase();
-    let html=opts.options.filter(o=>!q||o.label.toLowerCase().includes(q)).map(o=>'<button type="button" class="chip-pop__item'+(o.v===opts.value?' on':'')+'" data-v="'+esc(o.v)+'">'+(o.dot?'<span class="dot" style="background:'+o.dot+'"></span>':'')+esc(o.label)+'</button>').join('');
+    let html=getOpts().filter(o=>!q||o.label.toLowerCase().includes(q)).map(function(o){
+      const inner=(o.dot?'<span class="dot" style="background:'+o.dot+'"></span>':'')+'<span class="chip-pop__lbl">'+esc(o.label)+'</span>';
+      const item='<button type="button" class="chip-pop__item'+(o.v===opts.value?' on':'')+'" data-v="'+esc(o.v)+'">'+inner+'</button>';
+      return (opts.onDelete&&o.del!==false)?'<div class="chip-pop__row">'+item+'<button type="button" class="chip-pop__del" data-del="'+esc(o.v)+'" title="Borrar">'+CHIP_TRASH+'</button></div>':item;
+    }).join('');
     if(!html)html='<div class="chip-pop__empty">Sin resultados</div>';
     if(opts.addLabel)html+='<button type="button" class="chip-pop__item chip-pop__add" data-add="1">＋ '+esc(opts.addLabel)+'</button>';
     list.innerHTML=html;
     list.querySelectorAll('[data-v]').forEach(b=>b.addEventListener('click',()=>{const v=b.dataset.v;_closeChipPop();opts.onPick&&opts.onPick(v);}));
     const addb=list.querySelector('[data-add]');if(addb)addb.addEventListener('click',()=>{const q2=(searchInp.value||'').trim();_closeChipPop();opts.onAdd&&opts.onAdd(q2);});
+    list.querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();if(opts.onDelete)opts.onDelete(b.dataset.del,()=>render(searchInp.value));}));
   }
   render('');
   if(opts.search)searchInp.oninput=()=>render(searchInp.value);
@@ -2326,6 +2342,30 @@ function _openAddRepartidor(onDone){
     if(_repartidores.some(n=>n.toLowerCase()===name.toLowerCase())){const ex=_repartidores.find(n=>n.toLowerCase()===name.toLowerCase());onDone&&onDone(ex);close();return;}
     try{const r=await sb.from('repartidores').insert({nombre:name}).select('nombre').single();if(r.error)throw r.error;_repartidores.push(name);_repartidores.sort((a,b)=>a.localeCompare(b));_syncRepDatalist();onDone&&onDone(name);showToast('¡Listo! Sumé a '+name+' a la lista');close();}catch(err){showToast('Uy, no pude agregar el repartidor. Probá de nuevo.');}
   });
+}
+// Baja de repartidor (soft delete: activo=false) — optimista + refresco del popover
+async function _deleteRepartidor(name,done){
+  const i=_repartidores.indexOf(name);if(i>=0)_repartidores.splice(i,1);_syncRepDatalist();
+  if(typeof done==='function')done();
+  try{await sb.from('repartidores').update({activo:false}).eq('nombre',name);showToast('Quité a '+name+' de la lista');}catch(e){showToast('No pude borrar el repartidor');}
+}
+// Alta de camión a una transportadora (tabla camiones)
+function _calAddCamion(tsId,onDone){
+  const ts=(transportistas||[]).find(t=>t.id===tsId);if(!ts){showToast('No encontré la transportadora del reparto');return;}
+  const m=_cfModalOpen('<div class="cf-mbox" style="max-width:430px"><h3>Nuevo camión</h3><p class="cf-msub">Se agrega a <b>'+esc(ts.n||'')+'</b>.</p><div class="cf-fld"><label>Descripción del camión</label><input id="_calNewTr" placeholder="Ej: BG MOVIL 32" autocomplete="off"></div><div class="cf-mfoot"><button class="cancel">Cancelar</button><button class="ok">Agregar</button></div></div>');
+  const inp=m.$('#_calNewTr');inp.style.textTransform='uppercase';setTimeout(()=>{try{inp.focus();}catch(_){}},60);
+  m.$('.cancel').addEventListener('click',m.close);
+  const go=async()=>{const d=(inp.value||'').trim().toUpperCase();if(!d){inp.focus();return;}const ok=m.$('.ok');ok.disabled=true;ok.textContent='Agregando…';
+    try{const id=await dbAddTruck(tsId,d,0,'km');ts.trucks=ts.trucks||[];ts.trucks.push({id:id,d:d,precio:0,tipo:'km'});ts.trucks.sort((a,b)=>(a.d||'').localeCompare(b.d||''));m.close();showToast('Camión agregado');onDone&&onDone(id,d);}
+    catch(e){showToast('No pude agregar el camión');ok.disabled=false;ok.textContent='Agregar';}};
+  m.$('.ok').addEventListener('click',go);
+  inp.addEventListener('keydown',e=>{if(e.key==='Enter')go();});
+}
+// Baja de camión — optimista + refresco del popover
+async function _calDeleteCamion(trId,ts,done){
+  const tid=+trId;if(ts&&ts.trucks){const i=ts.trucks.findIndex(t=>t.id===tid);if(i>=0)ts.trucks.splice(i,1);}
+  if(typeof done==='function')done();
+  try{await dbDeleteTruck(tid);showToast('Camión borrado');}catch(e){showToast('No pude borrar el camión');}
 }
 
 /* ════════ AUTOCOMPLETE CLIENTES (Supabase) ═════════════════════ */
@@ -3137,14 +3177,20 @@ function calOpenPick(btn){
   const w=calWork.find(x=>x.uid===+btn.dataset.uid);if(!w)return;
   const kind=btn.dataset.pick,rerender=()=>renderCalDay('rows');
   if(kind==='tr'){
-    const r=calDayRepartos().find(x=>x.id===calEditRepId),ts=(transportistas||[]).find(t=>r&&t.id===r.tsId),trucks=(ts&&ts.trucks)||[];
-    const opts=trucks.map(t=>({v:String(t.id),label:t.d}));
-    if(w.trId&&!trucks.some(t=>t.id===w.trId))opts.unshift({v:String(w.trId),label:w.trDesc||'—'});
-    openChipPop(btn,{value:w.trId?String(w.trId):'',search:true,options:opts,onPick:v=>{const t=trucks.find(x=>String(x.id)===v);w.trId=+v||null;w.trDesc=t?t.d:w.trDesc;rerender();}});
+    const r=calDayRepartos().find(x=>x.id===calEditRepId),ts=(transportistas||[]).find(t=>r&&t.id===r.tsId);if(ts)ts.trucks=ts.trucks||[];
+    const optsFn=()=>{const l=(ts?ts.trucks:[]).map(t=>({v:String(t.id),label:t.d,del:true}));if(w.trId&&!(ts&&ts.trucks.some(t=>t.id===w.trId)))l.unshift({v:String(w.trId),label:w.trDesc||'—',del:false});return l;};
+    openChipPop(btn,{value:w.trId?String(w.trId):'',search:true,addLabel:'Nuevo camión',options:optsFn,
+      onPick:v=>{const t=(ts?ts.trucks:[]).find(x=>String(x.id)===v);w.trId=+v||null;w.trDesc=t?t.d:w.trDesc;rerender();},
+      onAdd:()=>{if(!ts){showToast('Este reparto no tiene transportadora');return;}_calAddCamion(ts.id,(id,d)=>{w.trId=id;w.trDesc=d;rerender();});},
+      onDelete:(v,refresh)=>{if(String(w.trId)===v){w.trId=null;w.trDesc='';}_calDeleteCamion(v,ts,refresh);}});
   }else if(kind==='rep'){
-    openChipPop(btn,{value:w.rep||'',search:true,addLabel:'Agregar repartidor nuevo',options:(_repartidores||[]).map(n=>({v:n,label:n})),onPick:v=>{w.rep=v;rerender();},onAdd:()=>_openAddRepartidor(name=>{w.rep=name;rerender();})});
+    openChipPop(btn,{value:w.rep||'',search:true,addLabel:'Agregar repartidor nuevo',options:()=>(_repartidores||[]).map(n=>({v:n,label:n,del:true})),
+      onPick:v=>{w.rep=v;rerender();},onAdd:()=>_openAddRepartidor(name=>{w.rep=name;rerender();}),
+      onDelete:(v,refresh)=>{if(w.rep===v)w.rep='';_deleteRepartidor(v,refresh);}});
   }else if(kind==='zona'){
-    openChipPop(btn,{value:w.zona||'',search:true,addLabel:'Usar otra zona',options:_zonasFor(w.seg||'local').map(z=>({v:z.n,label:z.n})),onPick:v=>{w.zona=v;rerender();},onAdd:q=>{if(q){w.zona=q;rerender();}}});
+    openChipPop(btn,{value:w.zona||'',search:true,addLabel:'Usar otra zona',options:()=>_zonasFor(w.seg||'local').map(z=>({v:z.n,label:z.n,del:true})),
+      onPick:v=>{w.zona=v;rerender();},onAdd:q=>{if(q){w.zona=q;rerender();}},
+      onDelete:(v,refresh)=>{const i=_ZONAS.findIndex(z=>z.n===v);if(i>=0)_ZONAS.splice(i,1);if(w.zona===v)w.zona='';showToast('Zona quitada (de esta sesión)');refresh();}});
   }else if(kind==='seg'){
     openChipPop(btn,{value:w.seg||'local',options:[{v:'local',label:'Local',dot:'#0B5F8D'},{v:'interior',label:'Interior',dot:'#F97316'},{v:'servicios',label:'Servicios',dot:'#10B981'},{v:'transportadora',label:'Transportadora',dot:'#7c3aed'}],onPick:v=>{w.seg=v;if(w.zona&&!_zonasFor(v).some(z=>z.n===w.zona))w.zona=null;rerender();}});
   }
