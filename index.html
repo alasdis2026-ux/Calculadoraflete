@@ -3827,34 +3827,25 @@ function showSaveAnim(){
   .gstat .card.accent .gstat-kpi-big{color:var(--primary)}
   .gstat-kpi-sub{font-size:12px;color:var(--gray-400);margin-top:6px;font-weight:600}
   .gstat-herowrap{margin-bottom:16px}
-  .gstat-hero{background:linear-gradient(135deg,#0B4F8A,#1466B0)!important;color:#fff;border:none!important;align-items:center;text-align:center;padding:22px 20px}
-  .gstat-hero h3{color:rgba(255,255,255,.72)!important;letter-spacing:.8px}
-  .gstat-hero-big{font-family:Sora,Inter,sans-serif;font-size:40px;font-weight:800;letter-spacing:-.5px;line-height:1;font-variant-numeric:tabular-nums}
-  .gstat-hero-big .u{font-size:18px;font-weight:600;color:rgba(255,255,255,.7);margin-right:5px}
-  .gstat-hero-row{display:flex;align-items:center;justify-content:center;gap:9px;margin-top:12px;flex-wrap:wrap}
+  /* KPIs con la forma del "Meta mensual · avance" (gauge 150px + info, izquierda) */
+  .gstat-hero{background:linear-gradient(135deg,#0B4F8A,#1466B0)!important;color:#fff;border:none!important;align-items:stretch;text-align:left;padding:18px 20px}
+  .gstat-hero h3{color:rgba(255,255,255,.72)!important;letter-spacing:.7px;margin-bottom:12px}
+  .ghero-wrap{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+  .ghero-info{flex:1;min-width:160px}
+  .ghero-big{font-family:Sora,Inter,sans-serif;font-size:26px;font-weight:800;letter-spacing:-.5px;line-height:1.05;font-variant-numeric:tabular-nums}
+  .ghero-big .u{font-size:15px;font-weight:600;color:rgba(255,255,255,.7);margin-right:4px}
+  .ghero-big small{font-size:14px;font-weight:600;opacity:.82}
+  .gstat-hero-row{display:flex;align-items:center;justify-content:flex-start;gap:9px;margin-top:9px;flex-wrap:wrap}
   .gstat-hero-sub{font-size:11.5px;color:rgba(255,255,255,.82);font-weight:600}
   .gchip{display:inline-flex;align-items:center;gap:3px;font-size:12.5px;font-weight:800;padding:4px 11px;border-radius:20px;white-space:nowrap}
   .gchip.up{background:#fff;color:#127a4b}
   .gchip.down{background:#fff;color:#C0392B}
   .gchip.flat{background:rgba(255,255,255,.2);color:#fff}
-  .gstat-hbar{display:flex;height:12px;border-radius:7px;overflow:hidden;margin-top:16px;background:rgba(255,255,255,.18);gap:2px;width:100%;max-width:560px}
-  .gstat-hbar>span{display:block;height:100%}
-  .gstat-hstats{display:flex;justify-content:center;margin-top:18px}
-  .gstat-hstats>div{padding:0 28px;border-right:1px solid rgba(255,255,255,.22)}
-  .gstat-hstats>div:last-child{border-right:none}
-  .gstat-hstats b{display:block;font-family:Sora,Inter,sans-serif;font-size:23px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
-  .gstat-hstats span{display:block;font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:rgba(255,255,255,.72);margin-top:6px}
-  /* Donut dentro del KPI Gastos */
-  .gstat-hero--donut{text-align:left;align-items:center}
-  .ghd-row{display:flex;align-items:center;justify-content:center;gap:20px;margin-top:8px;flex-wrap:wrap}
-  .ghd-chart{position:relative;width:120px;height:120px;flex-shrink:0}
-  .ghd-svg{width:120px;height:120px;display:block;filter:drop-shadow(0 4px 10px rgba(0,0,0,.22))}
+  .ghd-chart{position:relative;width:150px;height:150px;flex-shrink:0}
+  .ghd-svg{width:150px;height:150px;display:block;filter:drop-shadow(0 4px 10px rgba(0,0,0,.22))}
   .ghd-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;color:#fff}
-  .ghd-center b{font-family:Sora,Inter,sans-serif;font-size:19px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
-  .ghd-center span{font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;opacity:.72;margin-top:3px}
-  .ghd-info{min-width:0}
-  .gstat-hero--donut .gstat-hero-big{font-size:30px}
-  .gstat-hero--donut .gstat-hero-row{justify-content:flex-start}
+  .ghd-center b{font-family:Sora,Inter,sans-serif;font-size:27px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
+  .ghd-center span{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;opacity:.72;margin-top:4px}
   .ghd-legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:12px}
   .ghd-leg{font-size:11.5px;font-weight:700;color:rgba(255,255,255,.9);display:inline-flex;align-items:center;gap:6px}
   .ghd-leg i{width:10px;height:10px;border-radius:3px;display:inline-block}
@@ -4576,18 +4567,16 @@ function _cfOpenStats(){
   const _prevMk=(()=>{const a=mk.split('-').map(Number);const d=new Date(a[0],a[1]-2,1);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');})();
   const prevTotal=_gastoStats(_prevMk,_cfStatsTs).total,trend=prevTotal>0?((s.total-prevTotal)/prevTotal):null;
   const gchip=trend===null?'<span class="gchip flat">sin mes previo</span>':'<span class="gchip '+(trend>0?'up':(trend<0?'down':'flat'))+'">'+(trend>0?'▲ ':(trend<0?'▼ ':''))+_pct(Math.abs(trend))+'</span>';
-  const segStack=segItems.map(it=>'<span title="'+esc(it.label)+': '+esc(_gs(it.value))+'" style="width:'+(it.value/(s.total||1)*100).toFixed(1)+'%;background:'+it.lc+'"></span>').join('');
   const camPct=Math.min(100,Math.round(s.camList.length/Math.max(1,allTs.reduce((a,t)=>a+t.cam,0))*100));
   const heroDonut=items=>{const total=items.reduce((a,i)=>a+i.value,0)||1,C=2*Math.PI*46,gap=3;let cum=0;const arcs=items.map(it=>{const len=(it.value/total)*C,vis=Math.max(0,len-gap),c='<circle cx="60" cy="60" r="46" fill="none" stroke="'+it.lc+'" stroke-width="15" stroke-dasharray="'+vis.toFixed(2)+' '+(C-vis).toFixed(2)+'" stroke-dashoffset="'+(-cum).toFixed(2)+'"/>';cum+=len;return c;}).join('');return '<div class="ghd-chart"><svg viewBox="0 0 120 120" class="ghd-svg"><g transform="rotate(-90 60 60)">'+arcs+'</g></svg><div class="ghd-center"><b>'+_gsShort(total)+'</b><span>total</span></div></div>';};
+  const heroGauge=(pct,cv,cl)=>{const C=2*Math.PI*46,vis=Math.max(0,Math.min(1,pct))*C;return '<div class="ghd-chart"><svg viewBox="0 0 120 120" class="ghd-svg"><g transform="rotate(-90 60 60)"><circle cx="60" cy="60" r="46" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="15"/><circle cx="60" cy="60" r="46" fill="none" stroke="#9FD3FF" stroke-width="15" stroke-linecap="round" stroke-dasharray="'+vis.toFixed(2)+' '+(C-vis).toFixed(2)+'"/></g></svg><div class="ghd-center"><b>'+cv+'</b><span>'+cl+'</span></div></div>';};
   const legend=segItems.map(it=>'<span class="ghd-leg"><i style="background:'+it.lc+'"></i>'+esc(it.label)+' <b>'+_pct(it.value/(s.total||1))+'</b></span>').join('');
   const kpis='<div class="gstat-topgrid">'+
-    '<div class="card gstat-hero gstat-hero--donut"><h3>Gasto total del mes</h3>'+
-      '<div class="ghd-row">'+heroDonut(segItems)+'<div class="ghd-info"><div class="gstat-hero-big"><span class="u">Gs.</span>'+_nnum(s.total)+'</div><div class="gstat-hero-row">'+gchip+'<span class="gstat-hero-sub">vs '+_mesLbl(_prevMk)+'</span></div><div class="ghd-legend">'+legend+'</div></div></div>'+
+    '<div class="card gstat-hero"><h3>Gasto total del mes</h3>'+
+      '<div class="ghero-wrap">'+heroDonut(segItems)+'<div class="ghero-info"><div class="ghero-big"><span class="u">Gs.</span>'+_nnum(s.total)+'</div><div class="gstat-hero-row">'+gchip+'<span class="gstat-hero-sub">vs '+_mesLbl(_prevMk)+'</span></div><div class="ghd-legend">'+legend+'</div></div></div>'+
     '</div>'+
     '<div class="card gstat-hero"><h3>Camiones usados</h3>'+
-      '<div class="gstat-hero-big">'+_nnum(s.camList.length)+'</div>'+
-      '<div class="gstat-hero-row"><span class="gchip flat">'+_nnum(s.tsList.length)+' transportadora'+(s.tsList.length===1?'':'s')+'</span><span class="gstat-hero-sub">'+_nnum(s.intKm)+' km interior</span></div>'+
-      '<div class="gstat-hbar"><span style="width:'+camPct+'%;background:#9FD3FF"></span></div>'+
+      '<div class="ghero-wrap">'+heroGauge(camPct/100,_nnum(s.camList.length),'usados')+'<div class="ghero-info"><div class="ghero-big">'+_nnum(s.tsList.length)+'<small> transportadoras</small></div><div class="gstat-hero-row"><span class="gstat-hero-sub">'+_nnum(s.intKm)+' km interior · '+camPct+'% de la flota usada</span></div></div></div>'+
     '</div>'+
   '</div>';
   const nav='<div class="rr-mnav"><button data-statm="-1" aria-label="Mes anterior">‹</button><span>'+_mesLbl(mk)+'</span><button data-statm="1" aria-label="Mes siguiente">›</button><button class="rr-mnav__today" data-stattoday type="button">Hoy</button></div>';
