@@ -3770,21 +3770,26 @@ function showSaveAnim(){
   .rep2 .mini-seg.total .mv{color:#fff}
   .rep2 .mini-seg.total .mini-ic{background:rgba(255,255,255,.22);color:#fff}
   /* Monto e incidencia por zona */
-  .rep2 .rep2-zt-wrap{padding:16px 20px 18px;display:flex;flex-direction:column;gap:15px}
-  .rep2 .rep2-zt-row{display:flex;flex-direction:column;gap:6px}
-  .rep2 .rep2-zt-head{display:flex;align-items:baseline;gap:10px}
-  .rep2 .rep2-zt-rank{width:22px;height:22px;flex-shrink:0;border-radius:50%;background:var(--gray-100);color:var(--gray-500);font-size:11px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;align-self:center}
-  .rep2 .rep2-zt-row:nth-child(1) .rep2-zt-rank{background:linear-gradient(135deg,#F5A623,#FBBF24);color:#fff}
-  .rep2 .rep2-zt-name{font-size:12.5px;font-weight:800;color:var(--gray-700);text-transform:uppercase;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0}
-  .rep2 .rep2-zt-nums{font-size:12px;font-weight:700;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums;flex-shrink:0}
-  .rep2 .rep2-zt-nums b{color:var(--text)}
-  .rep2 .rep2-zt-inc{font-weight:800}
-  .rep2 .rep2-zt-inc.ok{color:#047857}.rep2 .rep2-zt-inc.over{color:#DC2626}
-  .rep2 .rep2-zt-track{height:14px;background:var(--gray-100);border-radius:7px;overflow:hidden}
-  .rep2 .rep2-zt-fill{height:100%;border-radius:7px;background:linear-gradient(90deg,var(--primary),var(--accent))}
-  .rep2 .rep2-zt-tot{display:flex;align-items:center;justify-content:space-between;gap:10px;border-top:1.5px solid var(--soft-line);padding-top:12px;margin-top:2px}
-  .rep2 .rep2-zt-tot span{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--primary)}
-  .rep2 .rep2-zt-tot b{font-size:13px;font-weight:800;color:var(--text);font-variant-numeric:tabular-nums}
+  /* Monto e incidencia por zona: gráfico + tabla lado a lado */
+  .rep2 .rep2-zt-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+  .rep2 .zbar-wrap{padding:15px 18px 16px;display:flex;flex-direction:column;gap:11px;max-height:460px;overflow-y:auto}
+  .rep2 .zbar-row{display:flex;align-items:center;gap:10px}
+  .rep2 .zbar-rank{width:22px;height:22px;flex-shrink:0;border-radius:50%;background:var(--gray-100);color:var(--gray-500);font-size:10.5px;font-weight:800;display:flex;align-items:center;justify-content:center}
+  .rep2 .zbar-row:nth-child(1) .zbar-rank{background:linear-gradient(135deg,#F5A623,#FBBF24);color:#fff}
+  .rep2 .zbar-name{width:110px;flex-shrink:0;text-align:right;font-size:11.5px;font-weight:800;color:var(--primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rep2 .zbar-track{flex:1;min-width:0;height:20px;background:var(--gray-100);border-radius:6px;overflow:hidden}
+  .rep2 .zbar-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--primary),var(--accent))}
+  .rep2 .zbar-pill{flex-shrink:0;font-size:11px;font-weight:800;color:#127a4b;background:#E5F5EC;padding:4px 9px;border-radius:7px;white-space:nowrap;font-variant-numeric:tabular-nums;min-width:118px;text-align:right}
+  .rep2 .zt-tblwrap{max-height:460px;overflow:auto}
+  .rep2 table.zt-tbl{width:100%;border-collapse:collapse}
+  .rep2 table.zt-tbl th{position:sticky;top:0;z-index:1;background:#fff;text-align:right;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--gray-500);padding:11px 12px;border-bottom:2px solid var(--soft-line);white-space:nowrap}
+  .rep2 table.zt-tbl th:first-child{text-align:left}
+  .rep2 table.zt-tbl td{padding:8px 12px;border-bottom:1px solid var(--soft-line);text-align:right;font-size:12.5px;font-weight:700;color:var(--gray-700);white-space:nowrap;font-variant-numeric:tabular-nums}
+  .rep2 table.zt-tbl td.zt-nm{text-align:left;font-weight:800;color:var(--gray-800)}
+  .rep2 table.zt-tbl td.zt-monto{background:#E5F5EC;color:#127a4b}
+  .rep2 table.zt-tbl td.zt-inc{background:#FDF0E1;color:#C0392B}
+  .rep2 table.zt-tbl tbody tr:hover td{filter:brightness(.98)}
+  @media(max-width:900px){.rep2 .rep2-zt-grid{grid-template-columns:1fr}}
   /* Ledger (resumen + facturación) */
   .rep2 table.ledger{width:100%;border-collapse:collapse}
   .rep2 table.ledger td{padding:10px 20px;border-bottom:1px solid var(--soft-line);font-size:13px}
@@ -4295,7 +4300,7 @@ let _cfRepMes=null;     // mes seleccionado; null = Total
 function _cfMonthKeys(){const s=new Set();(repartos||[]).forEach(r=>{const k=(r.fechaISO||'').slice(0,7);if(k)s.add(k);});return[...s].sort().reverse();}
 function _cfLines(mk){const out=[];(repartos||[]).forEach(r=>{if(mk&&(r.fechaISO||'').slice(0,7)!==mk)return;(r.clientes||[]).forEach(cl=>out.push({seg:cl.seg||'local',monto:+cl.monto||0,flete:+cl.precio||0,cam:(cl.trDesc||'').toUpperCase(),km:+cl.km||0}));});return out;}
 // Monto e incidencia agrupados por zona (para el Reporte General)
-function _cfZonas(mk){const map={};(repartos||[]).forEach(r=>{if(mk&&(r.fechaISO||'').slice(0,7)!==mk)return;(r.clientes||[]).forEach(c=>{const z=((c.zona||'').trim())||'Sin zona';const o=map[z]||(map[z]={zona:z,monto:0,flete:0});o.monto+=+c.monto||0;o.flete+=+c.precio||0;});});return Object.values(map).map(z=>({zona:z.zona,monto:z.monto,flete:z.flete,incidencia:z.monto>0?z.flete/z.monto:0})).sort((a,b)=>b.monto-a.monto);}
+function _cfZonas(mk){const map={};(repartos||[]).forEach(r=>{if(mk&&(r.fechaISO||'').slice(0,7)!==mk)return;(r.clientes||[]).forEach(c=>{const z=((c.zona||'').trim())||'Sin zona';const o=map[z]||(map[z]={zona:z,monto:0,flete:0,peso:0});o.monto+=+c.monto||0;o.flete+=+c.precio||0;o.peso+=+c.peso||0;});});return Object.values(map).map(z=>({zona:z.zona,monto:z.monto,flete:z.flete,peso:z.peso,incidencia:z.monto>0?z.flete/z.monto:0})).sort((a,b)=>b.monto-a.monto);}
 
 function _cfReporteModel(mk){
   const auto={interior:{monto:0,flete:0,cam:{}},local:{monto:0,flete:0,cam:{}},transportadora:{monto:0,flete:0,cam:{}}};
@@ -4327,13 +4332,17 @@ async function renderReporte(){
   const editBtn=_cfRepMes?'<button class="cf-btn" id="cfRepEdit"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><path d="M11 4H4a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-7M18.5 2.5a2.1 2.1 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Cargar valores manuales</button>':'<span class="rep2-manhint">Elegí un mes para cargar los valores manuales</span>';
   const man=(v,u)=>'<span class="ch-rv man">'+nn(v)+(u?'<i class="unit">'+u+'</i>':'')+'</span>';
   const aut=(v,u)=>'<span class="ch-rv">'+nn(v)+(u?'<i class="unit">'+u+'</i>':'')+'</span>';
-  // Monto e incidencia por zona
+  // Monto e incidencia por zona (gráfico de barras + tabla, uno al lado del otro)
   const zonas=_cfZonas(_cfRepMes);
-  const zTotM=zonas.reduce((s,z)=>s+z.monto,0),zTotF=zonas.reduce((s,z)=>s+z.flete,0),zMax=Math.max(1,...zonas.map(z=>z.monto));
-  const zonaSection=zonas.length?('<div class="section-label">Monto e incidencia por zona</div><div class="panel"><div class="rep2-zt-wrap">'+
-    zonas.map(function(z,i){const ok=z.incidencia<0.03,pct=(z.monto/zMax*100).toFixed(1);return '<div class="rep2-zt-row"><div class="rep2-zt-head"><span class="rep2-zt-rank">'+(i+1)+'</span><span class="rep2-zt-name">'+esc(z.zona)+'</span><span class="rep2-zt-nums"><b>'+nn(z.monto)+'</b> Gs. · <span class="rep2-zt-inc '+(ok?'ok':'over')+'">'+pn(z.incidencia)+'% inc.</span></span></div><div class="rep2-zt-track"><div class="rep2-zt-fill" style="width:'+pct+'%"></div></div></div>';}).join('')+
-    '<div class="rep2-zt-tot"><span>TOTAL</span><b>'+nn(zTotM)+' Gs. · '+pn(zTotM>0?zTotF/zTotM:0)+'% inc.</b></div>'+
-  '</div></div>'):'';
+  const zMax=Math.max(1,...zonas.map(z=>z.monto));
+  const zonasByInc=[...zonas].sort((a,b)=>a.incidencia-b.incidencia);
+  const barChart='<div class="panel"><div class="panel-title"><h3>Monto por zona</h3></div><div class="zbar-wrap">'+
+    zonas.map(function(z,i){const pct=Math.max(3,z.monto/zMax*100);return '<div class="zbar-row"><span class="zbar-rank">'+(i+1)+'</span><span class="zbar-name">'+esc(z.zona)+'</span><div class="zbar-track"><div class="zbar-fill" style="width:'+pct.toFixed(1)+'%"></div></div><span class="zbar-pill">'+_gs(z.monto)+'</span></div>';}).join('')+
+  '</div></div>';
+  const zTable='<div class="panel"><div class="panel-title"><h3>Zona · Monto · Peso · Incidencia</h3></div><div class="zt-tblwrap"><table class="zt-tbl"><thead><tr><th>Zona</th><th class="r">Monto</th><th class="r">Peso</th><th class="r">Incidencia ▲</th></tr></thead><tbody>'+
+    zonasByInc.map(z=>'<tr><td class="zt-nm">'+esc(z.zona)+'</td><td class="r zt-monto">'+_gs(z.monto)+'</td><td class="r">'+_nnum(z.peso)+'</td><td class="r zt-inc">'+_pct(z.incidencia)+'</td></tr>').join('')+
+  '</tbody></table></div></div>';
+  const zonaSection=zonas.length?('<div class="section-label">Monto e incidencia por zona</div><div class="rep2-zt-grid">'+barChart+zTable+'</div>'):'';
   host.innerHTML='<div class="rep2">'+
     '<div class="rep2-hd"><h2><img src="logo-alas-s.a.png">Reporte General</h2>'+segBtns+'<div class="rep2-spacer"></div>'+editBtn+'</div>'+
     '<div class="hero-bar">'+
@@ -4400,8 +4409,9 @@ async function renderReporte(){
     g.from('#repHost .ch-card',{opacity:0,y:16,duration:.45,stagger:.1,delay:.1,ease:'back.out(1.5)',clearProps:'opacity,transform'});
     g.from('#repHost .main-col-right .panel',{opacity:0,y:16,duration:.42,stagger:.08,delay:.2,ease:'power3.out',clearProps:'opacity,transform'});
     g.from('#repHost .mini-seg',{opacity:0,y:8,duration:.32,stagger:.05,delay:.28,ease:'power2.out',clearProps:'opacity,transform'});
-    g.from('#repHost .rep2-zt-row',{opacity:0,x:-14,duration:.4,stagger:.06,delay:.32,ease:'power3.out',clearProps:'opacity,transform'});
-    g.fromTo('#repHost .rep2-zt-fill',{scaleX:0,transformOrigin:'left center'},{scaleX:1,duration:.7,stagger:.06,delay:.4,ease:'power3.out'});
+    g.from('#repHost .zbar-row',{opacity:0,x:-14,duration:.4,stagger:.04,delay:.32,ease:'power3.out',clearProps:'opacity,transform'});
+    g.fromTo('#repHost .zbar-fill',{scaleX:0,transformOrigin:'left center'},{scaleX:1,duration:.7,stagger:.04,delay:.4,ease:'power3.out'});
+    g.from('#repHost .zt-tbl tbody tr',{opacity:0,y:6,duration:.3,stagger:.02,delay:.4,ease:'power2.out',clearProps:'all'});
     const arc=document.getElementById('repGaugeArc'),dot=document.getElementById('repGaugeDot');
     if(arc)g.fromTo(arc,{strokeDashoffset:totalLen},{strokeDashoffset:off,duration:.9,ease:'power3.out'});
     if(dot)g.fromTo(dot,{attr:{cx:16,cy:84}},{attr:{cx:dotX,cy:dotY},duration:.9,ease:'power3.out'});
