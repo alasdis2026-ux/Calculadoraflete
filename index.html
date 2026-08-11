@@ -1569,6 +1569,14 @@ let transportistas=[],repartos=[],search='',selectedTsId=null,pendingTsId=null,e
 let currentReparto={id:null,tsId:null,trId:null,km:0,zona:'',fecha:'',precio:0,clientes:[]};
 let nextRepartoId=1,nextClienteId=1,nextTsId=5000,nextTrId=9000;
 let _repartidores=[]; // nombres de repartidores (tabla repartidores)
+// Lista base de repartidores (fallback si la tabla `repartidores` está vacía)
+const REPARTIDORES_DEFAULT=['Adilson Galeano','Alberto Britez','Alejandro Alvarenga','Alexis Gimenez','Amilcar Garcia','Angel Denis','Angel Zorrilla','Axel Mendieta','Candido Diaz','Carlos Barreto','Carlos Galeano','Carlos Penayo','Celso Gamarra','Cristhian Santa cruz','Cristhofer Castillo','Cristian Santacruz','Denis Gonzalez','Enrrique Arza','Enzo Rufineli','Eugenio Villar','Francisco del Puerto','Francisco Rivas','Guillermo Mencia','Gustavo Benitez','Jesus Escobar','Joel Benitez','Jorge Estigarribia','Jose Segovia','Juan Balmori','Julio Velilla','Lisandro Lopez','Lucas Maqueda','Maicol Benitez','Manuel Martinez','Marcos Aveiro','Nahuel Castillo','Nestor Miranda','Pedro Riveros','Reinaldo Ferreira','Sebastian Baez','Sergio Aguilera','Tercerizado','Tomas Bernal','Tomas Quiñonez'];
+function _syncRepDatalist(){
+  const names=[...new Set([].concat(REPARTIDORES_DEFAULT,_repartidores||[]).map(n=>(n||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es'));
+  let dl=document.getElementById('repList');
+  if(!dl){dl=document.createElement('datalist');dl.id='repList';document.body.appendChild(dl);}
+  dl.innerHTML=names.map(n=>'<option value="'+n.replace(/"/g,'&quot;')+'"></option>').join('');
+}
 // Zonas por segmento (Local / Interior). Servicios → muestra todas.
 const _ZONAS=[
   {n:'PR1 Asunción',cat:'local'},{n:'PR2 Luque',cat:'local'},{n:'PR3 San Lorenzo',cat:'local'},{n:'PR4 Capiatá',cat:'local'},
@@ -1614,6 +1622,8 @@ async function loadData(){
     }));
   }
   try{const rr=await sb.from('repartidores').select('nombre').eq('activo',true).order('nombre');if(!rr.error&&rr.data)_repartidores=rr.data.map(x=>x.nombre);}catch(e){}
+  if(!_repartidores.length)_repartidores=REPARTIDORES_DEFAULT.slice();
+  _syncRepDatalist();
   const maxCid=repartos.flatMap(r=>r.clientes||[]).reduce((m,c)=>Math.max(m,c.id||0),0);
   if(maxCid>=nextClienteId)nextClienteId=maxCid+1;
 }
@@ -2279,7 +2289,7 @@ function _openAddRepartidor(onDone){
     if(!name){if(errEl)errEl.textContent='Parece que olvidaste el nombre del repartidor.';inp.classList.add('is-err');inp.focus();return;}
     if(errEl)errEl.textContent='';inp.classList.remove('is-err');
     if(_repartidores.some(n=>n.toLowerCase()===name.toLowerCase())){const ex=_repartidores.find(n=>n.toLowerCase()===name.toLowerCase());onDone&&onDone(ex);close();return;}
-    try{const r=await sb.from('repartidores').insert({nombre:name}).select('nombre').single();if(r.error)throw r.error;_repartidores.push(name);_repartidores.sort((a,b)=>a.localeCompare(b));onDone&&onDone(name);showToast('¡Listo! Sumé a '+name+' a la lista');close();}catch(err){showToast('Uy, no pude agregar el repartidor. Probá de nuevo.');}
+    try{const r=await sb.from('repartidores').insert({nombre:name}).select('nombre').single();if(r.error)throw r.error;_repartidores.push(name);_repartidores.sort((a,b)=>a.localeCompare(b));_syncRepDatalist();onDone&&onDone(name);showToast('¡Listo! Sumé a '+name+' a la lista');close();}catch(err){showToast('Uy, no pude agregar el repartidor. Probá de nuevo.');}
   });
 }
 
@@ -3055,7 +3065,7 @@ function calRepEditHTML(r){
   const rows=calWork.filter(w=>!w.del).map(function(w){
     return '<tr data-caluid="'+w.uid+'">'+
       '<td><select class="cal-e-tr" data-uid="'+w.uid+'">'+optsTr(w)+'</select></td>'+
-      '<td><input class="cal-e-rep" data-uid="'+w.uid+'" placeholder="Repartidor" value="'+esc(w.rep||'')+'"></td>'+
+      '<td><input class="cal-e-rep" list="repList" autocomplete="off" data-uid="'+w.uid+'" placeholder="Repartidor" value="'+esc(w.rep||'')+'"></td>'+
       '<td><input class="cal-e-zona" data-uid="'+w.uid+'" placeholder="Zona" value="'+esc(w.zona||'')+'"></td>'+
       '<td><select class="cal-e-seg" data-uid="'+w.uid+'">'+SEGO.map(s=>'<option value="'+s[0]+'"'+(w.seg===s[0]?' selected':'')+'>'+s[1]+'</option>').join('')+'</select></td>'+
       '<td class="r"><input class="cal-e-in cal-e-monto" data-uid="'+w.uid+'" inputmode="numeric" placeholder="0" value="'+(w.monto?_nnum(w.monto):'')+'"></td>'+
@@ -4302,7 +4312,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
       ?'<div class="rre-km2"><label class="rre-fld"><span>Km</span><input class="rre-in rre-km" data-uid="'+w.uid+'" inputmode="numeric" placeholder="0" value="'+(w.km||'')+'"></label><label class="rre-fld"><span>Precio/km</span><input class="rre-in rre-pkm" data-uid="'+w.uid+'" inputmode="numeric" placeholder="0" value="'+fmt(w.precioKm)+'"></label></div><div class="rre-flete-out"><span>Flete</span><b class="rre-flete-b" data-uid="'+w.uid+'">'+_gs(w.precio||0)+'</b></div>'
       :'<label class="rre-fld"><span>Flete</span><input class="rre-in rre-precio" data-uid="'+w.uid+'" inputmode="numeric" placeholder="0" value="'+fmt(w.precio)+'"></label>';
     const metaFlds=isTr?'':('<div class="rre-meta2">'+
-        '<label class="rre-fld"><span>Repartidor</span><input class="rre-in rre-rep" data-uid="'+w.uid+'" placeholder="—" value="'+_escp(w.rep||'')+'"></label>'+
+        '<label class="rre-fld"><span>Repartidor</span><input class="rre-in rre-rep" list="repList" autocomplete="off" data-uid="'+w.uid+'" placeholder="—" value="'+_escp(w.rep||'')+'"></label>'+
         '<label class="rre-fld"><span>Zona</span><input class="rre-in rre-zona" data-uid="'+w.uid+'" placeholder="—" value="'+_escp(w.zona||'')+'"></label>'+
       '</div>'+
       (w.seg==='servicios'?'<label class="rre-fld rre-fld--obs"><span>Observaciones</span><input class="rre-in rre-obs" data-uid="'+w.uid+'" placeholder="¿En qué servicio usamos este camión?" value="'+_escp(w.obs||'')+'"></label>':''));
