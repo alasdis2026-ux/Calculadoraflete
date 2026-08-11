@@ -3794,12 +3794,12 @@ function showSaveAnim(){
   @media(max-width:900px){.rep2 .main-grid{grid-template-columns:1fr}.rep2 .channel-grid{grid-template-columns:1fr}}
   /* ── Estadísticas del gasto ── */
   .gstat{padding-bottom:24px}
-  .gstat-toolbar{display:flex;margin:2px 0 14px}
-  .gstat-tsfilter{display:inline-flex;align-items:center;gap:8px;border:1.5px solid var(--gray-200);border-radius:11px;padding:9px 14px;background:#fff;font:inherit;font-size:13px;font-weight:700;color:var(--gray-700);cursor:pointer;transition:border-color .15s,color .15s;box-shadow:0 1px 3px rgba(15,23,42,.04)}
-  .gstat-tsfilter:hover,.gstat-tsfilter.is-open{border-color:var(--accent);color:var(--primary)}
-  .gstat-tsfilter>svg:first-child{color:var(--accent)}
-  .gstat-tsfilter__arr{color:var(--gray-400);transition:transform .2s}
-  .gstat-tsfilter.is-open .gstat-tsfilter__arr{transform:rotate(180deg)}
+  .gstat-tsbar{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 12px;margin-bottom:6px;scrollbar-width:thin}
+  .gstat-tsbar::-webkit-scrollbar{height:6px}
+  .gstat-tsbar::-webkit-scrollbar-thumb{background:var(--gray-200);border-radius:99px}
+  .gstat-tschip{flex-shrink:0;border:1.5px solid var(--gray-200);background:#fff;border-radius:999px;padding:8px 15px;font:inherit;font-size:12.5px;font-weight:700;color:var(--gray-600);cursor:pointer;white-space:nowrap;transition:background .15s,border-color .15s,color .15s}
+  .gstat-tschip:hover{border-color:var(--accent);color:var(--primary)}
+  .gstat-tschip.on{background:var(--primary);border-color:var(--primary);color:#fff;box-shadow:0 3px 10px rgba(11,95,141,.25)}
   .gstat-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
   .gstat-kpi{background:#fff;border:1px solid var(--gray-200);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:2px}
   .gstat-kpi__l{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--gray-400)}
@@ -4501,7 +4501,8 @@ function _gastoStats(mk,tsId){
 function _cfOpenStats(){
   const host=document.getElementById('factHost');if(!host)return;
   const mk=_facMes,s=_gastoStats(mk,_cfStatsTs);
-  const tsName=_cfStatsTs?(((transportistas||[]).find(t=>t.id===_cfStatsTs)||{}).n||'Transportadora'):'Todas las transportadoras';
+  const allTs=_gastoStats(mk,null).tsList; // todas las que tuvieron gasto este mes (para los botones)
+  const tsBtns='<div class="gstat-tsbar"><button class="gstat-tschip'+(!_cfStatsTs?' on':'')+'" data-tsf="" type="button">Todos</button>'+allTs.map(t=>'<button class="gstat-tschip'+(_cfStatsTs===t.id?' on':'')+'" data-tsf="'+t.id+'" type="button">'+esc(t.nombre)+'</button>').join('')+'</div>';
   const SEGN={local:'Local',interior:'Interior',servicios:'Servicios',transportadora:'Transportadora'},SEGC={local:'#0B5F8D',interior:'#F97316',servicios:'#10B981',transportadora:'#7c3aed'};
   const bars=(items,fmt)=>{const max=Math.max(1,...items.map(i=>i.value));return '<div class="gstat-bars">'+items.map(function(it){const pct=it.value>0?Math.max(3,it.value/max*100):0;return '<div class="gstat-bar" title="'+esc(it.label)+': '+esc(fmt(it.value))+'"><div class="gstat-bar__top"><span class="gstat-bar__lbl">'+(it.rank?'<span class="gstat-rank">'+it.rank+'</span>':'')+esc(it.label)+'</span><span class="gstat-bar__val">'+fmt(it.value)+'</span></div><div class="gstat-bar__track"><div class="gstat-bar__fill" style="width:'+pct.toFixed(1)+'%;background:'+(it.color||'var(--primary)')+'"></div></div>'+(it.sub?'<div class="gstat-bar__sub">'+esc(it.sub)+'</div>':'')+'</div>';}).join('')+'</div>';};
   const _gsShort=n=>{n=Math.round(n||0);const neg=n<0?'-':'';n=Math.abs(n);if(n>=1e9)return neg+(n/1e9).toFixed(1).replace('.',',')+' MM';if(n>=1e6)return neg+(n/1e6).toFixed(1).replace('.',',')+' M';if(n>=1e3)return neg+Math.round(n/1e3)+' K';return neg+n;};
@@ -4532,14 +4533,15 @@ function _cfOpenStats(){
   '</div>';
   host.innerHTML='<div class="rep2 gstat">'+
     '<div class="cal-day-topbar"><button class="rrd-back" id="gstatBack" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg> Volver</button><div class="cal-day-ttl"><h2>Estadísticas del gasto</h2></div><div class="rep2-spacer"></div>'+nav+'</div>'+
-    '<div class="gstat-toolbar"><button class="gstat-tsfilter" id="gstatTs" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="15" height="15"><path d="M22 3H2l8 9.46V19l4 2v-8.54z"/></svg><span>'+esc(tsName)+'</span><svg class="gstat-tsfilter__arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="13" height="13"><path d="M6 9l6 6 6-6"/></svg></button></div>'+
+    tsBtns+
     kpis+chartsHtml+'<div class="section-label" style="margin-top:6px">Listas de precios</div>'+lists+
   '</div>';
   document.getElementById('gstatBack').addEventListener('click',()=>renderFacturas());
   host.querySelectorAll('[data-statm]').forEach(b=>b.addEventListener('click',()=>{const a=_facMes.split('-').map(Number),d=new Date(a[0],a[1]-1+(+b.dataset.statm),1);_facMes=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');_cfOpenStats();}));
   const stt=host.querySelector('[data-stattoday]');if(stt)stt.addEventListener('click',()=>{const d=new Date();_facMes=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');_cfOpenStats();});
-  const tf=document.getElementById('gstatTs');if(tf)tf.addEventListener('click',()=>{const opts=[{v:'',label:'Todas las transportadoras'}].concat((transportistas||[]).slice().sort((a,b)=>(a.n||'').localeCompare(b.n||'')).map(t=>({v:String(t.id),label:t.n})));openChipPop(tf,{value:_cfStatsTs?String(_cfStatsTs):'',search:true,options:opts,onPick:v=>{_cfStatsTs=v?+v:null;_cfOpenStats();}});});
+  host.querySelectorAll('[data-tsf]').forEach(b=>b.addEventListener('click',()=>{_cfStatsTs=b.dataset.tsf?+b.dataset.tsf:null;_cfOpenStats();}));
   if(window.gsap){const g=window.gsap;
+    g.from('#factHost .gstat-tschip',{opacity:0,y:-6,duration:.3,stagger:.015,ease:'power2.out',clearProps:'all'});
     g.from('#factHost .gstat-kpi',{opacity:0,y:12,duration:.4,stagger:.05,ease:'power3.out',clearProps:'all'});
     g.from('#factHost .gstat-card',{opacity:0,y:16,duration:.44,stagger:.06,delay:.06,ease:'back.out(1.4)',clearProps:'all'});
     g.fromTo('#factHost .gstat-bar__fill',{scaleX:0,transformOrigin:'left center'},{scaleX:1,duration:.7,stagger:.02,delay:.2,ease:'power3.out'});
