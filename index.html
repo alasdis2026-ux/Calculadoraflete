@@ -3807,7 +3807,8 @@ function showSaveAnim(){
   .gstat-tschip:active{transform:scale(.96)}
   .gstat-tschip.on{background:linear-gradient(180deg,#2578b8,#0B5F8D);border-color:transparent;color:#fff;box-shadow:0 4px 12px rgba(11,95,141,.3)}
   /* KPIs estilo Tablero (hero azul + cards con chip de tendencia) */
-  .gstat-topgrid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:14px;margin-bottom:16px;align-items:stretch}
+  .gstat-topgrid{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:16px;align-items:stretch}
+  .gstat-grid--one{grid-template-columns:1fr}
   .gstat .card{background:#fff;border:1px solid var(--gray-200);border-radius:14px;padding:16px 18px;box-shadow:0 1px 2px rgba(19,36,55,.06),0 6px 20px rgba(19,36,55,.05);display:flex;flex-direction:column}
   .gstat .card h3{font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:var(--gray-400);font-weight:800;margin:0 0 10px}
   .gstat .card.accent{border-color:var(--accent,#3B82F6);box-shadow:0 0 0 2px var(--accent-soft,#DBEAFE),0 6px 20px rgba(19,36,55,.05)}
@@ -4548,15 +4549,11 @@ function _cfOpenStats(){
   const kpis='<div class="gstat-topgrid">'+
     '<div class="card gstat-hero"><h3>Gasto total del mes</h3><div class="gstat-hero-big"><span class="u">Gs.</span>'+_nnum(s.total)+'</div><div class="gstat-hero-row">'+gchip+'<span class="gstat-hero-sub">vs '+_mesLbl(_prevMk)+'</span></div><div class="gstat-hbar">'+segStack+'</div><div class="gstat-hero-foot">'+s.plan+' planillas · '+s.camList.length+' camiones · '+_nnum(s.intKm)+' km interior</div></div>'+
     '<div class="card"><h3>Camiones usados</h3><div class="gstat-kpi-big">'+_nnum(s.camList.length)+'</div><div class="gstat-kpi-sub">en '+s.plan+' planilla'+(s.plan===1?'':'s')+'</div></div>'+
-    '<div class="card accent"><h3>Precio/km promedio</h3><div class="gstat-kpi-big">'+_gs(Math.round(s.kmProm))+'</div><div class="gstat-kpi-sub">interior · '+_nnum(s.intKm)+' km</div></div>'+
   '</div>';
   const nav='<div class="rr-mnav"><button data-statm="-1" aria-label="Mes anterior">‹</button><span>'+_mesLbl(mk)+'</span><button data-statm="1" aria-label="Mes siguiente">›</button><button class="rr-mnav__today" data-stattoday type="button">Hoy</button></div>';
   const card=(t,body,note)=>'<div class="gstat-card"><div class="gstat-card__h">'+t+(note?'<span class="gstat-card__note">'+note+'</span>':'')+'</div>'+body+'</div>';
   const emp='<div class="gstat-empty">Sin datos en este período</div>';
-  const chartsHtml='<div class="gstat-grid">'+
-    card('Gasto por segmento',segItems.length?donut(segItems):emp)+
-    card('Gasto por transportadora',tsItems.length?bars(tsItems,_gs):emp,'Top 10')+
-    card('Top camiones por gasto',camGasto.length?bars(camGasto,_gs):emp,'Top 10')+
+  const chartsHtml='<div class="gstat-grid gstat-grid--one">'+
     card('Precio por km utilizado (Interior)',camKm.length?bars(camKm,v=>_nnum(v)+' /km'):'<div class="gstat-empty">Sin repartos de interior</div>','Top 12')+
   '</div>';
   const tsRows=s.tsList.map(t=>'<tr><td class="gstat-td-nm">'+esc(t.nombre)+'</td><td class="r">'+t.cam+'</td><td class="r">'+_gs(t.gasto)+'</td><td class="r">'+(s.total>0?_pct(t.gasto/s.total):'—')+'</td></tr>').join('')||'<tr><td colspan="4" class="gstat-empty">Sin datos</td></tr>';
