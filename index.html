@@ -3062,7 +3062,7 @@ function renderCalDay(anim){
 }
 
 const CAL_TRASH='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="15" height="15"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M10 11v6M14 11v6"/></svg>';
-function calBuildWork(r){return (r.clientes||[]).map(c=>({uid:_calUid++,cId:c.id,trId:c.trId||null,trDesc:c.trDesc||'',seg:c.seg||'local',rep:c.rep||'',zona:c.zona||'',monto:+c.monto||0,precio:(+c.precio|| +c.gasto||0),del:false,isNew:false}));}
+function calBuildWork(r){return (r.clientes||[]).map(c=>({uid:_calUid++,cId:c.id,trId:c.trId||null,trDesc:c.trDesc||'',seg:c.seg||'local',rep:c.rep||'',zona:c.zona||'',monto:+c.monto||0,precio:(+c.precio|| +c.gasto||0),peso:+c.peso||0,km:+c.km||0,precioKm:+c.precioKm||0,obs:c.obs||null,cant:c.cant||null,del:false,isNew:false}));}
 
 // Tarjeta de reparto en modo edición inline
 function calRepEditHTML(r){
@@ -3124,7 +3124,7 @@ async function calSaveEdit(){
       if(!calDayRepartos().length){closeCalModal();return;}
       renderCalDay('toggle');return;
     }
-    const newClientes=rows.map(function(w){const tr=(ts.trucks||[]).find(t=>t.id===w.trId);return {id:w.cId||nextClienteId++,trId:w.trId,tsId:r.tsId,tsNombre:r.tsNombre,seg:w.seg,rep:(w.rep||'').trim()||null,zona:(w.zona||'').trim()||null,monto:w.monto,precio:w.precio,gasto:w.precio,trDesc:tr?tr.d:(w.trDesc||''),pct:0,inc:(w.monto>0&&w.precio>0?w.precio/w.monto*100:null)};});
+    const newClientes=rows.map(function(w){const tr=(ts.trucks||[]).find(t=>t.id===w.trId);return {id:w.cId||nextClienteId++,trId:w.trId,tsId:r.tsId,tsNombre:r.tsNombre,seg:w.seg,rep:(w.rep||'').trim()||null,zona:(w.zona||'').trim()||null,peso:+w.peso||0,km:+w.km||0,precioKm:+w.precioKm||0,obs:w.obs||null,cant:w.cant||null,monto:w.monto,precio:w.precio,gasto:w.precio,trDesc:tr?tr.d:(w.trDesc||''),pct:0,inc:(w.monto>0&&w.precio>0?w.precio/w.monto*100:null)};});
     const tM=newClientes.reduce((s,c)=>s+(+c.monto||0),0);
     const tF=newClientes.reduce((s,c)=>s+(+c.precio||0),0);
     const iT=tM>0?tF/tM*100:null;const gp=Math.round(tM*0.03);const dif=tF-gp;
@@ -3147,13 +3147,14 @@ function renderCalReparto(r){
   const _multiSeg=[...new Set(cl.map(c=>c.seg||'local'))].length>1;
   const SEGCLR={local:'crt-grp',interior:'crt-grp crt-grp--interior',servicios:'crt-grp crt-grp--servicios',transportadora:'crt-grp crt-grp--transportadora'};
   let rows='';
-  SEGORD.forEach(function(pair){const sk=pair[0],slbl=pair[1];const ls=cl.filter(c=>(c.seg||'local')===sk);if(!ls.length)return;let sM=0,sF=0;
-    if(_multiSeg)rows+='<tr class="'+SEGCLR[sk]+'"><td colspan="6">'+slbl+'</td></tr>';
-    ls.forEach(function(c){const hasInc=c.inc!==null&&c.inc!==undefined,clOk=hasInc&&c.inc<3,fl=(c.precio||c.gasto)||0;sM+=c.monto||0;sF+=fl;
+  SEGORD.forEach(function(pair){const sk=pair[0],slbl=pair[1];const ls=cl.filter(c=>(c.seg||'local')===sk);if(!ls.length)return;let sM=0,sF=0,sP=0;
+    if(_multiSeg)rows+='<tr class="'+SEGCLR[sk]+'"><td colspan="7">'+slbl+'</td></tr>';
+    ls.forEach(function(c){const hasInc=c.inc!==null&&c.inc!==undefined,clOk=hasInc&&c.inc<3,fl=(c.precio||c.gasto)||0;sM+=c.monto||0;sF+=fl;sP+=+c.peso||0;
       const kmS=(sk==='interior'&&+c.km>0)?('<div class="crt-sub2">'+(+c.km)+' km × '+fmtGs(+c.precioKm||0)+'</div>'):'';
-      rows+='<tr><td class="crt-name">'+esc(c.trDesc||c.nombre||'—')+kmS+'</td><td class="crt-txt">'+(c.rep?esc(c.rep):'—')+'</td><td class="crt-txt">'+(c.zona?esc(c.zona):'—')+'</td><td class="crt-num">'+fmtGs(c.monto||0)+'</td><td class="crt-num">'+(fl?fmtGs(fl):'—')+'</td><td class="crt-inc '+(hasInc?(clOk?'ok':'over'):'')+'">'+(hasInc?c.inc.toFixed(2)+'%':'—')+'</td></tr>';});
-    if(_multiSeg)rows+='<tr class="crt-sub"><td colspan="3">Subtotal '+slbl+'</td><td class="crt-num">'+fmtGs(sM)+'</td><td class="crt-num">'+fmtGs(sF)+'</td><td></td></tr>';
+      rows+='<tr><td class="crt-name">'+esc(c.trDesc||c.nombre||'—')+kmS+'</td><td class="crt-txt">'+(c.rep?esc(c.rep):'—')+'</td><td class="crt-txt">'+(c.zona?esc(c.zona):'—')+'</td><td class="crt-num">'+(+c.peso>0?_nnum(+c.peso):'—')+'</td><td class="crt-num">'+fmtGs(c.monto||0)+'</td><td class="crt-num">'+(fl?fmtGs(fl):'—')+'</td><td class="crt-inc '+(hasInc?(clOk?'ok':'over'):'')+'">'+(hasInc?c.inc.toFixed(2)+'%':'—')+'</td></tr>';});
+    if(_multiSeg)rows+='<tr class="crt-sub"><td colspan="3">Subtotal '+slbl+'</td><td class="crt-num">'+(sP>0?_nnum(sP):'—')+'</td><td class="crt-num">'+fmtGs(sM)+'</td><td class="crt-num">'+fmtGs(sF)+'</td><td></td></tr>';
   });
+  const totPeso=cl.reduce((s,c)=>s+(+c.peso||0),0);
   return`<div class="cal-rep">
     <div class="cal-rep-hd">
       <div class="cal-rep-hd-left">
@@ -3168,10 +3169,11 @@ function renderCalReparto(r){
     </div>
     <div class="cal-rep-table-wrap">
       <table class="cal-rep-table">
-        <thead><tr><th>Camión</th><th>Repartidor</th><th>Zona</th><th class="r">Monto</th><th class="r">Flete</th><th class="r">Incid.</th></tr></thead>
+        <thead><tr><th>Camión</th><th>Repartidor</th><th>Zona</th><th class="r">Peso (kg)</th><th class="r">Monto</th><th class="r">Flete</th><th class="r">Incid.</th></tr></thead>
         <tbody>${rows}</tbody>
         <tfoot><tr class="crt-total">
           <td colspan="3">TOTAL</td>
+          <td class="crt-num">${totPeso>0?_nnum(totPeso):'—'}</td>
           <td class="crt-num">${fmtGs(r.totalMonto)}</td>
           <td class="crt-num">${fmtGs(r.totalFlete)}</td>
           <td class="crt-inc ${incOk?'ok':'over'}">${inc}</td>
@@ -3211,7 +3213,7 @@ document.getElementById('calModalBody').addEventListener('click',async e=>{
   const saveBtn=e.target.closest('[data-cal-save]');
   const delUid=e.target.closest('[data-cal-deluid]');
   if(editBtn){const id=+editBtn.dataset.editr;const r=calDayRepartos().find(x=>x.id===id);if(!r)return;calEditRepId=id;calWork=calBuildWork(r);renderCalDay('edit');return;}
-  if(addBtn){if(!calWork)return;calWork.unshift({uid:_calUid++,cId:null,trId:null,trDesc:'',seg:'local',rep:'',zona:'',monto:0,precio:0,del:false,isNew:true});renderCalDay('add');return;}
+  if(addBtn){if(!calWork)return;calWork.unshift({uid:_calUid++,cId:null,trId:null,trDesc:'',seg:'local',rep:'',zona:'',monto:0,precio:0,peso:0,km:0,precioKm:0,obs:null,cant:null,del:false,isNew:true});renderCalDay('add');return;}
   if(cancelBtn){calEditRepId=null;calWork=null;renderCalDay('toggle');return;}
   if(saveBtn){await calSaveEdit();return;}
   if(delUid){if(!calWork)return;const w=calWork.find(x=>x.uid===+delUid.dataset.calDeluid);if(w){if(w.isNew)calWork=calWork.filter(x=>x!==w);else w.del=true;}renderCalDay('rows');return;}
