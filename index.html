@@ -2495,7 +2495,7 @@ document.getElementById('btnGuardar').addEventListener('click',async()=>{
     totalMonto:c.totalMonto,incTotal:c.incTotal,
     gastoPermitido:c.gastoPermitido,diferencia:c.diferencia,
     zona:'',
-    clientes:c.clientes.map(cl=>({id:cl.id,trId:cl.trId,tsId:cl.tsId,trDesc:cl.trDesc,tsNombre:cl.tsNombre,seg:cl.seg||'local',rep:cl.rep||null,zona:cl.zona||null,peso:cl.peso||0,km:cl.km||0,precioKm:cl.precioKm||0,monto:cl.monto,precio:cl.precio,gasto:cl.gasto,inc:cl.inc,pct:cl.pct})),
+    clientes:c.clientes.map(cl=>({id:cl.id,trId:cl.trId,tsId:cl.tsId,trDesc:cl.trDesc,tsNombre:cl.tsNombre,seg:cl.seg||'local',rep:(cl.seg==='transportadora'?(cl.rep||null):(cl.rep||'Tercerizado')),zona:cl.zona||null,peso:cl.peso||0,km:cl.km||0,precioKm:cl.precioKm||0,monto:cl.monto,precio:cl.precio,gasto:cl.gasto,inc:cl.inc,pct:cl.pct})),
   };
   try{
     const savedId=await dbSaveReparto(snap);
@@ -3124,7 +3124,7 @@ async function calSaveEdit(){
       if(!calDayRepartos().length){closeCalModal();return;}
       renderCalDay('toggle');return;
     }
-    const newClientes=rows.map(function(w){const tr=(ts.trucks||[]).find(t=>t.id===w.trId);return {id:w.cId||nextClienteId++,trId:w.trId,tsId:r.tsId,tsNombre:r.tsNombre,seg:w.seg,rep:(w.rep||'').trim()||null,zona:(w.zona||'').trim()||null,peso:+w.peso||0,km:+w.km||0,precioKm:+w.precioKm||0,obs:w.obs||null,cant:w.cant||null,monto:w.monto,precio:w.precio,gasto:w.precio,trDesc:tr?tr.d:(w.trDesc||''),pct:0,inc:(w.monto>0&&w.precio>0?w.precio/w.monto*100:null)};});
+    const newClientes=rows.map(function(w){const tr=(ts.trucks||[]).find(t=>t.id===w.trId);return {id:w.cId||nextClienteId++,trId:w.trId,tsId:r.tsId,tsNombre:r.tsNombre,seg:w.seg,rep:(w.rep||'').trim()||'Tercerizado',zona:(w.zona||'').trim()||null,peso:+w.peso||0,km:+w.km||0,precioKm:+w.precioKm||0,obs:w.obs||null,cant:w.cant||null,monto:w.monto,precio:w.precio,gasto:w.precio,trDesc:tr?tr.d:(w.trDesc||''),pct:0,inc:(w.monto>0&&w.precio>0?w.precio/w.monto*100:null)};});
     const tM=newClientes.reduce((s,c)=>s+(+c.monto||0),0);
     const tF=newClientes.reduce((s,c)=>s+(+c.precio||0),0);
     const iT=tM>0?tF/tM*100:null;const gp=Math.round(tM*0.03);const dif=tF-gp;
@@ -4531,8 +4531,8 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     rows.forEach(w=>{const tr=trucks.find(t=>t.id===w.trId);
       const isTr=w.seg==='transportadora';const cant=isTr?(+w.cant||0):null;const trD=isTr?(cant+' camión'+(cant===1?'':'es')):(tr?tr.d:w.trDesc);
       const km=w.seg==='interior'?(w.km||0):0,pkm=w.seg==='interior'?(w.precioKm||0):0;
-      if(w.isNew){const r=repartos.find(x=>x.id===w.repId);if(!r)return;if(!r.clientes)r.clientes=[];r.clientes.push({id:nextClienteId++,trId:isTr?null:w.trId,tsId:tsObj?tsObj.id:g.tsId,seg:w.seg,rep:isTr?null:((w.rep||'').trim()||null),zona:isTr?null:((w.zona||'').trim()||null),obs:(w.seg==='servicios'?(w.obs||'').trim():'')||null,cant:isTr?cant:null,km:km,precioKm:pkm,monto:isTr?0:w.monto,precio:w.precio,gasto:w.precio,trDesc:trD,tsNombre:g.ts,pct:0,inc:(w.monto>0&&w.precio>0?w.precio/w.monto*100:null)});affected.add(r.id);}
-      else if(w.ref){w.ref.monto=isTr?0:w.monto;w.ref.precio=w.precio;w.ref.gasto=w.precio;w.ref.seg=w.seg;w.ref.km=km;w.ref.precioKm=pkm;w.ref.rep=isTr?null:((w.rep||'').trim()||null);w.ref.zona=isTr?null:((w.zona||'').trim()||null);w.ref.obs=(w.seg==='servicios'?(w.obs||'').trim():'')||null;w.ref.cant=isTr?cant:null;if(isTr){w.ref.trId=null;w.ref.trDesc=trD;}else if(w.trId){w.ref.trId=w.trId;w.ref.trDesc=tr?tr.d:w.ref.trDesc;w.ref.tsId=tsObj?tsObj.id:w.ref.tsId;}w.ref.inc=(w.monto>0&&w.precio>0?w.precio/w.monto*100:null);affected.add(w.repId);}});
+      if(w.isNew){const r=repartos.find(x=>x.id===w.repId);if(!r)return;if(!r.clientes)r.clientes=[];r.clientes.push({id:nextClienteId++,trId:isTr?null:w.trId,tsId:tsObj?tsObj.id:g.tsId,seg:w.seg,rep:isTr?null:((w.rep||'').trim()||'Tercerizado'),zona:isTr?null:((w.zona||'').trim()||null),obs:(w.seg==='servicios'?(w.obs||'').trim():'')||null,cant:isTr?cant:null,km:km,precioKm:pkm,monto:isTr?0:w.monto,precio:w.precio,gasto:w.precio,trDesc:trD,tsNombre:g.ts,pct:0,inc:(w.monto>0&&w.precio>0?w.precio/w.monto*100:null)});affected.add(r.id);}
+      else if(w.ref){w.ref.monto=isTr?0:w.monto;w.ref.precio=w.precio;w.ref.gasto=w.precio;w.ref.seg=w.seg;w.ref.km=km;w.ref.precioKm=pkm;w.ref.rep=isTr?null:((w.rep||'').trim()||'Tercerizado');w.ref.zona=isTr?null:((w.zona||'').trim()||null);w.ref.obs=(w.seg==='servicios'?(w.obs||'').trim():'')||null;w.ref.cant=isTr?cant:null;if(isTr){w.ref.trId=null;w.ref.trDesc=trD;}else if(w.trId){w.ref.trId=w.trId;w.ref.trDesc=tr?tr.d:w.ref.trDesc;w.ref.tsId=tsObj?tsObj.id:w.ref.tsId;}w.ref.inc=(w.monto>0&&w.precio>0?w.precio/w.monto*100:null);affected.add(w.repId);}});
     const sv=bd.querySelector('.save');if(sv){sv.disabled=true;sv.classList.add('is-loading');sv.innerHTML='<span class="cf-spin"></span>Guardando…';}
     try{
       for(const id of affected){const r=repartos.find(x=>x.id===id);if(!r)continue;
