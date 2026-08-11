@@ -832,10 +832,19 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .cal-rep-count{font-family:Sora,Inter,sans-serif;font-size:18px;font-weight:800;color:var(--gray-800);font-variant-numeric:tabular-nums}
 .cal-rep-count small{font-size:12px;font-weight:700;color:var(--gray-400);letter-spacing:.2px}
 .cal-rep-actions{display:flex;gap:8px;flex-shrink:0}
-.cal-rep-btn{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 13px;border-radius:9px;border:1.5px solid var(--gray-200);background:#fff;cursor:pointer;font-family:inherit;font-size:12.5px;font-weight:700;color:var(--gray-600);transition:all var(--fast)}
-.cal-rep-btn.edit:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
-.cal-rep-btn.del{padding:0 10px;color:var(--gray-400)}
-.cal-rep-btn.del:hover{border-color:#FCA5A5;color:#DC2626;background:#FEF2F2}
+.cal-rep-btn{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 14px;border-radius:9px;border:1.5px solid var(--gray-200);background:#fff;cursor:pointer;font-family:inherit;font-size:12.5px;font-weight:800;color:var(--gray-600);transition:all var(--fast)}
+/* Guardar / Editar: azul sólido destacado */
+.cal-rep-btn.edit{border-color:transparent;background:linear-gradient(180deg,#2578b8,#0B5F8D);color:#fff;box-shadow:0 4px 12px rgba(11,95,141,.28)}
+.cal-rep-btn.edit:hover{background:linear-gradient(180deg,#0d6aa0,#08486A);color:#fff;box-shadow:0 6px 16px rgba(11,95,141,.36);transform:translateY(-1px)}
+.cal-rep-btn.edit svg{stroke:#fff}
+/* Añadir camión: azul contorno */
+.cal-rep-btn[data-cal-add]{border-color:var(--accent,#3B82F6);color:var(--accent,#3B82F6);background:var(--accent-soft,#DBEAFE)}
+.cal-rep-btn[data-cal-add]:hover{background:var(--accent,#3B82F6);color:#fff;border-color:var(--accent,#3B82F6)}
+.cal-rep-btn[data-cal-add]:hover svg{stroke:#fff}
+/* Basura: rojo */
+.cal-rep-btn.del{padding:0 11px;color:#DC2626;border-color:#FCA5A5;background:#FEF2F2}
+.cal-rep-btn.del:hover{border-color:#DC2626;color:#fff;background:#DC2626}
+.cal-rep-btn.del:hover svg{stroke:#fff}
 .cal-rep-table-wrap{overflow-x:auto}
 .cal-rep-table{width:100%;border-collapse:collapse}
 .cal-rep-table th{padding:10px 18px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--gray-400);text-align:left;background:var(--gray-50);border-bottom:1.5px solid var(--gray-100);white-space:nowrap}
@@ -883,8 +892,22 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .cal-e-rep,.cal-e-zona{flex:1;min-width:0;width:100%;border:1.5px solid var(--gray-200);border-radius:8px;padding:6px 8px;font:inherit;font-size:12px;color:var(--gray-700);background:#fff}
 .cal-e-in{width:140px;max-width:100%;text-align:right;border:1.5px solid var(--gray-200);border-radius:9px;padding:8px 10px;font:inherit;font-size:13px;font-variant-numeric:tabular-nums;color:var(--gray-800);background:#fff;transition:border-color .15s,box-shadow .15s}
 .cal-e-tr:focus,.cal-e-seg:focus,.cal-e-in:focus,.cal-e-rep:focus,.cal-e-zona:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,120,184,.12)}
-.cal-e-del{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:9px;border:1.5px solid var(--gray-200);background:#fff;color:var(--gray-400);cursor:pointer;transition:all var(--fast)}
-.cal-e-del:hover{border-color:#FCA5A5;color:#DC2626;background:#FEF2F2}
+.cal-e-del{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:9px;border:1.5px solid #FCA5A5;background:#FEF2F2;color:#DC2626;cursor:pointer;transition:all var(--fast)}
+.cal-e-del:hover{border-color:#DC2626;color:#fff;background:#DC2626;transform:translateY(-1px)}
+/* Selectores PRO (chip que abre popover, como la tabla de Calculadora) */
+.cal-e-pick{display:inline-flex;align-items:center;gap:7px;width:100%;min-width:130px;border:1.5px solid var(--gray-200);border-radius:10px;padding:9px 10px;font:inherit;font-size:13px;font-weight:600;color:var(--gray-800);background:#fff;cursor:pointer;text-align:left;transition:border-color .15s,box-shadow .15s,background .15s}
+.cal-e-pick:hover{border-color:var(--gray-300,#cbd5e1);background:var(--gray-50,#f8fafc)}
+.cal-e-pick.is-open{border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,120,184,.12)}
+.cal-e-pick__t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cal-e-pick.ph .cal-e-pick__t{color:var(--gray-400,#94a3b8)}
+.cal-e-pick__arr{color:var(--gray-400);flex-shrink:0;transition:transform .2s,color .15s}
+.cal-e-pick.is-open .cal-e-pick__arr{transform:rotate(180deg);color:var(--accent)}
+.cal-e-pick__dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;background:var(--primary)}
+.cal-e-pick--seg .cal-e-pick__t{font-weight:800}
+.cal-e-pick.cal-e-seg-local .cal-e-pick__dot{background:var(--primary)} .cal-e-pick.cal-e-seg-local .cal-e-pick__t{color:var(--primary)}
+.cal-e-pick.cal-e-seg-interior .cal-e-pick__dot{background:var(--orange,#F97316)} .cal-e-pick.cal-e-seg-interior .cal-e-pick__t{color:#c2410c}
+.cal-e-pick.cal-e-seg-servicios .cal-e-pick__dot{background:var(--success,#10B981)} .cal-e-pick.cal-e-seg-servicios .cal-e-pick__t{color:#15803d}
+.cal-e-pick.cal-e-seg-transportadora .cal-e-pick__dot{background:#7c3aed} .cal-e-pick.cal-e-seg-transportadora .cal-e-pick__t{color:#6d28d9}
 .cal-save-btn[disabled]{opacity:.75;cursor:default}
 .cal-day-empty{padding:44px 20px;text-align:center;color:var(--gray-400);font-weight:700}
 
@@ -2260,7 +2283,7 @@ function openChipPop(anchor,opts){
     if(opts.addLabel)html+='<button type="button" class="chip-pop__item chip-pop__add" data-add="1">＋ '+esc(opts.addLabel)+'</button>';
     list.innerHTML=html;
     list.querySelectorAll('[data-v]').forEach(b=>b.addEventListener('click',()=>{const v=b.dataset.v;_closeChipPop();opts.onPick&&opts.onPick(v);}));
-    const addb=list.querySelector('[data-add]');if(addb)addb.addEventListener('click',()=>{_closeChipPop();opts.onAdd&&opts.onAdd();});
+    const addb=list.querySelector('[data-add]');if(addb)addb.addEventListener('click',()=>{const q2=(searchInp.value||'').trim();_closeChipPop();opts.onAdd&&opts.onAdd(q2);});
   }
   render('');
   if(opts.search)searchInp.oninput=()=>render(searchInp.value);
@@ -3076,15 +3099,14 @@ function calBuildWork(r){return (r.clientes||[]).map(c=>({uid:_calUid++,cId:c.id
 function calRepEditHTML(r){
   const ts=(transportistas||[]).find(t=>t.id===r.tsId)||{};
   const trucks=ts.trucks||[];
-  const SEGO=[['local','Local'],['interior','Interior'],['servicios','Servicios'],['transportadora','Transportadora']];
-  const optsTr=function(w){const has=trucks.some(t=>t.id===w.trId);let o='<option value="">— Elegir camión —</option>';if(w.trId&&!has)o+='<option value="'+w.trId+'" selected>'+esc(w.trDesc||'—')+'</option>';return o+trucks.map(t=>'<option value="'+t.id+'"'+(t.id===w.trId?' selected':'')+'>'+esc(t.d)+'</option>').join('');};
-  const segArrow='<svg class="cal-e-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="14" height="14"><path d="M6 9l6 6 6-6"/></svg>';
-  const rows=calWork.filter(w=>!w.del).map(function(w){
+  const CHEV='<svg class="cal-e-pick__arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="13" height="13"><path d="M6 9l6 6 6-6"/></svg>';
+  const SEGLBL={local:'Local',interior:'Interior',servicios:'Servicios',transportadora:'Transportadora'};
+  const rows=calWork.filter(w=>!w.del).map(function(w){const sg=w.seg||'local';
     return '<tr data-caluid="'+w.uid+'">'+
-      '<td><div class="cal-e-sel"><select class="cal-e-tr" data-uid="'+w.uid+'">'+optsTr(w)+'</select>'+segArrow+'</div></td>'+
-      '<td><input class="cal-e-rep" list="repList" autocomplete="off" data-uid="'+w.uid+'" placeholder="Tercerizado" value="'+esc(w.rep||'')+'"></td>'+
-      '<td><input class="cal-e-zona" data-uid="'+w.uid+'" placeholder="Zona" value="'+esc(w.zona||'')+'"></td>'+
-      '<td><div class="cal-e-sel cal-e-sel--seg cal-e-seg-'+(w.seg||'local')+'"><select class="cal-e-seg" data-uid="'+w.uid+'">'+SEGO.map(s=>'<option value="'+s[0]+'"'+(w.seg===s[0]?' selected':'')+'>'+s[1]+'</option>').join('')+'</select>'+segArrow+'</div></td>'+
+      '<td><button type="button" class="cal-e-pick cal-e-pick--tr'+(w.trId?'':' ph')+'" data-uid="'+w.uid+'" data-pick="tr"><span class="cal-e-pick__t">'+(w.trId?esc(w.trDesc||'—'):'Elegir camión')+'</span>'+CHEV+'</button></td>'+
+      '<td><button type="button" class="cal-e-pick'+(w.rep?'':' ph')+'" data-uid="'+w.uid+'" data-pick="rep"><span class="cal-e-pick__t">'+(w.rep?esc(w.rep):'Tercerizado')+'</span>'+CHEV+'</button></td>'+
+      '<td><button type="button" class="cal-e-pick'+(w.zona?'':' ph')+'" data-uid="'+w.uid+'" data-pick="zona"><span class="cal-e-pick__t">'+(w.zona?esc(w.zona):'Elegir zona')+'</span>'+CHEV+'</button></td>'+
+      '<td><button type="button" class="cal-e-pick cal-e-pick--seg cal-e-seg-'+sg+'" data-uid="'+w.uid+'" data-pick="seg"><span class="cal-e-pick__dot"></span><span class="cal-e-pick__t">'+SEGLBL[sg]+'</span>'+CHEV+'</button></td>'+
       '<td class="r"><input class="cal-e-in cal-e-peso" data-uid="'+w.uid+'" inputmode="numeric" placeholder="0" value="'+(w.peso?_nnum(w.peso):'')+'"></td>'+
       '<td class="r"><input class="cal-e-in cal-e-monto" data-uid="'+w.uid+'" inputmode="numeric" placeholder="0" value="'+(w.monto?_nnum(w.monto):'')+'"></td>'+
       '<td class="r"><input class="cal-e-in cal-e-flete" data-uid="'+w.uid+'" inputmode="numeric" placeholder="0" value="'+(w.precio?_nnum(w.precio):'')+'"></td>'+
@@ -3109,6 +3131,24 @@ function calRepEditHTML(r){
   '</div>';
 }
 
+// Selectores PRO del editor del día (mismos popovers que la tabla de Calculadora)
+function calOpenPick(btn){
+  if(!calWork)return;
+  const w=calWork.find(x=>x.uid===+btn.dataset.uid);if(!w)return;
+  const kind=btn.dataset.pick,rerender=()=>renderCalDay('rows');
+  if(kind==='tr'){
+    const r=calDayRepartos().find(x=>x.id===calEditRepId),ts=(transportistas||[]).find(t=>r&&t.id===r.tsId),trucks=(ts&&ts.trucks)||[];
+    const opts=trucks.map(t=>({v:String(t.id),label:t.d}));
+    if(w.trId&&!trucks.some(t=>t.id===w.trId))opts.unshift({v:String(w.trId),label:w.trDesc||'—'});
+    openChipPop(btn,{value:w.trId?String(w.trId):'',search:true,options:opts,onPick:v=>{const t=trucks.find(x=>String(x.id)===v);w.trId=+v||null;w.trDesc=t?t.d:w.trDesc;rerender();}});
+  }else if(kind==='rep'){
+    openChipPop(btn,{value:w.rep||'',search:true,addLabel:'Agregar repartidor nuevo',options:(_repartidores||[]).map(n=>({v:n,label:n})),onPick:v=>{w.rep=v;rerender();},onAdd:()=>_openAddRepartidor(name=>{w.rep=name;rerender();})});
+  }else if(kind==='zona'){
+    openChipPop(btn,{value:w.zona||'',search:true,addLabel:'Usar otra zona',options:_zonasFor(w.seg||'local').map(z=>({v:z.n,label:z.n})),onPick:v=>{w.zona=v;rerender();},onAdd:q=>{if(q){w.zona=q;rerender();}}});
+  }else if(kind==='seg'){
+    openChipPop(btn,{value:w.seg||'local',options:[{v:'local',label:'Local',dot:'#0B5F8D'},{v:'interior',label:'Interior',dot:'#F97316'},{v:'servicios',label:'Servicios',dot:'#10B981'},{v:'transportadora',label:'Transportadora',dot:'#7c3aed'}],onPick:v=>{w.seg=v;if(w.zona&&!_zonasFor(v).some(z=>z.n===w.zona))w.zona=null;rerender();}});
+  }
+}
 function calLiveTotals(){
   if(!calWork)return;
   const tM=calWork.filter(w=>!w.del).reduce((s,w)=>s+(+w.monto||0),0);
@@ -3231,6 +3271,8 @@ document.getElementById('calModalBody').addEventListener('click',async e=>{
   const cancelBtn=e.target.closest('[data-cal-cancel]');
   const saveBtn=e.target.closest('[data-cal-save]');
   const delUid=e.target.closest('[data-cal-deluid]');
+  const pickBtn=e.target.closest('.cal-e-pick');
+  if(pickBtn){e.stopPropagation();calOpenPick(pickBtn);return;}
   if(editBtn){const id=+editBtn.dataset.editr;const r=calDayRepartos().find(x=>x.id===id);if(!r)return;calEditRepId=id;calWork=calBuildWork(r);renderCalDay('edit');return;}
   if(addBtn){if(!calWork)return;calWork.unshift({uid:_calUid++,cId:null,trId:null,trDesc:'',seg:'local',rep:'',zona:'',monto:0,precio:0,peso:0,km:0,precioKm:0,obs:null,cant:null,del:false,isNew:true});renderCalDay('add');return;}
   if(cancelBtn){calEditRepId=null;calWork=null;renderCalDay('toggle');return;}
