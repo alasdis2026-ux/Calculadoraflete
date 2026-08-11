@@ -3792,6 +3792,43 @@ function showSaveAnim(){
   .rep2 small.hint{display:block;font-size:10.5px;color:var(--gray-400);padding:10px 20px 14px}
   .rep2 .rep2-manhint{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:700;color:var(--accent,#3B82F6);background:var(--accent-soft,#DBEAFE);padding:3px 9px;border-radius:999px}
   @media(max-width:900px){.rep2 .main-grid{grid-template-columns:1fr}.rep2 .channel-grid{grid-template-columns:1fr}}
+  /* ── Estadísticas del gasto ── */
+  .gstat{padding-bottom:24px}
+  .gstat-toolbar{display:flex;margin:2px 0 14px}
+  .gstat-tsfilter{display:inline-flex;align-items:center;gap:8px;border:1.5px solid var(--gray-200);border-radius:11px;padding:9px 14px;background:#fff;font:inherit;font-size:13px;font-weight:700;color:var(--gray-700);cursor:pointer;transition:border-color .15s,color .15s;box-shadow:0 1px 3px rgba(15,23,42,.04)}
+  .gstat-tsfilter:hover,.gstat-tsfilter.is-open{border-color:var(--accent);color:var(--primary)}
+  .gstat-tsfilter>svg:first-child{color:var(--accent)}
+  .gstat-tsfilter__arr{color:var(--gray-400);transition:transform .2s}
+  .gstat-tsfilter.is-open .gstat-tsfilter__arr{transform:rotate(180deg)}
+  .gstat-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+  .gstat-kpi{background:#fff;border:1px solid var(--gray-200);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:2px}
+  .gstat-kpi__l{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--gray-400)}
+  .gstat-kpi__v{font-family:Sora,Inter,sans-serif;font-size:21px;font-weight:800;color:var(--primary);font-variant-numeric:tabular-nums;line-height:1.1}
+  .gstat-kpi__s{font-size:11px;font-weight:600;color:var(--gray-400)}
+  .gstat-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+  .gstat-card{background:#fff;border:1px solid var(--gray-200);border-radius:16px;padding:16px 18px;box-shadow:0 1px 3px rgba(15,23,42,.04)}
+  .gstat-card__h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;font-size:13px;font-weight:800;color:var(--gray-800);margin-bottom:14px}
+  .gstat-card__note{font-size:10px;font-weight:800;color:var(--gray-400);text-transform:uppercase;letter-spacing:.5px;flex-shrink:0}
+  .gstat-bars{display:flex;flex-direction:column;gap:13px}
+  .gstat-bar__top{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:5px}
+  .gstat-bar__lbl{font-size:12px;font-weight:700;color:var(--gray-700);display:flex;align-items:center;gap:7px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .gstat-bar__val{font-size:12px;font-weight:800;color:var(--gray-800);font-variant-numeric:tabular-nums;white-space:nowrap;flex-shrink:0}
+  .gstat-rank{width:20px;height:20px;flex-shrink:0;border-radius:50%;background:var(--gray-100);color:var(--gray-500);font-size:10.5px;font-weight:800;display:inline-flex;align-items:center;justify-content:center}
+  .gstat-bars .gstat-bar:nth-child(1) .gstat-rank{background:linear-gradient(135deg,#F5A623,#FBBF24);color:#fff}
+  .gstat-bar__track{height:12px;background:var(--gray-100);border-radius:7px;overflow:hidden}
+  .gstat-bar__fill{height:100%;border-radius:7px}
+  .gstat-bar__sub{font-size:10.5px;font-weight:600;color:var(--gray-400);margin-top:4px}
+  .gstat-tblwrap{overflow-x:auto}
+  .gstat-tbl{width:100%;border-collapse:collapse}
+  .gstat-tbl th{text-align:left;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--gray-400);padding:0 10px 9px;white-space:nowrap}
+  .gstat-tbl th.r,.gstat-tbl td.r{text-align:right}
+  .gstat-tbl td{padding:9px 10px;border-top:1px solid var(--gray-100);font-size:12.5px;font-weight:600;color:var(--gray-600);white-space:nowrap;font-variant-numeric:tabular-nums}
+  .gstat-td-nm{font-weight:800;color:var(--gray-800)}
+  .gstat-tag{display:inline-block;font-size:10px;font-weight:800;padding:2px 8px;border-radius:999px}
+  .gstat-tag--km{background:var(--orange-soft,#FFEDD5);color:var(--orange,#F97316)}
+  .gstat-tag--fijo{background:var(--accent-soft,#DBEAFE);color:var(--primary)}
+  .gstat-empty{padding:22px;text-align:center;color:var(--gray-400);font-size:12.5px;font-weight:600}
+  @media(max-width:900px){.gstat-kpis{grid-template-columns:1fr 1fr}.gstat-grid{grid-template-columns:1fr}}
   .cf-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:13px;margin-bottom:16px}
   .cf-kpi{position:relative;display:flex;align-items:center;gap:13px;padding:16px;border:1px solid var(--gray-200,#e2e8f0);border-radius:15px;background:#fff;overflow:hidden}
   .cf-kpi::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px}
@@ -4409,8 +4446,8 @@ async function renderFacturas(){
       return '<tr data-facid="'+f.id+'"><td class="fac-nro">'+_escp(f.nro||'—')+'</td><td>'+(f.fecha?f.fecha.split('-').reverse().join('/'):'—')+'</td><td class="fac-ts">'+_escp(f.transportadora_nombre||'—')+'</td><td class="fac-sem">'+sem+'</td><td>'+chip+'</td><td class="r fac-monto">'+_gs(f.monto)+'</td>'+
         '<td class="r fac-acts"><button class="fac-editbtn" data-editfac="'+f.id+'" title="Editar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 4H4a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-7M18.5 2.5a2.1 2.1 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="fac-del" data-delfac="'+f.id+'" title="Eliminar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg></button></td></tr>';}).join('');
     table='<div class="cf-card cf-card--flush"><table class="cf-table cf-table--hover"><thead><tr><th>Nº Factura</th><th>Fecha</th><th>Transportista</th><th>Semana</th><th>Estado</th><th class="r">Monto</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div>';}
-  host.innerHTML='<div class="cf-hd"><h2><img src="logo-alas-s.a.png">Facturas registradas</h2>'+nav+'<div class="cf-spacer"></div><button class="cf-btn" id="cfNewFac"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Registrar factura</button></div>'+chips+kpis+table;
-  document.getElementById('cfNewFac').addEventListener('click',()=>_cfOpenFacturaModal(null));
+  host.innerHTML='<div class="cf-hd"><h2><img src="logo-alas-s.a.png">Facturas registradas</h2>'+nav+'<div class="cf-spacer"></div><button class="cf-btn" id="cfStats"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l3-3 3 3 4-6"/></svg>Estadísticas del gasto</button></div>'+chips+kpis+table;
+  document.getElementById('cfStats').addEventListener('click',()=>_cfOpenStats());
   host.querySelectorAll('[data-facm]').forEach(b=>b.addEventListener('click',()=>{const a=_facMes.split('-').map(Number),d=new Date(a[0],a[1]-1+(+b.dataset.facm),1);_facMes=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');_facWeek=null;renderFacturas();}));
   const facToday=host.querySelector('[data-factoday]');if(facToday)facToday.addEventListener('click',()=>{const d=new Date();_facMes=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');_facWeek=null;renderFacturas();});
   host.querySelectorAll('[data-facw]').forEach(b=>b.addEventListener('click',()=>{_facWeek=b.dataset.facw||null;renderFacturas();}));
@@ -4423,6 +4460,71 @@ function _cfDeleteFactura(id){
   _cfConfirm('¿Eliminar esta factura?','No se puede deshacer. La planilla vuelve a quedar sin facturar.',async()=>{
     try{const d=await sb.from('fact_facturas').delete().eq('id',id);if(d.error)throw d.error;showToast('Listo, borré la factura');renderFacturas();}catch(e){showToast('Uy, no pude borrar la factura');}
   });
+}
+
+/* ════════ ESTADÍSTICAS DEL GASTO ════════ */
+let _cfStatsTs=null; // filtro por transportadora (tsId) o null = todas
+function _gastoStats(mk,tsId){
+  const seg={local:{g:0,n:0},interior:{g:0,n:0},servicios:{g:0,n:0},transportadora:{g:0,n:0}};
+  const byTs={},byCam={};let total=0,intGasto=0,intKm=0;const plan=new Set();
+  (repartos||[]).forEach(r=>{ if(mk&&(r.fechaISO||'').slice(0,7)!==mk)return;
+    (r.clientes||[]).forEach(c=>{ if(tsId&&c.tsId!==tsId)return;
+      const sk=c.seg||'local',fl=(+c.precio|| +c.gasto||0),d=r.fechaISO||'';
+      total+=fl;if(!seg[sk])seg[sk]={g:0,n:0};seg[sk].g+=fl;seg[sk].n++;plan.add(r.id);
+      const tid=c.tsId||0,tsn=c.tsNombre||'—';
+      const T=byTs[tid]||(byTs[tid]={id:tid,nombre:tsn,gasto:0,n:0,cams:{}});T.gasto+=fl;T.n++;if(c.trDesc)T.cams[c.trDesc]=1;
+      const key=(c.trId||c.trDesc||'—')+'';
+      const C=byCam[key]||(byCam[key]={trId:c.trId||null,trDesc:c.trDesc||'—',tsNombre:tsn,gasto:0,n:0,km:false,precioKm:0,fijo:0,last:''});
+      C.gasto+=fl;C.n++;
+      if(sk==='interior'){C.km=true;intGasto+=fl;intKm+=+c.km||0;if(d>=C.last){C.precioKm=+c.precioKm||0;C.last=d;}}
+      else if(d>=C.last){C.fijo=fl;C.last=d;}
+    });
+  });
+  return{seg,total,plan:plan.size,intGasto,intKm,kmProm:intKm>0?intGasto/intKm:0,
+    tsList:Object.values(byTs).map(t=>({id:t.id,nombre:t.nombre,gasto:t.gasto,cam:Object.keys(t.cams).length,n:t.n})).sort((a,b)=>b.gasto-a.gasto),
+    camList:Object.values(byCam).sort((a,b)=>b.gasto-a.gasto)};
+}
+function _cfOpenStats(){
+  const host=document.getElementById('factHost');if(!host)return;
+  const mk=_facMes,s=_gastoStats(mk,_cfStatsTs);
+  const tsName=_cfStatsTs?(((transportistas||[]).find(t=>t.id===_cfStatsTs)||{}).n||'Transportadora'):'Todas las transportadoras';
+  const SEGN={local:'Local',interior:'Interior',servicios:'Servicios',transportadora:'Transportadora'},SEGC={local:'#0B5F8D',interior:'#F97316',servicios:'#10B981',transportadora:'#7c3aed'};
+  const bars=(items,fmt)=>{const max=Math.max(1,...items.map(i=>i.value));return '<div class="gstat-bars">'+items.map(function(it){const pct=it.value>0?Math.max(3,it.value/max*100):0;return '<div class="gstat-bar" title="'+esc(it.label)+': '+esc(fmt(it.value))+'"><div class="gstat-bar__top"><span class="gstat-bar__lbl">'+(it.rank?'<span class="gstat-rank">'+it.rank+'</span>':'')+esc(it.label)+'</span><span class="gstat-bar__val">'+fmt(it.value)+'</span></div><div class="gstat-bar__track"><div class="gstat-bar__fill" style="width:'+pct.toFixed(1)+'%;background:'+(it.color||'var(--primary)')+'"></div></div>'+(it.sub?'<div class="gstat-bar__sub">'+esc(it.sub)+'</div>':'')+'</div>';}).join('')+'</div>';};
+  const segItems=['local','interior','servicios','transportadora'].map(k=>({label:SEGN[k],value:s.seg[k]?s.seg[k].g:0,color:SEGC[k]})).filter(i=>i.value>0);
+  const tsItems=s.tsList.slice(0,10).map((t,i)=>({label:t.nombre,value:t.gasto,rank:i+1,sub:t.cam+' camión'+(t.cam===1?'':'es')}));
+  const camGasto=s.camList.slice(0,10).map((c,i)=>({label:c.trDesc,value:c.gasto,rank:i+1,sub:c.tsNombre+' · '+c.n+'x',color:'var(--accent)'}));
+  const camKm=s.camList.filter(c=>c.km&&c.precioKm>0).sort((a,b)=>b.precioKm-a.precioKm).slice(0,12).map((c,i)=>({label:c.trDesc,value:c.precioKm,rank:i+1,sub:c.tsNombre,color:'#F97316'}));
+  const kpi=(l,v,x)=>'<div class="gstat-kpi"><span class="gstat-kpi__l">'+l+'</span><b class="gstat-kpi__v">'+v+'</b>'+(x?'<span class="gstat-kpi__s">'+x+'</span>':'')+'</div>';
+  const kpis='<div class="gstat-kpis">'+kpi('Gasto total',_gs(s.total),s.plan+' planilla'+(s.plan===1?'':'s'))+kpi('Camiones usados',_nnum(s.camList.length),'')+kpi('Interior',_nnum(s.intKm)+' km','recorridos')+kpi('Precio/km promedio',_gs(Math.round(s.kmProm)),'interior')+'</div>';
+  const nav='<div class="rr-mnav"><button data-statm="-1" aria-label="Mes anterior">‹</button><span>'+_mesLbl(mk)+'</span><button data-statm="1" aria-label="Mes siguiente">›</button><button class="rr-mnav__today" data-stattoday type="button">Hoy</button></div>';
+  const card=(t,body,note)=>'<div class="gstat-card"><div class="gstat-card__h">'+t+(note?'<span class="gstat-card__note">'+note+'</span>':'')+'</div>'+body+'</div>';
+  const emp='<div class="gstat-empty">Sin datos en este período</div>';
+  const chartsHtml='<div class="gstat-grid">'+
+    card('Gasto por segmento',segItems.length?bars(segItems,_gs):emp)+
+    card('Gasto por transportadora',tsItems.length?bars(tsItems,_gs):emp,'Top 10')+
+    card('Top camiones por gasto',camGasto.length?bars(camGasto,_gs):emp,'Top 10')+
+    card('Precio por km utilizado (Interior)',camKm.length?bars(camKm,v=>_nnum(v)+' /km'):'<div class="gstat-empty">Sin repartos de interior</div>','Top 12')+
+  '</div>';
+  const tsRows=s.tsList.map(t=>'<tr><td class="gstat-td-nm">'+esc(t.nombre)+'</td><td class="r">'+t.cam+'</td><td class="r">'+_gs(t.gasto)+'</td><td class="r">'+(s.total>0?_pct(t.gasto/s.total):'—')+'</td></tr>').join('')||'<tr><td colspan="4" class="gstat-empty">Sin datos</td></tr>';
+  const camRows=s.camList.map(c=>'<tr><td class="gstat-td-nm">'+esc(c.trDesc)+'</td><td>'+esc(c.tsNombre)+'</td><td><span class="gstat-tag '+(c.km?'gstat-tag--km':'gstat-tag--fijo')+'">'+(c.km?'Km':'Fijo')+'</span></td><td class="r">'+(c.km?(_nnum(c.precioKm)+' /km'):_gs(c.fijo))+'</td><td class="r">'+c.n+'</td><td class="r">'+_gs(c.gasto)+'</td></tr>').join('')||'<tr><td colspan="6" class="gstat-empty">Sin datos</td></tr>';
+  const lists='<div class="gstat-grid">'+
+    card('Transportadoras','<div class="gstat-tblwrap"><table class="gstat-tbl"><thead><tr><th>Transportadora</th><th class="r">Cam.</th><th class="r">Gasto</th><th class="r">%</th></tr></thead><tbody>'+tsRows+'</tbody></table></div>')+
+    card('Camiones · precio utilizado','<div class="gstat-tblwrap"><table class="gstat-tbl"><thead><tr><th>Camión</th><th>Transportadora</th><th>Tipo</th><th class="r">Precio</th><th class="r">Usos</th><th class="r">Gasto</th></tr></thead><tbody>'+camRows+'</tbody></table></div>')+
+  '</div>';
+  host.innerHTML='<div class="rep2 gstat">'+
+    '<div class="cal-day-topbar"><button class="rrd-back" id="gstatBack" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg> Volver</button><div class="cal-day-ttl"><h2>Estadísticas del gasto</h2></div><div class="rep2-spacer"></div>'+nav+'</div>'+
+    '<div class="gstat-toolbar"><button class="gstat-tsfilter" id="gstatTs" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="15" height="15"><path d="M22 3H2l8 9.46V19l4 2v-8.54z"/></svg><span>'+esc(tsName)+'</span><svg class="gstat-tsfilter__arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="13" height="13"><path d="M6 9l6 6 6-6"/></svg></button></div>'+
+    kpis+chartsHtml+'<div class="section-label" style="margin-top:6px">Listas de precios</div>'+lists+
+  '</div>';
+  document.getElementById('gstatBack').addEventListener('click',()=>renderFacturas());
+  host.querySelectorAll('[data-statm]').forEach(b=>b.addEventListener('click',()=>{const a=_facMes.split('-').map(Number),d=new Date(a[0],a[1]-1+(+b.dataset.statm),1);_facMes=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');_cfOpenStats();}));
+  const stt=host.querySelector('[data-stattoday]');if(stt)stt.addEventListener('click',()=>{const d=new Date();_facMes=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');_cfOpenStats();});
+  const tf=document.getElementById('gstatTs');if(tf)tf.addEventListener('click',()=>{const opts=[{v:'',label:'Todas las transportadoras'}].concat((transportistas||[]).slice().sort((a,b)=>(a.n||'').localeCompare(b.n||'')).map(t=>({v:String(t.id),label:t.n})));openChipPop(tf,{value:_cfStatsTs?String(_cfStatsTs):'',search:true,options:opts,onPick:v=>{_cfStatsTs=v?+v:null;_cfOpenStats();}});});
+  if(window.gsap){const g=window.gsap;
+    g.from('#factHost .gstat-kpi',{opacity:0,y:12,duration:.4,stagger:.05,ease:'power3.out',clearProps:'all'});
+    g.from('#factHost .gstat-card',{opacity:0,y:16,duration:.44,stagger:.06,delay:.06,ease:'back.out(1.4)',clearProps:'all'});
+    g.fromTo('#factHost .gstat-bar__fill',{scaleX:0,transformOrigin:'left center'},{scaleX:1,duration:.7,stagger:.02,delay:.2,ease:'power3.out'});
+  }
 }
 
 function _cfOpenFacturaModal(existing,preset){
