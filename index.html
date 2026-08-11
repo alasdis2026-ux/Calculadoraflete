@@ -1032,6 +1032,10 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg>
       <span class="label">Reporte General</span>
     </button>
+    <button class="sidebar-item" type="button" data-nav="stats">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 3v18h18"/><rect x="7" y="11" width="3" height="6" rx="1"/><rect x="12" y="7" width="3" height="10" rx="1"/><rect x="17" y="13" width="3" height="4" rx="1"/></svg>
+      <span class="label">Estadísticas del gasto</span>
+    </button>
     <button class="sidebar-item is-active" type="button" data-nav="calc">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>
       <span class="label">Calculadora</span>
@@ -1304,6 +1308,11 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 <!-- ═══ VIEW — REPORTE GENERAL ═════════════════════════ -->
 <section id="viewDash" class="stage">
   <div id="repHost" class="cf-host"></div>
+</section>
+
+<!-- ═══ VIEW — ESTADÍSTICAS DEL GASTO ══════════════════ -->
+<section id="viewStats" class="stage">
+  <div id="statsHost" class="cf-host"></div>
 </section>
 
 </main>
@@ -1710,7 +1719,7 @@ function initials(name){
 /* ════════ NAVIGATION ════════════════════════════════ */
 let _lastView=null;
 function showView(v){
-  ['calc','trans','hist','dash','fact','rrep'].forEach(x=>{
+  ['calc','trans','hist','dash','fact','rrep','stats'].forEach(x=>{
     document.getElementById('view'+x.charAt(0).toUpperCase()+x.slice(1)).classList.toggle('is-active',x===v);
   });
   document.querySelectorAll('[data-nav]').forEach(b=>{
@@ -1729,6 +1738,7 @@ function showView(v){
   if(v==='dash')renderReporte();
   if(v==='fact')renderFacturas();
   if(v==='rrep')renderReporteRepartos();
+  if(v==='stats')_cfOpenStats();
 }
 document.querySelectorAll('[data-nav]').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.nav)));
 
@@ -3816,19 +3826,24 @@ function showSaveAnim(){
   .gstat-kpi-big{font-family:Sora,Inter,sans-serif;font-size:26px;font-weight:800;color:var(--gray-800);letter-spacing:-.5px;line-height:1.05;font-variant-numeric:tabular-nums}
   .gstat .card.accent .gstat-kpi-big{color:var(--primary)}
   .gstat-kpi-sub{font-size:12px;color:var(--gray-400);margin-top:6px;font-weight:600}
-  .gstat-hero{background:linear-gradient(135deg,#0B4F8A,#1466B0)!important;color:#fff;border:none!important}
-  .gstat-hero h3{color:rgba(255,255,255,.75)!important}
-  .gstat-hero-big{font-family:Sora,Inter,sans-serif;font-size:32px;font-weight:800;letter-spacing:-.5px;line-height:1;font-variant-numeric:tabular-nums}
-  .gstat-hero-big .u{font-size:16px;font-weight:600;color:rgba(255,255,255,.7);margin-right:4px}
-  .gstat-hero-row{display:flex;align-items:center;gap:9px;margin-top:11px;flex-wrap:wrap}
+  .gstat-herowrap{margin-bottom:16px}
+  .gstat-hero{background:linear-gradient(135deg,#0B4F8A,#1466B0)!important;color:#fff;border:none!important;align-items:center;text-align:center;padding:22px 20px}
+  .gstat-hero h3{color:rgba(255,255,255,.72)!important;letter-spacing:.8px}
+  .gstat-hero-big{font-family:Sora,Inter,sans-serif;font-size:40px;font-weight:800;letter-spacing:-.5px;line-height:1;font-variant-numeric:tabular-nums}
+  .gstat-hero-big .u{font-size:18px;font-weight:600;color:rgba(255,255,255,.7);margin-right:5px}
+  .gstat-hero-row{display:flex;align-items:center;justify-content:center;gap:9px;margin-top:12px;flex-wrap:wrap}
   .gstat-hero-sub{font-size:11.5px;color:rgba(255,255,255,.82);font-weight:600}
-  .gchip{display:inline-flex;align-items:center;gap:3px;font-size:12px;font-weight:800;padding:3px 10px;border-radius:20px;white-space:nowrap}
+  .gchip{display:inline-flex;align-items:center;gap:3px;font-size:12.5px;font-weight:800;padding:4px 11px;border-radius:20px;white-space:nowrap}
   .gchip.up{background:#fff;color:#127a4b}
   .gchip.down{background:#fff;color:#C0392B}
   .gchip.flat{background:rgba(255,255,255,.2);color:#fff}
-  .gstat-hbar{display:flex;height:12px;border-radius:7px;overflow:hidden;margin-top:15px;background:rgba(255,255,255,.18);gap:2px}
+  .gstat-hbar{display:flex;height:12px;border-radius:7px;overflow:hidden;margin-top:16px;background:rgba(255,255,255,.18);gap:2px;width:100%;max-width:560px}
   .gstat-hbar>span{display:block;height:100%}
-  .gstat-hero-foot{font-size:11.5px;color:rgba(255,255,255,.82);margin-top:11px;font-weight:600}
+  .gstat-hstats{display:flex;justify-content:center;margin-top:18px}
+  .gstat-hstats>div{padding:0 28px;border-right:1px solid rgba(255,255,255,.22)}
+  .gstat-hstats>div:last-child{border-right:none}
+  .gstat-hstats b{display:block;font-family:Sora,Inter,sans-serif;font-size:23px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
+  .gstat-hstats span{display:block;font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:rgba(255,255,255,.72);margin-top:6px}
   @media(max-width:900px){.gstat-topgrid{grid-template-columns:1fr}}
   .gstat-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;align-items:start}
   .gstat-card{background:#fff;border:1px solid var(--gray-200);border-radius:16px;padding:16px 18px;box-shadow:0 1px 3px rgba(15,23,42,.04)}
@@ -4485,8 +4500,8 @@ async function renderFacturas(){
       return '<tr data-facid="'+f.id+'"><td class="fac-nro">'+_escp(f.nro||'—')+'</td><td>'+(f.fecha?f.fecha.split('-').reverse().join('/'):'—')+'</td><td class="fac-ts">'+_escp(f.transportadora_nombre||'—')+'</td><td class="fac-sem">'+sem+'</td><td>'+chip+'</td><td class="r fac-monto">'+_gs(f.monto)+'</td>'+
         '<td class="r fac-acts"><button class="fac-editbtn" data-editfac="'+f.id+'" title="Editar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 4H4a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-7M18.5 2.5a2.1 2.1 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="fac-del" data-delfac="'+f.id+'" title="Eliminar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg></button></td></tr>';}).join('');
     table='<div class="cf-card cf-card--flush"><table class="cf-table cf-table--hover"><thead><tr><th>Nº Factura</th><th>Fecha</th><th>Transportista</th><th>Semana</th><th>Estado</th><th class="r">Monto</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div>';}
-  host.innerHTML='<div class="cf-hd"><h2><img src="logo-alas-s.a.png">Facturas registradas</h2>'+nav+'<div class="cf-spacer"></div><button class="cf-btn" id="cfStats"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l3-3 3 3 4-6"/></svg>Estadísticas del gasto</button></div>'+chips+kpis+table;
-  document.getElementById('cfStats').addEventListener('click',()=>_cfOpenStats());
+  host.innerHTML='<div class="cf-hd"><h2><img src="logo-alas-s.a.png">Facturas registradas</h2>'+nav+'<div class="cf-spacer"></div><button class="cf-btn" id="cfNewFac"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Registrar factura</button></div>'+chips+kpis+table;
+  document.getElementById('cfNewFac').addEventListener('click',()=>_cfOpenFacturaModal(null));
   host.querySelectorAll('[data-facm]').forEach(b=>b.addEventListener('click',()=>{const a=_facMes.split('-').map(Number),d=new Date(a[0],a[1]-1+(+b.dataset.facm),1);_facMes=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');_facWeek=null;renderFacturas();}));
   const facToday=host.querySelector('[data-factoday]');if(facToday)facToday.addEventListener('click',()=>{const d=new Date();_facMes=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');_facWeek=null;renderFacturas();});
   host.querySelectorAll('[data-facw]').forEach(b=>b.addEventListener('click',()=>{_facWeek=b.dataset.facw||null;renderFacturas();}));
@@ -4524,7 +4539,7 @@ function _gastoStats(mk,tsId){
     camList:Object.values(byCam).sort((a,b)=>b.gasto-a.gasto)};
 }
 function _cfOpenStats(){
-  const host=document.getElementById('factHost');if(!host)return;
+  const host=document.getElementById('statsHost');if(!host)return;
   const mk=_facMes,s=_gastoStats(mk,_cfStatsTs);
   const allTs=_gastoStats(mk,null).tsList; // todas las que tuvieron gasto este mes (para los botones)
   const tsBtns='<div class="gstat-tswrap">'+
@@ -4546,10 +4561,12 @@ function _cfOpenStats(){
   const prevTotal=_gastoStats(_prevMk,_cfStatsTs).total,trend=prevTotal>0?((s.total-prevTotal)/prevTotal):null;
   const gchip=trend===null?'<span class="gchip flat">sin mes previo</span>':'<span class="gchip '+(trend>0?'up':(trend<0?'down':'flat'))+'">'+(trend>0?'▲ ':(trend<0?'▼ ':''))+_pct(Math.abs(trend))+'</span>';
   const segStack=segItems.map(it=>'<span title="'+esc(it.label)+': '+esc(_gs(it.value))+'" style="width:'+(it.value/(s.total||1)*100).toFixed(1)+'%;background:'+it.color+'"></span>').join('');
-  const kpis='<div class="gstat-topgrid">'+
-    '<div class="card gstat-hero"><h3>Gasto total del mes</h3><div class="gstat-hero-big"><span class="u">Gs.</span>'+_nnum(s.total)+'</div><div class="gstat-hero-row">'+gchip+'<span class="gstat-hero-sub">vs '+_mesLbl(_prevMk)+'</span></div><div class="gstat-hbar">'+segStack+'</div><div class="gstat-hero-foot">'+s.plan+' planillas · '+s.camList.length+' camiones · '+_nnum(s.intKm)+' km interior</div></div>'+
-    '<div class="card"><h3>Camiones usados</h3><div class="gstat-kpi-big">'+_nnum(s.camList.length)+'</div><div class="gstat-kpi-sub">en '+s.plan+' planilla'+(s.plan===1?'':'s')+'</div></div>'+
-  '</div>';
+  const kpis='<div class="gstat-herowrap"><div class="card gstat-hero"><h3>Gasto total del mes</h3>'+
+    '<div class="gstat-hero-big"><span class="u">Gs.</span>'+_nnum(s.total)+'</div>'+
+    '<div class="gstat-hero-row">'+gchip+'<span class="gstat-hero-sub">vs '+_mesLbl(_prevMk)+'</span></div>'+
+    '<div class="gstat-hbar">'+segStack+'</div>'+
+    '<div class="gstat-hstats"><div><b>'+_nnum(s.plan)+'</b><span>Planillas</span></div><div><b>'+_nnum(s.camList.length)+'</b><span>Camiones</span></div><div><b>'+_nnum(s.intKm)+'</b><span>Km interior</span></div></div>'+
+  '</div></div>';
   const nav='<div class="rr-mnav"><button data-statm="-1" aria-label="Mes anterior">‹</button><span>'+_mesLbl(mk)+'</span><button data-statm="1" aria-label="Mes siguiente">›</button><button class="rr-mnav__today" data-stattoday type="button">Hoy</button></div>';
   const card=(t,body,note)=>'<div class="gstat-card"><div class="gstat-card__h">'+t+(note?'<span class="gstat-card__note">'+note+'</span>':'')+'</div>'+body+'</div>';
   const emp='<div class="gstat-empty">Sin datos en este período</div>';
@@ -4563,23 +4580,22 @@ function _cfOpenStats(){
     card('Camiones · precio utilizado','<div class="gstat-tblwrap"><table class="gstat-tbl"><thead><tr><th>Camión</th><th>Transportadora</th><th>Tipo</th><th class="r">Precio</th><th class="r">Usos</th><th class="r">Gasto</th></tr></thead><tbody>'+camRows+'</tbody></table></div>')+
   '</div>';
   host.innerHTML='<div class="rep2 gstat">'+
-    '<div class="cal-day-topbar"><button class="rrd-back" id="gstatBack" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg> Volver</button><div class="cal-day-ttl"><h2>Estadísticas del gasto</h2></div><div class="rep2-spacer"></div>'+nav+'</div>'+
+    '<div class="cal-day-topbar"><div class="cal-day-ttl"><h2><img src="logo-alas-s.a.png" style="height:28px;vertical-align:-6px;margin-right:8px">Estadísticas del gasto</h2></div><div class="rep2-spacer"></div>'+nav+'</div>'+
     tsBtns+
     kpis+chartsHtml+'<div class="section-label" style="margin-top:6px">Listas de precios</div>'+lists+
   '</div>';
-  document.getElementById('gstatBack').addEventListener('click',()=>renderFacturas());
   host.querySelectorAll('[data-statm]').forEach(b=>b.addEventListener('click',()=>{const a=_facMes.split('-').map(Number),d=new Date(a[0],a[1]-1+(+b.dataset.statm),1);_facMes=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');_cfOpenStats();}));
   const stt=host.querySelector('[data-stattoday]');if(stt)stt.addEventListener('click',()=>{const d=new Date();_facMes=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');_cfOpenStats();});
   host.querySelectorAll('[data-tsf]').forEach(b=>b.addEventListener('click',()=>{_cfStatsTs=b.dataset.tsf?+b.dataset.tsf:null;_cfOpenStats();}));
   const tsSearch=document.getElementById('gstatTsSearch');if(tsSearch)tsSearch.addEventListener('input',()=>{const q=tsSearch.value.trim().toLowerCase();host.querySelectorAll('#gstatTsBar .gstat-tschip').forEach(b=>{const nm=b.dataset.nm||'';b.style.display=(!q||nm==='todos'||nm.indexOf(q)>=0)?'':'none';});});
   if(window.gsap){const g=window.gsap;
-    g.from('#factHost .gstat-tschip',{opacity:0,y:-8,scale:.9,duration:.34,stagger:.02,ease:'back.out(1.8)',clearProps:'all'});
-    g.from('#factHost .gstat-topgrid .card',{opacity:0,y:14,duration:.44,stagger:.07,ease:'back.out(1.4)',clearProps:'all'});
-    g.fromTo('#factHost .gstat-hbar>span',{scaleX:0,transformOrigin:'left center'},{scaleX:1,duration:.7,stagger:.06,delay:.35,ease:'power3.out'});
-    g.from('#factHost .gstat-card',{opacity:0,y:16,duration:.44,stagger:.06,delay:.06,ease:'back.out(1.4)',clearProps:'all'});
-    g.fromTo('#factHost .gstat-bar__fill',{scaleX:0,transformOrigin:'left center'},{scaleX:1,duration:.7,stagger:.02,delay:.2,ease:'power3.out'});
-    g.from('#factHost .gd-chart',{scale:.55,opacity:0,rotate:-35,transformOrigin:'center center',duration:.85,ease:'back.out(1.5)',delay:.14});
-    g.from('#factHost .gd-leg',{opacity:0,x:-12,duration:.4,stagger:.07,delay:.34,ease:'power2.out',clearProps:'all'});
+    g.from('#statsHost .gstat-tschip',{opacity:0,y:-8,scale:.9,duration:.34,stagger:.02,ease:'back.out(1.8)',clearProps:'all'});
+    g.from('#statsHost .gstat-topgrid .card',{opacity:0,y:14,duration:.44,stagger:.07,ease:'back.out(1.4)',clearProps:'all'});
+    g.fromTo('#statsHost .gstat-hbar>span',{scaleX:0,transformOrigin:'left center'},{scaleX:1,duration:.7,stagger:.06,delay:.35,ease:'power3.out'});
+    g.from('#statsHost .gstat-card',{opacity:0,y:16,duration:.44,stagger:.06,delay:.06,ease:'back.out(1.4)',clearProps:'all'});
+    g.fromTo('#statsHost .gstat-bar__fill',{scaleX:0,transformOrigin:'left center'},{scaleX:1,duration:.7,stagger:.02,delay:.2,ease:'power3.out'});
+    g.from('#statsHost .gd-chart',{scale:.55,opacity:0,rotate:-35,transformOrigin:'center center',duration:.85,ease:'back.out(1.5)',delay:.14});
+    g.from('#statsHost .gd-leg',{opacity:0,x:-12,duration:.4,stagger:.07,delay:.34,ease:'power2.out',clearProps:'all'});
   }
 }
 
