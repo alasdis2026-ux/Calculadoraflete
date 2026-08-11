@@ -4382,7 +4382,7 @@ async function renderReporte(){
   // Monto e incidencia por zona (gráfico de barras + tabla, uno al lado del otro)
   const zonas=_cfZonas(_cfRepMes);
   const zMax=Math.max(1,...zonas.map(z=>z.monto));
-  const zonasByInc=[...zonas].sort((a,b)=>a.incidencia-b.incidencia);
+  const zonasByInc=zonas.filter(z=>z.monto>0||z.peso>0).sort((a,b)=>a.incidencia-b.incidencia);
   const barChart='<div class="panel"><div class="panel-title"><h3>Monto por zona</h3></div><div class="zbar-wrap">'+
     zonas.map(function(z,i){const pct=Math.max(3,z.monto/zMax*100);return '<div class="zbar-row"><span class="zbar-rank">'+(i+1)+'</span><span class="zbar-name">'+esc(z.zona)+'</span><div class="zbar-track"><div class="zbar-fill" style="width:'+pct.toFixed(1)+'%"></div></div><span class="zbar-pill">'+_gs(z.monto)+'</span></div>';}).join('')+
   '</div></div>';
