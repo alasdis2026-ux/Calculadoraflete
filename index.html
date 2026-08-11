@@ -3806,11 +3806,29 @@ function showSaveAnim(){
   .gstat-tschip:hover{border-color:var(--accent);background:#fff}
   .gstat-tschip:active{transform:scale(.96)}
   .gstat-tschip.on{background:linear-gradient(180deg,#2578b8,#0B5F8D);border-color:transparent;color:#fff;box-shadow:0 4px 12px rgba(11,95,141,.3)}
-  .gstat-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
-  .gstat-kpi{background:#fff;border:1px solid var(--gray-200);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:2px}
-  .gstat-kpi__l{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--gray-400)}
-  .gstat-kpi__v{font-family:Sora,Inter,sans-serif;font-size:21px;font-weight:800;color:var(--primary);font-variant-numeric:tabular-nums;line-height:1.1}
-  .gstat-kpi__s{font-size:11px;font-weight:600;color:var(--gray-400)}
+  /* KPIs estilo Tablero (hero azul + cards con chip de tendencia) */
+  .gstat-topgrid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:14px;margin-bottom:16px;align-items:stretch}
+  .gstat .card{background:#fff;border:1px solid var(--gray-200);border-radius:14px;padding:16px 18px;box-shadow:0 1px 2px rgba(19,36,55,.06),0 6px 20px rgba(19,36,55,.05);display:flex;flex-direction:column}
+  .gstat .card h3{font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:var(--gray-400);font-weight:800;margin:0 0 10px}
+  .gstat .card.accent{border-color:var(--accent,#3B82F6);box-shadow:0 0 0 2px var(--accent-soft,#DBEAFE),0 6px 20px rgba(19,36,55,.05)}
+  .gstat .card.accent h3{color:var(--primary)}
+  .gstat-kpi-big{font-family:Sora,Inter,sans-serif;font-size:26px;font-weight:800;color:var(--gray-800);letter-spacing:-.5px;line-height:1.05;font-variant-numeric:tabular-nums}
+  .gstat .card.accent .gstat-kpi-big{color:var(--primary)}
+  .gstat-kpi-sub{font-size:12px;color:var(--gray-400);margin-top:6px;font-weight:600}
+  .gstat-hero{background:linear-gradient(135deg,#0B4F8A,#1466B0)!important;color:#fff;border:none!important}
+  .gstat-hero h3{color:rgba(255,255,255,.75)!important}
+  .gstat-hero-big{font-family:Sora,Inter,sans-serif;font-size:32px;font-weight:800;letter-spacing:-.5px;line-height:1;font-variant-numeric:tabular-nums}
+  .gstat-hero-big .u{font-size:16px;font-weight:600;color:rgba(255,255,255,.7);margin-right:4px}
+  .gstat-hero-row{display:flex;align-items:center;gap:9px;margin-top:11px;flex-wrap:wrap}
+  .gstat-hero-sub{font-size:11.5px;color:rgba(255,255,255,.82);font-weight:600}
+  .gchip{display:inline-flex;align-items:center;gap:3px;font-size:12px;font-weight:800;padding:3px 10px;border-radius:20px;white-space:nowrap}
+  .gchip.up{background:#fff;color:#127a4b}
+  .gchip.down{background:#fff;color:#C0392B}
+  .gchip.flat{background:rgba(255,255,255,.2);color:#fff}
+  .gstat-hbar{display:flex;height:12px;border-radius:7px;overflow:hidden;margin-top:15px;background:rgba(255,255,255,.18);gap:2px}
+  .gstat-hbar>span{display:block;height:100%}
+  .gstat-hero-foot{font-size:11.5px;color:rgba(255,255,255,.82);margin-top:11px;font-weight:600}
+  @media(max-width:900px){.gstat-topgrid{grid-template-columns:1fr}}
   .gstat-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;align-items:start}
   .gstat-card{background:#fff;border:1px solid var(--gray-200);border-radius:16px;padding:16px 18px;box-shadow:0 1px 3px rgba(15,23,42,.04)}
   .gstat-card__h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;font-size:13px;font-weight:800;color:var(--gray-800);margin-bottom:14px}
@@ -4523,8 +4541,15 @@ function _cfOpenStats(){
   const tsItems=s.tsList.slice(0,10).map((t,i)=>({label:t.nombre,value:t.gasto,rank:i+1,sub:_pct(t.gasto/(s.total||1))+' del total · '+t.cam+' camión'+(t.cam===1?'':'es')}));
   const camGasto=s.camList.slice(0,10).map((c,i)=>({label:c.trDesc,value:c.gasto,rank:i+1,sub:c.tsNombre+' · '+_pct(c.gasto/(s.total||1))+' · '+c.n+' uso'+(c.n===1?'':'s'),color:'var(--accent)'}));
   const camKm=s.camList.filter(c=>c.km&&c.precioKm>0).sort((a,b)=>b.precioKm-a.precioKm).slice(0,12).map((c,i)=>({label:c.trDesc,value:c.precioKm,rank:i+1,sub:c.tsNombre,color:'#F97316'}));
-  const kpi=(l,v,x)=>'<div class="gstat-kpi"><span class="gstat-kpi__l">'+l+'</span><b class="gstat-kpi__v">'+v+'</b>'+(x?'<span class="gstat-kpi__s">'+x+'</span>':'')+'</div>';
-  const kpis='<div class="gstat-kpis">'+kpi('Gasto total',_gs(s.total),s.plan+' planilla'+(s.plan===1?'':'s'))+kpi('Camiones usados',_nnum(s.camList.length),'')+kpi('Interior',_nnum(s.intKm)+' km','recorridos')+kpi('Precio/km promedio',_gs(Math.round(s.kmProm)),'interior')+'</div>';
+  const _prevMk=(()=>{const a=mk.split('-').map(Number);const d=new Date(a[0],a[1]-2,1);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');})();
+  const prevTotal=_gastoStats(_prevMk,_cfStatsTs).total,trend=prevTotal>0?((s.total-prevTotal)/prevTotal):null;
+  const gchip=trend===null?'<span class="gchip flat">sin mes previo</span>':'<span class="gchip '+(trend>0?'up':(trend<0?'down':'flat'))+'">'+(trend>0?'▲ ':(trend<0?'▼ ':''))+_pct(Math.abs(trend))+'</span>';
+  const segStack=segItems.map(it=>'<span title="'+esc(it.label)+': '+esc(_gs(it.value))+'" style="width:'+(it.value/(s.total||1)*100).toFixed(1)+'%;background:'+it.color+'"></span>').join('');
+  const kpis='<div class="gstat-topgrid">'+
+    '<div class="card gstat-hero"><h3>Gasto total del mes</h3><div class="gstat-hero-big"><span class="u">Gs.</span>'+_nnum(s.total)+'</div><div class="gstat-hero-row">'+gchip+'<span class="gstat-hero-sub">vs '+_mesLbl(_prevMk)+'</span></div><div class="gstat-hbar">'+segStack+'</div><div class="gstat-hero-foot">'+s.plan+' planillas · '+s.camList.length+' camiones · '+_nnum(s.intKm)+' km interior</div></div>'+
+    '<div class="card"><h3>Camiones usados</h3><div class="gstat-kpi-big">'+_nnum(s.camList.length)+'</div><div class="gstat-kpi-sub">en '+s.plan+' planilla'+(s.plan===1?'':'s')+'</div></div>'+
+    '<div class="card accent"><h3>Precio/km promedio</h3><div class="gstat-kpi-big">'+_gs(Math.round(s.kmProm))+'</div><div class="gstat-kpi-sub">interior · '+_nnum(s.intKm)+' km</div></div>'+
+  '</div>';
   const nav='<div class="rr-mnav"><button data-statm="-1" aria-label="Mes anterior">‹</button><span>'+_mesLbl(mk)+'</span><button data-statm="1" aria-label="Mes siguiente">›</button><button class="rr-mnav__today" data-stattoday type="button">Hoy</button></div>';
   const card=(t,body,note)=>'<div class="gstat-card"><div class="gstat-card__h">'+t+(note?'<span class="gstat-card__note">'+note+'</span>':'')+'</div>'+body+'</div>';
   const emp='<div class="gstat-empty">Sin datos en este período</div>';
@@ -4552,7 +4577,8 @@ function _cfOpenStats(){
   const tsSearch=document.getElementById('gstatTsSearch');if(tsSearch)tsSearch.addEventListener('input',()=>{const q=tsSearch.value.trim().toLowerCase();host.querySelectorAll('#gstatTsBar .gstat-tschip').forEach(b=>{const nm=b.dataset.nm||'';b.style.display=(!q||nm==='todos'||nm.indexOf(q)>=0)?'':'none';});});
   if(window.gsap){const g=window.gsap;
     g.from('#factHost .gstat-tschip',{opacity:0,y:-8,scale:.9,duration:.34,stagger:.02,ease:'back.out(1.8)',clearProps:'all'});
-    g.from('#factHost .gstat-kpi',{opacity:0,y:12,duration:.4,stagger:.05,ease:'power3.out',clearProps:'all'});
+    g.from('#factHost .gstat-topgrid .card',{opacity:0,y:14,duration:.44,stagger:.07,ease:'back.out(1.4)',clearProps:'all'});
+    g.fromTo('#factHost .gstat-hbar>span',{scaleX:0,transformOrigin:'left center'},{scaleX:1,duration:.7,stagger:.06,delay:.35,ease:'power3.out'});
     g.from('#factHost .gstat-card',{opacity:0,y:16,duration:.44,stagger:.06,delay:.06,ease:'back.out(1.4)',clearProps:'all'});
     g.fromTo('#factHost .gstat-bar__fill',{scaleX:0,transformOrigin:'left center'},{scaleX:1,duration:.7,stagger:.02,delay:.2,ease:'power3.out'});
     g.from('#factHost .gd-chart',{scale:.55,opacity:0,rotate:-35,transformOrigin:'center center',duration:.85,ease:'back.out(1.5)',delay:.14});
