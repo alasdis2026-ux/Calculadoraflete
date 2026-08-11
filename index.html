@@ -4039,6 +4039,21 @@ function showSaveAnim(){
   .rrm-kpi b.k-flete{color:#15803d}
   .rrm-kpi b.ok{color:var(--success,#10B981)}
   .rrm-body{flex:1 1 auto;min-height:0;overflow:auto;border:1px solid var(--gray-200,#e2e8f0);border-radius:13px}
+  /* Filtro por camión */
+  .rrm-filterbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:2px 0 12px}
+  .rrm-camfilter{display:inline-flex;align-items:center;gap:9px;border:1.5px solid var(--gray-200,#e2e8f0);background:#fff;border-radius:11px;padding:9px 13px;font:inherit;font-size:13px;font-weight:700;color:var(--gray-700,#334155);cursor:pointer;transition:border-color .15s,color .15s,box-shadow .15s;min-width:230px}
+  .rrm-camfilter:hover,.rrm-camfilter.is-open{border-color:var(--accent,#3B82F6);color:var(--primary)}
+  .rrm-camfilter.on{border-color:var(--primary);color:var(--primary);background:var(--accent-soft,#DBEAFE)}
+  .rrm-camfilter__ic{display:inline-flex;width:16px;height:16px;color:var(--gray-400,#94a3b8);flex-shrink:0}
+  .rrm-camfilter.on .rrm-camfilter__ic{color:var(--primary)}
+  .rrm-camfilter__ic svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+  .rrm-camfilter__t{flex:1;min-width:0;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rrm-camfilter__arr{width:14px;height:14px;color:var(--gray-400,#94a3b8);flex-shrink:0;transition:transform .2s}
+  .rrm-camfilter.is-open .rrm-camfilter__arr{transform:rotate(180deg);color:var(--accent)}
+  .rrm-camclear{display:inline-flex;align-items:center;gap:5px;border:0;background:transparent;color:#DC2626;font:inherit;font-size:12.5px;font-weight:800;cursor:pointer;padding:6px 8px;border-radius:8px;transition:background .15s}
+  .rrm-camclear:hover{background:#FEF2F2}
+  .rrm-camclear svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+  .rrm-filterhint{font-size:12px;font-weight:600;color:var(--gray-400,#94a3b8)}
   .rrm-body table{margin:0}
   .rrm-body .cf-table th{position:sticky;top:0;background:#fff;z-index:1;box-shadow:0 1px 0 var(--gray-200,#e2e8f0);padding-top:13px;padding-bottom:13px}
   .cf-mbox--wide .rrm-body .cf-table td{padding-top:12px;padding-bottom:12px;font-size:13.5px}
@@ -4860,7 +4875,11 @@ function _rrOpenDetail(g,periodLbl,wkObj){
       ?'<span class="rre-trbtn rre-trbtn--tr set"><span class="rre-trbtn__ic">'+TRUCKICON+'</span><span class="rre-trbtn__t">Transportadora (total)</span></span>'
       :'<button type="button" class="rre-trbtn'+(w.trId?' set':'')+'" data-uid="'+w.uid+'"><span class="rre-trbtn__ic">'+TRUCKICON+'</span><span class="rre-trbtn__t'+(w.trId?'':' ph')+'">'+(w.trId?_escp(trLbl):'— Elegir camión —')+'</span><svg class="rre-trbtn__arr" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>';
     return '<div class="rre-card rre-card--sel" data-uid="'+w.uid+'"><div class="rre-card-top"><span class="rre-i">'+(idx+1)+'</span>'+topSel+(w.isNew?'':'<button type="button" class="rre-del" data-uid="'+w.uid+'" title="Quitar camión" aria-label="Quitar camión"><svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg></button>')+'</div>'+body+metaFlds+'<div class="rre-cardacts"><button type="button" class="rre-cardbtn rre-cardcancel" data-uid="'+w.uid+'">Cancelar</button><button type="button" class="rre-cardbtn rre-cardsave" data-uid="'+w.uid+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>Guardar</button></div></div>';}
-  function boardBody(){const cols=SEGL.map(function(sk){const items=work.filter(w=>!w.del&&w.seg===sk).slice().sort((a,b)=>{if(a.isNew!==b.isNew)return a.isNew?-1:1;const fa=a.fecha||'',fb=b.fecha||'';if(fa!==fb)return fa<fb?-1:1;return 0;});let sF=0;items.forEach(w=>sF+=(+w.precio||0));const nCam=items.reduce((s,w)=>s+camCount(w),0);const inner=items.map(function(w,idx){return (w.edit||w.isNew)?formHTML(w,idx):rowHTML(w,idx);}).join('')||'<div class="rre-col-empty">Sin camiones</div>';return '<div class="rre-col rre-col--'+sk+'"><div class="rre-col-hd"><span class="rre-col-dot"></span>'+SEGN[sk]+'<span class="rre-col-n">'+nCam+'</span><div class="rre-col-hdacts"><button class="rre-vadd" data-seg="'+sk+'" type="button"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg> Añadir</button></div></div><div class="rre-col-body">'+inner+'</div>'+(items.length?'<div class="rre-col-foot"><span class="rre-foot-n">'+nCam+' camión'+(nCam===1?'':'es')+'</span><span class="rre-foot-sub">Subtotal flete <b>'+_gs(sF)+'</b></span></div>':'')+'</div>';}).join('');return '<div class="rre-board">'+cols+'</div>';}
+  let _camFilter=null;
+  const camLbl=w=>w.trId?(((trucks.find(t=>t.id===w.trId)||{}).d)||w.trDesc||'—'):(w.trDesc||'—');
+  const camsUsados=()=>[...new Set(work.filter(w=>!w.del&&!w.isNew).map(camLbl))].filter(x=>x&&x!=='—').sort((a,b)=>a.localeCompare(b));
+  function camFilterBar(){const used=camsUsados();if(!used.length)return '';const lbl=_camFilter||'Todos los camiones';return '<div class="rrm-filterbar"><button type="button" class="rrm-camfilter'+(_camFilter?' on':'')+'" id="rrmCamFilter"><span class="rrm-camfilter__ic">'+TRUCKICON+'</span><span class="rrm-camfilter__t">'+_escp(lbl)+'</span><svg class="rrm-camfilter__arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg></button>'+(_camFilter?'<button type="button" class="rrm-camclear" id="rrmCamClear"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 6L6 18M6 6l12 12"/></svg> Ver todos</button>':'<span class="rrm-filterhint">'+used.length+' camión'+(used.length===1?'':'es')+' en esta planilla</span>')+'</div>';}
+  function boardBody(){const cols=SEGL.map(function(sk){const items=work.filter(w=>!w.del&&w.seg===sk&&(!_camFilter||w.isNew||w.edit||camLbl(w)===_camFilter)).slice().sort((a,b)=>{if(a.isNew!==b.isNew)return a.isNew?-1:1;const fa=a.fecha||'',fb=b.fecha||'';if(fa!==fb)return fa<fb?-1:1;return 0;});let sF=0;items.forEach(w=>sF+=(+w.precio||0));const nCam=items.reduce((s,w)=>s+camCount(w),0);const inner=items.map(function(w,idx){return (w.edit||w.isNew)?formHTML(w,idx):rowHTML(w,idx);}).join('')||'<div class="rre-col-empty">Sin camiones</div>';return '<div class="rre-col rre-col--'+sk+'"><div class="rre-col-hd"><span class="rre-col-dot"></span>'+SEGN[sk]+'<span class="rre-col-n">'+nCam+'</span><div class="rre-col-hdacts"><button class="rre-vadd" data-seg="'+sk+'" type="button"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg> Añadir</button></div></div><div class="rre-col-body">'+inner+'</div>'+(items.length?'<div class="rre-col-foot"><span class="rre-foot-n">'+nCam+' camión'+(nCam===1?'':'es')+'</span><span class="rre-foot-sub">Subtotal flete <b>'+_gs(sF)+'</b></span></div>':'')+'</div>';}).join('');return '<div class="rre-board">'+cols+'</div>';}
   function liveTotals(){const t=totals(),q=s=>bd.querySelector(s);const setPop=(el,v)=>{if(el&&el.textContent!==v){el.textContent=v;pop(el);}};setPop(q('.k-flete'),_gs(t.f));_lastTotal=t.f;const n=totalCam();const nc=q('.rrm-ncam');if(nc)nc.textContent=n;const kn=q('.k-ncam');if(kn)kn.textContent=n;}
   // Dropdown PRO de camión (portal fijo, con búsqueda y animación)
   function closeTruckDrop(instant){if(!_ddEl)return;const el=_ddEl,cl=_ddCleanup,b=_ddBtn;_ddEl=null;_ddCleanup=null;_ddBtn=null;if(cl)cl();if(b)b.classList.remove('dd-open');const gs=window.gsap;if(gs&&!instant&&!reduce()){gs.to(el,{opacity:0,y:el.classList.contains('up')?4:-4,duration:.13,ease:'power2.in',onComplete:()=>el.remove()});}else el.remove();}
@@ -4907,6 +4926,8 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     }catch(e){console.error(e);showToast('Uy, no pude guardar los cambios');if(sv){sv.disabled=false;sv.classList.remove('is-loading');sv.textContent='Guardar cambios';}}
   }
   function wire(){
+    const cf=bd.querySelector('#rrmCamFilter');if(cf)cf.addEventListener('click',()=>{const used=camsUsados();openChipPop(cf,{value:_camFilter||'',search:true,options:[{v:'',label:'Todos los camiones'}].concat(used.map(c=>({v:c,label:c}))),onPick:v=>{_camFilter=v||null;render('filter');}});});
+    const cc=bd.querySelector('#rrmCamClear');if(cc)cc.addEventListener('click',()=>{_camFilter=null;render('filter');});
     bd.querySelectorAll('.cancel').forEach(b=>b.addEventListener('click',()=>goBack()));
     bd.querySelectorAll('.cancel-edit').forEach(b=>b.addEventListener('click',()=>{buildWork();render('toggle');}));
     const pr=bd.querySelector('.print');if(pr)pr.addEventListener('click',()=>{const t=totals();_cfPrint({id:null,tsNombre:g.ts,semanaDesde:wkObj?wkObj.desde:null,semanaHasta:wkObj?wkObj.hasta:null,clientes:g.lines,totalMonto:t.m,totalFlete:t.f,incTotal:t.inc,factura_id:null});});
@@ -4955,6 +4976,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
         '<div class="rrm-kpis"><div class="rrm-kpi"><span>Total flete</span><b class="k-flete">'+_gs(t.f)+'</b></div>'+facKpi+'<div class="rrm-kpi"><span>Camiones</span><b class="k-ncam">'+nCam+'</b></div></div>'+
         '<div class="rrd-acts">'+acts+'</div>'+
       '</div>'+
+      camFilterBar()+
       '<div class="rrm-body">'+boardBody()+'</div>';
     wire();
     const gs=window.gsap;
@@ -4997,6 +5019,13 @@ function _rrOpenDetail(g,periodLbl,wkObj){
       gs.from(items,{opacity:0,y:25,scale:.9,duration:.5,stagger:.05,delay:.12,ease:'back.out(1.8)',clearProps:'all'});
       if(actsEl.length)gs.from(actsEl,{opacity:0,y:-6,scale:.94,duration:.36,stagger:.05,ease:'back.out(1.7)',clearProps:'all'});
       gs.fromTo(bd.querySelectorAll('.rrm-kpi'),{scale:.96},{scale:1,duration:.44,stagger:.05,ease:'back.out(2)',clearProps:'transform'});
+      return;}
+    if(anim==='filter'){
+      const body=bd.querySelector('.rrm-body');
+      gs.fromTo(body,{opacity:0,y:8},{opacity:1,y:0,duration:.3,ease:'power3.out',clearProps:'transform,opacity'});
+      gs.from(cols,{opacity:0,y:10,scale:.98,duration:.42,stagger:.06,ease:'back.out(1.6)',clearProps:'all'});
+      gs.from(items,{opacity:0,y:18,scale:.9,duration:.46,stagger:.05,delay:.08,ease:'back.out(1.9)',clearProps:'all'});
+      const fb=bd.querySelector('.rrm-camfilter');if(fb)gs.fromTo(fb,{scale:.92},{scale:1,duration:.32,ease:'back.out(2.2)',clearProps:'transform'});
       return;}
     // default ('rows'): re-stagger tras borrar (como el prototipo)
     gs.from(items,{opacity:0,y:15,scale:.95,duration:.4,stagger:.04,ease:'back.out(1.8)',clearProps:'all'});
