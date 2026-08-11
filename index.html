@@ -4570,9 +4570,6 @@ function _cfOpenStats(){
   const nav='<div class="rr-mnav"><button data-statm="-1" aria-label="Mes anterior">‹</button><span>'+_mesLbl(mk)+'</span><button data-statm="1" aria-label="Mes siguiente">›</button><button class="rr-mnav__today" data-stattoday type="button">Hoy</button></div>';
   const card=(t,body,note)=>'<div class="gstat-card"><div class="gstat-card__h">'+t+(note?'<span class="gstat-card__note">'+note+'</span>':'')+'</div>'+body+'</div>';
   const emp='<div class="gstat-empty">Sin datos en este período</div>';
-  const chartsHtml='<div class="gstat-grid gstat-grid--one">'+
-    card('Precio por km utilizado (Interior)',camKm.length?bars(camKm,v=>_nnum(v)+' /km'):'<div class="gstat-empty">Sin repartos de interior</div>','Top 12')+
-  '</div>';
   const tsRows=s.tsList.map(t=>'<tr><td class="gstat-td-nm">'+esc(t.nombre)+'</td><td class="r">'+t.cam+'</td><td class="r">'+_gs(t.gasto)+'</td><td class="r">'+(s.total>0?_pct(t.gasto/s.total):'—')+'</td></tr>').join('')||'<tr><td colspan="4" class="gstat-empty">Sin datos</td></tr>';
   const camRows=s.camList.map(c=>'<tr><td class="gstat-td-nm">'+esc(c.trDesc)+'</td><td>'+esc(c.tsNombre)+'</td><td><span class="gstat-tag '+(c.km?'gstat-tag--km':'gstat-tag--fijo')+'">'+(c.km?'Km':'Fijo')+'</span></td><td class="r">'+(c.km?(_nnum(c.precioKm)+' /km'):_gs(c.fijo))+'</td><td class="r">'+c.n+'</td><td class="r">'+_gs(c.gasto)+'</td></tr>').join('')||'<tr><td colspan="6" class="gstat-empty">Sin datos</td></tr>';
   const lists='<div class="gstat-grid">'+
@@ -4582,7 +4579,7 @@ function _cfOpenStats(){
   host.innerHTML='<div class="rep2 gstat">'+
     '<div class="cal-day-topbar"><div class="cal-day-ttl"><h2><img src="logo-alas-s.a.png" style="height:28px;vertical-align:-6px;margin-right:8px">Estadísticas del gasto</h2></div><div class="rep2-spacer"></div>'+nav+'</div>'+
     tsBtns+
-    kpis+chartsHtml+'<div class="section-label" style="margin-top:6px">Listas de precios</div>'+lists+
+    kpis+'<div class="section-label" style="margin-top:6px">Listas de precios</div>'+lists+
   '</div>';
   host.querySelectorAll('[data-statm]').forEach(b=>b.addEventListener('click',()=>{const a=_facMes.split('-').map(Number),d=new Date(a[0],a[1]-1+(+b.dataset.statm),1);_facMes=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');_cfOpenStats();}));
   const stt=host.querySelector('[data-stattoday]');if(stt)stt.addEventListener('click',()=>{const d=new Date();_facMes=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');_cfOpenStats();});
