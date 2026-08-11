@@ -4360,7 +4360,7 @@ function _cfReporteModel(mk){
   const I=seg('interior'),L=seg('local'),T=seg('transportadora');
   const monto=I.monto+L.monto+T.monto,gasto=I.gastoTotal+L.gastoTotal+T.gastoTotal;
   const facTotal=fac.facturacionMes+fac.factUltimoDiaMesPasado,disp=facTotal-fac.retira;
-  return{interior:I,local:L,transportadora:T,fac:fac,gen:{monto:monto,gasto:gasto,incidencia:monto>0?gasto/monto:0,peso:I.peso+L.peso+T.peso,pesoEnHierros:fac.pesoEnHierros,facturacionTotal:facTotal,disponible:disp,nivel:(monto>0&&disp>0)?monto/disp:0},camiones:{interior:I.cam,periferia:L.cam,total:I.cam+L.cam}};
+  return{interior:I,local:L,transportadora:T,fac:fac,gen:{monto:monto,gasto:gasto,incidencia:monto>0?gasto/monto:0,peso:I.peso+L.peso+T.peso,pesoEnHierros:fac.pesoEnHierros,facturacionTotal:facTotal,disponible:disp,nivel:(monto>0&&disp>0)?monto/disp:0},camiones:{interior:I.cam,periferia:L.cam,transportadora:T.cam,total:I.cam+L.cam+T.cam}};
 }
 function _cfGauge(p){p=Math.max(0,Math.min(1,p||0));const cx=150,cy=150,r=118;const pt=a=>[(cx+r*Math.cos(a)).toFixed(1),(cy-r*Math.sin(a)).toFixed(1)];const full='M'+pt(Math.PI).join(',')+' A'+r+','+r+' 0 0 1 '+pt(0).join(',');const fg='M'+pt(Math.PI).join(',')+' A'+r+','+r+' 0 0 1 '+pt(Math.PI*(1-p)).join(',');return '<svg viewBox="0 0 300 186" width="100%" style="max-width:320px"><path class="cf-gauge__bg" d="'+full+'"/>'+(p>0?'<path class="cf-gauge__fg" d="'+fg+'"/>':'')+'<text class="cf-gauge__val" x="150" y="136" text-anchor="middle">'+_pct(p)+'</text><text class="cf-gauge__end" x="36" y="172" text-anchor="middle">0%</text><text class="cf-gauge__end" x="264" y="172" text-anchor="middle">100%</text></svg>';}
 
@@ -4430,7 +4430,7 @@ async function renderReporte(){
       (function(){var MT='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h11v9H3zM14 9h4l3 3v3h-7z"/><circle cx="7" cy="17.5" r="1.6"/><circle cx="17.5" cy="17.5" r="1.6"/></svg>';return '<div class="panel" style="margin-top:14px"><div class="mini-bar">'+
         '<div class="mini-seg mini-seg--int"><span class="mini-ic">'+MT+'</span><div class="mini-txt"><span class="ml">Camiones interior</span><span class="mv">'+nn(m.camiones.interior)+'</span></div></div>'+
         '<div class="mini-seg mini-seg--per"><span class="mini-ic">'+MT+'</span><div class="mini-txt"><span class="ml">Camiones periferia</span><span class="mv">'+nn(m.camiones.periferia)+'</span></div></div>'+
-        '<div class="mini-seg total"><span class="mini-ic">'+MT+'</span><div class="mini-txt"><span class="ml">Camiones total</span><span class="mv">'+nn(m.camiones.total)+'</span></div></div>'+
+        '<div class="mini-seg total"><span class="mini-ic">'+MT+'</span><div class="mini-txt"><span class="ml">Camiones transportadora</span><span class="mv">'+nn(m.camiones.transportadora)+'</span></div></div>'+
       '</div></div>';})()+'</div>'+
       '<div class="main-col-right"><div class="section-label">Resumen y facturación</div>'+
         '<div class="panel"><div class="panel-title"><h3>Resumen del reparto</h3></div><table class="ledger">'+
