@@ -5048,7 +5048,9 @@ function _rrOpenDetail(g,periodLbl,wkObj){
   function buildWork(){work=g.lines.map(cl=>{const w={uid:_wuid++,ref:cl,repId:findRepId(cl),trId:cl.trId||null,trDesc:cl.trDesc||'',seg:cl.seg||'local',rep:cl.rep||'',zona:cl.zona||'',obs:cl.obs||'',cant:+cl.cant||1,fecha:cl._fecha||null,km:+cl.km||0,precioKm:+cl.precioKm||0,monto:+cl.monto||0,precio:(+cl.precio|| +cl.gasto||0),fijo:initFijo(cl),del:false,isNew:false,edit:false};ensureKm(w);return w;});}
   function addRow(seg){const tr=trucks[0]||null;const tRepId=targetRepId();const tRep=repartos.find(x=>x.id===tRepId);const defFecha=(tRep&&tRep.fechaISO)||(wkObj?wkObj.desde:null)||(typeof _isoD==='function'?_isoD(new Date()):new Date().toISOString().slice(0,10));const it={uid:_wuid++,ref:null,repId:tRepId,trId:tr?tr.id:null,trDesc:tr?tr.d:'',seg:seg||'local',rep:'',zona:'',obs:'',cant:1,fecha:defFecha,km:0,precioKm:0,monto:0,precio:0,fijo:false,del:false,isNew:true,edit:true};ensureKm(it);work.unshift(it);selUid=it.uid;return it;}
   function openEdit(uid){const w=W(uid);if(!w)return;w.edit=true;selUid=w.uid;render('edit');}
-  function delItem(w){const card=bd.querySelector('.rre-card[data-uid="'+w.uid+'"], .rrv-row[data-edituid="'+w.uid+'"]'),gs=window.gsap;const apply=()=>{if(w.isNew){const idx=work.indexOf(w);if(idx>=0)work.splice(idx,1);}else w.del=true;if(selUid===w.uid)selUid=null;render('rows');};if(gs&&card)gs.to(card,{opacity:0,scale:.8,y:-20,duration:.3,ease:'power2.in',onComplete:apply});else apply();}
+  function delItem(w){const card=bd.querySelector('.rre-card[data-uid="'+w.uid+'"], .rrv-row[data-edituid="'+w.uid+'"]'),gs=window.gsap;const apply=()=>{if(w.isNew){const idx=work.indexOf(w);if(idx>=0)work.splice(idx,1);}else w.del=true;if(selUid===w.uid)selUid=null;
+    // Si no quedó ninguna tarjeta en edición, se guarda solo (sin botón "Guardar cambios")
+    if(work.some(x=>x.edit||x.isNew))render('rows');else save(null,true);};if(gs&&card)gs.to(card,{opacity:0,scale:.8,y:-20,duration:.3,ease:'power2.in',onComplete:apply});else apply();}
   function confirmDelete(w){const trLbl=w.trId?(((trucks.find(t=>t.id===w.trId)||{}).d)||w.trDesc||'este camión'):'este camión';
     const m=_cfModalOpen('<div class="cf-mbox cf-confirm-box"><div class="cf-confirm-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M10 11v6M14 11v6"/></svg></div><h3>¿Quitar el camión?</h3><p class="cf-msub"><b>'+_escp(trLbl)+'</b> se va a eliminar de la planilla.</p><div class="cf-mfoot cf-mfoot--center"><button class="cancel">Cancelar</button><button class="ok danger">Sí, eliminar</button></div></div>');
     const gs=window.gsap,ic=m.$('.cf-confirm-ic');if(gs&&ic&&!reduce()){gs.fromTo(ic,{scale:0,rotate:-14},{scale:1,rotate:0,duration:.5,ease:'back.out(2.2)',delay:.08});gs.fromTo(ic.querySelector('svg'),{y:-2},{y:1,duration:.45,yoyo:true,repeat:1,delay:.5,ease:'power1.inOut'});}
@@ -5121,9 +5123,9 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     _ddEl=dd;_ddBtn=btn;btn.classList.add('dd-open');setTimeout(()=>{try{inp.focus();}catch(_){}},30);
     const gs=window.gsap;if(gs&&!reduce())gs.fromTo(dd,{opacity:0,y:dd.classList.contains('up')?6:-6,scale:.98},{opacity:1,y:0,scale:1,duration:.2,ease:'power2.out',clearProps:'transform'});}
   let _ddRz=null;
-  async function save(){
+  async function save(sv,allowEmpty){
     const rows=work.filter(w=>!w.del);
-    if(!rows.length){showToast('La planilla quedaría sin camiones. Cancelá o agregá al menos uno.');return;}
+    if(!rows.length&&!allowEmpty){showToast('La planilla quedaría sin camiones. Cancelá o agregá al menos uno.');return;}
     for(const w of rows){
       if(w.seg==='transportadora'){if(!(+w.cant>0)){showToast('En Transportadora cargá la cantidad de camiones 👀');return;}if(!(w.precio>0)){showToast('En Transportadora cargá el flete total 👀');return;}continue;}
       if(!w.trId){showToast('Elegí el camión en todas las filas 👀');return;}if(w.seg==='interior'&&!w.fijo&&w.km>0&&w.precioKm>0)w.precio=Math.round(w.km*w.precioKm);if(!(w.precio>0)){showToast((w.seg==='interior'&&!w.fijo)?'En Interior por km cargá los km y el precio/km 👀':'Ingresá el flete en todas las filas');return;}}
@@ -5142,7 +5144,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
       const targetRep=w.fecha?repForDate(w.fecha):null;
       if(w.isNew){const r=targetRep||repartos.find(x=>x.id===w.repId);if(!r)return;if(!r.clientes)r.clientes=[];r.clientes.push({id:nextClienteId++,trId:isTr?null:w.trId,tsId:tsObj?tsObj.id:g.tsId,seg:w.seg,rep:isTr?null:((w.rep||'').trim()||'Tercerizado'),zona:isTr?null:((w.zona||'').trim()||null),obs:(w.seg==='servicios'?(w.obs||'').trim():'')||null,cant:isTr?cant:null,km:km,precioKm:pkm,fijo:isIntFijo,monto:isTr?0:w.monto,precio:w.precio,gasto:w.precio,trDesc:trD,tsNombre:g.ts,pct:0,inc:(w.monto>0&&w.precio>0?w.precio/w.monto*100:null)});affected.add(r);}
       else if(w.ref){let curr=repartos.find(x=>x.id===w.repId);if(targetRep&&curr&&targetRep!==curr){const _ix=(curr.clientes||[]).indexOf(w.ref);if(_ix>=0)curr.clientes.splice(_ix,1);if(!targetRep.clientes)targetRep.clientes=[];targetRep.clientes.push(w.ref);affected.add(curr);curr=targetRep;}w.ref.monto=isTr?0:w.monto;w.ref.precio=w.precio;w.ref.gasto=w.precio;w.ref.seg=w.seg;w.ref.km=km;w.ref.precioKm=pkm;w.ref.fijo=isIntFijo;w.ref.rep=isTr?null:((w.rep||'').trim()||'Tercerizado');w.ref.zona=isTr?null:((w.zona||'').trim()||null);w.ref.obs=(w.seg==='servicios'?(w.obs||'').trim():'')||null;w.ref.cant=isTr?cant:null;if(isTr){w.ref.trId=null;w.ref.trDesc=trD;}else if(w.trId){w.ref.trId=w.trId;w.ref.trDesc=tr?tr.d:w.ref.trDesc;w.ref.tsId=tsObj?tsObj.id:w.ref.tsId;}w.ref.inc=(w.monto>0&&w.precio>0?w.precio/w.monto*100:null);affected.add(curr);}});
-    const sv=bd.querySelector('.save');if(sv){sv.disabled=true;sv.classList.add('is-loading');sv.innerHTML='<span class="cf-spin"></span>Guardando…';}
+    const svOrig=sv?sv.innerHTML:null;if(sv){sv.disabled=true;sv.classList.add('is-loading');sv.innerHTML='<span class="cf-spin"></span>Guardando…';}
     try{
       for(const r of affected){if(!r)continue;
         if(!(r.clientes||[]).length){if(r.id!=null)await dbDeleteReparto(r.id);const i=repartos.indexOf(r);if(i>=0)repartos.splice(i,1);continue;}
@@ -5155,7 +5157,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
       if(fresh){g.lines=fresh.lines;g.monto=fresh.monto;g.flete=fresh.flete;g.reps=fresh.reps;}else{g.lines=[];g.monto=0;g.flete=0;g.reps=[];}
       if(!g.lines.length){goBack();return;}
       buildWork();render('toggle');
-    }catch(e){console.error(e);showToast('Uy, no pude guardar los cambios');if(sv){sv.disabled=false;sv.classList.remove('is-loading');sv.textContent='Guardar cambios';}}
+    }catch(e){console.error(e);showToast('Uy, no pude guardar los cambios');if(sv){sv.disabled=false;sv.classList.remove('is-loading');if(svOrig!=null)sv.innerHTML=svOrig;}}
   }
   function openRrePick(btn){
     const w=W(btn.dataset.uid);if(!w)return;const kind=btn.dataset.pick;
@@ -5184,7 +5186,6 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     bd.querySelectorAll('.cancel-edit').forEach(b=>b.addEventListener('click',()=>{buildWork();render('toggle');}));
     const pr=bd.querySelector('.print');if(pr)pr.addEventListener('click',()=>{const t=totals();_cfPrint({id:null,tsNombre:g.ts,semanaDesde:wkObj?wkObj.desde:null,semanaHasta:wkObj?wkObj.hasta:null,clientes:g.lines,totalMonto:t.m,totalFlete:t.f,incTotal:t.inc,factura_id:null});});
     const fac=bd.querySelector('.rrm-act--fac');if(fac)fac.addEventListener('click',()=>{_cfOpenFacturaModal(null,{ts:g.ts,semDesde:wkObj.desde,semHasta:wkObj.hasta,onBack:()=>_rrOpenDetail(g,periodLbl,wkObj)});});
-    const sv=bd.querySelector('.save');if(sv)sv.addEventListener('click',save);
     bd.querySelectorAll('.rre-vadd').forEach(b=>b.addEventListener('click',()=>{addRow(b.dataset.seg);render('add');}));
     // clic en la fila desglosa (edita) SOLO esa; el tacho borra con confirmación
     bd.querySelectorAll('.rrv-row').forEach(r=>r.addEventListener('click',e=>{if(e.target.closest('button'))return;openEdit(r.dataset.edituid);}));
@@ -5206,7 +5207,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     // Cancelar = cerrar/colapsar la edición (no borra); si es nuevo, cancela el alta
     bd.querySelectorAll('.rre-cardcancel, .rre-close').forEach(b=>b.addEventListener('click',()=>{const w=W(b.dataset.uid),card=b.closest('.rre-card'),gs=window.gsap;if(!w)return;const apply=()=>{if(w.isNew){const idx=work.indexOf(w);if(idx>=0)work.splice(idx,1);}else w.edit=false;if(selUid===w.uid)selUid=null;render('rows');};if(gs&&card&&!reduce())gs.to(card,{opacity:0,scale:.97,duration:.16,ease:'power2.in',onComplete:apply});else apply();}));
     // Guardar dentro de la tarjeta = guarda todos los cambios (mismo flujo que el botón superior)
-    bd.querySelectorAll('.rre-cardsave').forEach(b=>b.addEventListener('click',()=>save()));
+    bd.querySelectorAll('.rre-cardsave').forEach(b=>b.addEventListener('click',()=>save(b)));
   }
   function render(anim){
     closeTruckDrop(true);
@@ -5220,7 +5221,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
       ?'<button class="rrd-back cancel-edit" type="button"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg> Cancelar</button>'
       :'<button class="rrd-back cancel" type="button"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg> Volver</button>';
     const acts=editing
-      ?'<button class="rrm-act rrm-act--save ok save"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg> Guardar cambios</button>'
+      ?''
       :facBtn+'<button class="rrm-act rrm-act--print ok print"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6v-8z"/></svg> Imprimir</button>';
     const facMonto=wkObj?_facMontoDe(g.ts,wkObj.desde):null;
     const facKpi='<div class="rrm-kpi rrm-kpi--fac"><span>Factura</span><b class="k-fac'+(facMonto==null?' k-nofac':'')+'">'+(facMonto!=null?_gs(facMonto):'Sin registros')+'</b></div>';
