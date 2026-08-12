@@ -2675,7 +2675,7 @@ document.getElementById('btnGuardar').addEventListener('click',async()=>{
       document.getElementById('btnNewReparto').style.display='';
       document.getElementById('editChipText').textContent='Reparto #'+String(savedId).padStart(4,'0')+' — '+snap.fecha;
     }
-    _cfCheckBurst(isNew?'Reparto agregado':'Reparto actualizado');
+    _cfCheckBurst(isNew?'Reparto agregado':'Reparto actualizado',true);
   }catch(err){
     showToast('Error al guardar reparto');
   }
@@ -3403,7 +3403,7 @@ async function calSaveEdit(){
     r.clientes=newClientes;r.totalMonto=tM;r.totalFlete=tF;r.incTotal=iT;r.gastoPermitido=gp;r.diferencia=dif;
     await dbSaveReparto({id:r.id,fechaISO:r.fechaISO,tsId:r.tsId,tsNombre:r.tsNombre,trId:r.trId,trDesc:r.trDesc,km:r.km,precio:r.precio,tipo:r.tipo,totalFlete:tF,totalMonto:tM,incTotal:iT,gastoPermitido:gp,diferencia:dif,zona:r.zona,clientes:newClientes});
     calEditRepId=null;calWork=null;
-    if(typeof _cfCheckBurst==='function')_cfCheckBurst('Registrado');else showToast('Guardado ✓');
+    if(typeof _cfCheckBurst==='function')_cfCheckBurst('Registrado',true);else showToast('Guardado ✓');
     renderCalDay('toggle');
   }catch(err){console.error(err);showToast('Uy, no pude guardar los cambios');if(saveBtn){saveBtn.disabled=false;saveBtn.textContent='Guardar';}}
 }
@@ -4281,7 +4281,9 @@ function showSaveAnim(text){
   .rrd-acts .rrm-act{padding:10px 18px;font-size:13px;border-radius:12px}
   .rrd-acts .rrm-act svg{width:16px;height:16px}
   .rrm-act--save{background:var(--primary);color:#fff;border-color:var(--primary);min-width:150px;justify-content:center}
-  .rrm-act--save:hover{background:#0a4f75;border-color:#0a4f75;color:#fff}
+  .rrm-act--save:hover{background:#0a4f75;border-color:#0a4f75;color:#fff;transform:translateY(-1px);box-shadow:0 8px 20px rgba(11,95,141,.34)}
+  .rrm-act--save:active{transform:translateY(0) scale(.98)}
+  .rrm-act.is-loading .cf-spin{margin-right:8px}
   .rrm-act--fac{margin-left:0;background:linear-gradient(180deg,#1a7cb0,#0B5F8D);color:#fff;border-color:transparent;box-shadow:0 7px 18px rgba(11,95,141,.3),inset 0 1px 0 rgba(255,255,255,.18)}
   .rrm-act--fac svg{stroke:#fff}
   .rrm-act--fac:hover{background:linear-gradient(180deg,#1c86bf,#0c6b9c);box-shadow:0 9px 22px rgba(11,95,141,.36),inset 0 1px 0 rgba(255,255,255,.2);transform:translateY(-1px)}
@@ -4901,8 +4903,8 @@ function _cfOpenFacturaModal(existing,preset){
     const okB=m.$('.ok'),okTxt=editing?'Guardar cambios':'Guardar factura';if(okB){okB.disabled=true;okB.classList.add('is-loading');okB.innerHTML='<span class="cf-spin"></span>Guardando…';}
     const row={nro:nro,fecha:fecha,monto:monto,transportadora_nombre:sel.ts,semana_desde:sel.semDesde,semana_hasta:sel.semHasta};
     try{
-      if(editing){const up=await sb.from('fact_facturas').update(row).eq('id',existing.id);if(up.error)throw up.error;m.close();_cfCheckBurst('Registrado');}
-      else{const ins=await sb.from('fact_facturas').insert(row);if(ins.error)throw ins.error;m.close();_cfCheckBurst('Registrado');}
+      if(editing){const up=await sb.from('fact_facturas').update(row).eq('id',existing.id);if(up.error)throw up.error;m.close();_cfCheckBurst('Registrado',true);}
+      else{const ins=await sb.from('fact_facturas').insert(row);if(ins.error)throw ins.error;m.close();_cfCheckBurst('Registrado',true);}
       window.__cfFac=null; // forzar recarga de facturas para refrescar chips/estado
       const _rrep=document.getElementById('viewRrep');
       if(_rrep&&_rrep.classList.contains('is-active'))renderReporteRepartos(); else renderFacturas();
@@ -5302,16 +5304,16 @@ function _cfCheckBurst(label,fast){
     gs.set(load,{opacity:0});gs.set(svg,{opacity:1});
     gs.set(disc,{scale:.5,opacity:0});gs.set(lbl,{y:8,opacity:0});
     gs.set(bd,{opacity:0});gs.set(glow,{opacity:0,scale:.7});gs.set(ring,{opacity:0,scale:.55});
-    gs.to(bd,{opacity:1,duration:.2,ease:'power2.out'});
-    gs.to(glow,{opacity:.6,scale:1,duration:.24,ease:'power2.out'});
-    gs.timeline({onComplete:()=>gs.to(ov,{opacity:0,duration:.26,delay:.34,ease:'power2.in',onComplete:()=>ov.remove()})})
-      .to(disc,{scale:1,opacity:1,duration:.3,ease:'back.out(2.1)'})
-      .to(c,{scale:1,duration:.26,ease:'back.out(2.2)'},'-=.14')
-      .to(k,{strokeDashoffset:0,duration:.24,ease:'power2.out'},'-=.14')
-      .add(()=>{gs.to(glow,{opacity:.9,scale:1.2,duration:.2,ease:'power2.out'}).to(glow,{opacity:0,scale:1.4,duration:.4,ease:'power2.in'});},'-=.1')
-      .fromTo(ring,{opacity:.78,scale:.6},{opacity:0,scale:1.9,duration:.44,ease:'power2.out'},'<')
-      .to(disc,{scale:1.08,duration:.13,yoyo:true,repeat:1,ease:'power1.inOut'},'<')
-      .to(lbl,{y:0,opacity:1,duration:.24,ease:'power2.out'},'-=.18');
+    gs.to(bd,{opacity:1,duration:.16,ease:'power2.out'});
+    gs.to(glow,{opacity:.6,scale:1,duration:.2,ease:'power2.out'});
+    gs.timeline({onComplete:()=>gs.to(ov,{opacity:0,duration:.22,delay:.26,ease:'power2.in',onComplete:()=>ov.remove()})})
+      .to(disc,{scale:1,opacity:1,duration:.26,ease:'back.out(2.2)'})
+      .to(c,{scale:1,duration:.22,ease:'back.out(2.3)'},'-=.14')
+      .to(k,{strokeDashoffset:0,duration:.2,ease:'power2.out'},'-=.12')
+      .add(()=>{gs.to(glow,{opacity:.9,scale:1.2,duration:.18,ease:'power2.out'}).to(glow,{opacity:0,scale:1.4,duration:.34,ease:'power2.in'});},'-=.09')
+      .fromTo(ring,{opacity:.8,scale:.6},{opacity:0,scale:1.9,duration:.4,ease:'power2.out'},'<')
+      .to(disc,{scale:1.08,duration:.12,yoyo:true,repeat:1,ease:'power1.inOut'},'<')
+      .to(lbl,{y:0,opacity:1,duration:.22,ease:'power2.out'},'-=.16');
     return;
   }
   gs.set(k,{strokeDasharray:len,strokeDashoffset:len});
