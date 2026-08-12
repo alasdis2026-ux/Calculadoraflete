@@ -542,6 +542,13 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .ts-ttag.is-fijo{background:#DCFCE7;color:#15803D}
 .ts-tprice{font-size:11px;font-weight:700;color:var(--gray-500);font-variant-numeric:tabular-nums}
 .ts-tprice.none{color:var(--gray-300)}
+.ts-tcard__prices{display:flex;flex-direction:column;gap:5px}
+.ts-tprow{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.ts-tprow__l{font-size:9.5px;font-weight:800;letter-spacing:.3px;text-transform:uppercase;padding:3px 8px;border-radius:999px;white-space:nowrap;flex-shrink:0}
+.ts-tprow__l.ts-l--local{background:#DBEAFE;color:var(--primary)}
+.ts-tprow__l.ts-l--int{background:#FFEDD5;color:#C2410C}
+.ts-tprow__v{font-size:11.5px;font-weight:800;color:var(--gray-700);font-variant-numeric:tabular-nums;text-align:right;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.ts-tprow--none{font-size:11px;font-weight:700;color:var(--gray-300)}
 .ts-col__empty{padding:16px 8px;text-align:center;font-size:11.5px;color:var(--gray-400)}
 .ts-card{position:relative;display:flex;flex-direction:column;gap:11px;padding:15px 16px;border:1.5px solid var(--gray-200);border-radius:14px;background:#fff;cursor:pointer;text-align:left;font-family:inherit;overflow:hidden;transition:transform var(--alas-dur-normal) var(--alas-ease-spring),box-shadow var(--alas-dur-normal) var(--alas-ease),border-color var(--fast)}
 .ts-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent);transform:scaleY(0);transform-origin:top;transition:transform var(--fast)}
@@ -2728,6 +2735,19 @@ function truckUsage(trId){
   }); });
   return best; // null si nunca se usó
 }
+// Precios registrados por camión (derivados del historial), separados por categoría:
+// fijo Local, fijo Interior y precio/km Interior. Toma el último de cada uno.
+function truckPrices(trId){
+  const res={localFijo:null,interiorFijo:null,interiorKm:null};
+  const upd=(key,precio,d)=>{if(!(precio>0))return;if(!res[key]||d>=res[key].fecha)res[key]={precio:Math.round(precio),fecha:d};};
+  repartos.forEach(r=>{ const d=r.fechaISO||''; (r.clientes||[]).forEach(c=>{
+    if(c.trId!==trId)return;
+    const seg=c.seg||'local',km=+c.km||0,pkm=+c.precioKm||0,fl=(+c.precio|| +c.gasto||0);
+    if(seg==='interior'){ if((km>0&&pkm>0)&&!c.fijo) upd('interiorKm',pkm,d); else upd('interiorFijo',fl,d); }
+    else if(seg==='local'){ upd('localFijo',fl,d); }
+  }); });
+  return res;
+}
 // Fecha del último reparto en que aparece un transportista
 function tsLastUsed(ts){
   let best='';
@@ -2744,11 +2764,16 @@ function renderTsList(){
     const last=tsLastUsed(t);
     const trucks=q?(t.trucks||[]).filter(tr=>t.n.toLowerCase().includes(q)||(tr.d||'').toLowerCase().includes(q)):(t.trucks||[]);
     const cards=trucks.length?trucks.map(tr=>{
-      const u=truckUsage(tr.id),km=u?(u.tipo==='km'):(tr.tipo!=='fijo');
-      const priceTxt=u?('Gs. '+formatMoney(u.precio)+(u.tipo==='km'?' /km':'')):'Sin usar';
+      const p=truckPrices(tr.id);
+      const prow=(cls,lbl,val)=>`<div class="ts-tprow"><span class="ts-tprow__l ${cls}">${lbl}</span><span class="ts-tprow__v">${val}</span></div>`;
+      let priceRows='';
+      if(p.localFijo)priceRows+=prow('ts-l--local','Local · fijo','Gs. '+formatMoney(p.localFijo.precio));
+      if(p.interiorFijo)priceRows+=prow('ts-l--int','Interior · fijo','Gs. '+formatMoney(p.interiorFijo.precio));
+      if(p.interiorKm)priceRows+=prow('ts-l--int','Interior · km','Gs. '+formatMoney(p.interiorKm.precio)+' /km');
+      if(!priceRows)priceRows='<div class="ts-tprow ts-tprow--none">Sin usar</div>';
       return`<div class="ts-tcard" data-tsid="${t.id}" data-trid="${tr.id}">
         <div class="ts-tcard__top"><span class="ts-tcard__ico">${getTrIco(tr.d,15)}</span><span class="ts-tcard__name">${esc(tr.d)}</span></div>
-        <div class="ts-tcard__foot"><span class="ts-ttag ${km?'is-km':'is-fijo'}">${km?'KM':'FIJO'}</span><span class="ts-tprice${u?'':' none'}">${priceTxt}</span></div>
+        <div class="ts-tcard__prices">${priceRows}</div>
       </div>`;
     }).join(''):`<div class="ts-col__empty">Sin camiones</div>`;
     return`<div class="ts-col">
