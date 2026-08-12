@@ -4687,7 +4687,7 @@ let _facWeek=null; // null=mes completo · 'YYYY-MM-DD'=semana
 function _wkHasta(sd){const p=sd.split('-').map(Number),d=new Date(p[0],p[1]-1,p[2]+6);return _isoD(d);}
 function _facSem(f){return f.semana_desde||((f.fecha&&typeof isoWeekRange==='function')?isoWeekRange(f.fecha).desde:null);}
 // Flete agregado de un transportista en una semana (para conciliar)
-function _fleteDe(ts,semDesde){let f=0;if(!semDesde)return 0;(repartos||[]).forEach(r=>{const wk=(r.fechaISO&&typeof isoWeekRange==='function')?isoWeekRange(r.fechaISO):null;if(!wk||wk.desde!==semDesde)return;(r.clientes||[]).forEach(cl=>{if((cl.tsNombre||'—')===ts)f+=+cl.precio||0;});});return f;}
+function _fleteDe(ts,semDesde){let f=0;if(!semDesde)return 0;(repartos||[]).forEach(r=>{const wk=(r.fechaISO&&typeof isoWeekRange==='function')?isoWeekRange(r.fechaISO):null;if(!wk||wk.desde!==semDesde)return;(r.clientes||[]).forEach(cl=>{const own=cl.trId?tsOfTruck(cl.trId):null;const name=(own&&own.n)||cl.tsNombre||'—';if(name===ts)f+=+cl.precio||0;});});return f;}
 // Estado de la planilla (transportista + semana) según la factura vinculada
 function _facEstadoDe(ts,semDesde){
   if(!semDesde)return{k:'proc',l:'En proceso'};
@@ -4716,7 +4716,7 @@ function _planillasDe(mes,weekDesde){
   (repartos||[]).forEach(r=>{
     const wk=(r.fechaISO&&typeof isoWeekRange==='function')?isoWeekRange(r.fechaISO):null;if(!wk)return;
     if(weekDesde){if(wk.desde!==weekDesde)return;}else if(mes){if((r.fechaISO||'').slice(0,7)!==mes)return;}
-    (r.clientes||[]).forEach(cl=>{const ts=cl.tsNombre||'—',k=ts+'|'+wk.desde;const g=groups[k]||(groups[k]={ts:ts,semDesde:wk.desde,semHasta:wk.hasta,cam:0,monto:0,flete:0});g.cam+=((cl.seg||'local')==='transportadora'?(+cl.cant||1):1);g.monto+=+cl.monto||0;g.flete+=+cl.precio||0;});
+    (r.clientes||[]).forEach(cl=>{const own=cl.trId?tsOfTruck(cl.trId):null;const ts=(own&&own.n)||cl.tsNombre||'—';const k=ts+'|'+wk.desde;const g=groups[k]||(groups[k]={ts:ts,semDesde:wk.desde,semHasta:wk.hasta,cam:0,monto:0,flete:0});g.cam+=((cl.seg||'local')==='transportadora'?(+cl.cant||1):1);g.monto+=+cl.monto||0;g.flete+=+cl.precio||0;});
   });
   return Object.values(groups).sort((a,b)=>b.flete-a.flete);
 }
