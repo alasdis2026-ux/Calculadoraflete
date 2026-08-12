@@ -2622,7 +2622,7 @@ document.getElementById('btnGuardar').addEventListener('click',async()=>{
     totalMonto:c.totalMonto,incTotal:c.incTotal,
     gastoPermitido:c.gastoPermitido,diferencia:c.diferencia,
     zona:'',
-    clientes:c.clientes.map(cl=>({id:cl.id,trId:cl.trId,tsId:cl.tsId,trDesc:cl.trDesc,tsNombre:cl.tsNombre,seg:cl.seg||'local',rep:(cl.seg==='transportadora'?(cl.rep||null):(cl.rep||'Tercerizado')),zona:cl.zona||null,peso:cl.peso||0,km:cl.km||0,precioKm:cl.precioKm||0,monto:cl.monto,precio:cl.precio,gasto:cl.gasto,inc:cl.inc,pct:cl.pct})),
+    clientes:c.clientes.map(cl=>({id:cl.id,trId:cl.trId,tsId:cl.tsId,trDesc:cl.trDesc,tsNombre:cl.tsNombre,seg:cl.seg||'local',rep:(cl.seg==='transportadora'?(cl.rep||null):(cl.rep||'Tercerizado')),zona:cl.zona||null,peso:cl.peso||0,km:cl.km||0,precioKm:cl.precioKm||0,fijo:!!cl.fijo,monto:cl.monto,precio:cl.precio,gasto:cl.gasto,inc:cl.inc,pct:cl.pct})),
   };
   try{
     const savedId=await dbSaveReparto(snap);
@@ -2657,7 +2657,7 @@ function loadForEdit(id){
   const r=repartos.find(x=>x.id===id);if(!r)return;
   // Cada fila del reparto guardado es un camión: {trId, tsId, monto, precio}
   currentReparto={id:r.id,fecha:r.fechaISO||'',
-    clientes:(r.clientes||[]).map(c=>({id:c.id,trId:c.trId||null,tsId:c.tsId||null,seg:c.seg||'local',rep:c.rep||null,zona:c.zona||null,peso:c.peso||0,km:c.km||0,precioKm:c.precioKm||0,monto:c.monto||0,precio:c.precio||c.gasto||0}))};
+    clientes:(r.clientes||[]).map(c=>({id:c.id,trId:c.trId||null,tsId:c.tsId||null,seg:c.seg||'local',rep:c.rep||null,zona:c.zona||null,peso:c.peso||0,km:c.km||0,precioKm:c.precioKm||0,fijo:!!c.fijo,monto:c.monto||0,precio:c.precio||c.gasto||0}))};
   const maxCid=currentReparto.clientes.reduce((m,c)=>Math.max(m,c.id),0);
   if(maxCid>=nextClienteId)nextClienteId=maxCid+1;
   const inpF=document.getElementById('inpFecha');
@@ -2681,7 +2681,7 @@ function lastPriceForTruck(trId){
   return {precio:best,fecha:bestDate};
 }
 // Uso real de un camión según los repartos: tipo (km/fijo) + precio, del registro más reciente.
-// "Por km" = segmento interior o línea con km y precio/km cargados; el resto es "fijo".
+// "Por km" = línea con km y precio/km cargados y sin marca de precio fijo; el resto es "fijo".
 function truckUsage(trId){
   let best=null,bestDate='';
   repartos.forEach(r=>{ const d=r.fechaISO||''; (r.clientes||[]).forEach(c=>{
@@ -2689,8 +2689,8 @@ function truckUsage(trId){
     const km=+c.km||0,pkm=+c.precioKm||0,fl=(+c.precio|| +c.gasto||0);
     if(!(fl>0)&&!(pkm>0))return;
     if(best===null||d>=bestDate){
-      const esKm=(c.seg==='interior')||(km>0&&pkm>0);
-      best={tipo:esKm?'km':'fijo',precio:esKm?(pkm>0?pkm:(km>0?Math.round(fl/km):0)):fl,fecha:d};
+      const esKm=(km>0&&pkm>0)&&!c.fijo;
+      best={tipo:esKm?'km':'fijo',precio:esKm?pkm:fl,fecha:d};
       bestDate=d;
     }
   }); });
@@ -3217,7 +3217,7 @@ function renderCalDay(anim){
 }
 
 const CAL_TRASH='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="15" height="15"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M10 11v6M14 11v6"/></svg>';
-function calBuildWork(r){return (r.clientes||[]).map(c=>({uid:_calUid++,cId:c.id,trId:c.trId||null,trDesc:c.trDesc||'',tsId:c.tsId||r.tsId||null,tsNombre:c.tsNombre||r.tsNombre||'',seg:c.seg||'local',rep:c.rep||'',zona:c.zona||'',monto:+c.monto||0,precio:(+c.precio|| +c.gasto||0),peso:+c.peso||0,km:+c.km||0,precioKm:+c.precioKm||0,obs:c.obs||null,cant:c.cant||null,del:false,isNew:false}));}
+function calBuildWork(r){return (r.clientes||[]).map(c=>({uid:_calUid++,cId:c.id,trId:c.trId||null,trDesc:c.trDesc||'',tsId:c.tsId||r.tsId||null,tsNombre:c.tsNombre||r.tsNombre||'',seg:c.seg||'local',rep:c.rep||'',zona:c.zona||'',monto:+c.monto||0,precio:(+c.precio|| +c.gasto||0),peso:+c.peso||0,km:+c.km||0,precioKm:+c.precioKm||0,fijo:!!c.fijo,obs:c.obs||null,cant:c.cant||null,del:false,isNew:false}));}
 
 // Tarjeta de reparto en modo edición inline
 function calRepEditHTML(r){
@@ -3310,7 +3310,7 @@ async function calSaveEdit(){
       if(!calDayRepartos().length){closeCalModal();return;}
       renderCalDay('toggle');return;
     }
-    const newClientes=rows.map(function(w){const tr=(ts.trucks||[]).find(t=>t.id===w.trId);return {id:w.cId||nextClienteId++,trId:w.trId,tsId:w.tsId||r.tsId,tsNombre:w.tsNombre||r.tsNombre,seg:w.seg,rep:(w.rep||'').trim()||'Tercerizado',zona:(w.zona||'').trim()||null,peso:+w.peso||0,km:+w.km||0,precioKm:+w.precioKm||0,obs:w.obs||null,cant:w.cant||null,monto:w.monto,precio:w.precio,gasto:w.precio,trDesc:tr?tr.d:(w.trDesc||''),pct:0,inc:(w.monto>0&&w.precio>0?w.precio/w.monto*100:null)};});
+    const newClientes=rows.map(function(w){const tr=(ts.trucks||[]).find(t=>t.id===w.trId);const isIntFijo=w.seg==='interior'&&(!!w.fijo||!(+w.km>0&&+w.precioKm>0));const km=(w.seg==='interior'&&!isIntFijo)?(+w.km||0):0,pkm=(w.seg==='interior'&&!isIntFijo)?(+w.precioKm||0):0;return {id:w.cId||nextClienteId++,trId:w.trId,tsId:w.tsId||r.tsId,tsNombre:w.tsNombre||r.tsNombre,seg:w.seg,rep:(w.rep||'').trim()||'Tercerizado',zona:(w.zona||'').trim()||null,peso:+w.peso||0,km:km,precioKm:pkm,fijo:isIntFijo,obs:w.obs||null,cant:w.cant||null,monto:w.monto,precio:w.precio,gasto:w.precio,trDesc:tr?tr.d:(w.trDesc||''),pct:0,inc:(w.monto>0&&w.precio>0?w.precio/w.monto*100:null)};});
     const tM=newClientes.reduce((s,c)=>s+(+c.monto||0),0);
     const tF=newClientes.reduce((s,c)=>s+(+c.precio||0),0);
     const iT=tM>0?tF/tM*100:null;const gp=Math.round(tM*0.03);const dif=tF-gp;
@@ -4269,6 +4269,10 @@ function showSaveAnim(){
   .rre-fld{display:flex;flex-direction:column;gap:2px;min-width:0}
   .rre-fld>span{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-400,#94a3b8)}
   .rre-km2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .rre-modo{display:flex;gap:0;background:var(--gray-100);border:1.5px solid var(--gray-200);border-radius:9px;padding:3px;margin-bottom:9px}
+  .rre-modo__b{flex:1;border:none;background:transparent;padding:7px 10px;border-radius:6px;font-family:inherit;font-size:12px;font-weight:800;color:var(--gray-500);cursor:pointer;transition:background var(--fast),color var(--fast),box-shadow var(--fast)}
+  .rre-modo__b.on{background:#fff;color:var(--primary);box-shadow:0 1px 3px rgba(15,23,42,.12)}
+  .rre-modo__b:not(.on):hover{color:var(--gray-700)}
   .rre-trbtn--tr{cursor:default;pointer-events:none;background:linear-gradient(180deg,#f5f3ff,#ede9fe);border-color:rgba(124,58,237,.28)}
   .rre-trbtn--tr .rre-trbtn__ic{color:#7c3aed}
   .rre-meta2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
@@ -4672,7 +4676,8 @@ function _gastoStats(mk,tsId){
       const key=(c.trId||c.trDesc||'—')+'';
       const C=byCam[key]||(byCam[key]={trId:c.trId||null,trDesc:c.trDesc||'—',tsNombre:tsn,gasto:0,n:0,km:false,precioKm:0,fijo:0,last:''});
       C.gasto+=fl;C.n++;
-      if(sk==='interior'){C.km=true;intGasto+=fl;intKm+=+c.km||0;const pk=(+c.precioKm>0)?+c.precioKm:((+c.km>0)?fl/(+c.km):0);if(pk>0&&d>=C.last){C.precioKm=pk;C.last=d;}}
+      const esKm=(sk==='interior')&&(+c.km>0&&+c.precioKm>0)&&!c.fijo;
+      if(esKm){C.km=true;intGasto+=fl;intKm+=+c.km||0;const pk=+c.precioKm||0;if(pk>0&&d>=C.last){C.precioKm=pk;C.last=d;}}
       else if(d>=C.last){C.fijo=fl;C.last=d;}
     });
   });
@@ -4933,9 +4938,11 @@ function _rrOpenDetail(g,periodLbl,wkObj){
   function findRepId(cl){for(const rp of (g.reps||[])){const r=repartos.find(x=>x.id===rp.id);if(r&&(r.clientes||[]).indexOf(cl)>=0)return r.id;}return (g.reps&&g.reps[0])?g.reps[0].id:null;}
   function targetRepId(){let best=null;(g.reps||[]).forEach(rp=>{if(!best||(rp.fechaISO||'')>(best.fechaISO||''))best=rp;});return best?best.id:null;}
   // Interior se cobra por km × precio/km. Rellena precio/km del camión y reconstruye el km de líneas viejas.
-  function ensureKm(w){if(w.seg!=='interior')return;if(!(w.precioKm>0)){const tr=trucks.find(t=>t.id===w.trId);if(tr&&(+tr.precio>0))w.precioKm=+tr.precio;}if(!(w.km>0)&&w.precioKm>0&&w.precio>0)w.km=Math.round(w.precio/w.precioKm);if(w.km>0&&w.precioKm>0)w.precio=Math.round(w.km*w.precioKm);}
-  function buildWork(){work=g.lines.map(cl=>{const w={uid:_wuid++,ref:cl,repId:findRepId(cl),trId:cl.trId||null,trDesc:cl.trDesc||'',seg:cl.seg||'local',rep:cl.rep||'',zona:cl.zona||'',obs:cl.obs||'',cant:+cl.cant||1,fecha:cl._fecha||null,km:+cl.km||0,precioKm:+cl.precioKm||0,monto:+cl.monto||0,precio:(+cl.precio|| +cl.gasto||0),del:false,isNew:false,edit:false};ensureKm(w);return w;});}
-  function addRow(seg){const tr=trucks[0]||null;const it={uid:_wuid++,ref:null,repId:targetRepId(),trId:tr?tr.id:null,trDesc:tr?tr.d:'',seg:seg||'local',rep:'',zona:'',obs:'',cant:1,km:0,precioKm:0,monto:0,precio:0,del:false,isNew:true,edit:true};ensureKm(it);work.unshift(it);selUid=it.uid;return it;}
+  function ensureKm(w){if(w.seg!=='interior'){w.fijo=false;return;}if(w.fijo){w.km=0;w.precioKm=0;return;}if(!(w.precioKm>0)){const tr=trucks.find(t=>t.id===w.trId);if(tr&&(+tr.precio>0))w.precioKm=+tr.precio;}if(!(w.km>0)&&w.precioKm>0&&w.precio>0)w.km=Math.round(w.precio/w.precioKm);if(w.km>0&&w.precioKm>0)w.precio=Math.round(w.km*w.precioKm);}
+  // Detecta si una línea interior guardada era "precio fijo": marca explícita, o flete cargado sin km/precio-km (legacy).
+  function initFijo(cl){if((cl.seg||'local')!=='interior')return false;if(cl.fijo!==undefined&&cl.fijo!==null)return !!cl.fijo;return !(+cl.km>0)&&!(+cl.precioKm>0)&&((+cl.precio|| +cl.gasto||0)>0);}
+  function buildWork(){work=g.lines.map(cl=>{const w={uid:_wuid++,ref:cl,repId:findRepId(cl),trId:cl.trId||null,trDesc:cl.trDesc||'',seg:cl.seg||'local',rep:cl.rep||'',zona:cl.zona||'',obs:cl.obs||'',cant:+cl.cant||1,fecha:cl._fecha||null,km:+cl.km||0,precioKm:+cl.precioKm||0,monto:+cl.monto||0,precio:(+cl.precio|| +cl.gasto||0),fijo:initFijo(cl),del:false,isNew:false,edit:false};ensureKm(w);return w;});}
+  function addRow(seg){const tr=trucks[0]||null;const it={uid:_wuid++,ref:null,repId:targetRepId(),trId:tr?tr.id:null,trDesc:tr?tr.d:'',seg:seg||'local',rep:'',zona:'',obs:'',cant:1,km:0,precioKm:0,monto:0,precio:0,fijo:false,del:false,isNew:true,edit:true};ensureKm(it);work.unshift(it);selUid=it.uid;return it;}
   function openEdit(uid){const w=W(uid);if(!w)return;w.edit=true;selUid=w.uid;render('edit');}
   function delItem(w){const card=bd.querySelector('.rre-card[data-uid="'+w.uid+'"], .rrv-row[data-edituid="'+w.uid+'"]'),gs=window.gsap;const apply=()=>{if(w.isNew){const idx=work.indexOf(w);if(idx>=0)work.splice(idx,1);}else w.del=true;if(selUid===w.uid)selUid=null;render('rows');};if(gs&&card)gs.to(card,{opacity:0,scale:.8,y:-20,duration:.3,ease:'power2.in',onComplete:apply});else apply();}
   function confirmDelete(w){const trLbl=w.trId?(((trucks.find(t=>t.id===w.trId)||{}).d)||w.trDesc||'este camión'):'este camión';
@@ -4959,10 +4966,14 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     const trLbl=isTr?((+w.cant||0)+' camión'+((+w.cant||0)===1?'':'es')):(w.trId?(((trucks.find(t=>t.id===w.trId)||{}).d)||w.trDesc||'—'):'—');
     return '<div class="rrv-row" data-edituid="'+w.uid+'"><span class="rrv-i">'+(idx+1)+'</span><span class="rrv-tk">'+TRUCKICON+'</span><div class="rrv-nm"><div class="rrv-name" title="'+_escp(trLbl)+'">'+_escp(trLbl)+'</div><div class="rrv-meta">'+meta+'</div></div><div class="rrv-flete">'+_gs(fl)+'</div><button type="button" class="rrv-del" data-deluid="'+w.uid+'" title="Quitar camión" aria-label="Quitar camión"><svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M10 11v6M14 11v6"/></svg></button></div>';}
   // Tarjeta-formulario (solo para la línea en edición)
-  function formHTML(w,idx){const isInt=w.seg==='interior';const isTr=w.seg==='transportadora';const trLbl=w.trId?(((trucks.find(t=>t.id===w.trId)||{}).d)||w.trDesc||'—'):'';const body=isTr
+  function formHTML(w,idx){const isInt=w.seg==='interior';const isTr=w.seg==='transportadora';const trLbl=w.trId?(((trucks.find(t=>t.id===w.trId)||{}).d)||w.trDesc||'—'):'';
+    const intToggle=isInt?('<div class="rre-modo"><button type="button" class="rre-modo__b'+(!w.fijo?' on':'')+'" data-uid="'+w.uid+'" data-modo="km">Por km</button><button type="button" class="rre-modo__b'+(w.fijo?' on':'')+'" data-uid="'+w.uid+'" data-modo="fijo">Precio fijo</button></div>'):'';
+    const body=isTr
       ?'<div class="rre-km2"><label class="rre-fld"><span>Cantidad de camiones</span><input class="rre-in rre-cant" data-uid="'+w.uid+'" inputmode="numeric" placeholder="0" value="'+(w.cant||'')+'"></label><label class="rre-fld"><span>Flete total</span><input class="rre-in rre-precio" data-uid="'+w.uid+'" inputmode="numeric" placeholder="0" value="'+fmt(w.precio)+'"></label></div>'
+      :(isInt&&!w.fijo)
+      ?intToggle+'<div class="rre-km2"><label class="rre-fld"><span>Km</span><input class="rre-in rre-km" data-uid="'+w.uid+'" inputmode="numeric" placeholder="0" value="'+fmt(w.km)+'"></label><label class="rre-fld"><span>Precio/km</span><input class="rre-in rre-pkm" data-uid="'+w.uid+'" inputmode="numeric" placeholder="0" value="'+fmt(w.precioKm)+'"></label></div><div class="rre-flete-out"><span>Flete</span><b class="rre-flete-b" data-uid="'+w.uid+'">'+_gs(w.precio||0)+'</b></div>'
       :isInt
-      ?'<div class="rre-km2"><label class="rre-fld"><span>Km</span><input class="rre-in rre-km" data-uid="'+w.uid+'" inputmode="numeric" placeholder="0" value="'+fmt(w.km)+'"></label><label class="rre-fld"><span>Precio/km</span><input class="rre-in rre-pkm" data-uid="'+w.uid+'" inputmode="numeric" placeholder="0" value="'+fmt(w.precioKm)+'"></label></div><div class="rre-flete-out"><span>Flete</span><b class="rre-flete-b" data-uid="'+w.uid+'">'+_gs(w.precio||0)+'</b></div>'
+      ?intToggle+'<label class="rre-fld"><span>Flete (precio fijo)</span><input class="rre-in rre-precio" data-uid="'+w.uid+'" inputmode="numeric" placeholder="0" value="'+fmt(w.precio)+'"></label>'
       :'<label class="rre-fld"><span>Flete</span><input class="rre-in rre-precio" data-uid="'+w.uid+'" inputmode="numeric" placeholder="0" value="'+fmt(w.precio)+'"></label>';
     const metaFlds=isTr?'':('<div class="rre-meta2">'+
         '<label class="rre-fld"><span>Repartidor</span><button type="button" class="rre-pick'+(w.rep?'':' ph')+'" data-uid="'+w.uid+'" data-pick="rep"><span class="rre-pick__t">'+(w.rep?_escp(w.rep):'Tercerizado')+'</span><svg class="rre-pick__arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg></button></label>'+
@@ -5010,14 +5021,15 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     if(!rows.length){showToast('La planilla quedaría sin camiones. Cancelá o agregá al menos uno.');return;}
     for(const w of rows){
       if(w.seg==='transportadora'){if(!(+w.cant>0)){showToast('En Transportadora cargá la cantidad de camiones 👀');return;}if(!(w.precio>0)){showToast('En Transportadora cargá el flete total 👀');return;}continue;}
-      if(!w.trId){showToast('Elegí el camión en todas las filas 👀');return;}if(w.seg==='interior'&&w.km>0&&w.precioKm>0)w.precio=Math.round(w.km*w.precioKm);if(!(w.precio>0)){showToast(w.seg==='interior'?'En Interior cargá los km y el precio/km 👀':'Ingresá el flete en todas las filas');return;}}
+      if(!w.trId){showToast('Elegí el camión en todas las filas 👀');return;}if(w.seg==='interior'&&!w.fijo&&w.km>0&&w.precioKm>0)w.precio=Math.round(w.km*w.precioKm);if(!(w.precio>0)){showToast((w.seg==='interior'&&!w.fijo)?'En Interior por km cargá los km y el precio/km 👀':'Ingresá el flete en todas las filas');return;}}
     const affected=new Set();
     work.filter(w=>w.del&&w.ref).forEach(w=>{const r=repartos.find(x=>x.id===w.repId);if(r){const idx=(r.clientes||[]).indexOf(w.ref);if(idx>=0)r.clientes.splice(idx,1);affected.add(r.id);}});
     rows.forEach(w=>{const tr=trucks.find(t=>t.id===w.trId);
       const isTr=w.seg==='transportadora';const cant=isTr?(+w.cant||0):null;const trD=isTr?(cant+' camión'+(cant===1?'':'es')):(tr?tr.d:w.trDesc);
-      const km=w.seg==='interior'?(w.km||0):0,pkm=w.seg==='interior'?(w.precioKm||0):0;
-      if(w.isNew){const r=repartos.find(x=>x.id===w.repId);if(!r)return;if(!r.clientes)r.clientes=[];r.clientes.push({id:nextClienteId++,trId:isTr?null:w.trId,tsId:tsObj?tsObj.id:g.tsId,seg:w.seg,rep:isTr?null:((w.rep||'').trim()||'Tercerizado'),zona:isTr?null:((w.zona||'').trim()||null),obs:(w.seg==='servicios'?(w.obs||'').trim():'')||null,cant:isTr?cant:null,km:km,precioKm:pkm,monto:isTr?0:w.monto,precio:w.precio,gasto:w.precio,trDesc:trD,tsNombre:g.ts,pct:0,inc:(w.monto>0&&w.precio>0?w.precio/w.monto*100:null)});affected.add(r.id);}
-      else if(w.ref){w.ref.monto=isTr?0:w.monto;w.ref.precio=w.precio;w.ref.gasto=w.precio;w.ref.seg=w.seg;w.ref.km=km;w.ref.precioKm=pkm;w.ref.rep=isTr?null:((w.rep||'').trim()||'Tercerizado');w.ref.zona=isTr?null:((w.zona||'').trim()||null);w.ref.obs=(w.seg==='servicios'?(w.obs||'').trim():'')||null;w.ref.cant=isTr?cant:null;if(isTr){w.ref.trId=null;w.ref.trDesc=trD;}else if(w.trId){w.ref.trId=w.trId;w.ref.trDesc=tr?tr.d:w.ref.trDesc;w.ref.tsId=tsObj?tsObj.id:w.ref.tsId;}w.ref.inc=(w.monto>0&&w.precio>0?w.precio/w.monto*100:null);affected.add(w.repId);}});
+      const isIntFijo=w.seg==='interior'&&!!w.fijo;
+      const km=(w.seg==='interior'&&!isIntFijo)?(w.km||0):0,pkm=(w.seg==='interior'&&!isIntFijo)?(w.precioKm||0):0;
+      if(w.isNew){const r=repartos.find(x=>x.id===w.repId);if(!r)return;if(!r.clientes)r.clientes=[];r.clientes.push({id:nextClienteId++,trId:isTr?null:w.trId,tsId:tsObj?tsObj.id:g.tsId,seg:w.seg,rep:isTr?null:((w.rep||'').trim()||'Tercerizado'),zona:isTr?null:((w.zona||'').trim()||null),obs:(w.seg==='servicios'?(w.obs||'').trim():'')||null,cant:isTr?cant:null,km:km,precioKm:pkm,fijo:isIntFijo,monto:isTr?0:w.monto,precio:w.precio,gasto:w.precio,trDesc:trD,tsNombre:g.ts,pct:0,inc:(w.monto>0&&w.precio>0?w.precio/w.monto*100:null)});affected.add(r.id);}
+      else if(w.ref){w.ref.monto=isTr?0:w.monto;w.ref.precio=w.precio;w.ref.gasto=w.precio;w.ref.seg=w.seg;w.ref.km=km;w.ref.precioKm=pkm;w.ref.fijo=isIntFijo;w.ref.rep=isTr?null:((w.rep||'').trim()||'Tercerizado');w.ref.zona=isTr?null:((w.zona||'').trim()||null);w.ref.obs=(w.seg==='servicios'?(w.obs||'').trim():'')||null;w.ref.cant=isTr?cant:null;if(isTr){w.ref.trId=null;w.ref.trDesc=trD;}else if(w.trId){w.ref.trId=w.trId;w.ref.trDesc=tr?tr.d:w.ref.trDesc;w.ref.tsId=tsObj?tsObj.id:w.ref.tsId;}w.ref.inc=(w.monto>0&&w.precio>0?w.precio/w.monto*100:null);affected.add(w.repId);}});
     const sv=bd.querySelector('.save');if(sv){sv.disabled=true;sv.classList.add('is-loading');sv.innerHTML='<span class="cf-spin"></span>Guardando…';}
     try{
       for(const id of affected){const r=repartos.find(x=>x.id===id);if(!r)continue;
@@ -5067,6 +5079,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     // controles de la tarjeta-formulario
     bd.querySelectorAll('.rre-trbtn').forEach(b=>b.addEventListener('click',()=>openTruckDrop(b)));
     bd.querySelectorAll('.rre-segbtn').forEach(b=>b.addEventListener('click',()=>{const w=W(b.dataset.uid);if(!w||w.seg===b.dataset.seg)return;w.seg=b.dataset.seg;ensureKm(w);selUid=w.uid;render('move');}));
+    bd.querySelectorAll('.rre-modo__b').forEach(b=>b.addEventListener('click',()=>{const w=W(b.dataset.uid);if(!w)return;const fijo=b.dataset.modo==='fijo';if(!!w.fijo===fijo)return;w.fijo=fijo;ensureKm(w);selUid=w.uid;render('move');}));
     bd.querySelectorAll('.rre-precio').forEach(i=>{i.addEventListener('input',()=>{const w=W(i.dataset.uid);if(w){w.precio=_liveMoney(i);liveTotals();}});});
     const upFlete=uid=>{const w=W(uid);if(!w)return;w.precio=Math.round((w.km||0)*(w.precioKm||0));const b=bd.querySelector('.rre-flete-b[data-uid="'+uid+'"]');if(b){b.textContent=_gs(w.precio||0);pop(b);}liveTotals();};
     bd.querySelectorAll('.rre-km').forEach(i=>{i.addEventListener('input',()=>{const w=W(i.dataset.uid);if(w){w.km=_liveMoney(i);upFlete(i.dataset.uid);}});});
