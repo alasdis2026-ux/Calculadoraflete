@@ -4391,6 +4391,8 @@ function showSaveAnim(text){
   .cf-check-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:15px}
   .cf-check-lbl{font-family:Sora,Inter,sans-serif;font-weight:800;font-size:18px;letter-spacing:1px;text-transform:uppercase;color:#1D4ED8;text-shadow:0 2px 12px rgba(29,78,216,.18)}
   .cf-check{position:relative;width:96px;height:96px;background:transparent;display:flex;align-items:center;justify-content:center}
+  .cf-check-glow{position:absolute;top:50%;left:50%;width:120px;height:120px;margin:-60px 0 0 -60px;border-radius:50%;background:radial-gradient(circle,rgba(37,99,235,.45),rgba(37,99,235,.12) 55%,transparent 72%);filter:blur(4px);opacity:0;pointer-events:none}
+  .cf-check-ring{position:absolute;top:50%;left:50%;width:78px;height:78px;margin:-39px 0 0 -39px;border-radius:50%;border:2.5px solid #2563EB;opacity:0;pointer-events:none}
   .cf-check svg{width:66px;height:66px}
   .cf-check-load{position:absolute;top:50%;left:50%;width:52px;height:52px;margin:-26px 0 0 -26px;border-radius:50%;border:5px solid rgba(37,99,235,.18);border-top-color:#2563EB;opacity:0;animation:cfSpin .7s linear infinite}
   .cf-check-svg{position:absolute;top:50%;left:50%;margin:-33px 0 0 -33px}
@@ -5250,9 +5252,9 @@ function _cfCheckBurst(label){
   label=(label==null?'Registrado':label);
   const reduce=false/*anim siempre on*/;
   const ov=document.createElement('div');ov.className='cf-check-ov';
-  ov.innerHTML='<div class="cf-check-bd"></div><div class="cf-check-wrap"><div class="cf-check"><span class="cf-check-load"></span><svg class="cf-check-svg" viewBox="0 0 52 52"><circle class="cf-check__c" cx="26" cy="26" r="24"/><path class="cf-check__k" d="M15 26.5l7.5 7.5L37 18"/></svg></div><div class="cf-check-lbl">'+_escp(label)+'</div></div>';
+  ov.innerHTML='<div class="cf-check-bd"></div><div class="cf-check-wrap"><div class="cf-check"><span class="cf-check-glow"></span><span class="cf-check-ring"></span><span class="cf-check-load"></span><svg class="cf-check-svg" viewBox="0 0 52 52"><circle class="cf-check__c" cx="26" cy="26" r="24"/><path class="cf-check__k" d="M15 26.5l7.5 7.5L37 18"/></svg></div><div class="cf-check-lbl">'+_escp(label)+'</div></div>';
   document.body.appendChild(ov);
-  const gs=window.gsap,bd=ov.querySelector('.cf-check-bd'),disc=ov.querySelector('.cf-check'),lbl=ov.querySelector('.cf-check-lbl'),k=ov.querySelector('.cf-check__k'),c=ov.querySelector('.cf-check__c'),load=ov.querySelector('.cf-check-load'),svg=ov.querySelector('.cf-check-svg');
+  const gs=window.gsap,bd=ov.querySelector('.cf-check-bd'),disc=ov.querySelector('.cf-check'),lbl=ov.querySelector('.cf-check-lbl'),k=ov.querySelector('.cf-check__k'),c=ov.querySelector('.cf-check__c'),load=ov.querySelector('.cf-check-load'),svg=ov.querySelector('.cf-check-svg'),glow=ov.querySelector('.cf-check-glow'),ring=ov.querySelector('.cf-check-ring');
   if(!gs||reduce){setTimeout(()=>ov.remove(),1300);return;}
   const len=(k.getTotalLength&&k.getTotalLength())||60;
   gs.set(k,{strokeDasharray:len,strokeDashoffset:len});
@@ -5261,7 +5263,11 @@ function _cfCheckBurst(label){
   gs.set(disc,{scale:.4,opacity:0});
   gs.set(lbl,{y:10,opacity:0});
   gs.set(bd,{opacity:0});
+  gs.set(glow,{opacity:0,scale:.7});
+  gs.set(ring,{opacity:0,scale:.55});
   gs.to(bd,{opacity:1,duration:.32,ease:'power2.out'});                 /* desenfoca el fondo */
+  gs.to(glow,{opacity:.5,scale:1,duration:.42,ease:'power2.out'});      /* halo aparece */
+  const glowPulse=gs.to(glow,{opacity:.3,scale:.9,duration:.75,ease:'sine.inOut',repeat:-1,yoyo:true,delay:.42}); /* respira (separado del timeline) */
   gs.timeline({onComplete:()=>gs.to(ov,{opacity:0,duration:.42,delay:.7,ease:'power2.inOut',onComplete:()=>ov.remove()})})  /* al final revela los datos */
     .to(disc,{scale:1,opacity:1,duration:.44,ease:'back.out(1.9)'})
     .to(load,{opacity:1,duration:.2},'-=.22')            /* loader redondo girando */
@@ -5269,8 +5275,10 @@ function _cfCheckBurst(label){
     .to(svg,{opacity:1,duration:.18},'-=.1')            /* aparece el check */
     .to(c,{scale:1,duration:.4,ease:'back.out(2)'},'-=.12')
     .to(k,{strokeDashoffset:0,duration:.36,ease:'power2.out'},'-=.18')
-    .to(disc,{scale:1.07,duration:.15,yoyo:true,repeat:1,ease:'power1.inOut'},'-=.05')
-    .to(lbl,{y:0,opacity:1,duration:.34,ease:'power2.out'},'-=.22');
+    .add(()=>{glowPulse.kill();gs.killTweensOf(glow);gs.to(glow,{opacity:.9,scale:1.2,duration:.28,ease:'power2.out'}).to(glow,{opacity:0,scale:1.42,duration:.62,ease:'power2.in'});},'-=.14')  /* destello de éxito */
+    .fromTo(ring,{opacity:.75,scale:.55},{opacity:0,scale:2,duration:.64,ease:'power2.out'},'<')  /* onda que se expande */
+    .to(disc,{scale:1.1,duration:.16,yoyo:true,repeat:1,ease:'power1.inOut'},'<')
+    .to(lbl,{y:0,opacity:1,duration:.34,ease:'power2.out'},'-=.24');
 }
 /* ── Micro-interacción PRO: "press" táctil con GSAP en botones y tarjetas ── */
 (function(){
