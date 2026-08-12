@@ -513,7 +513,7 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 /* Tablero tipo Trello: columnas = transportistas, cards = camiones */
 .ts-board{flex:1;min-height:0;overflow-x:auto;overflow-y:hidden;display:flex;gap:12px;align-items:stretch;padding:2px 4px 12px;scroll-snap-type:x proximity}
 .ts-board::-webkit-scrollbar{height:9px}.ts-board::-webkit-scrollbar-thumb{background:var(--gray-200);border-radius:99px}.ts-board::-webkit-scrollbar-track{background:transparent}
-.ts-col{flex:0 0 248px;width:248px;display:flex;flex-direction:column;background:var(--gray-50);border:1.5px solid var(--gray-200);border-radius:14px;overflow:hidden;max-height:100%;scroll-snap-align:start}
+.ts-col{flex:0 0 320px;width:320px;display:flex;flex-direction:column;background:var(--gray-50);border:1.5px solid var(--gray-200);border-radius:14px;overflow:hidden;max-height:100%;scroll-snap-align:start}
 .ts-col__hd{display:flex;align-items:center;gap:9px;padding:12px 13px;cursor:pointer;border-bottom:1.5px solid var(--gray-200);background:#fff;transition:background var(--fast)}
 .ts-col__hd:hover{background:var(--accent-soft)}
 .ts-col__ico{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:var(--gray-100);color:var(--gray-400);flex-shrink:0;transition:background var(--fast),color var(--fast)}
@@ -529,7 +529,7 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .ts-tcard:hover{border-color:var(--accent);transform:translateY(-1px);box-shadow:0 6px 16px rgba(15,23,42,.08)}
 .ts-tcard__top{display:flex;align-items:center;gap:8px}
 .ts-tcard__ico{width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:var(--gray-100);color:var(--gray-400);flex-shrink:0}
-.ts-tcard__name{font-size:12.5px;font-weight:800;color:var(--gray-800);line-height:1.2;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ts-tcard__name{font-size:12.5px;font-weight:800;color:var(--gray-800);line-height:1.25;flex:1;min-width:0;overflow-wrap:break-word;word-break:break-word}
 .ts-tcard__foot{display:flex;align-items:center;justify-content:space-between;gap:6px}
 .ts-ttag{font-size:9.5px;font-weight:800;letter-spacing:.4px;padding:3px 8px;border-radius:999px}
 .ts-ttag.is-km{background:#DBEAFE;color:var(--primary)}
