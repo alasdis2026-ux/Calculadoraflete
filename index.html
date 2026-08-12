@@ -5184,8 +5184,8 @@ function _rrOpenDetail(g,periodLbl,wkObj){
         r.totalMonto=tM;r.totalFlete=tF;r.incTotal=iT;}
       if(optimistic){ // la tarjeta ya se movió; sólo cerramos el mini-loader con un check
         if(_pill){_pill.classList.add('ok');_pill.innerHTML='<svg class="rre-pill-check" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Guardado';const g2=window.gsap;if(g2){g2.fromTo(_pill.querySelector('svg'),{scale:0,rotate:-10},{scale:1,rotate:0,duration:.32,ease:'back.out(2.6)'});g2.to(_pill,{opacity:0,y:-8,duration:.3,delay:.85,ease:'power2.in',onComplete:()=>{if(_pill)_pill.remove();}});}else setTimeout(()=>{if(_pill)_pill.remove();},1100);}
-        // refresca g.lines en memoria sin re-render (para futuras ediciones)
-        const fr=_rrGroups(_rrWeek).find(x=>x.ts===g.ts);if(fr){g.lines=fr.lines;g.monto=fr.monto;g.flete=fr.flete;g.reps=fr.reps;buildWork();}
+        // OJO: no reconstruir work aquí (regeneraría los uid y el DOM ya renderizado
+        // quedaría con uids viejos → no se podría editar). El work actual ya refleja el cambio.
         return; }
       _cfCheckBurst('Registrado',true);
       const fresh=_rrGroups(_rrWeek).find(x=>x.ts===g.ts);
