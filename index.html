@@ -934,13 +934,19 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .cal-e-rep,.cal-e-zona{flex:1;min-width:0;width:100%;border:1.5px solid var(--gray-200);border-radius:8px;padding:6px 8px;font:inherit;font-size:12px;color:var(--gray-700);background:#fff}
 .cal-e-in{width:140px;max-width:100%;text-align:right;border:1.5px solid var(--gray-200);border-radius:9px;padding:8px 10px;font:inherit;font-size:13px;font-variant-numeric:tabular-nums;color:var(--gray-800);background:#fff;transition:border-color .15s,box-shadow .15s}
 .cal-e-tr:focus,.cal-e-seg:focus,.cal-e-in:focus,.cal-e-rep:focus,.cal-e-zona:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,120,184,.12)}
-.cal-e-modo{display:inline-flex;gap:0;margin-top:6px;background:var(--gray-100);border:1.5px solid var(--gray-200);border-radius:8px;padding:2px}
-.cal-e-modo__b{border:none;background:transparent;padding:4px 12px;border-radius:6px;font:inherit;font-size:11px;font-weight:800;color:var(--gray-500);cursor:pointer;transition:background .15s,color .15s,box-shadow .15s}
+.cal-e-segwrap{display:flex;align-items:center;gap:8px}
+.cal-e-segwrap .cal-e-pick{width:auto;min-width:120px;flex-shrink:0}
+.cal-e-modo{display:inline-flex;gap:0;background:var(--gray-100);border:1.5px solid var(--gray-200);border-radius:8px;padding:2px;flex-shrink:0}
+.cal-e-modo__b{border:none;background:transparent;padding:5px 11px;border-radius:6px;font:inherit;font-size:11px;font-weight:800;color:var(--gray-500);cursor:pointer;transition:background .15s,color .15s,box-shadow .15s}
 .cal-e-modo__b.on{background:#fff;color:var(--accent);box-shadow:0 1px 2px rgba(15,23,42,.12)}
 .cal-e-modo__b:not(.on):hover{color:var(--gray-700)}
-.cal-e-km2{display:flex;gap:6px;justify-content:flex-end}
-.cal-e-km2 .cal-e-in{width:78px}
-.cal-e-fcalc{margin-top:4px;text-align:right;font-size:12px;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums}
+.cal-e-num{text-align:right;font-size:12px;font-weight:800;color:var(--gray-400);font-variant-numeric:tabular-nums;width:34px}
+.cal-e-km{width:84px}
+.cal-e-dash{color:var(--gray-300);font-weight:700}
+.cal-e-dif{font-size:12.5px;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
+.cal-e-dif.good,.cal-e-totdif.good{color:#15803D}
+.cal-e-dif.bad,.cal-e-totdif.bad{color:#C0392B}
+.cal-e-dif.na,.cal-e-totdif.na{color:var(--gray-300)}
 .cal-e-del{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:9px;border:1.5px solid #FCA5A5;background:#FEF2F2;color:#DC2626;cursor:pointer;transition:all var(--fast)}
 .cal-e-del:hover{border-color:#DC2626;color:#fff;background:#DC2626;transform:translateY(-1px)}
 /* Selectores PRO (chip que abre popover, como la tabla de Calculadora) */
@@ -3247,20 +3253,28 @@ function calRepEditHTML(r){
   const trucks=ts.trucks||[];
   const CHEV='<svg class="cal-e-pick__arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="13" height="13"><path d="M6 9l6 6 6-6"/></svg>';
   const SEGLBL={local:'Local',interior:'Interior',servicios:'Servicios',transportadora:'Transportadora'};
-  const rows=calWork.filter(w=>!w.del).map(function(w){const sg=w.seg||'local';
+  const _difTxt=d=>d===null?'—':((d>0?'+':'')+'Gs. '+_nnum(Math.round(d)));
+  const _difCls=(d,m)=>(m>0&&d!==null)?(d<=0?'good':'bad'):'na';
+  const rows=calWork.filter(w=>!w.del).map(function(w,ix){const sg=w.seg||'local';const isInt=sg==='interior';
+    const dif=(+w.monto>0&&+w.precio>0)?(+w.precio-(+w.monto*0.03)):null;
+    const segCell='<div class="cal-e-segwrap"><button type="button" class="cal-e-pick cal-e-pick--seg cal-e-seg-'+sg+'" data-uid="'+w.uid+'" data-pick="seg"><span class="cal-e-pick__dot"></span><span class="cal-e-pick__t">'+SEGLBL[sg]+'</span>'+CHEV+'</button>'+(isInt?('<div class="cal-e-modo"><button type="button" class="cal-e-modo__b'+(!w.fijo?' on':'')+'" data-uid="'+w.uid+'" data-calmodo="km">Km</button><button type="button" class="cal-e-modo__b'+(w.fijo?' on':'')+'" data-uid="'+w.uid+'" data-calmodo="fijo">Fijo</button></div>'):'')+'</div>';
     return '<tr data-caluid="'+w.uid+'">'+
+      '<td class="cal-e-num">'+(ix+1)+'</td>'+
+      '<td>'+segCell+'</td>'+
       '<td><button type="button" class="cal-e-pick cal-e-pick--tr'+(w.trId?'':' ph')+'" data-uid="'+w.uid+'" data-pick="tr"><span class="cal-e-pick__t">'+(w.trId?esc(w.trDesc||'—'):'Elegir camión')+'</span>'+CHEV+'</button></td>'+
       '<td><button type="button" class="cal-e-pick'+(w.rep?'':' ph')+'" data-uid="'+w.uid+'" data-pick="rep"><span class="cal-e-pick__t">'+(w.rep?esc(w.rep):'Tercerizado')+'</span>'+CHEV+'</button></td>'+
       '<td><button type="button" class="cal-e-pick'+(w.zona?'':' ph')+'" data-uid="'+w.uid+'" data-pick="zona"><span class="cal-e-pick__t">'+(w.zona?esc(w.zona):'Elegir zona')+'</span>'+CHEV+'</button></td>'+
-      '<td><button type="button" class="cal-e-pick cal-e-pick--seg cal-e-seg-'+sg+'" data-uid="'+w.uid+'" data-pick="seg"><span class="cal-e-pick__dot"></span><span class="cal-e-pick__t">'+SEGLBL[sg]+'</span>'+CHEV+'</button>'+(sg==='interior'?('<div class="cal-e-modo"><button type="button" class="cal-e-modo__b'+(!w.fijo?' on':'')+'" data-uid="'+w.uid+'" data-calmodo="km">Km</button><button type="button" class="cal-e-modo__b'+(w.fijo?' on':'')+'" data-uid="'+w.uid+'" data-calmodo="fijo">Fijo</button></div>'):'')+'</td>'+
       '<td class="r"><input class="cal-e-in cal-e-peso" data-uid="'+w.uid+'" inputmode="numeric" placeholder="0" value="'+(w.peso?_nnum(w.peso):'')+'"></td>'+
+      '<td class="r">'+((isInt&&!w.fijo)?('<input class="cal-e-in cal-e-km" data-uid="'+w.uid+'" inputmode="numeric" placeholder="0" value="'+(w.km?_nnum(w.km):'')+'">'):'<span class="cal-e-dash">—</span>')+'</td>'+
       '<td class="r"><input class="cal-e-in cal-e-monto" data-uid="'+w.uid+'" inputmode="numeric" placeholder="0" value="'+(w.monto?_nnum(w.monto):'')+'"></td>'+
-      '<td class="r">'+((sg==='interior'&&!w.fijo)?('<div class="cal-e-km2"><input class="cal-e-in cal-e-km" data-uid="'+w.uid+'" inputmode="numeric" placeholder="Km" value="'+(w.km?_nnum(w.km):'')+'"><input class="cal-e-in cal-e-pkm" data-uid="'+w.uid+'" inputmode="numeric" placeholder="Gs/km" value="'+(w.precioKm?_nnum(w.precioKm):'')+'"></div><div class="cal-e-fcalc" data-uid="'+w.uid+'">'+fmtGs(w.precio||0)+'</div>'):('<input class="cal-e-in cal-e-flete" data-uid="'+w.uid+'" inputmode="numeric" placeholder="0" value="'+(w.precio?_nnum(w.precio):'')+'">'))+'</td>'+
+      '<td class="r"><input class="cal-e-in cal-e-flete" data-uid="'+w.uid+'" inputmode="numeric" placeholder="0" value="'+(w.precio?_nnum(w.precio):'')+'"></td>'+
+      '<td class="r"><span class="cal-e-dif '+_difCls(dif,+w.monto)+'" data-uid="'+w.uid+'">'+_difTxt(dif)+'</span></td>'+
       '<td class="r"><button class="cal-e-del" type="button" data-cal-deluid="'+w.uid+'" title="Quitar camión">'+CAL_TRASH+'</button></td>'+
     '</tr>';
-  }).join('')||'<tr><td colspan="8" style="text-align:center;color:var(--gray-400);padding:18px">Sin camiones — usá “+ Añadir camión”.</td></tr>';
+  }).join('')||'<tr><td colspan="11" style="text-align:center;color:var(--gray-400);padding:18px">Sin camiones — usá “+ Añadir camión”.</td></tr>';
   const alive=calWork.filter(w=>!w.del);
   const tM=alive.reduce((s,w)=>s+(+w.monto||0),0),tF=alive.reduce((s,w)=>s+(+w.precio||0),0),tP=alive.reduce((s,w)=>s+(+w.peso||0),0);
+  const tDif=tM>0?(tF-tM*0.03):null;
   const SL={local:'LOCAL',interior:'INTERIOR',servicios:'SERVICIOS',transportadora:'TRANSPORTADORA'};
   const segs=[...new Set(alive.map(w=>w.seg||'local'))];
   const segChips=segs.length?segs.map(s=>'<span class="crs crs--'+s+'">'+(SL[s]||s.toUpperCase())+'</span>').join(''):'<span class="crs crs--local">REPARTO</span>';
@@ -3270,9 +3284,9 @@ function calRepEditHTML(r){
       '<div class="cal-rep-actions"><button class="cal-rep-btn" type="button" data-cal-add><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="14" height="14"><path d="M12 5v14M5 12h14"/></svg>Añadir camión</button><button class="cal-rep-btn" type="button" data-cal-cancel>Cancelar</button><button class="cal-rep-btn edit cal-save-btn" type="button" data-cal-save><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="15" height="15"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>Guardar</button></div>'+
     '</div>'+
     '<div class="cal-rep-table-wrap"><table class="cal-rep-table cal-rep-table--edit">'+
-      '<thead><tr><th>Camión</th><th>Repartidor</th><th>Zona</th><th>Segmento</th><th class="r">Peso (kg)</th><th class="r">Monto</th><th class="r">Flete</th><th class="r"></th></tr></thead>'+
+      '<thead><tr><th class="r">#</th><th>Segmento</th><th>Camión</th><th>Repartidor</th><th>Zona</th><th class="r">Peso (kg)</th><th class="r">Km</th><th class="r">Monto</th><th class="r">Flete</th><th class="r">Diferencia</th><th class="r"></th></tr></thead>'+
       '<tbody>'+rows+'</tbody>'+
-      '<tfoot><tr class="crt-total"><td colspan="4">TOTAL</td><td class="crt-num cal-e-totp">'+(tP>0?_nnum(tP):'—')+'</td><td class="crt-num cal-e-totm">'+fmtGs(tM)+'</td><td class="crt-num cal-e-totf">'+fmtGs(tF)+'</td><td></td></tr></tfoot>'+
+      '<tfoot><tr class="crt-total"><td colspan="5">TOTAL</td><td class="crt-num cal-e-totp">'+(tP>0?_nnum(tP):'—')+'</td><td class="crt-num"></td><td class="crt-num cal-e-totm">'+fmtGs(tM)+'</td><td class="crt-num cal-e-totf">'+fmtGs(tF)+'</td><td class="crt-num cal-e-totdif '+_difCls(tDif,tM)+'">'+_difTxt(tDif)+'</td><td></td></tr></tfoot>'+
     '</table></div>'+
   '</div>';
 }
@@ -3310,6 +3324,7 @@ function calLiveTotals(){
   const totm=document.querySelector('.cal-e-totm');if(totm)totm.textContent=fmtGs(tM);
   const totf=document.querySelector('.cal-e-totf');if(totf)totf.textContent=fmtGs(tF);
   const totp=document.querySelector('.cal-e-totp');if(totp)totp.textContent=(tP>0?_nnum(tP):'—');
+  const totd=document.querySelector('.cal-e-totdif');if(totd){const d=tM>0?(tF-tM*0.03):null;totd.textContent=d===null?'—':((d>0?'+':'')+'Gs. '+_nnum(Math.round(d)));totd.className='crt-num cal-e-totdif '+((tM>0&&d!==null)?(d<=0?'good':'bad'):'na');}
   let dM=0,dF=0;
   calDayRepartos().forEach(r=>{if(r.id===calEditRepId){dM+=tM;dF+=tF;}else{dM+=r.totalMonto||0;dF+=r.totalFlete||0;}});
   const km=document.querySelector('.k-daymonto');if(km)km.textContent=fmtGs(dM);
@@ -3332,7 +3347,7 @@ async function calSaveEdit(){
       if(!calDayRepartos().length){closeCalModal();return;}
       renderCalDay('toggle');return;
     }
-    const newClientes=rows.map(function(w){const tr=(ts.trucks||[]).find(t=>t.id===w.trId);const isIntFijo=w.seg==='interior'&&(!!w.fijo||!(+w.km>0&&+w.precioKm>0));const km=(w.seg==='interior'&&!isIntFijo)?(+w.km||0):0,pkm=(w.seg==='interior'&&!isIntFijo)?(+w.precioKm||0):0;return {id:w.cId||nextClienteId++,trId:w.trId,tsId:w.tsId||r.tsId,tsNombre:w.tsNombre||r.tsNombre,seg:w.seg,rep:(w.rep||'').trim()||'Tercerizado',zona:(w.zona||'').trim()||null,peso:+w.peso||0,km:km,precioKm:pkm,fijo:isIntFijo,obs:w.obs||null,cant:w.cant||null,monto:w.monto,precio:w.precio,gasto:w.precio,trDesc:tr?tr.d:(w.trDesc||''),pct:0,inc:(w.monto>0&&w.precio>0?w.precio/w.monto*100:null)};});
+    const newClientes=rows.map(function(w){const tr=(ts.trucks||[]).find(t=>t.id===w.trId);const kmEntered=+w.km||0;const isIntFijo=w.seg==='interior'&&(!!w.fijo||!(kmEntered>0));const km=(w.seg==='interior'&&!isIntFijo)?kmEntered:0;const pkm=(km>0&&+w.precio>0)?Math.round(+w.precio/km):0;return {id:w.cId||nextClienteId++,trId:w.trId,tsId:w.tsId||r.tsId,tsNombre:w.tsNombre||r.tsNombre,seg:w.seg,rep:(w.rep||'').trim()||'Tercerizado',zona:(w.zona||'').trim()||null,peso:+w.peso||0,km:km,precioKm:pkm,fijo:isIntFijo,obs:w.obs||null,cant:w.cant||null,monto:w.monto,precio:w.precio,gasto:w.precio,trDesc:tr?tr.d:(w.trDesc||''),pct:0,inc:(w.monto>0&&w.precio>0?w.precio/w.monto*100:null)};});
     const tM=newClientes.reduce((s,c)=>s+(+c.monto||0),0);
     const tF=newClientes.reduce((s,c)=>s+(+c.precio||0),0);
     const iT=tM>0?tF/tM*100:null;const gp=Math.round(tM*0.03);const dif=tF-gp;
@@ -3426,7 +3441,7 @@ document.getElementById('calModalBody').addEventListener('click',async e=>{
   const delUid=e.target.closest('[data-cal-deluid]');
   const pickBtn=e.target.closest('.cal-e-pick');
   const modoBtn=e.target.closest('[data-calmodo]');
-  if(modoBtn){e.stopPropagation();if(!calWork)return;const w=calWork.find(x=>x.uid===+modoBtn.dataset.uid);if(!w)return;const fijo=modoBtn.dataset.calmodo==='fijo';if(!!w.fijo===fijo)return;w.fijo=fijo;if(!fijo){if(!(w.precioKm>0)){const ts=(transportistas||[]).find(t=>(t.trucks||[]).some(x=>x.id===w.trId));const tr=ts&&(ts.trucks||[]).find(x=>x.id===w.trId);if(tr&&+tr.precio>0)w.precioKm=+tr.precio;}if(!(w.km>0)&&w.precioKm>0&&w.precio>0)w.km=Math.round(w.precio/w.precioKm);if(w.km>0&&w.precioKm>0)w.precio=Math.round(w.km*w.precioKm);}else{w.km=0;w.precioKm=0;}renderCalDay('rows');return;}
+  if(modoBtn){e.stopPropagation();if(!calWork)return;const w=calWork.find(x=>x.uid===+modoBtn.dataset.uid);if(!w)return;const fijo=modoBtn.dataset.calmodo==='fijo';if(!!w.fijo===fijo)return;w.fijo=fijo;if(fijo){w.km=0;w.precioKm=0;}renderCalDay('rows');return;}
   if(pickBtn){e.stopPropagation();calOpenPick(pickBtn);return;}
   if(editBtn){const id=+editBtn.dataset.editr;const r=calDayRepartos().find(x=>x.id===id);if(!r)return;calEditRepId=id;calWork=calBuildWork(r);renderCalDay('edit');return;}
   if(addBtn){if(!calWork)return;calWork.unshift({uid:_calUid++,cId:null,trId:null,trDesc:'',tsId:null,tsNombre:'',seg:'local',rep:'',zona:'',monto:0,precio:0,peso:0,km:0,precioKm:0,obs:null,cant:null,del:false,isNew:true});renderCalDay('add');return;}
@@ -3450,9 +3465,10 @@ document.getElementById('calModalBody').addEventListener('click',async e=>{
 document.getElementById('calModalBody').addEventListener('input',e=>{
   if(!calWork)return;const t=e.target;const w=calWork.find(x=>x.uid===+t.dataset.uid);if(!w)return;
   const _pn=v=>parseInt(String(v||'').replace(/[^\d]/g,''),10)||0;
-  if(t.classList.contains('cal-e-monto')){w.monto=_pn(t.value);calLiveTotals();}
-  else if(t.classList.contains('cal-e-flete')){w.precio=_pn(t.value);calLiveTotals();}
-  else if(t.classList.contains('cal-e-km')||t.classList.contains('cal-e-pkm')){if(t.classList.contains('cal-e-km'))w.km=_pn(t.value);else w.precioKm=_pn(t.value);w.precio=Math.round((w.km||0)*(w.precioKm||0));const fc=document.querySelector('.cal-e-fcalc[data-uid="'+w.uid+'"]');if(fc)fc.textContent=fmtGs(w.precio||0);calLiveTotals();}
+  const _updDif=()=>{const el=document.querySelector('.cal-e-dif[data-uid="'+w.uid+'"]');if(!el)return;const d=(+w.monto>0&&+w.precio>0)?(+w.precio-(+w.monto*0.03)):null;el.textContent=d===null?'—':((d>0?'+':'')+'Gs. '+_nnum(Math.round(d)));el.className='cal-e-dif '+((+w.monto>0&&d!==null)?(d<=0?'good':'bad'):'na');};
+  if(t.classList.contains('cal-e-monto')){w.monto=_pn(t.value);_updDif();calLiveTotals();}
+  else if(t.classList.contains('cal-e-flete')){w.precio=_pn(t.value);_updDif();calLiveTotals();}
+  else if(t.classList.contains('cal-e-km')){w.km=_pn(t.value);}
   else if(t.classList.contains('cal-e-peso')){w.peso=_pn(t.value);calLiveTotals();}
   else if(t.classList.contains('cal-e-rep'))w.rep=t.value;
   else if(t.classList.contains('cal-e-zona'))w.zona=t.value;
