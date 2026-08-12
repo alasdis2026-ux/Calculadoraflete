@@ -5398,7 +5398,7 @@ function _cfPrint(r){
   const SEGP=[['local','LOCAL'],['interior','INTERIOR'],['servicios','SERVICIOS ADICIONALES'],['transportadora','TRANSPORTADORA']];
   let body='',totM=0,totF=0,totN=0,totKm=0;
   SEGP.forEach(([sk,slbl])=>{
-    const g=lines.filter(c=>(c.seg||'local')===sk);if(!g.length)return;
+    const g=lines.filter(c=>(c.seg||'local')===sk).slice().sort((a,b)=>{const fa=a._fecha||'',fb=b._fecha||'';if(fa!==fb)return fa<fb?-1:1;return (a.trDesc||'').localeCompare(b.trDesc||'','es');});if(!g.length)return;
     let sM=0,sF=0;
     const ddc=iso=>iso?String(iso).slice(0,10).split('-').reverse().join('/'):'—';
     body+='<tr class="grp"><td colspan="5">REPARTO: '+slbl+'</td></tr>';
