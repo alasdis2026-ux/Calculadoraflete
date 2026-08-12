@@ -934,6 +934,11 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .cal-e-rep,.cal-e-zona{flex:1;min-width:0;width:100%;border:1.5px solid var(--gray-200);border-radius:8px;padding:6px 8px;font:inherit;font-size:12px;color:var(--gray-700);background:#fff}
 .cal-e-in{width:140px;max-width:100%;text-align:right;border:1.5px solid var(--gray-200);border-radius:9px;padding:8px 10px;font:inherit;font-size:13px;font-variant-numeric:tabular-nums;color:var(--gray-800);background:#fff;transition:border-color .15s,box-shadow .15s}
 .cal-e-tr:focus,.cal-e-seg:focus,.cal-e-in:focus,.cal-e-rep:focus,.cal-e-zona:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,120,184,.12)}
+.cal-mergebar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:var(--accent-soft,#DBEAFE);border:1.5px solid rgba(37,120,184,.25);border-radius:12px;padding:10px 14px;margin-bottom:14px}
+.cal-mergebar__t{font-size:12.5px;font-weight:700;color:var(--primary)}
+.cal-merge-btn{display:inline-flex;align-items:center;gap:7px;border:1.5px solid var(--accent,#3B82F6);background:#fff;color:var(--primary);border-radius:10px;padding:8px 14px;font:inherit;font-size:12.5px;font-weight:800;cursor:pointer;transition:background .15s,border-color .15s,box-shadow .18s,transform .12s;white-space:nowrap}
+.cal-merge-btn:hover{background:var(--primary);border-color:var(--primary);color:#fff;box-shadow:0 5px 14px rgba(37,120,184,.25);transform:translateY(-1px)}
+.cal-merge-btn:active{transform:translateY(0) scale(.97)}
 .cal-e-segwrap{display:flex;align-items:center;gap:8px}
 .cal-e-segwrap .cal-e-pick{width:auto;min-width:120px;flex-shrink:0}
 .cal-e-modo{display:inline-flex;gap:0;background:var(--gray-100);border:1.5px solid var(--gray-200);border-radius:8px;padding:2px;flex-shrink:0}
@@ -3208,8 +3213,9 @@ function renderCalDay(anim){
     '<div class="cal-kpi"><span class="cal-kpi-lbl">Total flete</span><span class="cal-kpi-val k-dayflete">'+fmtGs(totFlete)+'</span></div>'+
     (incProm!==null?'<div class="cal-kpi"><span class="cal-kpi-lbl">Incidencia promedio</span><span class="cal-kpi-val '+(incOk?'ok':'over')+'">'+incProm.toFixed(2)+'%</span></div>':'');
   const body=document.getElementById('calModalBody');
+  const mergeBar=(!editing&&list.length>1)?'<div class="cal-mergebar"><span class="cal-mergebar__t">Hay <b>'+list.length+'</b> repartos separados en este día.</span><button type="button" class="cal-merge-btn" data-cal-merge><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="15" height="15"><path d="M7 3v6a5 5 0 005 5 5 5 0 005-5V3M12 14v7M8 21h8"/></svg> Unir en un solo reparto</button></div>':'';
   body.innerHTML=list.length
-    ? list.map(r=>(calEditRepId===r.id?calRepEditHTML(r):renderCalReparto(r))).join('')
+    ? mergeBar+list.map(r=>(calEditRepId===r.id?calRepEditHTML(r):renderCalReparto(r))).join('')
     : '<div class="cal-day-empty">Este día ya no tiene repartos.</div>';
   const g=window.gsap;
   if(!g||!anim)return;
@@ -3315,6 +3321,26 @@ function calOpenPick(btn){
   }else if(kind==='seg'){
     openChipPop(btn,{value:w.seg||'local',options:[{v:'local',label:'Local',dot:'#0B5F8D'},{v:'interior',label:'Interior',dot:'#F97316'},{v:'servicios',label:'Servicios',dot:'#10B981'},{v:'transportadora',label:'Transportadora',dot:'#7c3aed'}],onPick:v=>{w.seg=v;if(v!=='interior')w.fijo=false;else if(w.fijo===undefined||w.fijo===null)w.fijo=!(+w.km>0&&+w.precioKm>0);if(w.zona&&!_zonasFor(v).some(z=>z.n===w.zona))w.zona=null;rerender();}});
   }
+}
+// Une todos los repartos del día en uno solo (junta los camiones/clientes)
+async function calMergeRepartos(){
+  const list=calDayRepartos();if(list.length<2)return;
+  const base=list.slice().sort((a,b)=>(a.id||0)-(b.id||0))[0];
+  const others=list.filter(r=>r!==base);
+  base.clientes=base.clientes||[];
+  others.forEach(o=>{(o.clientes||[]).forEach(c=>base.clientes.push(c));});
+  const tM=base.clientes.reduce((s,c)=>s+(+c.monto||0),0);
+  const tF=base.clientes.reduce((s,c)=>s+(+c.precio|| +c.gasto||0),0);
+  const iT=tM>0?tF/tM*100:null,gp=Math.round(tM*0.03),dif=tF-gp;
+  const tsSet=[...new Set(base.clientes.map(c=>c.tsNombre).filter(Boolean))];
+  base.tsNombre=tsSet.length===1?tsSet[0]:'Varios';
+  base.totalMonto=tM;base.totalFlete=tF;base.incTotal=iT;base.gastoPermitido=gp;base.diferencia=dif;
+  try{
+    await dbSaveReparto({id:base.id,fechaISO:base.fechaISO,tsId:base.tsId,tsNombre:base.tsNombre,trId:base.trId,trDesc:base.trDesc,km:base.km,precio:base.precio,tipo:base.tipo,totalFlete:tF,totalMonto:tM,incTotal:iT,gastoPermitido:gp,diferencia:dif,zona:base.zona,clientes:base.clientes});
+    for(const o of others){await dbDeleteReparto(o.id);const i=repartos.indexOf(o);if(i>=0)repartos.splice(i,1);}
+    if(typeof _cfCheckBurst==='function')_cfCheckBurst('Unidos');else showToast('Repartos unidos ✓');
+    renderCalDay('toggle');
+  }catch(e){console.error(e);showToast('Uy, no pude unir los repartos');}
 }
 function calLiveTotals(){
   if(!calWork)return;
@@ -3441,6 +3467,8 @@ document.getElementById('calModalBody').addEventListener('click',async e=>{
   const delUid=e.target.closest('[data-cal-deluid]');
   const pickBtn=e.target.closest('.cal-e-pick');
   const modoBtn=e.target.closest('[data-calmodo]');
+  const mergeBtn=e.target.closest('[data-cal-merge]');
+  if(mergeBtn){const list=calDayRepartos();if(list.length<2)return;_cfConfirm('¿Unir los repartos?','Los <b>'+list.length+'</b> repartos de este día se van a combinar en uno solo (se suman todos los camiones). No se puede deshacer.',()=>calMergeRepartos(),'Sí, unir');return;}
   if(modoBtn){e.stopPropagation();if(!calWork)return;const w=calWork.find(x=>x.uid===+modoBtn.dataset.uid);if(!w)return;const fijo=modoBtn.dataset.calmodo==='fijo';if(!!w.fijo===fijo)return;w.fijo=fijo;if(fijo){w.km=0;w.precioKm=0;}renderCalDay('rows');return;}
   if(pickBtn){e.stopPropagation();calOpenPick(pickBtn);return;}
   if(editBtn){const id=+editBtn.dataset.editr;const r=calDayRepartos().find(x=>x.id===id);if(!r)return;calEditRepId=id;calWork=calBuildWork(r);renderCalDay('edit');return;}
