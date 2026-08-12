@@ -2661,6 +2661,22 @@ function lastPriceForTruck(trId){
   repartos.forEach(r=>{ (r.clientes||[]).forEach(c=>{ const p=c.precio||c.gasto; if(c.trId===trId&&p>0){ const d=r.fechaISO||''; if(best===null||d>=bestDate){best=p;bestDate=d;} } }); });
   return {precio:best,fecha:bestDate};
 }
+// Uso real de un camión según los repartos: tipo (km/fijo) + precio, del registro más reciente.
+// "Por km" = segmento interior o línea con km y precio/km cargados; el resto es "fijo".
+function truckUsage(trId){
+  let best=null,bestDate='';
+  repartos.forEach(r=>{ const d=r.fechaISO||''; (r.clientes||[]).forEach(c=>{
+    if(c.trId!==trId)return;
+    const km=+c.km||0,pkm=+c.precioKm||0,fl=(+c.precio|| +c.gasto||0);
+    if(!(fl>0)&&!(pkm>0))return;
+    if(best===null||d>=bestDate){
+      const esKm=(c.seg==='interior')||(km>0&&pkm>0);
+      best={tipo:esKm?'km':'fijo',precio:esKm?(pkm>0?pkm:(km>0?Math.round(fl/km):0)):fl,fecha:d};
+      bestDate=d;
+    }
+  }); });
+  return best; // null si nunca se usó
+}
 // Fecha del último reparto en que aparece un transportista
 function tsLastUsed(ts){
   let best='';
@@ -2677,10 +2693,11 @@ function renderTsList(){
     const last=tsLastUsed(t);
     const trucks=q?(t.trucks||[]).filter(tr=>t.n.toLowerCase().includes(q)||(tr.d||'').toLowerCase().includes(q)):(t.trucks||[]);
     const cards=trucks.length?trucks.map(tr=>{
-      const lp=lastPriceForTruck(tr.id),km=tr.tipo!=='fijo';
+      const u=truckUsage(tr.id),km=u?(u.tipo==='km'):(tr.tipo!=='fijo');
+      const priceTxt=u?('Gs. '+formatMoney(u.precio)+(u.tipo==='km'?' /km':'')):'Sin usar';
       return`<div class="ts-tcard" data-tsid="${t.id}" data-trid="${tr.id}">
         <div class="ts-tcard__top"><span class="ts-tcard__ico">${getTrIco(tr.d,15)}</span><span class="ts-tcard__name">${esc(tr.d)}</span></div>
-        <div class="ts-tcard__foot"><span class="ts-ttag ${km?'is-km':'is-fijo'}">${km?'KM':'FIJO'}</span><span class="ts-tprice${lp.precio?'':' none'}">${lp.precio?'Gs. '+formatMoney(lp.precio):'Sin usar'}</span></div>
+        <div class="ts-tcard__foot"><span class="ts-ttag ${km?'is-km':'is-fijo'}">${km?'KM':'FIJO'}</span><span class="ts-tprice${u?'':' none'}">${priceTxt}</span></div>
       </div>`;
     }).join(''):`<div class="ts-col__empty">Sin camiones</div>`;
     return`<div class="ts-col">
