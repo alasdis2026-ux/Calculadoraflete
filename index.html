@@ -5112,7 +5112,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
         const tM=(r.clientes||[]).reduce((s,c)=>s+(+c.monto||0),0),tF=(r.clientes||[]).reduce((s,c)=>s+(+c.precio||0),0),iT=tM>0?tF/tM*100:null;
         await dbSaveReparto({id:r.id,fechaISO:r.fechaISO,tsId:r.tsId,tsNombre:r.tsNombre,trId:r.trId,trDesc:r.trDesc,km:r.km,precio:r.precio,tipo:r.tipo,totalFlete:tF,totalMonto:tM,incTotal:iT,gastoPermitido:r.gastoPermitido,diferencia:r.diferencia,zona:r.zona,clientes:r.clientes});
         r.totalMonto=tM;r.totalFlete=tF;r.incTotal=iT;}
-      _cfCheckBurst('Registrado');
+      _cfCheckBurst('Registrado',true);
       const fresh=_rrGroups(_rrWeek).find(x=>x.ts===g.ts);
       if(fresh){g.lines=fresh.lines;g.monto=fresh.monto;g.flete=fresh.flete;g.reps=fresh.reps;}else{g.lines=[];g.monto=0;g.flete=0;g.reps=[];}
       if(!g.lines.length){goBack();return;}
@@ -5248,16 +5248,35 @@ function _rrOpenDetail(g,periodLbl,wkObj){
   buildWork();
   render();
 }
-// Check azul animado al centro cuando algo se guarda con éxito
-function _cfCheckBurst(label){
+// Check azul animado al centro cuando algo se guarda con éxito.
+// fast=true → sin fase de loader, directo al check (flujo rápido, ~1s).
+function _cfCheckBurst(label,fast){
   label=(label==null?'Registrado':label);
   const reduce=false/*anim siempre on*/;
   const ov=document.createElement('div');ov.className='cf-check-ov';
   ov.innerHTML='<div class="cf-check-bd"></div><div class="cf-check-wrap"><div class="cf-check-stage"><span class="cf-check-glow"></span><span class="cf-check-ring"></span><div class="cf-check"><span class="cf-check-load"></span><svg class="cf-check-svg" viewBox="0 0 52 52"><circle class="cf-check__c" cx="26" cy="26" r="24"/><path class="cf-check__k" d="M15 26.5l7.5 7.5L37 18"/></svg></div></div><div class="cf-check-lbl">'+_escp(label)+'</div></div>';
   document.body.appendChild(ov);
   const gs=window.gsap,bd=ov.querySelector('.cf-check-bd'),disc=ov.querySelector('.cf-check'),lbl=ov.querySelector('.cf-check-lbl'),k=ov.querySelector('.cf-check__k'),c=ov.querySelector('.cf-check__c'),load=ov.querySelector('.cf-check-load'),svg=ov.querySelector('.cf-check-svg'),glow=ov.querySelector('.cf-check-glow'),ring=ov.querySelector('.cf-check-ring');
-  if(!gs||reduce){setTimeout(()=>ov.remove(),1300);return;}
+  if(!gs||reduce){setTimeout(()=>ov.remove(),fast?700:1300);return;}
   const len=(k.getTotalLength&&k.getTotalLength())||60;
+  if(fast){
+    gs.set(k,{strokeDasharray:len,strokeDashoffset:len});
+    gs.set(c,{scale:.6,transformOrigin:'26px 26px'});
+    gs.set(load,{opacity:0});gs.set(svg,{opacity:1});
+    gs.set(disc,{scale:.5,opacity:0});gs.set(lbl,{y:8,opacity:0});
+    gs.set(bd,{opacity:0});gs.set(glow,{opacity:0,scale:.7});gs.set(ring,{opacity:0,scale:.55});
+    gs.to(bd,{opacity:1,duration:.2,ease:'power2.out'});
+    gs.to(glow,{opacity:.6,scale:1,duration:.24,ease:'power2.out'});
+    gs.timeline({onComplete:()=>gs.to(ov,{opacity:0,duration:.26,delay:.34,ease:'power2.in',onComplete:()=>ov.remove()})})
+      .to(disc,{scale:1,opacity:1,duration:.3,ease:'back.out(2.1)'})
+      .to(c,{scale:1,duration:.26,ease:'back.out(2.2)'},'-=.14')
+      .to(k,{strokeDashoffset:0,duration:.24,ease:'power2.out'},'-=.14')
+      .add(()=>{gs.to(glow,{opacity:.9,scale:1.2,duration:.2,ease:'power2.out'}).to(glow,{opacity:0,scale:1.4,duration:.4,ease:'power2.in'});},'-=.1')
+      .fromTo(ring,{opacity:.78,scale:.6},{opacity:0,scale:1.9,duration:.44,ease:'power2.out'},'<')
+      .to(disc,{scale:1.08,duration:.13,yoyo:true,repeat:1,ease:'power1.inOut'},'<')
+      .to(lbl,{y:0,opacity:1,duration:.24,ease:'power2.out'},'-=.18');
+    return;
+  }
   gs.set(k,{strokeDasharray:len,strokeDashoffset:len});
   gs.set(c,{scale:.6,transformOrigin:'26px 26px'});
   gs.set(svg,{opacity:0});
