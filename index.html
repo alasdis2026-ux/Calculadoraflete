@@ -4304,6 +4304,9 @@ function showSaveAnim(text){
   .rre-col--transportadora .rre-col-dot{background:#7c3aed}
   .rre-col-n{background:#fff;border:1px solid var(--gray-200,#e2e8f0);border-radius:999px;min-width:22px;height:22px;padding:0 6px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--gray-500,#64748b)}
   .rre-col-body{display:flex;flex-direction:column;gap:8px}
+  .rre-saving-pill{position:fixed;bottom:26px;right:26px;z-index:9500;display:inline-flex;align-items:center;gap:9px;background:var(--primary);color:#fff;font-family:inherit;font-size:13px;font-weight:800;letter-spacing:.2px;padding:11px 18px;border-radius:999px;box-shadow:0 12px 32px rgba(11,95,141,.36),0 0 0 1px rgba(255,255,255,.08) inset;pointer-events:none}
+  .rre-saving-pill.ok{background:#15803D;box-shadow:0 12px 32px rgba(21,128,61,.36)}
+  .rre-pill-check{width:17px;height:17px;fill:none;stroke:#fff;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
   .rrv-drag{cursor:grab}
   .rrv-drag:active{cursor:grabbing}
   .rre-dragging{opacity:.4}
@@ -5048,7 +5051,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
   bd.addEventListener('dragstart',e=>{const row=e.target.closest('.rrv-row[draggable="true"]');if(!row)return;_dragUid=+row.dataset.edituid;try{e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',String(_dragUid));}catch(_){}row.classList.add('rre-dragging');const b=_dragBoard();if(b)requestAnimationFrame(()=>b.classList.add('is-dragging'));});
   bd.addEventListener('dragend',()=>{_dragUid=null;const b=_dragBoard();if(b)b.classList.remove('is-dragging');bd.querySelectorAll('.rre-dragging').forEach(r=>r.classList.remove('rre-dragging'));bd.querySelectorAll('.rre-col.drag-over').forEach(c=>c.classList.remove('drag-over'));});
   bd.addEventListener('dragover',e=>{if(_dragUid==null)return;const col=e.target.closest('.rre-col[data-seg]');if(!col||col.dataset.seg==='transportadora')return;e.preventDefault();try{e.dataTransfer.dropEffect='move';}catch(_){}bd.querySelectorAll('.rre-col.drag-over').forEach(c=>{if(c!==col)c.classList.remove('drag-over');});col.classList.add('drag-over');});
-  bd.addEventListener('drop',e=>{if(_dragUid==null)return;const col=e.target.closest('.rre-col[data-seg]');if(!col)return;e.preventDefault();const sk=col.dataset.seg,w=W(_dragUid);col.classList.remove('drag-over');_dragUid=null;if(!w||sk==='transportadora'||w.seg==='transportadora'||w.seg===sk)return;w.seg=sk;w.fijo=(sk==='interior');if(w.zona&&!_zonasFor(sk).some(z=>z.n===w.zona))w.zona=null;ensureKm(w);selUid=null;if(work.some(x=>x.edit||x.isNew))render('rows');else save(null,false);});
+  bd.addEventListener('drop',e=>{if(_dragUid==null)return;const col=e.target.closest('.rre-col[data-seg]');if(!col)return;e.preventDefault();const sk=col.dataset.seg,w=W(_dragUid);col.classList.remove('drag-over');_dragUid=null;if(!w||sk==='transportadora'||w.seg==='transportadora'||w.seg===sk)return;w.seg=sk;w.fijo=(sk==='interior');if(w.zona&&!_zonasFor(sk).some(z=>z.n===w.zona))w.zona=null;ensureKm(w);selUid=null;render('rows');if(!work.some(x=>x.edit||x.isNew))save(null,false,true);});
   function goBack(){closeTruckDrop(true);const gs=window.gsap;if(gs&&!reduce())gs.to(bd,{opacity:0,y:10,duration:.2,ease:'power2.in',onComplete:renderReporteRepartos});else renderReporteRepartos();}
   let work=[],firstDraw=true,_wuid=1,selUid=null,_ddEl=null,_ddCleanup=null,_ddBtn=null,_lastTotal=null,_dragUid=null;
   const SEGL=['local','interior','servicios','transportadora'];
@@ -5148,7 +5151,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     _ddEl=dd;_ddBtn=btn;btn.classList.add('dd-open');setTimeout(()=>{try{inp.focus();}catch(_){}},30);
     const gs=window.gsap;if(gs&&!reduce())gs.fromTo(dd,{opacity:0,y:dd.classList.contains('up')?6:-6,scale:.98},{opacity:1,y:0,scale:1,duration:.2,ease:'power2.out',clearProps:'transform'});}
   let _ddRz=null;
-  async function save(sv,allowEmpty){
+  async function save(sv,allowEmpty,optimistic){
     const rows=work.filter(w=>!w.del);
     if(!rows.length&&!allowEmpty){showToast('La planilla quedaría sin camiones. Cancelá o agregá al menos uno.');return;}
     for(const w of rows){
@@ -5170,6 +5173,8 @@ function _rrOpenDetail(g,periodLbl,wkObj){
       if(w.isNew){const r=targetRep||repartos.find(x=>x.id===w.repId);if(!r)return;if(!r.clientes)r.clientes=[];r.clientes.push({id:nextClienteId++,trId:isTr?null:w.trId,tsId:tsObj?tsObj.id:g.tsId,seg:w.seg,rep:isTr?null:((w.rep||'').trim()||'Tercerizado'),zona:isTr?null:((w.zona||'').trim()||null),obs:(w.seg==='servicios'?(w.obs||'').trim():'')||null,cant:isTr?cant:null,km:km,precioKm:pkm,fijo:isIntFijo,monto:isTr?0:w.monto,precio:w.precio,gasto:w.precio,trDesc:trD,tsNombre:g.ts,pct:0,inc:(w.monto>0&&w.precio>0?w.precio/w.monto*100:null)});affected.add(r);}
       else if(w.ref){let curr=repartos.find(x=>x.id===w.repId);if(targetRep&&curr&&targetRep!==curr){const _ix=(curr.clientes||[]).indexOf(w.ref);if(_ix>=0)curr.clientes.splice(_ix,1);if(!targetRep.clientes)targetRep.clientes=[];targetRep.clientes.push(w.ref);affected.add(curr);curr=targetRep;}w.ref.monto=isTr?0:w.monto;w.ref.precio=w.precio;w.ref.gasto=w.precio;w.ref.seg=w.seg;w.ref.km=km;w.ref.precioKm=pkm;w.ref.fijo=isIntFijo;w.ref.rep=isTr?null:((w.rep||'').trim()||'Tercerizado');w.ref.zona=isTr?null:((w.zona||'').trim()||null);w.ref.obs=(w.seg==='servicios'?(w.obs||'').trim():'')||null;w.ref.cant=isTr?cant:null;if(isTr){w.ref.trId=null;w.ref.trDesc=trD;}else if(w.trId){w.ref.trId=w.trId;w.ref.trDesc=tr?tr.d:w.ref.trDesc;w.ref.tsId=tsObj?tsObj.id:w.ref.tsId;}w.ref.inc=(w.monto>0&&w.precio>0?w.precio/w.monto*100:null);affected.add(curr);}});
     const svOrig=sv?sv.innerHTML:null;if(sv){sv.disabled=true;sv.classList.add('is-loading');sv.innerHTML='<span class="cf-spin"></span>Guardando…';}
+    let _pill=null;
+    if(optimistic){_pill=document.createElement('div');_pill.className='rre-saving-pill';_pill.innerHTML='<span class="cf-spin"></span>Guardando…';document.body.appendChild(_pill);if(window.gsap)gsap.fromTo(_pill,{opacity:0,y:12,scale:.9},{opacity:1,y:0,scale:1,duration:.26,ease:'back.out(1.9)'});}
     try{
       for(const r of affected){if(!r)continue;
         if(!(r.clientes||[]).length){if(r.id!=null)await dbDeleteReparto(r.id);const i=repartos.indexOf(r);if(i>=0)repartos.splice(i,1);continue;}
@@ -5177,12 +5182,17 @@ function _rrOpenDetail(g,periodLbl,wkObj){
         const savedId=await dbSaveReparto({id:r.id,fechaISO:r.fechaISO,tsId:r.tsId,tsNombre:r.tsNombre,trId:r.trId,trDesc:r.trDesc,km:r.km,precio:r.precio,tipo:r.tipo,totalFlete:tF,totalMonto:tM,incTotal:iT,gastoPermitido:r.gastoPermitido,diferencia:r.diferencia,zona:r.zona,clientes:r.clientes});
         if(r._isNew){r.id=savedId;delete r._isNew;}
         r.totalMonto=tM;r.totalFlete=tF;r.incTotal=iT;}
+      if(optimistic){ // la tarjeta ya se movió; sólo cerramos el mini-loader con un check
+        if(_pill){_pill.classList.add('ok');_pill.innerHTML='<svg class="rre-pill-check" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Guardado';const g2=window.gsap;if(g2){g2.fromTo(_pill.querySelector('svg'),{scale:0,rotate:-10},{scale:1,rotate:0,duration:.32,ease:'back.out(2.6)'});g2.to(_pill,{opacity:0,y:-8,duration:.3,delay:.85,ease:'power2.in',onComplete:()=>{if(_pill)_pill.remove();}});}else setTimeout(()=>{if(_pill)_pill.remove();},1100);}
+        // refresca g.lines en memoria sin re-render (para futuras ediciones)
+        const fr=_rrGroups(_rrWeek).find(x=>x.ts===g.ts);if(fr){g.lines=fr.lines;g.monto=fr.monto;g.flete=fr.flete;g.reps=fr.reps;buildWork();}
+        return; }
       _cfCheckBurst('Registrado',true);
       const fresh=_rrGroups(_rrWeek).find(x=>x.ts===g.ts);
       if(fresh){g.lines=fresh.lines;g.monto=fresh.monto;g.flete=fresh.flete;g.reps=fresh.reps;}else{g.lines=[];g.monto=0;g.flete=0;g.reps=[];}
       if(!g.lines.length){goBack();return;}
       buildWork();render('toggle');
-    }catch(e){console.error(e);showToast('Uy, no pude guardar los cambios');if(sv){sv.disabled=false;sv.classList.remove('is-loading');if(svOrig!=null)sv.innerHTML=svOrig;}}
+    }catch(e){console.error(e);showToast('Uy, no pude guardar los cambios');if(_pill)_pill.remove();if(sv){sv.disabled=false;sv.classList.remove('is-loading');if(svOrig!=null)sv.innerHTML=svOrig;}}
   }
   function openRrePick(btn){
     const w=W(btn.dataset.uid);if(!w)return;const kind=btn.dataset.pick;
