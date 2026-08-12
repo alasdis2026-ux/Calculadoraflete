@@ -1068,7 +1068,7 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .check-circle{fill:none;stroke:var(--accent);stroke-width:4.5}
 .check-mark{fill:none;stroke:var(--accent);stroke-width:4.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:35;stroke-dashoffset:35;transition:stroke-dashoffset .45s var(--alas-ease-spring) .15s}
 .check-svg.show .check-mark{stroke-dashoffset:0}
-.save-label{font-family:Sora,Inter,sans-serif;font-size:17px;font-weight:800;color:var(--accent);letter-spacing:-.3px;opacity:0;transform:translateY(8px);transition:opacity .3s .25s,transform .35s var(--alas-ease-spring) .25s}
+.save-label{font-family:Sora,Inter,sans-serif;font-size:25px;font-weight:800;color:var(--accent);letter-spacing:-.4px;text-align:center;opacity:0;transform:translateY(8px);transition:opacity .3s .25s,transform .35s var(--alas-ease-spring) .25s}
 .save-label.show{opacity:1;transform:translateY(0)}
 </style>
 </head>
@@ -2656,19 +2656,19 @@ document.getElementById('btnGuardar').addEventListener('click',async()=>{
     zona:'',
     clientes:c.clientes.map(cl=>({id:cl.id,trId:cl.trId,tsId:cl.tsId,trDesc:cl.trDesc,tsNombre:cl.tsNombre,seg:cl.seg||'local',rep:(cl.seg==='transportadora'?(cl.rep||null):(cl.rep||'Tercerizado')),zona:cl.zona||null,peso:cl.peso||0,km:cl.km||0,precioKm:cl.precioKm||0,fijo:!!cl.fijo,monto:cl.monto,precio:cl.precio,gasto:cl.gasto,inc:cl.inc,pct:cl.pct})),
   };
+  const isNew=currentReparto.id===null;
   try{
     const savedId=await dbSaveReparto(snap);
     snap.id=savedId;
-    if(currentReparto.id!==null){
+    if(!isNew){
       const idx=repartos.findIndex(r=>r.id===currentReparto.id);
       if(idx>=0)repartos[idx]=snap;else repartos.push(snap);
     }else{
       repartos.push(snap);currentReparto.id=savedId;
-      document.getElementById('editChip').style.display='';
       document.getElementById('btnNewReparto').style.display='';
       document.getElementById('editChipText').textContent='Reparto #'+String(savedId).padStart(4,'0')+' — '+snap.fecha;
     }
-    showSaveAnim();
+    showSaveAnim(isNew?'¡Reparto agregado!':'¡Reparto actualizado!');
   }catch(err){
     showToast('Error al guardar reparto');
   }
@@ -3175,10 +3175,12 @@ function renderCalendar(){
 let calDayIso=null, calEditRepId=null, calWork=null, _calUid=1;
 function calDayRepartos(){return (typeof repByDate==='function'?(repByDate().get(calDayIso)||[]):[]);}
 
-function openCalModal(iso){
+async function openCalModal(iso){
   calDayIso=iso; calEditRepId=null; calWork=null;
   document.getElementById('viewHist').classList.add('is-dayview');
   const wrap=document.getElementById('calDayWrap');
+  // Si el día tiene varios repartos, se unen automáticamente en uno solo
+  try{ if(calDayRepartos().length>1) await _calMergeDayData(); }catch(e){ console.error(e); }
   renderCalDay(false);
   const g=window.gsap;
   if(g){
@@ -3213,9 +3215,8 @@ function renderCalDay(anim){
     '<div class="cal-kpi"><span class="cal-kpi-lbl">Total flete</span><span class="cal-kpi-val k-dayflete">'+fmtGs(totFlete)+'</span></div>'+
     (incProm!==null?'<div class="cal-kpi"><span class="cal-kpi-lbl">Incidencia promedio</span><span class="cal-kpi-val '+(incOk?'ok':'over')+'">'+incProm.toFixed(2)+'%</span></div>':'');
   const body=document.getElementById('calModalBody');
-  const mergeBar=(!editing&&list.length>1)?'<div class="cal-mergebar"><span class="cal-mergebar__t">Hay <b>'+list.length+'</b> repartos separados en este día.</span><button type="button" class="cal-merge-btn" data-cal-merge><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="15" height="15"><path d="M7 3v6a5 5 0 005 5 5 5 0 005-5V3M12 14v7M8 21h8"/></svg> Unir en un solo reparto</button></div>':'';
   body.innerHTML=list.length
-    ? mergeBar+list.map(r=>(calEditRepId===r.id?calRepEditHTML(r):renderCalReparto(r))).join('')
+    ? list.map(r=>(calEditRepId===r.id?calRepEditHTML(r):renderCalReparto(r))).join('')
     : '<div class="cal-day-empty">Este día ya no tiene repartos.</div>';
   const g=window.gsap;
   if(!g||!anim)return;
@@ -3322,9 +3323,9 @@ function calOpenPick(btn){
     openChipPop(btn,{value:w.seg||'local',options:[{v:'local',label:'Local',dot:'#0B5F8D'},{v:'interior',label:'Interior',dot:'#F97316'},{v:'servicios',label:'Servicios',dot:'#10B981'},{v:'transportadora',label:'Transportadora',dot:'#7c3aed'}],onPick:v=>{w.seg=v;if(v!=='interior')w.fijo=false;else if(w.fijo===undefined||w.fijo===null)w.fijo=!(+w.km>0&&+w.precioKm>0);if(w.zona&&!_zonasFor(v).some(z=>z.n===w.zona))w.zona=null;rerender();}});
   }
 }
-// Une todos los repartos del día en uno solo (junta los camiones/clientes)
-async function calMergeRepartos(){
-  const list=calDayRepartos();if(list.length<2)return;
+// Une automáticamente todos los repartos del día en uno solo (sin render; devuelve true si unió)
+async function _calMergeDayData(){
+  const list=calDayRepartos();if(list.length<2)return false;
   const base=list.slice().sort((a,b)=>(a.id||0)-(b.id||0))[0];
   const others=list.filter(r=>r!==base);
   base.clientes=base.clientes||[];
@@ -3335,12 +3336,9 @@ async function calMergeRepartos(){
   const tsSet=[...new Set(base.clientes.map(c=>c.tsNombre).filter(Boolean))];
   base.tsNombre=tsSet.length===1?tsSet[0]:'Varios';
   base.totalMonto=tM;base.totalFlete=tF;base.incTotal=iT;base.gastoPermitido=gp;base.diferencia=dif;
-  try{
-    await dbSaveReparto({id:base.id,fechaISO:base.fechaISO,tsId:base.tsId,tsNombre:base.tsNombre,trId:base.trId,trDesc:base.trDesc,km:base.km,precio:base.precio,tipo:base.tipo,totalFlete:tF,totalMonto:tM,incTotal:iT,gastoPermitido:gp,diferencia:dif,zona:base.zona,clientes:base.clientes});
-    for(const o of others){await dbDeleteReparto(o.id);const i=repartos.indexOf(o);if(i>=0)repartos.splice(i,1);}
-    if(typeof _cfCheckBurst==='function')_cfCheckBurst('Unidos');else showToast('Repartos unidos ✓');
-    renderCalDay('toggle');
-  }catch(e){console.error(e);showToast('Uy, no pude unir los repartos');}
+  await dbSaveReparto({id:base.id,fechaISO:base.fechaISO,tsId:base.tsId,tsNombre:base.tsNombre,trId:base.trId,trDesc:base.trDesc,km:base.km,precio:base.precio,tipo:base.tipo,totalFlete:tF,totalMonto:tM,incTotal:iT,gastoPermitido:gp,diferencia:dif,zona:base.zona,clientes:base.clientes});
+  for(const o of others){await dbDeleteReparto(o.id);const i=repartos.indexOf(o);if(i>=0)repartos.splice(i,1);}
+  return true;
 }
 function calLiveTotals(){
   if(!calWork)return;
@@ -3467,8 +3465,6 @@ document.getElementById('calModalBody').addEventListener('click',async e=>{
   const delUid=e.target.closest('[data-cal-deluid]');
   const pickBtn=e.target.closest('.cal-e-pick');
   const modoBtn=e.target.closest('[data-calmodo]');
-  const mergeBtn=e.target.closest('[data-cal-merge]');
-  if(mergeBtn){const list=calDayRepartos();if(list.length<2)return;_cfConfirm('¿Unir los repartos?','Los <b>'+list.length+'</b> repartos de este día se van a combinar en uno solo (se suman todos los camiones). No se puede deshacer.',()=>calMergeRepartos(),'Sí, unir');return;}
   if(modoBtn){e.stopPropagation();if(!calWork)return;const w=calWork.find(x=>x.uid===+modoBtn.dataset.uid);if(!w)return;const fijo=modoBtn.dataset.calmodo==='fijo';if(!!w.fijo===fijo)return;w.fijo=fijo;if(fijo){w.km=0;w.precioKm=0;}renderCalDay('rows');return;}
   if(pickBtn){e.stopPropagation();calOpenPick(pickBtn);return;}
   if(editBtn){const id=+editBtn.dataset.editr;const r=calDayRepartos().find(x=>x.id===id);if(!r)return;calEditRepId=id;calWork=calBuildWork(r);renderCalDay('edit');return;}
@@ -3765,11 +3761,12 @@ function renderDashboard(){
 
 
 
-function showSaveAnim(){
+function showSaveAnim(text){
   const ov=document.getElementById('saveOverlay');
   const arcSvg=ov.querySelector('.arc-svg');
   const checkSvg=ov.querySelector('.check-svg');
   const lbl=ov.querySelector('.save-label');
+  if(text)lbl.textContent=text;
   arcSvg.style.display='block';
   checkSvg.classList.remove('show');
   lbl.classList.remove('show');
