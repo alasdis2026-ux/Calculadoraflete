@@ -2668,7 +2668,7 @@ document.getElementById('btnGuardar').addEventListener('click',async()=>{
       document.getElementById('btnNewReparto').style.display='';
       document.getElementById('editChipText').textContent='Reparto #'+String(savedId).padStart(4,'0')+' — '+snap.fecha;
     }
-    showSaveAnim(isNew?'¡Reparto agregado!':'¡Reparto actualizado!');
+    _cfCheckBurst(isNew?'Reparto agregado':'Reparto actualizado');
   }catch(err){
     showToast('Error al guardar reparto');
   }
@@ -4390,9 +4390,10 @@ function showSaveAnim(text){
   .cf-check-bd{position:absolute;inset:0;background:rgba(15,23,42,.22);backdrop-filter:blur(7px) saturate(1.05);-webkit-backdrop-filter:blur(7px) saturate(1.05);opacity:0}
   .cf-check-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:15px}
   .cf-check-lbl{font-family:Sora,Inter,sans-serif;font-weight:800;font-size:18px;letter-spacing:1px;text-transform:uppercase;color:#1D4ED8;text-shadow:0 2px 12px rgba(29,78,216,.18)}
-  .cf-check{position:relative;width:96px;height:96px;background:transparent;display:flex;align-items:center;justify-content:center}
-  .cf-check-glow{position:absolute;top:50%;left:50%;width:120px;height:120px;margin:-60px 0 0 -60px;border-radius:50%;background:radial-gradient(circle,rgba(37,99,235,.45),rgba(37,99,235,.12) 55%,transparent 72%);filter:blur(4px);opacity:0;pointer-events:none}
-  .cf-check-ring{position:absolute;top:50%;left:50%;width:78px;height:78px;margin:-39px 0 0 -39px;border-radius:50%;border:2.5px solid #2563EB;opacity:0;pointer-events:none}
+  .cf-check-stage{position:relative;width:96px;height:96px;display:flex;align-items:center;justify-content:center}
+  .cf-check{position:relative;z-index:2;width:96px;height:96px;border-radius:999px;background:#fff;box-shadow:0 16px 42px rgba(29,78,216,.26),0 0 0 1px rgba(29,78,216,.06);display:flex;align-items:center;justify-content:center}
+  .cf-check-glow{position:absolute;top:50%;left:50%;width:158px;height:158px;margin:-79px 0 0 -79px;border-radius:50%;background:radial-gradient(circle,rgba(37,99,235,.5),rgba(37,99,235,.16) 48%,transparent 70%);filter:blur(6px);opacity:0;z-index:1;pointer-events:none}
+  .cf-check-ring{position:absolute;top:50%;left:50%;width:96px;height:96px;margin:-48px 0 0 -48px;border-radius:50%;border:2.5px solid #2563EB;opacity:0;z-index:1;pointer-events:none}
   .cf-check svg{width:66px;height:66px}
   .cf-check-load{position:absolute;top:50%;left:50%;width:52px;height:52px;margin:-26px 0 0 -26px;border-radius:50%;border:5px solid rgba(37,99,235,.18);border-top-color:#2563EB;opacity:0;animation:cfSpin .7s linear infinite}
   .cf-check-svg{position:absolute;top:50%;left:50%;margin:-33px 0 0 -33px}
@@ -5252,7 +5253,7 @@ function _cfCheckBurst(label){
   label=(label==null?'Registrado':label);
   const reduce=false/*anim siempre on*/;
   const ov=document.createElement('div');ov.className='cf-check-ov';
-  ov.innerHTML='<div class="cf-check-bd"></div><div class="cf-check-wrap"><div class="cf-check"><span class="cf-check-glow"></span><span class="cf-check-ring"></span><span class="cf-check-load"></span><svg class="cf-check-svg" viewBox="0 0 52 52"><circle class="cf-check__c" cx="26" cy="26" r="24"/><path class="cf-check__k" d="M15 26.5l7.5 7.5L37 18"/></svg></div><div class="cf-check-lbl">'+_escp(label)+'</div></div>';
+  ov.innerHTML='<div class="cf-check-bd"></div><div class="cf-check-wrap"><div class="cf-check-stage"><span class="cf-check-glow"></span><span class="cf-check-ring"></span><div class="cf-check"><span class="cf-check-load"></span><svg class="cf-check-svg" viewBox="0 0 52 52"><circle class="cf-check__c" cx="26" cy="26" r="24"/><path class="cf-check__k" d="M15 26.5l7.5 7.5L37 18"/></svg></div></div><div class="cf-check-lbl">'+_escp(label)+'</div></div>';
   document.body.appendChild(ov);
   const gs=window.gsap,bd=ov.querySelector('.cf-check-bd'),disc=ov.querySelector('.cf-check'),lbl=ov.querySelector('.cf-check-lbl'),k=ov.querySelector('.cf-check__k'),c=ov.querySelector('.cf-check__c'),load=ov.querySelector('.cf-check-load'),svg=ov.querySelector('.cf-check-svg'),glow=ov.querySelector('.cf-check-glow'),ring=ov.querySelector('.cf-check-ring');
   if(!gs||reduce){setTimeout(()=>ov.remove(),1300);return;}
