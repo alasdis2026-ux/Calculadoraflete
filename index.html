@@ -4360,6 +4360,8 @@ function showSaveAnim(text){
   .rre-fld{display:flex;flex-direction:column;gap:2px;min-width:0}
   .rre-fld>span{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-400,#94a3b8)}
   .rre-km2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .rre-fld--fecha{margin-top:9px}
+  .rre-fld--fecha input[type=date]{font-variant-numeric:tabular-nums}
   .rre-modo{display:flex;gap:0;background:var(--gray-100);border:1.5px solid var(--gray-200);border-radius:9px;padding:3px;margin-bottom:9px}
   .rre-modo__b{flex:1;border:none;background:transparent;padding:7px 10px;border-radius:6px;font-family:inherit;font-size:12px;font-weight:800;color:var(--gray-500);cursor:pointer;transition:background var(--fast),color var(--fast),box-shadow var(--fast)}
   .rre-modo__b.on{background:#fff;color:var(--primary);box-shadow:0 1px 3px rgba(15,23,42,.12)}
@@ -5042,7 +5044,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
   // Detecta si una línea interior guardada era "precio fijo": marca explícita, o flete cargado sin km/precio-km (legacy).
   function initFijo(cl){if((cl.seg||'local')!=='interior')return false;if(cl.fijo!==undefined&&cl.fijo!==null)return !!cl.fijo;return !(+cl.km>0)&&!(+cl.precioKm>0)&&((+cl.precio|| +cl.gasto||0)>0);}
   function buildWork(){work=g.lines.map(cl=>{const w={uid:_wuid++,ref:cl,repId:findRepId(cl),trId:cl.trId||null,trDesc:cl.trDesc||'',seg:cl.seg||'local',rep:cl.rep||'',zona:cl.zona||'',obs:cl.obs||'',cant:+cl.cant||1,fecha:cl._fecha||null,km:+cl.km||0,precioKm:+cl.precioKm||0,monto:+cl.monto||0,precio:(+cl.precio|| +cl.gasto||0),fijo:initFijo(cl),del:false,isNew:false,edit:false};ensureKm(w);return w;});}
-  function addRow(seg){const tr=trucks[0]||null;const it={uid:_wuid++,ref:null,repId:targetRepId(),trId:tr?tr.id:null,trDesc:tr?tr.d:'',seg:seg||'local',rep:'',zona:'',obs:'',cant:1,km:0,precioKm:0,monto:0,precio:0,fijo:false,del:false,isNew:true,edit:true};ensureKm(it);work.unshift(it);selUid=it.uid;return it;}
+  function addRow(seg){const tr=trucks[0]||null;const tRepId=targetRepId();const tRep=repartos.find(x=>x.id===tRepId);const defFecha=(tRep&&tRep.fechaISO)||(wkObj?wkObj.desde:null)||(typeof _isoD==='function'?_isoD(new Date()):new Date().toISOString().slice(0,10));const it={uid:_wuid++,ref:null,repId:tRepId,trId:tr?tr.id:null,trDesc:tr?tr.d:'',seg:seg||'local',rep:'',zona:'',obs:'',cant:1,fecha:defFecha,km:0,precioKm:0,monto:0,precio:0,fijo:false,del:false,isNew:true,edit:true};ensureKm(it);work.unshift(it);selUid=it.uid;return it;}
   function openEdit(uid){const w=W(uid);if(!w)return;w.edit=true;selUid=w.uid;render('edit');}
   function delItem(w){const card=bd.querySelector('.rre-card[data-uid="'+w.uid+'"], .rrv-row[data-edituid="'+w.uid+'"]'),gs=window.gsap;const apply=()=>{if(w.isNew){const idx=work.indexOf(w);if(idx>=0)work.splice(idx,1);}else w.del=true;if(selUid===w.uid)selUid=null;render('rows');};if(gs&&card)gs.to(card,{opacity:0,scale:.8,y:-20,duration:.3,ease:'power2.in',onComplete:apply});else apply();}
   function confirmDelete(w){const trLbl=w.trId?(((trucks.find(t=>t.id===w.trId)||{}).d)||w.trDesc||'este camión'):'este camión';
@@ -5080,10 +5082,11 @@ function _rrOpenDetail(g,periodLbl,wkObj){
         '<label class="rre-fld"><span>Zona</span><button type="button" class="rre-pick'+(w.zona?'':' ph')+'" data-uid="'+w.uid+'" data-pick="zona"><span class="rre-pick__t">'+(w.zona?_escp(w.zona):'Elegir zona')+'</span><svg class="rre-pick__arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg></button></label>'+
       '</div>'+
       (w.seg==='servicios'?'<label class="rre-fld rre-fld--obs"><span>Observaciones</span><input class="rre-in rre-obs" data-uid="'+w.uid+'" placeholder="¿En qué servicio usamos este camión?" value="'+_escp(w.obs||'')+'"></label>':''));
+    const fechaFld='<label class="rre-fld rre-fld--fecha"><span>Fecha del reparto</span><input type="date" class="rre-in rre-fecha" data-uid="'+w.uid+'" value="'+(w.fecha?String(w.fecha).slice(0,10):'')+'"></label>';
     const topSel=isTr
       ?'<span class="rre-trbtn rre-trbtn--tr set"><span class="rre-trbtn__ic">'+TRUCKICON+'</span><span class="rre-trbtn__t">Transportadora (total)</span></span>'
       :'<button type="button" class="rre-trbtn'+(w.trId?' set':'')+'" data-uid="'+w.uid+'"><span class="rre-trbtn__ic">'+TRUCKICON+'</span><span class="rre-trbtn__t'+(w.trId?'':' ph')+'">'+(w.trId?_escp(trLbl):'— Elegir camión —')+'</span><svg class="rre-trbtn__arr" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>';
-    return '<div class="rre-card rre-card--sel" data-uid="'+w.uid+'"><div class="rre-card-top"><span class="rre-i">'+(idx+1)+'</span>'+topSel+(w.isNew?'':'<button type="button" class="rre-del" data-uid="'+w.uid+'" title="Quitar camión" aria-label="Quitar camión"><svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg></button>')+'</div>'+body+metaFlds+'<div class="rre-cardacts"><button type="button" class="rre-cardbtn rre-cardcancel" data-uid="'+w.uid+'">Cancelar</button><button type="button" class="rre-cardbtn rre-cardsave" data-uid="'+w.uid+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>Guardar</button></div></div>';}
+    return '<div class="rre-card rre-card--sel" data-uid="'+w.uid+'"><div class="rre-card-top"><span class="rre-i">'+(idx+1)+'</span>'+topSel+(w.isNew?'':'<button type="button" class="rre-del" data-uid="'+w.uid+'" title="Quitar camión" aria-label="Quitar camión"><svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg></button>')+'</div>'+body+fechaFld+metaFlds+'<div class="rre-cardacts"><button type="button" class="rre-cardbtn rre-cardcancel" data-uid="'+w.uid+'">Cancelar</button><button type="button" class="rre-cardbtn rre-cardsave" data-uid="'+w.uid+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>Guardar</button></div></div>';}
   let _camFilter=null;
   const camLbl=w=>w.trId?(((trucks.find(t=>t.id===w.trId)||{}).d)||w.trDesc||'—'):(w.trDesc||'—');
   const camsUsados=()=>[...new Set(work.filter(w=>!w.del&&!w.isNew).map(camLbl))].filter(x=>x&&x!=='—').sort((a,b)=>a.localeCompare(b));
@@ -5123,19 +5126,27 @@ function _rrOpenDetail(g,periodLbl,wkObj){
       if(w.seg==='transportadora'){if(!(+w.cant>0)){showToast('En Transportadora cargá la cantidad de camiones 👀');return;}if(!(w.precio>0)){showToast('En Transportadora cargá el flete total 👀');return;}continue;}
       if(!w.trId){showToast('Elegí el camión en todas las filas 👀');return;}if(w.seg==='interior'&&!w.fijo&&w.km>0&&w.precioKm>0)w.precio=Math.round(w.km*w.precioKm);if(!(w.precio>0)){showToast((w.seg==='interior'&&!w.fijo)?'En Interior por km cargá los km y el precio/km 👀':'Ingresá el flete en todas las filas');return;}}
     const affected=new Set();
-    work.filter(w=>w.del&&w.ref).forEach(w=>{const r=repartos.find(x=>x.id===w.repId);if(r){const idx=(r.clientes||[]).indexOf(w.ref);if(idx>=0)r.clientes.splice(idx,1);affected.add(r.id);}});
+    // Reparto (de esta transportadora) para una fecha dada; crea uno nuevo si no existe.
+    const repForDate=(dISO)=>{ if(!dISO)return null;
+      let r=repartos.find(x=>x.fechaISO===dISO&&((tsObj&&x.tsId===tsObj.id)||(x.clientes||[]).some(c=>{const own=c.trId?tsOfTruck(c.trId):null;return ((own&&own.n)||c.tsNombre||'—')===g.ts;})));
+      if(r)return r;
+      r={id:null,_isNew:true,fecha:(typeof isoToDisplay==='function'?isoToDisplay(dISO):dISO),fechaISO:dISO,tsId:tsObj?tsObj.id:g.tsId,tsNombre:g.ts,trId:null,trDesc:'',km:0,precio:0,tipo:'km',totalFlete:0,totalMonto:0,incTotal:null,gastoPermitido:0,diferencia:0,zona:'',clientes:[]};
+      repartos.push(r);return r;};
+    work.filter(w=>w.del&&w.ref).forEach(w=>{const r=repartos.find(x=>x.id===w.repId);if(r){const idx=(r.clientes||[]).indexOf(w.ref);if(idx>=0)r.clientes.splice(idx,1);affected.add(r);}});
     rows.forEach(w=>{const tr=trucks.find(t=>t.id===w.trId);
       const isTr=w.seg==='transportadora';const cant=isTr?(+w.cant||0):null;const trD=isTr?(cant+' camión'+(cant===1?'':'es')):(tr?tr.d:w.trDesc);
       const isIntFijo=w.seg==='interior'&&!!w.fijo;
       const km=(w.seg==='interior'&&!isIntFijo)?(w.km||0):0,pkm=(w.seg==='interior'&&!isIntFijo)?(w.precioKm||0):0;
-      if(w.isNew){const r=repartos.find(x=>x.id===w.repId);if(!r)return;if(!r.clientes)r.clientes=[];r.clientes.push({id:nextClienteId++,trId:isTr?null:w.trId,tsId:tsObj?tsObj.id:g.tsId,seg:w.seg,rep:isTr?null:((w.rep||'').trim()||'Tercerizado'),zona:isTr?null:((w.zona||'').trim()||null),obs:(w.seg==='servicios'?(w.obs||'').trim():'')||null,cant:isTr?cant:null,km:km,precioKm:pkm,fijo:isIntFijo,monto:isTr?0:w.monto,precio:w.precio,gasto:w.precio,trDesc:trD,tsNombre:g.ts,pct:0,inc:(w.monto>0&&w.precio>0?w.precio/w.monto*100:null)});affected.add(r.id);}
-      else if(w.ref){w.ref.monto=isTr?0:w.monto;w.ref.precio=w.precio;w.ref.gasto=w.precio;w.ref.seg=w.seg;w.ref.km=km;w.ref.precioKm=pkm;w.ref.fijo=isIntFijo;w.ref.rep=isTr?null:((w.rep||'').trim()||'Tercerizado');w.ref.zona=isTr?null:((w.zona||'').trim()||null);w.ref.obs=(w.seg==='servicios'?(w.obs||'').trim():'')||null;w.ref.cant=isTr?cant:null;if(isTr){w.ref.trId=null;w.ref.trDesc=trD;}else if(w.trId){w.ref.trId=w.trId;w.ref.trDesc=tr?tr.d:w.ref.trDesc;w.ref.tsId=tsObj?tsObj.id:w.ref.tsId;}w.ref.inc=(w.monto>0&&w.precio>0?w.precio/w.monto*100:null);affected.add(w.repId);}});
+      const targetRep=w.fecha?repForDate(w.fecha):null;
+      if(w.isNew){const r=targetRep||repartos.find(x=>x.id===w.repId);if(!r)return;if(!r.clientes)r.clientes=[];r.clientes.push({id:nextClienteId++,trId:isTr?null:w.trId,tsId:tsObj?tsObj.id:g.tsId,seg:w.seg,rep:isTr?null:((w.rep||'').trim()||'Tercerizado'),zona:isTr?null:((w.zona||'').trim()||null),obs:(w.seg==='servicios'?(w.obs||'').trim():'')||null,cant:isTr?cant:null,km:km,precioKm:pkm,fijo:isIntFijo,monto:isTr?0:w.monto,precio:w.precio,gasto:w.precio,trDesc:trD,tsNombre:g.ts,pct:0,inc:(w.monto>0&&w.precio>0?w.precio/w.monto*100:null)});affected.add(r);}
+      else if(w.ref){let curr=repartos.find(x=>x.id===w.repId);if(targetRep&&curr&&targetRep!==curr){const _ix=(curr.clientes||[]).indexOf(w.ref);if(_ix>=0)curr.clientes.splice(_ix,1);if(!targetRep.clientes)targetRep.clientes=[];targetRep.clientes.push(w.ref);affected.add(curr);curr=targetRep;}w.ref.monto=isTr?0:w.monto;w.ref.precio=w.precio;w.ref.gasto=w.precio;w.ref.seg=w.seg;w.ref.km=km;w.ref.precioKm=pkm;w.ref.fijo=isIntFijo;w.ref.rep=isTr?null:((w.rep||'').trim()||'Tercerizado');w.ref.zona=isTr?null:((w.zona||'').trim()||null);w.ref.obs=(w.seg==='servicios'?(w.obs||'').trim():'')||null;w.ref.cant=isTr?cant:null;if(isTr){w.ref.trId=null;w.ref.trDesc=trD;}else if(w.trId){w.ref.trId=w.trId;w.ref.trDesc=tr?tr.d:w.ref.trDesc;w.ref.tsId=tsObj?tsObj.id:w.ref.tsId;}w.ref.inc=(w.monto>0&&w.precio>0?w.precio/w.monto*100:null);affected.add(curr);}});
     const sv=bd.querySelector('.save');if(sv){sv.disabled=true;sv.classList.add('is-loading');sv.innerHTML='<span class="cf-spin"></span>Guardando…';}
     try{
-      for(const id of affected){const r=repartos.find(x=>x.id===id);if(!r)continue;
-        if(!(r.clientes||[]).length){await dbDeleteReparto(r.id);const i=repartos.indexOf(r);if(i>=0)repartos.splice(i,1);continue;}
+      for(const r of affected){if(!r)continue;
+        if(!(r.clientes||[]).length){if(r.id!=null)await dbDeleteReparto(r.id);const i=repartos.indexOf(r);if(i>=0)repartos.splice(i,1);continue;}
         const tM=(r.clientes||[]).reduce((s,c)=>s+(+c.monto||0),0),tF=(r.clientes||[]).reduce((s,c)=>s+(+c.precio||0),0),iT=tM>0?tF/tM*100:null;
-        await dbSaveReparto({id:r.id,fechaISO:r.fechaISO,tsId:r.tsId,tsNombre:r.tsNombre,trId:r.trId,trDesc:r.trDesc,km:r.km,precio:r.precio,tipo:r.tipo,totalFlete:tF,totalMonto:tM,incTotal:iT,gastoPermitido:r.gastoPermitido,diferencia:r.diferencia,zona:r.zona,clientes:r.clientes});
+        const savedId=await dbSaveReparto({id:r.id,fechaISO:r.fechaISO,tsId:r.tsId,tsNombre:r.tsNombre,trId:r.trId,trDesc:r.trDesc,km:r.km,precio:r.precio,tipo:r.tipo,totalFlete:tF,totalMonto:tM,incTotal:iT,gastoPermitido:r.gastoPermitido,diferencia:r.diferencia,zona:r.zona,clientes:r.clientes});
+        if(r._isNew){r.id=savedId;delete r._isNew;}
         r.totalMonto=tM;r.totalFlete=tF;r.incTotal=iT;}
       _cfCheckBurst('Registrado',true);
       const fresh=_rrGroups(_rrWeek).find(x=>x.ts===g.ts);
@@ -5181,6 +5192,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     bd.querySelectorAll('.rre-segbtn').forEach(b=>b.addEventListener('click',()=>{const w=W(b.dataset.uid);if(!w||w.seg===b.dataset.seg)return;w.seg=b.dataset.seg;ensureKm(w);selUid=w.uid;render('move');}));
     bd.querySelectorAll('.rre-modo__b').forEach(b=>b.addEventListener('click',()=>{const w=W(b.dataset.uid);if(!w)return;const fijo=b.dataset.modo==='fijo';if(!!w.fijo===fijo)return;w.fijo=fijo;ensureKm(w);selUid=w.uid;render('move');}));
     bd.querySelectorAll('.rre-precio').forEach(i=>{i.addEventListener('input',()=>{const w=W(i.dataset.uid);if(w){w.precio=_liveMoney(i);liveTotals();}});});
+    bd.querySelectorAll('.rre-fecha').forEach(i=>{i.addEventListener('change',()=>{const w=W(i.dataset.uid);if(w)w.fecha=i.value||null;});});
     const upFlete=uid=>{const w=W(uid);if(!w)return;w.precio=Math.round((w.km||0)*(w.precioKm||0));const b=bd.querySelector('.rre-flete-b[data-uid="'+uid+'"]');if(b){b.textContent=_gs(w.precio||0);pop(b);}liveTotals();};
     bd.querySelectorAll('.rre-km').forEach(i=>{i.addEventListener('input',()=>{const w=W(i.dataset.uid);if(w){w.km=_liveMoney(i);upFlete(i.dataset.uid);}});});
     bd.querySelectorAll('.rre-pkm').forEach(i=>{i.addEventListener('input',()=>{const w=W(i.dataset.uid);if(w){w.precioKm=_liveMoney(i);upFlete(i.dataset.uid);}});});
