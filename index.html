@@ -4138,12 +4138,12 @@ function showSaveAnim(){
   .rrm-camclear svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
   .rrm-filterhint{font-size:12px;font-weight:600;color:var(--gray-400,#94a3b8)}
   .rrm-filterbar__sp{flex:1 1 auto}
-  .rrm-addseg{display:inline-flex;align-items:center;gap:7px;border:1.5px solid transparent;background:linear-gradient(180deg,#2578b8,#0B5F8D);color:#fff;border-radius:11px;padding:9px 16px;font:inherit;font-size:13px;font-weight:800;cursor:pointer;transition:background .16s,box-shadow .18s,transform .12s;white-space:nowrap;box-shadow:0 5px 14px rgba(11,95,141,.28)}
-  .rrm-addseg:hover{background:linear-gradient(180deg,#2f86c8,#0c6b9c);box-shadow:0 8px 20px rgba(11,95,141,.4);transform:translateY(-2px)}
-  .rrm-addseg:active{transform:translateY(0) scale(.96)}
-  .rrm-addseg svg{transition:transform .2s}
-  .rrm-addseg svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
-  .rrm-addseg.is-open{background:var(--accent,#3B82F6);color:#fff}
+  .rrm-addseg{display:inline-flex;align-items:center;gap:8px;border:1.5px solid var(--accent,#3B82F6);background:var(--accent-soft,#DBEAFE);color:var(--primary);border-radius:11px;padding:9px 15px;font:inherit;font-size:13px;font-weight:800;cursor:pointer;transition:background .16s,border-color .16s,box-shadow .18s,transform .12s;white-space:nowrap}
+  .rrm-addseg:hover{background:#cfe4fb;border-color:var(--primary);box-shadow:0 5px 14px rgba(37,120,184,.2);transform:translateY(-1px)}
+  .rrm-addseg:active{transform:translateY(0) scale(.97)}
+  .rrm-addseg svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s}
+  .rrm-addseg:hover svg{transform:rotate(90deg)}
+  .rrm-addseg.is-open{background:var(--primary);border-color:var(--primary);color:#fff}
   .rre-board-empty{flex:1;min-height:220px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:var(--gray-400,#94a3b8);padding:40px 20px;gap:4px}
   .rre-board-empty svg{width:44px;height:44px;stroke:var(--gray-300,#cbd5e1);margin-bottom:8px}
   .rre-board-empty b{font-size:15px;font-weight:800;color:var(--gray-500,#64748b)}
@@ -5008,7 +5008,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     const emptySegs=SEGL.filter(sk=>!work.some(w=>!w.del&&w.seg===sk));
     const lbl=_camFilter||'Todos los camiones';
     const filterUI=used.length?('<button type="button" class="rrm-camfilter'+(_camFilter?' on':'')+'" id="rrmCamFilter"><span class="rrm-camfilter__ic">'+TRUCKICON+'</span><span class="rrm-camfilter__t">'+_escp(lbl)+'</span><svg class="rrm-camfilter__arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg></button>'+(_camFilter?'<button type="button" class="rrm-camclear" id="rrmCamClear"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 6L6 18M6 6l12 12"/></svg> Ver todos</button>':'')):'';
-    const addUI=emptySegs.length?'<button type="button" class="rrm-addseg" id="rrmAddSeg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg> Servicio de reparto</button>':'';
+    const addUI=emptySegs.length?'<button type="button" class="rrm-addseg" id="rrmAddSeg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg> Agregar servicio</button>':'';
     if(!filterUI&&!addUI)return '';
     return '<div class="rrm-filterbar">'+filterUI+addUI+'</div>';
   }
