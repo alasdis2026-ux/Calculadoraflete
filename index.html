@@ -4924,9 +4924,10 @@ function _cfOpenFacturaModal(existing,preset){
     try{
       if(editing){const up=await sb.from('fact_facturas').update(row).eq('id',existing.id);if(up.error)throw up.error;m.close();_cfCheckBurst('Registrado',true);}
       else{const ins=await sb.from('fact_facturas').insert(row);if(ins.error)throw ins.error;m.close();_cfCheckBurst('Registrado',true);}
-      window.__cfFac=null; // forzar recarga de facturas para refrescar chips/estado
-      const _rrep=document.getElementById('viewRrep');
-      if(_rrep&&_rrep.classList.contains('is-active'))renderReporteRepartos(); else renderFacturas();
+      // Recarga facturas para refrescar chips/estado antes de volver a la vista.
+      try{const fr=await sb.from('fact_facturas').select('*');window.__cfFac=fr.data||[];}catch(_){window.__cfFac=null;}
+      if(locked&&preset&&typeof preset.onBack==='function'){preset.onBack();} // volver a la MISMA planilla, listo para imprimir
+      else{const _rrep=document.getElementById('viewRrep');if(_rrep&&_rrep.classList.contains('is-active'))renderReporteRepartos(); else renderFacturas();}
     }catch(e){console.error(e);showToast('Uy, no pude guardar la factura. Probá de nuevo.');if(okB){okB.disabled=false;okB.classList.remove('is-loading');okB.textContent=okTxt;}}
   });
 }
