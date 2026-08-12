@@ -4304,7 +4304,7 @@ function showSaveAnim(text){
   .rre-col--transportadora .rre-col-dot{background:#7c3aed}
   .rre-col-n{background:#fff;border:1px solid var(--gray-200,#e2e8f0);border-radius:999px;min-width:22px;height:22px;padding:0 6px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--gray-500,#64748b)}
   .rre-col-body{display:flex;flex-direction:column;gap:8px}
-  .rre-minichk{position:fixed;top:22px;right:28px;z-index:9600;display:inline-flex;align-items:center;gap:9px;background:#fff;color:var(--primary);font-family:inherit;font-size:13.5px;font-weight:800;padding:9px 16px 9px 10px;border-radius:999px;box-shadow:0 12px 30px rgba(15,23,42,.16),0 0 0 1px rgba(37,120,184,.14);pointer-events:none}
+  .rre-minichk{position:fixed;top:18px;left:0;right:0;margin:0 auto;width:fit-content;z-index:9600;display:inline-flex;align-items:center;gap:9px;background:#fff;color:var(--primary);font-family:inherit;font-size:13.5px;font-weight:800;padding:9px 18px 9px 11px;border-radius:999px;box-shadow:0 14px 34px rgba(15,23,42,.18),0 0 0 1px rgba(37,120,184,.14);pointer-events:none}
   .rre-minichk__ic{width:25px;height:25px;border-radius:50%;background:var(--accent-soft,#DBEAFE);display:flex;align-items:center;justify-content:center;flex-shrink:0}
   .rre-minichk__ic svg{width:14px;height:14px;fill:none;stroke:var(--primary);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
   .rre-saving-ov{position:fixed;inset:0;z-index:9500;display:flex;align-items:center;justify-content:center;pointer-events:none}
@@ -5032,16 +5032,17 @@ function renderReporteRepartos(){
   const _si=host.querySelector('.rr-search input'),_sc=host.querySelector('.rr-search__clear');
   if(_si){_si.addEventListener('input',()=>{_rrQ=_si.value;if(_sc)_sc.classList.toggle('show',!!_rrQ);_rrApplySearch();});}
   if(_sc){_sc.addEventListener('click',()=>{_rrQ='';if(_si){_si.value='';_si.focus();}_sc.classList.remove('show');_rrApplySearch();});}
+  if(_rrQ)_rrApplySearch(); // aplicar la búsqueda ANTES de animar, para preservar el filtro al volver
   if(window.gsap){
+    const visCards=[].slice.call(host.querySelectorAll('.rr-card')).filter(c=>c.style.display!=='none');
     const tl=gsap.timeline({defaults:{ease:'power2.out'}});
     tl.from('#rrepHost .cf-hd',{opacity:0,y:-10,duration:.36,clearProps:'all'},0)
       .from('#rrepHost .rr-mnav',{opacity:0,x:-8,duration:.3,clearProps:'all'},.05)
       .from('#rrepHost .rr-chip',{opacity:0,y:-6,duration:.28,stagger:.025,clearProps:'all'},.09)
       .from('#rrepHost .rr-search',{opacity:0,y:6,duration:.28,clearProps:'all'},.13)
-      .from('#rrepHost .rr-sf',{opacity:0,y:8,duration:.3,stagger:.035,clearProps:'all'},.17)
-      .from('#rrepHost .rr-card',{opacity:0,y:12,duration:.34,stagger:.018,clearProps:'all'},.22);
+      .from('#rrepHost .rr-sf',{opacity:0,y:8,duration:.3,stagger:.035,clearProps:'all'},.17);
+    if(visCards.length)tl.from(visCards,{opacity:0,y:12,duration:.34,stagger:.018,clearProps:'all'},.22);
   }
-  if(_rrQ)_rrApplySearch();
 }
 function _rrOpenDetail(g,periodLbl,wkObj){
   const SEGN={local:'Local',interior:'Interior',servicios:'Servicios',transportadora:'Transportadora'};
