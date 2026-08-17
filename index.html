@@ -4311,7 +4311,7 @@ function showSaveAnim(text){
   .rre-saving-pill{display:inline-flex;align-items:center;gap:10px;background:var(--primary);color:#fff;font-family:inherit;font-size:14.5px;font-weight:800;letter-spacing:.2px;padding:14px 24px;border-radius:999px;box-shadow:0 18px 44px rgba(11,95,141,.4),0 0 0 1px rgba(255,255,255,.08) inset}
   .rre-saving-pill.ok{background:#15803D;box-shadow:0 18px 44px rgba(21,128,61,.4)}
   /* ── Editor masivo tipo Excel de un segmento ── */
-  .cf-mbox.seg-xls{max-width:1060px;width:95vw;max-height:90vh;display:flex;flex-direction:column;padding:0;overflow:hidden}
+  .cf-mbox.seg-xls{max-width:1360px;width:97vw;max-height:90vh;display:flex;flex-direction:column;padding:0;overflow:hidden}
   .seg-xls .xls-hd{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:20px 24px 14px}
   .seg-xls .xls-hd h3{margin:0;font-size:19px;color:var(--primary)}
   .seg-xls .xls-hd .cf-msub{margin:3px 0 0}
@@ -4319,19 +4319,19 @@ function showSaveAnim(text){
   .seg-xls .xls-badge small{font-weight:700;opacity:.8}
   .seg-xls .xls-wrap{flex:1;min-height:0;overflow:auto;margin:0 16px;border:1px solid var(--gray-200,#e2e8f0);border-radius:12px}
   .seg-xls .xls-wrap::-webkit-scrollbar{width:9px;height:9px}.seg-xls .xls-wrap::-webkit-scrollbar-thumb{background:var(--gray-200);border-radius:99px}
-  .seg-xls table.xls-tbl{width:100%;border-collapse:separate;border-spacing:0;min-width:720px}
+  .seg-xls table.xls-tbl{width:100%;border-collapse:separate;border-spacing:0;min-width:0}
   .seg-xls .xls-tbl th{position:sticky;top:0;z-index:2;background:#f4f8fb;color:var(--gray-500,#64748b);font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;text-align:left;padding:11px 12px;border-bottom:1.5px solid var(--gray-200,#e2e8f0);white-space:nowrap}
   .seg-xls .xls-tbl th.r{text-align:right}
   .seg-xls .xls-tbl td{padding:5px 8px;border-bottom:1px solid var(--gray-100,#f1f5f9);vertical-align:middle}
   .seg-xls .xls-tbl tbody tr:nth-child(even) td{background:#fafcfe}
   .seg-xls .xls-tbl tbody tr:hover td{background:#eef6fd}
   .seg-xls .xls-n{width:34px;text-align:right;font-size:12px;font-weight:800;color:var(--gray-400);font-variant-numeric:tabular-nums}
-  .seg-xls .xls-in{width:100%;min-width:70px;border:1.5px solid transparent;border-radius:8px;padding:7px 9px;font:inherit;font-size:12.5px;color:var(--gray-800);background:transparent;outline:none;transition:border-color .14s,background .14s}
-  .seg-xls .xls-in.r{text-align:right;font-variant-numeric:tabular-nums;min-width:80px}
+  .seg-xls .xls-in{width:100%;min-width:0;border:1.5px solid transparent;border-radius:8px;padding:7px 9px;font:inherit;font-size:12.5px;color:var(--gray-800);background:transparent;outline:none;transition:border-color .14s,background .14s}
+  .seg-xls .xls-in.r{text-align:right;font-variant-numeric:tabular-nums;min-width:0}
   .seg-xls .xls-in:hover{background:#fff;border-color:var(--gray-200,#e2e8f0)}
   .seg-xls .xls-in:focus{background:#fff;border-color:var(--accent,#3B82F6);box-shadow:0 0 0 3px rgba(37,120,184,.12)}
-  .seg-xls .xls-date{min-width:130px}
-  .seg-xls .xls-pick{display:inline-flex;align-items:center;gap:6px;width:100%;min-width:120px;border:1.5px solid transparent;border-radius:8px;padding:7px 9px;font:inherit;font-size:12.5px;font-weight:600;color:var(--gray-800);background:transparent;cursor:pointer;text-align:left;transition:border-color .14s,background .14s}
+  .seg-xls .xls-date{min-width:120px}
+  .seg-xls .xls-pick{display:inline-flex;align-items:center;gap:6px;width:100%;min-width:0;border:1.5px solid transparent;border-radius:8px;padding:7px 9px;font:inherit;font-size:12.5px;font-weight:600;color:var(--gray-800);background:transparent;cursor:pointer;text-align:left;transition:border-color .14s,background .14s}
   .seg-xls .xls-pick>span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .seg-xls .xls-pick:hover{background:#fff;border-color:var(--gray-200,#e2e8f0)}
   .seg-xls .xls-pick.is-open{background:#fff;border-color:var(--accent,#3B82F6);box-shadow:0 0 0 3px rgba(37,120,184,.12)}
@@ -4346,6 +4346,11 @@ function showSaveAnim(text){
   .seg-xls .xls-empty{text-align:center;color:var(--gray-400);padding:26px;font-size:13px}
   .seg-xls .xls-foot{display:flex;align-items:center;gap:10px;padding:14px 20px;border-top:1px solid var(--gray-100,#f1f5f9)}
   .seg-xls .xls-foot-sp{flex:1}
+  .seg-xls .xls-totals{display:inline-flex;align-items:center;gap:18px;margin-left:6px}
+  .seg-xls .xls-tot{font-size:12.5px;color:var(--gray-500);font-weight:700;display:inline-flex;align-items:baseline;gap:5px;white-space:nowrap}
+  .seg-xls .xls-tot small{font-size:10px;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-400);font-weight:800}
+  .seg-xls .xls-tot b{font-family:Sora,Inter,sans-serif;font-size:15px;font-weight:800;color:var(--primary);font-variant-numeric:tabular-nums}
+  @media(max-width:720px){.seg-xls .xls-totals{display:none}}
   .seg-xls .xls-addrow{display:inline-flex;align-items:center;gap:6px;border:1.5px dashed rgba(11,95,141,.4);background:rgba(11,95,141,.05);color:var(--primary);border-radius:10px;padding:9px 14px;font:inherit;font-size:12.5px;font-weight:800;cursor:pointer;transition:background .15s,border-color .15s}
   .seg-xls .xls-addrow:hover{background:rgba(11,95,141,.11);border-color:var(--primary)}
   .seg-xls .xls-cancel{border:1.5px solid var(--gray-200,#e2e8f0);background:#fff;color:var(--gray-600);border-radius:10px;padding:10px 18px;font:inherit;font-size:13px;font-weight:800;cursor:pointer;transition:all .14s}
@@ -5296,9 +5301,10 @@ function _rrOpenDetail(g,periodLbl,wkObj){
       return '<tr data-k="'+d.k+'">'+c+'</tr>';}
     const m=_cfModalOpen('<div class="cf-mbox seg-xls"><div class="xls-hd"><div><h3>Editar '+(SEGN2[sk]||sk)+'</h3><p class="cf-msub">Editá todas las líneas del segmento y guardá al final.</p></div><span class="xls-badge"></span></div>'+
       '<div class="xls-wrap"><table class="xls-tbl"><thead><tr>'+cols.map(c=>'<th'+(/Km|Precio|Flete/.test(c)?' class="r"':'')+'>'+c+'</th>').join('')+'</tr></thead><tbody id="xlsBody"></tbody></table></div>'+
-      '<div class="xls-foot"><button type="button" class="xls-addrow" id="xlsAdd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="14" height="14"><path d="M12 5v14M5 12h14"/></svg> Agregar línea</button><div class="xls-foot-sp"></div><button class="cancel xls-cancel">Cancelar</button><button class="ok xls-save"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" width="15" height="15"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg> Guardar cambios</button></div></div>');
+      '<div class="xls-foot"><button type="button" class="xls-addrow" id="xlsAdd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="14" height="14"><path d="M12 5v14M5 12h14"/></svg> Agregar línea</button><div class="xls-totals"></div><div class="xls-foot-sp"></div><button class="cancel xls-cancel">Cancelar</button><button class="ok xls-save"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" width="15" height="15"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg> Guardar cambios</button></div></div>');
     const body=m.$('#xlsBody');
-    function updFlete(d){const fi=body.querySelector('.xls-flete[data-k="'+d.k+'"]');if(!fi)return;if(kmMode(d)){fi.value=_nnum(Math.round(d.km*d.precioKm));fi.readOnly=true;fi.classList.add('is-auto');}else{fi.readOnly=false;fi.classList.remove('is-auto');fi.value=d.precio?_nnum(d.precio):'';}}
+    function updFlete(d){const fi=body.querySelector('.xls-flete[data-k="'+d.k+'"]');if(fi){if(kmMode(d)){fi.value=_nnum(Math.round(d.km*d.precioKm));fi.readOnly=true;fi.classList.add('is-auto');}else{fi.readOnly=false;fi.classList.remove('is-auto');fi.value=d.precio?_nnum(d.precio):'';}}updTotals();}
+    function updTotals(){const el=m.$('.xls-totals');if(!el)return;const a=draft.filter(d=>!d.del);const n=a.length,tf=a.reduce((s,d)=>s+fleteOf(d),0);el.innerHTML='<span class="xls-tot"><b>'+n+'</b> camión'+(n===1?'':'es')+'</span><span class="xls-tot"><small>Flete total</small> <b>'+_gs(tf)+'</b></span>';}
     function setT(btn,txt,ph){const s=btn.querySelector('span');if(s)s.textContent=txt;btn.classList.toggle('ph',!!ph);}
     function openCellPick(btn){const d=D(btn.dataset.k);if(!d)return;const kind=btn.dataset.pick;
       if(kind==='tr')openChipPop(btn,{value:d.trId?String(d.trId):'',search:true,options:(trucks||[]).map(t=>({v:String(t.id),label:t.d})),onPick:v=>{const t=(trucks||[]).find(x=>String(x.id)===v);d.trId=+v;d.trDesc=t?t.d:'';setT(btn,t?t.d:'—',false);}});
@@ -5308,12 +5314,12 @@ function _rrOpenDetail(g,periodLbl,wkObj){
       body.querySelectorAll('.xls-date').forEach(i=>i.addEventListener('change',()=>{const d=D(i.dataset.k);if(d)d.fecha=i.value||null;}));
       body.querySelectorAll('.xls-km').forEach(i=>i.addEventListener('input',()=>{const d=D(i.dataset.k);if(d){d.km=_kmParse(i.value);updFlete(d);}}));
       body.querySelectorAll('.xls-pkm').forEach(i=>i.addEventListener('input',()=>{const d=D(i.dataset.k);if(d){d.precioKm=parseInt(i.value.replace(/\D/g,''),10)||0;updFlete(d);}}));
-      body.querySelectorAll('.xls-flete').forEach(i=>i.addEventListener('input',()=>{const d=D(i.dataset.k);if(d&&!i.readOnly)d.precio=parseInt(i.value.replace(/\D/g,''),10)||0;}));
+      body.querySelectorAll('.xls-flete').forEach(i=>i.addEventListener('input',()=>{const d=D(i.dataset.k);if(d&&!i.readOnly){d.precio=parseInt(i.value.replace(/\D/g,''),10)||0;updTotals();}}));
       body.querySelectorAll('.xls-obs').forEach(i=>i.addEventListener('input',()=>{const d=D(i.dataset.k);if(d)d.obs=i.value;}));
       body.querySelectorAll('.xls-pick').forEach(b=>b.addEventListener('click',()=>openCellPick(b)));
       body.querySelectorAll('.xls-del').forEach(b=>b.addEventListener('click',()=>{const d=D(b.dataset.k);if(!d)return;const tr=b.closest('tr'),gs=window.gsap;const go=()=>{d.del=true;paint();};if(gs&&tr)gs.to(tr,{opacity:0,x:24,duration:.2,ease:'power2.in',onComplete:go});else go();}));
     }
-    function paint(anim){const list=draft.filter(d=>!d.del);body.innerHTML=list.map(rowHTML).join('')||'<tr><td colspan="'+cols.length+'" class="xls-empty">Sin líneas — agregá una con “+ Agregar línea”.</td></tr>';wireRows();const bg=m.$('.xls-badge');if(bg)bg.innerHTML=list.length+' <small>línea'+(list.length===1?'':'s')+'</small>';const gs=window.gsap;if(gs&&anim)gs.from(body.querySelectorAll('tr'),{opacity:0,y:8,duration:.26,stagger:.02,ease:'power2.out',clearProps:'all'});}
+    function paint(anim){const list=draft.filter(d=>!d.del);body.innerHTML=list.map(rowHTML).join('')||'<tr><td colspan="'+cols.length+'" class="xls-empty">Sin líneas — agregá una con “+ Agregar línea”.</td></tr>';wireRows();const bg=m.$('.xls-badge');if(bg)bg.innerHTML=list.length+' <small>línea'+(list.length===1?'':'s')+'</small>';updTotals();const gs=window.gsap;if(gs&&anim)gs.from(body.querySelectorAll('tr'),{opacity:0,y:8,duration:.26,stagger:.02,ease:'power2.out',clearProps:'all'});}
     m.$('#xlsAdd').addEventListener('click',()=>{const tr=(trucks||[])[0]||null;draft.push({k:_k++,uid:null,isNew:true,trId:tr?tr.id:null,trDesc:tr?tr.d:'',tsId:tsObj?tsObj.id:g.tsId,tsNombre:g.ts,rep:'',zona:'',fecha:(wkObj?wkObj.desde:null),km:0,precioKm:0,precio:0,obs:'',del:false});paint(true);const wp=m.$('.xls-wrap');if(wp)wp.scrollTop=wp.scrollHeight;});
     m.$('.xls-cancel').addEventListener('click',m.close);
     m.$('.xls-save').addEventListener('click',()=>{
