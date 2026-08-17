@@ -4405,16 +4405,18 @@ function showSaveAnim(text){
   .rrd-segtag--servicios{background:#DCFCE7;color:#15803D}
   .rrd-segtag--transportadora{background:#EDE9FE;color:#6D28D9}
   .rrd-actth{width:84px}
-  /* KPIs PRO azules */
-  .rrd-kgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .rrd-k{background:var(--accent-soft,#DBEAFE);border:1px solid rgba(37,120,184,.14);border-radius:13px;padding:13px 10px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:2px}
-  .rrd-k__ic{width:30px;height:30px;border-radius:9px;background:#fff;color:var(--primary);display:flex;align-items:center;justify-content:center;margin-bottom:4px}
-  .rrd-k__ic svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.7}
-  .rrd-k b{font-family:Sora,Inter,sans-serif;font-size:22px;font-weight:800;color:var(--primary);line-height:1}
-  .rrd-k small{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-500)}
-  .rrd-fletetile{margin-top:11px;background:linear-gradient(135deg,#2578b8,#0B5F8D);color:#fff;border-radius:13px;padding:14px 16px;display:flex;flex-direction:column;gap:3px;box-shadow:0 10px 24px rgba(11,95,141,.28)}
-  .rrd-fletetile span{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:rgba(255,255,255,.8)}
-  .rrd-fletetile b{font-family:Sora,Inter,sans-serif;font-size:22px;font-weight:800;font-variant-numeric:tabular-nums}
+  /* KPIs PRO azules — tiles grandes con ícono */
+  .rrd-ktile{display:flex;align-items:center;gap:13px;background:var(--accent-soft,#DBEAFE);border:1px solid rgba(37,120,184,.14);border-radius:14px;padding:14px 16px;margin-bottom:11px}
+  .rrd-ktile:last-child{margin-bottom:0}
+  .rrd-ktile__ic{width:48px;height:48px;border-radius:13px;background:#fff;color:var(--primary);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .rrd-ktile__ic svg{width:25px;height:25px;fill:none;stroke:currentColor;stroke-width:1.8}
+  .rrd-ktile__tx{display:flex;flex-direction:column;gap:3px;min-width:0}
+  .rrd-ktile__tx small{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-500)}
+  .rrd-ktile__tx b{font-family:Sora,Inter,sans-serif;font-size:20px;font-weight:800;color:var(--primary);line-height:1.05;font-variant-numeric:tabular-nums;overflow:hidden;text-overflow:ellipsis}
+  .rrd-ktile--flete{background:linear-gradient(135deg,#2578b8,#0B5F8D);border-color:transparent;box-shadow:0 10px 26px rgba(11,95,141,.3)}
+  .rrd-ktile--flete .rrd-ktile__ic{background:rgba(255,255,255,.18);color:#fff}
+  .rrd-ktile--flete .rrd-ktile__tx small{color:rgba(255,255,255,.82)}
+  .rrd-ktile--flete .rrd-ktile__tx b{color:#fff}
   /* Edición inline */
   .rrd-tbl--edit td{padding:6px 10px}
   .rrd-fin{width:100%;min-width:0;border:1.5px solid transparent;border-radius:8px;padding:7px 9px;font:inherit;font-size:12.5px;color:var(--gray-800);background:transparent;outline:none;transition:border-color .14s,background .14s}
@@ -5310,7 +5312,16 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     work=work.filter(w=>!(w.seg===sk&&w.isNew&&!alive.some(d=>d.uid===w.uid)));
     alive.filter(d=>!d.uid).forEach(d=>{if(isTr){work.unshift({uid:_wuid++,ref:null,repId:targetRepId(),trId:null,trDesc:trD(d),tsId:tsObj?tsObj.id:g.tsId,tsNombre:g.ts,seg:sk,rep:null,zona:null,obs:null,cant:+d.cant||0,fecha:d.fecha,km:0,precioKm:0,monto:0,precio:+d.precio||0,fijo:false,del:false,isNew:true,edit:false});return;}const km2=_dfKm(d);work.unshift({uid:_wuid++,ref:null,repId:targetRepId(),trId:d.trId,trDesc:d.trDesc,tsId:d.tsId,tsNombre:d.tsNombre,seg:sk,rep:(d.rep||'').trim(),zona:(d.zona||'').trim(),obs:isServ?(d.obs||''):'',cant:1,fecha:d.fecha,km:km2?d.km:0,precioKm:km2?d.precioKm:0,monto:0,precio:km2?Math.round(d.km*d.precioKm):(+d.precio||0),fijo:isInt?!km2:false,del:false,isNew:true,edit:false});});
     _dashEdit=false;_dashDraft=null;save(null,true);}
-  function _dashResumen(lbl,nLines,nCam,sub){return '<div class="rrd-card rrd-resumen"><div class="rrd-card__t">Resumen · '+lbl+'</div><div class="rrd-kgrid"><div class="rrd-k"><span class="rrd-k__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg></span><b>'+_nnum(nLines)+'</b><small>Pedidos</small></div><div class="rrd-k"><span class="rrd-k__ic">'+TRUCKICON+'</span><b>'+_nnum(nCam)+'</b><small>Camiones</small></div></div><div class="rrd-fletetile"><span>Subtotal flete</span><b>'+_gs(sub)+'</b></div></div>';}
+  function _dashResumen(lbl,nLines,nCam,sub){
+    const fac=(wkObj?_facMontoDe(g.ts,wkObj.desde):null);
+    const CLIP='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>';
+    const COINS='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.66 3.58 3 8 3s8-1.34 8-3V6M4 12v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/></svg>';
+    const tile=(cls,ic,small,val)=>'<div class="rrd-ktile'+(cls?' '+cls:'')+'"><span class="rrd-ktile__ic">'+ic+'</span><div class="rrd-ktile__tx"><small>'+small+'</small><b>'+val+'</b></div></div>';
+    return '<div class="rrd-card rrd-resumen"><div class="rrd-card__t">Resumen · '+lbl+'</div>'+
+      tile('',CLIP,'Factura',fac!=null?_gs(fac):'Sin registros')+
+      tile('',TRUCKICON,'Camiones',_nnum(nCam))+
+      tile('rrd-ktile--flete',COINS,'Subtotal flete',_gs(sub))+
+    '</div>';}
   function _dashChart(items,isServ){const zc={};items.forEach(w=>{const z=w.zona||(isServ&&w.obs)||'—';if(z&&z!=='—')zc[z]=(zc[z]||0)+1;});const zarr=Object.keys(zc).map(z=>({z,n:zc[z]})).sort((a,b)=>b.n-a.n).slice(0,7);const zmax=Math.max(1,...zarr.map(x=>x.n));return '<div class="rrd-card rrd-zonas"><div class="rrd-card__t">'+(isServ?'Servicios más frecuentes':'Zonas más frecuentes')+'</div>'+(zarr.length?zarr.map(x=>'<div class="rrd-zrow"><span class="rrd-zname" title="'+_escp(x.z)+'">'+_escp(x.z)+'</span><div class="rrd-ztrack"><div class="rrd-zfill" style="width:'+Math.max(9,x.n/zmax*100).toFixed(1)+'%"></div></div><span class="rrd-zn">'+x.n+'</span></div>').join(''):'<div class="rrd-zempty">Sin datos</div>')+'</div>';}
   function dashBody(){
     const segsPresent=SEGL.filter(sk=>work.some(w=>!w.del&&w.seg===sk));
@@ -5589,7 +5600,6 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     bd.innerHTML=
       '<div class="rrd-topbar">'+
         '<div class="rrd-left">'+back+'<div class="rrd-ttl"><h2>'+_escp(g.ts)+(editing?'<span class="rrd-edbadge"><i></i>Editando</span>':'')+'</h2><div class="rrm-pd">'+periodLbl+' · <span class="rrm-ncam">'+nCam+'</span> camiones</div></div></div>'+
-        '<div class="rrm-kpis"><div class="rrm-kpi"><span>Total flete</span><b class="k-flete">'+_gs(t.f)+'</b></div>'+facKpi+'<div class="rrm-kpi"><span>Camiones</span><b class="k-ncam">'+nCam+'</b></div></div>'+
         '<div class="rrd-acts">'+acts+'</div>'+
       '</div>'+
       camFilterBar()+
