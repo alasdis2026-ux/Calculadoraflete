@@ -4531,6 +4531,10 @@ function showSaveAnim(text){
 /* ════════ Helpers ════════ */
 function _gs(n){return 'Gs. '+Math.round(n||0).toLocaleString('es-PY');}
 function _nnum(n){return Math.round(n||0).toLocaleString('es-PY');}
+// Km con hasta 2 decimales (formato es-PY: miles con punto, decimal con coma). Ej: 1.162,45
+function _kmFmt(n){n=+n||0;return n.toLocaleString('es-PY',{maximumFractionDigits:2});}
+// Parsea un km escrito por el usuario, aceptando decimal con coma o punto. Ej: "1.162,45" | "1162,45" | "1162.45"
+function _kmParse(v){v=String(v==null?'':v).trim();if(v.indexOf(',')>=0)v=v.replace(/\./g,'').replace(',','.');v=v.replace(/[^\d.]/g,'');const p=v.split('.');if(p.length>2)v=p[0]+'.'+p.slice(1).join('');const n=parseFloat(v);return isNaN(n)?0:n;}
 function _pct(v){return (v*100).toLocaleString('es-PY',{minimumFractionDigits:2,maximumFractionDigits:2})+'%';}
 function _mesLbl(mk){const M=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];const p=mk.split('-');return M[+p[1]-1]+' '+p[0];}
 function _escp(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
@@ -5101,7 +5105,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
   function totals(){const arr=work.filter(w=>!w.del);const m=arr.reduce((s,x)=>s+(+x.monto||0),0),f=arr.reduce((s,x)=>s+(+x.precio||0),0);return{m,f,inc:m>0?f/m*100:null};}
   // Fila de lectura (con botón para editar solo esa)
   function rowHTML(w,idx){const isTr=w.seg==='transportadora';const fl=+w.precio||0;
-    const kmStr=(w.seg==='interior'&&+w.km>0)?((+w.km)+' km × '+_gs(+w.precioKm||0)):'';
+    const kmStr=(w.seg==='interior'&&+w.km>0)?(_kmFmt(+w.km)+' km × '+_gs(+w.precioKm||0)):'';
     const fday=w.fecha?String(w.fecha).slice(0,10).split('-').reverse().slice(0,2).join('/'):'';
     const IC={cal:'<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>',user:'<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0112 0v1"/></svg>',pin:'<svg viewBox="0 0 24 24"><path d="M12 21s7-5.6 7-11a7 7 0 10-14 0c0 5.4 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>',peso:'<svg viewBox="0 0 24 24"><path d="M5 8h14l1.5 12H3.5z"/><circle cx="12" cy="5" r="2.2"/></svg>',road:'<svg viewBox="0 0 24 24"><path d="M6 21L9 3M18 21L15 3M12 6v3M12 12v3M12 18v2"/></svg>',obs:'<svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>'};
     const chip=(ic,txt)=>txt?'<span class="rrv-chip">'+ic+'<span>'+_escp(txt)+'</span></span>':'';
@@ -5116,7 +5120,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     const body=isTr
       ?'<div class="rre-km2"><label class="rre-fld"><span>Cantidad de camiones</span><input class="rre-in rre-cant" data-uid="'+w.uid+'" inputmode="numeric" placeholder="0" value="'+(w.cant||'')+'"></label><label class="rre-fld"><span>Flete total</span><input class="rre-in rre-precio" data-uid="'+w.uid+'" inputmode="numeric" placeholder="0" value="'+fmt(w.precio)+'"></label></div>'
       :(isInt&&!w.fijo)
-      ?intToggle+'<div class="rre-km2"><label class="rre-fld"><span>Km</span><input class="rre-in rre-km" data-uid="'+w.uid+'" inputmode="numeric" placeholder="0" value="'+fmt(w.km)+'"></label><label class="rre-fld"><span>Precio/km</span><input class="rre-in rre-pkm" data-uid="'+w.uid+'" inputmode="numeric" placeholder="0" value="'+fmt(w.precioKm)+'"></label></div><div class="rre-flete-out"><span>Flete</span><b class="rre-flete-b" data-uid="'+w.uid+'">'+_gs(w.precio||0)+'</b></div>'
+      ?intToggle+'<div class="rre-km2"><label class="rre-fld"><span>Km</span><input class="rre-in rre-km" data-uid="'+w.uid+'" inputmode="decimal" placeholder="0" value="'+(w.km?_kmFmt(w.km):'')+'"></label><label class="rre-fld"><span>Precio/km</span><input class="rre-in rre-pkm" data-uid="'+w.uid+'" inputmode="numeric" placeholder="0" value="'+fmt(w.precioKm)+'"></label></div><div class="rre-flete-out"><span>Flete</span><b class="rre-flete-b" data-uid="'+w.uid+'">'+_gs(w.precio||0)+'</b></div>'
       :isInt
       ?intToggle+'<label class="rre-fld"><span>Flete (precio fijo)</span><input class="rre-in rre-precio" data-uid="'+w.uid+'" inputmode="numeric" placeholder="0" value="'+fmt(w.precio)+'"></label>'
       :'<label class="rre-fld"><span>Flete</span><input class="rre-in rre-precio" data-uid="'+w.uid+'" inputmode="numeric" placeholder="0" value="'+fmt(w.precio)+'"></label>';
@@ -5247,7 +5251,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     bd.querySelectorAll('.rre-precio').forEach(i=>{i.addEventListener('input',()=>{const w=W(i.dataset.uid);if(w){w.precio=_liveMoney(i);liveTotals();}});});
     bd.querySelectorAll('.rre-fecha').forEach(i=>{i.addEventListener('change',()=>{const w=W(i.dataset.uid);if(w)w.fecha=i.value||null;});});
     const upFlete=uid=>{const w=W(uid);if(!w)return;w.precio=Math.round((w.km||0)*(w.precioKm||0));const b=bd.querySelector('.rre-flete-b[data-uid="'+uid+'"]');if(b){b.textContent=_gs(w.precio||0);pop(b);}liveTotals();};
-    bd.querySelectorAll('.rre-km').forEach(i=>{i.addEventListener('input',()=>{const w=W(i.dataset.uid);if(w){w.km=_liveMoney(i);upFlete(i.dataset.uid);}});});
+    bd.querySelectorAll('.rre-km').forEach(i=>{i.addEventListener('input',()=>{const w=W(i.dataset.uid);if(w){w.km=_kmParse(i.value);upFlete(i.dataset.uid);}});});
     bd.querySelectorAll('.rre-pkm').forEach(i=>{i.addEventListener('input',()=>{const w=W(i.dataset.uid);if(w){w.precioKm=_liveMoney(i);upFlete(i.dataset.uid);}});});
     bd.querySelectorAll('.rre-cant').forEach(i=>i.addEventListener('input',()=>{const w=W(i.dataset.uid);if(w){w.cant=Math.max(0,parseInt(i.value.replace(/\D/g,''),10)||0);liveTotals();}}));
     bd.querySelectorAll('.rre-rep').forEach(i=>i.addEventListener('input',()=>{const w=W(i.dataset.uid);if(w)w.rep=i.value;}));
@@ -5416,7 +5420,7 @@ function _cfPrint(r){
     const ddc=iso=>iso?String(iso).slice(0,10).split('-').reverse().join('/'):'—';
     body+='<tr class="grp"><td colspan="5">REPARTO: '+slbl+'</td></tr>';
     g.forEach(c=>{const fl=(c.precio||c.gasto)||0;sM+=c.monto||0;sF+=fl;
-      const det=sk==='interior'?((+c.km>0)?(_escp(String(c.km))+' km × '+_gs(+c.precioKm||0)):'—'):sk==='servicios'?(c.obs?_escp(c.obs):'—'):'—';
+      const det=sk==='interior'?((+c.km>0)?(_kmFmt(+c.km)+' km × '+_gs(+c.precioKm||0)):'—'):sk==='servicios'?(c.obs?_escp(c.obs):'—'):'—';
       body+='<tr><td>'+ddc(c._fecha)+'</td><td>'+_escp(c.trDesc||'—')+'</td><td>'+_escp(c.zona||'—')+'</td><td>'+det+'</td><td class="r">'+_gs(fl)+'</td></tr>';});
     body+='<tr class="sub"><td colspan="4">SUBTOTAL '+slbl+'</td><td class="r">'+_gs(sF)+'</td></tr>';
     totM+=sM;totF+=sF;totN+=sk==='transportadora'?g.reduce((s,c)=>s+(+c.cant||1),0):g.length;totKm+=g.reduce((s,c)=>s+(+c.km||0),0);
