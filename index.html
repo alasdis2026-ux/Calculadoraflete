@@ -4358,6 +4358,63 @@ function showSaveAnim(text){
   .seg-xls .xls-save{display:inline-flex;align-items:center;gap:7px;border:1.5px solid var(--primary);background:var(--primary);color:#fff;border-radius:10px;padding:10px 20px;font:inherit;font-size:13px;font-weight:800;cursor:pointer;transition:background .14s,box-shadow .16s,transform .12s;box-shadow:0 6px 16px rgba(11,95,141,.28)}
   .seg-xls .xls-save:hover{background:#0a4f75;border-color:#0a4f75;transform:translateY(-1px);box-shadow:0 9px 22px rgba(11,95,141,.36)}
   .seg-xls .xls-save:active{transform:translateY(0) scale(.98)}
+  /* ── Vista dashboard de la planilla ── */
+  .rrd-dash{display:flex;flex-direction:column;gap:14px}
+  .rrd-tabs{display:flex;gap:8px;flex-wrap:wrap}
+  .rrd-tab{display:inline-flex;align-items:center;gap:8px;border:1.5px solid var(--gray-200,#e2e8f0);background:#fff;border-radius:11px;padding:9px 15px;font:inherit;font-size:13px;font-weight:800;color:var(--gray-600,#475569);cursor:pointer;transition:background .15s,color .15s,border-color .15s,box-shadow .15s}
+  .rrd-tab:hover{border-color:var(--gray-300);color:var(--gray-800)}
+  .rrd-tab.on{border-color:var(--primary);background:var(--primary);color:#fff;box-shadow:0 6px 16px rgba(11,95,141,.24)}
+  .rrd-tab__dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+  .rrd-tab.on .rrd-tab__dot{background:#fff!important}
+  .rrd-tab__n{min-width:20px;height:20px;padding:0 6px;display:inline-flex;align-items:center;justify-content:center;border-radius:999px;background:var(--gray-100,#f1f5f9);color:var(--gray-500,#64748b);font-size:11px;font-weight:800;font-variant-numeric:tabular-nums}
+  .rrd-tab.on .rrd-tab__n{background:rgba(255,255,255,.22);color:#fff}
+  .rrd-grid{display:grid;grid-template-columns:1fr 300px;gap:16px;align-items:start}
+  @media(max-width:1050px){.rrd-grid{grid-template-columns:1fr}}
+  .rrd-tablecard{background:#fff;border:1px solid var(--gray-200,#e2e8f0);border-radius:16px;overflow:hidden;min-width:0}
+  .rrd-tablehd{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 16px;border-bottom:1px solid var(--gray-100,#f1f5f9)}
+  .rrd-tablehd__t{display:flex;align-items:center;gap:9px;font-family:Sora,Inter,sans-serif;font-size:14px;font-weight:800;color:var(--gray-800)}
+  .rrd-tablehd__dot{width:9px;height:9px;border-radius:50%}
+  .rrd-tablehd__acts{display:flex;gap:6px;flex-shrink:0}
+  .rrd-hdbtn{display:inline-flex;align-items:center;gap:6px;border:1.5px solid transparent;background:transparent;color:var(--primary);border-radius:9px;padding:7px 12px;font:inherit;font-size:12.5px;font-weight:800;cursor:pointer;transition:background .14s}
+  .rrd-hdbtn:hover{background:var(--accent-soft,#DBEAFE)}
+  .rrd-tablewrap{overflow-x:auto}
+  .rrd-tbl{width:100%;border-collapse:collapse}
+  .rrd-tbl th{text-align:left;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-400,#94a3b8);padding:11px 14px;border-bottom:1.5px solid var(--gray-100,#f1f5f9);white-space:nowrap}
+  .rrd-tbl th.r{text-align:right}
+  .rrd-tbl td{padding:11px 14px;border-bottom:1px solid var(--gray-100,#f1f5f9);font-size:12.5px;color:var(--gray-700);white-space:nowrap}
+  .rrd-tbl td.r{text-align:right}
+  .rrd-tbl tbody tr{cursor:pointer;transition:background .12s}
+  .rrd-tbl tbody tr:hover{background:#f4f9fd}
+  .rrd-tbl tbody tr:last-child td{border-bottom:none}
+  .rrd-cam{font-weight:800;color:var(--gray-800)}
+  .rrd-cam__ic{display:inline-flex;width:24px;height:24px;border-radius:7px;background:var(--gray-100,#f1f5f9);color:var(--gray-400);align-items:center;justify-content:center;margin-right:8px;vertical-align:middle}
+  .rrd-cam__ic svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.7}
+  .rrd-cam__t{vertical-align:middle}
+  .rrd-chip{display:inline-block;padding:3px 10px;border-radius:999px;background:var(--gray-100,#f1f5f9);color:var(--gray-600);font-size:11.5px;font-weight:700}
+  .rrd-mut{color:var(--gray-300)}
+  .rrd-fec{color:var(--gray-500);font-variant-numeric:tabular-nums}
+  .rrd-det{color:var(--gray-500);font-size:12px}
+  .rrd-flete{font-weight:800;color:var(--primary);font-variant-numeric:tabular-nums}
+  .rrd-actc{width:84px;text-align:right;white-space:nowrap}
+  .rrd-rowbtn{width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;border:none;background:transparent;color:var(--gray-300);border-radius:8px;cursor:pointer;transition:background .14s,color .14s}
+  .rrd-rowbtn svg{width:15px;height:15px;fill:none;stroke:currentColor}
+  .rrd-edit:hover{background:var(--accent-soft,#DBEAFE);color:var(--primary)}
+  .rrd-del:hover{background:#FEF2F2;color:#DC2626}
+  .rrd-empty{text-align:center;color:var(--gray-400);padding:26px}
+  .rrd-side{display:flex;flex-direction:column;gap:14px}
+  .rrd-card{background:#fff;border:1px solid var(--gray-200,#e2e8f0);border-radius:16px;padding:16px}
+  .rrd-card__t{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--gray-400,#94a3b8);margin-bottom:11px;padding-bottom:9px;border-bottom:1px solid var(--gray-100,#f1f5f9)}
+  .rrd-sitem{display:flex;align-items:center;justify-content:space-between;padding:7px 0;font-size:13px}
+  .rrd-sitem span{color:var(--gray-500);font-weight:600}
+  .rrd-sitem b{font-family:Sora,Inter,sans-serif;font-size:15px;font-weight:800;color:var(--gray-800);font-variant-numeric:tabular-nums}
+  .rrd-sitem b.rrd-green{color:#15803d}
+  .rrd-zrow{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+  .rrd-zrow:last-child{margin-bottom:0}
+  .rrd-zname{flex:0 0 92px;font-size:11.5px;font-weight:700;color:var(--gray-600);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .rrd-ztrack{flex:1;height:9px;background:var(--gray-100,#f1f5f9);border-radius:999px;overflow:hidden}
+  .rrd-zfill{height:100%;border-radius:999px;background:linear-gradient(90deg,#2578b8,#0B5F8D)}
+  .rrd-zn{flex:0 0 auto;font-size:12px;font-weight:800;color:var(--primary);min-width:16px;text-align:right;font-variant-numeric:tabular-nums}
+  .rrd-zempty{font-size:12px;color:var(--gray-400)}
   .rre-pill-check{width:17px;height:17px;fill:none;stroke:#fff;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
   .rrv-drag{cursor:grab}
   .rrv-drag:active{cursor:grabbing}
@@ -5120,7 +5177,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     if(g3){g3.fromTo(c,{opacity:0},{opacity:1,duration:.24,ease:'power2.out'});g3.fromTo(c.querySelector('svg'),{scale:0,rotate:-15,transformOrigin:'50% 50%'},{scale:1,rotate:0,duration:.36,delay:.05,ease:'back.out(2.6)'});g3.to(c,{opacity:0,duration:.3,delay:1.15,ease:'power2.in',onComplete:()=>c.remove()});}
     else setTimeout(()=>c.remove(),1500);
   }
-  let work=[],firstDraw=true,_wuid=1,selUid=null,_ddEl=null,_ddCleanup=null,_ddBtn=null,_lastTotal=null,_dragUid=null;
+  let work=[],firstDraw=true,_wuid=1,selUid=null,_ddEl=null,_ddCleanup=null,_ddBtn=null,_lastTotal=null,_dragUid=null,_dashSeg=null;
   const SEGL=['local','interior','servicios','transportadora'];
   // Conteo animado (el total "sube" con pop) — estilo prototipo, con nuestra lógica
   function countTo(el,from,to,delay){if(!el)return;const gs=window.gsap;if(!gs||from===to){el.textContent=_gs(to);return;}delay=delay||0;const o={v:from};el.textContent=_gs(from);gs.to(o,{v:to,duration:.8,delay:delay,ease:'power2.out',onUpdate:()=>{el.textContent=_gs(Math.round(o.v));},onComplete:()=>{el.textContent=_gs(to);}});gs.fromTo(el,{scale:1.15,textShadow:'0 0 30px rgba(21,128,61,.55)'},{scale:1,textShadow:'0 0 0px rgba(21,128,61,0)',duration:.55,delay:delay,ease:'back.out(2)',clearProps:'transform,textShadow'});}
@@ -5195,6 +5252,40 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     return '<div class="rrm-filterbar">'+filterUI+addUI+'</div>';
   }
   const segVisible=sk=>work.some(w=>!w.del&&w.seg===sk&&(!_camFilter||w.isNew||w.edit||camLbl(w)===_camFilter));
+  // Orden por segmento: interior por precio/km→fecha; resto por camión→fecha.
+  function _dashSort(arr,sk){return arr.slice().sort((a,b)=>{if(a.isNew!==b.isNew)return a.isNew?-1:1;const fa=a.fecha||'',fb=b.fecha||'';if(sk==='interior'){const pa=+a.precioKm||0,pb=+b.precioKm||0;if(pa!==pb)return pa-pb;return fa<fb?-1:(fa>fb?1:0);}const ca=camLbl(a)||'',cb=camLbl(b)||'';if(ca!==cb)return ca.localeCompare(cb,'es');return fa<fb?-1:(fa>fb?1:0);});}
+  // Vista tipo dashboard (reemplaza el tablero Trello): pestañas por segmento + tabla + resumen + gráfico de zonas.
+  function dashBody(){
+    const segsPresent=SEGL.filter(sk=>work.some(w=>!w.del&&w.seg===sk));
+    if(!segsPresent.length)return '<div class="rre-board"><div class="rre-board-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 3h13v13H1zm13 5h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg><b>Todavía no hay servicios cargados</b><span>Usá «+ Servicio de reparto» para empezar.</span></div></div>';
+    if(!_dashSeg||!segsPresent.includes(_dashSeg))_dashSeg=segsPresent[0];
+    const sk=_dashSeg,isInt=sk==='interior',isServ=sk==='servicios',isTr=sk==='transportadora';
+    const items=_dashSort(work.filter(w=>!w.del&&w.seg===sk&&(!_camFilter||camLbl(w)===_camFilter)),sk);
+    const SEGDOT={local:'#0B5F8D',interior:'#F97316',servicios:'#10B981',transportadora:'#7c3aed'};
+    const tabs='<div class="rrd-tabs">'+segsPresent.map(s=>{const n=work.filter(w=>!w.del&&w.seg===s).reduce((a,w)=>a+camCount(w),0);return '<button class="rrd-tab'+(s===sk?' on':'')+'" data-dashseg="'+s+'"><span class="rrd-tab__dot" style="background:'+SEGDOT[s]+'"></span>'+SEGN[s]+'<span class="rrd-tab__n">'+n+'</span></button>';}).join('')+'</div>';
+    const EDT='<button class="rrd-rowbtn rrd-edit" data-dashedit="UID" title="Editar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4z"/></svg></button>';
+    const DLT='<button class="rrd-rowbtn rrd-del" data-dashdel="UID" title="Quitar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg></button>';
+    const acts=w=>'<td class="rrd-actc">'+EDT.split('UID').join(w.uid)+DLT.split('UID').join(w.uid)+'</td>';
+    const dchip=t=>'<span class="rrd-chip">'+_escp(t)+'</span>';
+    const dfec=w=>w.fecha?String(w.fecha).slice(0,10).split('-').reverse().slice(0,2).join('/'):'—';
+    let thead,rowsHtml;
+    if(isTr){
+      thead='<tr><th>Detalle</th><th>Fecha</th><th class="r">Cantidad</th><th class="r">Flete</th><th></th></tr>';
+      rowsHtml=items.map(w=>'<tr data-dashrow="'+w.uid+'"><td class="rrd-cam"><span class="rrd-cam__ic">'+TRUCKICON+'</span><span class="rrd-cam__t">'+((+w.cant||0)+' camión'+((+w.cant||0)===1?'':'es'))+'</span></td><td class="rrd-fec">'+dfec(w)+'</td><td class="r">'+(+w.cant||0)+'</td><td class="r rrd-flete">'+_gs(+w.precio||0)+'</td>'+acts(w)+'</tr>').join('');
+    }else{
+      thead='<tr><th>Camión</th><th>Repartidor</th><th>'+(isServ?'Servicio':'Zona')+'</th><th>Fecha</th>'+(isInt?'<th>Km · Precio</th>':'')+'<th class="r">Flete</th><th></th></tr>';
+      rowsHtml=items.map(w=>{const km=(isInt&&+w.km>0)?(_kmFmt(+w.km)+' km × '+_gs(+w.precioKm||0)):'—';return '<tr data-dashrow="'+w.uid+'"><td class="rrd-cam"><span class="rrd-cam__ic">'+TRUCKICON+'</span><span class="rrd-cam__t">'+_escp(camLbl(w))+'</span></td><td>'+_escp(w.rep||'Tercerizado')+'</td><td>'+(w.zona?dchip(w.zona):(isServ&&w.obs?dchip(w.obs):'<span class="rrd-mut">—</span>'))+'</td><td class="rrd-fec">'+dfec(w)+'</td>'+(isInt?'<td class="rrd-det">'+km+'</td>':'')+'<td class="r rrd-flete">'+_gs(+w.precio||0)+'</td>'+acts(w)+'</tr>';}).join('');
+    }
+    const editBtn=(!isTr&&items.some(w=>!w.isNew))?'<button class="rrd-hdbtn rrd-hdbtn--edit" data-dashbulk="'+sk+'"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4z"/></svg> Editar</button>':'';
+    const table='<div class="rrd-tablecard"><div class="rrd-tablehd"><div class="rrd-tablehd__t"><span class="rrd-tablehd__dot" style="background:'+SEGDOT[sk]+'"></span>Detalle de '+SEGN[sk]+'</div><div class="rrd-tablehd__acts"><button class="rrd-hdbtn" data-dashadd="'+sk+'"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg> Añadir</button>'+editBtn+'</div></div><div class="rrd-tablewrap"><table class="rrd-tbl"><thead>'+thead+'</thead><tbody>'+(rowsHtml||'<tr><td colspan="8" class="rrd-empty">Sin líneas</td></tr>')+'</tbody></table></div></div>';
+    const nCam=items.reduce((a,w)=>a+camCount(w),0),sub=items.reduce((a,w)=>a+(+w.precio||0),0),nLines=items.length;
+    const sumItem=(lbl,val,cls)=>'<div class="rrd-sitem"><span>'+lbl+'</span><b'+(cls?' class="'+cls+'"':'')+'>'+val+'</b></div>';
+    const resumen='<div class="rrd-card rrd-resumen"><div class="rrd-card__t">Resumen · '+SEGN[sk]+'</div>'+sumItem('Total pedidos',_nnum(nLines))+sumItem('Camiones',_nnum(nCam))+sumItem('Subtotal flete',_gs(sub),'rrd-green')+'</div>';
+    let chart='';
+    if(!isTr){const zc={};items.forEach(w=>{const z=w.zona||(isServ&&w.obs)||'—';if(z&&z!=='—')zc[z]=(zc[z]||0)+1;});const zarr=Object.keys(zc).map(z=>({z,n:zc[z]})).sort((a,b)=>b.n-a.n).slice(0,7);const zmax=Math.max(1,...zarr.map(x=>x.n));
+      chart='<div class="rrd-card rrd-zonas"><div class="rrd-card__t">'+(isServ?'Servicios más frecuentes':'Zonas más frecuentes')+'</div>'+(zarr.length?zarr.map(x=>'<div class="rrd-zrow"><span class="rrd-zname" title="'+_escp(x.z)+'">'+_escp(x.z)+'</span><div class="rrd-ztrack"><div class="rrd-zfill" style="width:'+Math.max(9,x.n/zmax*100).toFixed(1)+'%"></div></div><span class="rrd-zn">'+x.n+'</span></div>').join(''):'<div class="rrd-zempty">Sin datos de zona</div>')+'</div>';}
+    return '<div class="rrd-dash">'+tabs+'<div class="rrd-grid">'+table+'<div class="rrd-side">'+resumen+chart+'</div></div></div>';
+  }
   function boardBody(){const activeSegs=SEGL.filter(segVisible);if(!activeSegs.length)return '<div class="rre-board"><div class="rre-board-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 3h13v13H1zm13 5h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg><b>'+(_camFilter?'Ese camión no está en la planilla':'Todavía no hay servicios cargados')+'</b><span>'+(_camFilter?'Probá con «Ver todos».':'Usá «+ Servicio de reparto» para empezar.')+'</span></div></div>';const cols=activeSegs.map(function(sk){const items=work.filter(w=>!w.del&&w.seg===sk&&(!_camFilter||w.isNew||w.edit||camLbl(w)===_camFilter)).slice().sort((a,b)=>{if(a.isNew!==b.isNew)return a.isNew?-1:1;const fa=a.fecha||'',fb=b.fecha||'';if(sk==='interior'){const pa=+a.precioKm||0,pb=+b.precioKm||0;if(pa!==pb)return pa-pb;return fa<fb?-1:(fa>fb?1:0);}const ca=camLbl(a)||'',cb=camLbl(b)||'';if(ca!==cb)return ca.localeCompare(cb,'es');return fa<fb?-1:(fa>fb?1:0);});let sF=0;items.forEach(w=>sF+=(+w.precio||0));const nCam=items.reduce((s,w)=>s+camCount(w),0);const inner=items.map(function(w,idx){return (w.edit||w.isNew)?formHTML(w,idx):rowHTML(w,idx);}).join('')||'<div class="rre-col-empty">Sin camiones</div>';return '<div class="rre-col rre-col--'+sk+'" data-seg="'+sk+'"><div class="rre-col-hd"><span class="rre-col-dot"></span>'+SEGN[sk]+'<span class="rre-col-n">'+nCam+'</span><div class="rre-col-hdacts">'+((sk!=='transportadora'&&items.some(w=>!w.isNew))?'<button class="rre-vedit" data-editseg="'+sk+'" type="button"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4z"/></svg> Editar</button>':'')+'<button class="rre-vadd" data-seg="'+sk+'" type="button"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg> Añadir</button></div></div><div class="rre-col-body">'+inner+'</div>'+(items.length?'<div class="rre-col-foot"><span class="rre-foot-n">'+nCam+' camión'+(nCam===1?'':'es')+'</span><span class="rre-foot-sub">Subtotal flete <b>'+_gs(sF)+'</b></span></div>':'')+'</div>';}).join('');
     // Columnas "fantasma" para los segmentos que no están en pantalla: aparecen sólo al arrastrar.
     const DHINT='<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>';
@@ -5277,18 +5368,20 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     }
   }
   // Editor masivo tipo Excel de un segmento (edita todas las líneas y guarda al final)
-  function openSegEdit(sk){
-    const isInt=sk==='interior',isServ=sk==='servicios';
-    const SEGN2={local:'Local',interior:'Interior',servicios:'Servicios'};
+  function openSegEdit(sk,autoAdd){
+    const isInt=sk==='interior',isServ=sk==='servicios',isTr=sk==='transportadora';
+    const SEGN2={local:'Local',interior:'Interior',servicios:'Servicios',transportadora:'Transportadora'};
     let _k=1;
-    const draft=work.filter(w=>!w.del&&w.seg===sk).map(w=>({k:_k++,uid:w.uid,isNew:!!w.isNew,trId:w.trId,trDesc:w.trDesc,tsId:w.tsId,tsNombre:w.tsNombre,rep:w.rep||'',zona:w.zona||'',fecha:w.fecha||null,km:+w.km||0,precioKm:+w.precioKm||0,precio:+w.precio||0,obs:w.obs||'',del:false}));
+    const draft=work.filter(w=>!w.del&&w.seg===sk).map(w=>({k:_k++,uid:w.uid,isNew:!!w.isNew,trId:w.trId,trDesc:w.trDesc,tsId:w.tsId,tsNombre:w.tsNombre,rep:w.rep||'',zona:w.zona||'',fecha:w.fecha||null,km:+w.km||0,precioKm:+w.precioKm||0,precio:+w.precio||0,obs:w.obs||'',cant:+w.cant||1,del:false}));
     const D=k=>draft.find(x=>x.k===+k);
     const kmMode=d=>isInt&&(+d.km>0)&&(+d.precioKm>0);
     const fleteOf=d=>kmMode(d)?Math.round(d.km*d.precioKm):(+d.precio||0);
-    const cols=['#','Camión','Fecha','Repartidor','Zona'].concat(isInt?['Km','Precio/km']:[]).concat(isServ?['Observación']:[]).concat(['Flete','']);
+    const cols=isTr?['#','Fecha','Cantidad','Flete','']:(['#','Camión','Fecha','Repartidor','Zona'].concat(isInt?['Km','Precio/km']:[]).concat(isServ?['Observación']:[]).concat(['Flete','']));
     const CHV='<svg class="xls-chv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>';
     const TRASH='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M10 11v6M14 11v6"/></svg>';
-    function rowHTML(d){const dd=d.fecha?String(d.fecha).slice(0,10):'';let c='<td class="xls-n">'+d.k+'</td>';
+    function rowHTML(d){const dd=d.fecha?String(d.fecha).slice(0,10):'';
+      if(isTr){let c='<td class="xls-n">'+d.k+'</td><td><input type="date" class="xls-in xls-date" data-k="'+d.k+'" value="'+dd+'"></td><td><input class="xls-in r xls-cant" data-k="'+d.k+'" inputmode="numeric" placeholder="0" value="'+(d.cant||'')+'"></td><td class="r"><input class="xls-in r xls-flete" data-k="'+d.k+'" inputmode="numeric" placeholder="0" value="'+(d.precio?_nnum(d.precio):'')+'"></td><td class="xls-del-c"><button type="button" class="xls-del" data-k="'+d.k+'" title="Quitar">'+TRASH+'</button></td>';return '<tr data-k="'+d.k+'">'+c+'</tr>';}
+      let c='<td class="xls-n">'+d.k+'</td>';
       c+='<td><button type="button" class="xls-pick'+(d.trId?'':' ph')+'" data-k="'+d.k+'" data-pick="tr"><span>'+(d.trId?_escp(d.trDesc||'—'):'Elegir')+'</span>'+CHV+'</button></td>';
       c+='<td><input type="date" class="xls-in xls-date" data-k="'+d.k+'" value="'+dd+'"></td>';
       c+='<td><button type="button" class="xls-pick'+(d.rep?'':' ph')+'" data-k="'+d.k+'" data-pick="rep"><span>'+(d.rep?_escp(d.rep):'Tercerizado')+'</span>'+CHV+'</button></td>';
@@ -5315,21 +5408,25 @@ function _rrOpenDetail(g,periodLbl,wkObj){
       body.querySelectorAll('.xls-km').forEach(i=>i.addEventListener('input',()=>{const d=D(i.dataset.k);if(d){d.km=_kmParse(i.value);updFlete(d);}}));
       body.querySelectorAll('.xls-pkm').forEach(i=>i.addEventListener('input',()=>{const d=D(i.dataset.k);if(d){d.precioKm=parseInt(i.value.replace(/\D/g,''),10)||0;updFlete(d);}}));
       body.querySelectorAll('.xls-flete').forEach(i=>i.addEventListener('input',()=>{const d=D(i.dataset.k);if(d&&!i.readOnly){d.precio=parseInt(i.value.replace(/\D/g,''),10)||0;updTotals();}}));
+      body.querySelectorAll('.xls-cant').forEach(i=>i.addEventListener('input',()=>{const d=D(i.dataset.k);if(d){d.cant=parseInt(i.value.replace(/\D/g,''),10)||0;updTotals();}}));
       body.querySelectorAll('.xls-obs').forEach(i=>i.addEventListener('input',()=>{const d=D(i.dataset.k);if(d)d.obs=i.value;}));
       body.querySelectorAll('.xls-pick').forEach(b=>b.addEventListener('click',()=>openCellPick(b)));
       body.querySelectorAll('.xls-del').forEach(b=>b.addEventListener('click',()=>{const d=D(b.dataset.k);if(!d)return;const tr=b.closest('tr'),gs=window.gsap;const go=()=>{d.del=true;paint();};if(gs&&tr)gs.to(tr,{opacity:0,x:24,duration:.2,ease:'power2.in',onComplete:go});else go();}));
     }
     function paint(anim){const list=draft.filter(d=>!d.del);body.innerHTML=list.map(rowHTML).join('')||'<tr><td colspan="'+cols.length+'" class="xls-empty">Sin líneas — agregá una con “+ Agregar línea”.</td></tr>';wireRows();const bg=m.$('.xls-badge');if(bg)bg.innerHTML=list.length+' <small>línea'+(list.length===1?'':'s')+'</small>';updTotals();const gs=window.gsap;if(gs&&anim)gs.from(body.querySelectorAll('tr'),{opacity:0,y:8,duration:.26,stagger:.02,ease:'power2.out',clearProps:'all'});}
-    m.$('#xlsAdd').addEventListener('click',()=>{const tr=(trucks||[])[0]||null;draft.push({k:_k++,uid:null,isNew:true,trId:tr?tr.id:null,trDesc:tr?tr.d:'',tsId:tsObj?tsObj.id:g.tsId,tsNombre:g.ts,rep:'',zona:'',fecha:(wkObj?wkObj.desde:null),km:0,precioKm:0,precio:0,obs:'',del:false});paint(true);const wp=m.$('.xls-wrap');if(wp)wp.scrollTop=wp.scrollHeight;});
+    m.$('#xlsAdd').addEventListener('click',()=>{const tr=(trucks||[])[0]||null;draft.push({k:_k++,uid:null,isNew:true,trId:isTr?null:(tr?tr.id:null),trDesc:isTr?'':(tr?tr.d:''),tsId:tsObj?tsObj.id:g.tsId,tsNombre:g.ts,rep:'',zona:'',fecha:(wkObj?wkObj.desde:null),km:0,precioKm:0,precio:0,obs:'',cant:1,del:false});paint(true);const wp=m.$('.xls-wrap');if(wp)wp.scrollTop=wp.scrollHeight;});
+    if(autoAdd)m.$('#xlsAdd').click();
     m.$('.xls-cancel').addEventListener('click',m.close);
     m.$('.xls-save').addEventListener('click',()=>{
       const alive=draft.filter(d=>!d.del);
-      for(const d of alive){if(!d.trId){showToast('Elegí el camión en todas las filas 👀');return;}if(!(fleteOf(d)>0)){showToast(isInt?'Cargá el flete, o los km y el precio/km, en todas las filas 👀':'Cargá el flete en todas las filas 👀');return;}}
+      const trD=d=>((+d.cant||0)+' camión'+((+d.cant||0)===1?'':'es'));
+      for(const d of alive){if(isTr){if(!(+d.cant>0)){showToast('Cargá la cantidad de camiones 👀');return;}}else if(!d.trId){showToast('Elegí el camión en todas las filas 👀');return;}if(!(fleteOf(d)>0)){showToast(isInt?'Cargá el flete, o los km y el precio/km, en todas las filas 👀':'Cargá el flete en todas las filas 👀');return;}}
       work.forEach(w=>{if(w.seg!==sk||w.del)return;const d=alive.find(x=>x.uid===w.uid);if(!d){if(!w.isNew)w.del=true;return;}
+        if(isTr){w.cant=+d.cant||0;w.precio=+d.precio||0;w.trId=null;w.trDesc=trD(d);w.rep=null;w.zona=null;w.km=0;w.precioKm=0;w.fijo=false;w.obs=null;w.fecha=d.fecha;return;}
         const km2=kmMode(d);w.trId=d.trId;w.trDesc=d.trDesc;w.tsId=d.tsId||w.tsId;w.tsNombre=d.tsNombre||w.tsNombre;w.rep=(d.rep||'').trim();w.zona=(d.zona||'').trim();w.fecha=d.fecha;w.obs=isServ?(d.obs||''):'';w.fijo=isInt?!km2:false;
         if(km2){w.km=d.km;w.precioKm=d.precioKm;w.precio=Math.round(d.km*d.precioKm);}else{w.km=0;w.precioKm=0;w.precio=+d.precio||0;}});
       work=work.filter(w=>!(w.seg===sk&&w.isNew&&!alive.some(d=>d.uid===w.uid)));
-      alive.filter(d=>!d.uid).forEach(d=>{const km2=kmMode(d);work.unshift({uid:_wuid++,ref:null,repId:targetRepId(),trId:d.trId,trDesc:d.trDesc,tsId:d.tsId,tsNombre:d.tsNombre,seg:sk,rep:(d.rep||'').trim(),zona:(d.zona||'').trim(),obs:isServ?(d.obs||''):'',cant:1,fecha:d.fecha,km:km2?d.km:0,precioKm:km2?d.precioKm:0,monto:0,precio:km2?Math.round(d.km*d.precioKm):(+d.precio||0),fijo:isInt?!km2:false,del:false,isNew:true,edit:false});});
+      alive.filter(d=>!d.uid).forEach(d=>{if(isTr){work.unshift({uid:_wuid++,ref:null,repId:targetRepId(),trId:null,trDesc:trD(d),tsId:tsObj?tsObj.id:g.tsId,tsNombre:g.ts,seg:sk,rep:null,zona:null,obs:null,cant:+d.cant||0,fecha:d.fecha,km:0,precioKm:0,monto:0,precio:+d.precio||0,fijo:false,del:false,isNew:true,edit:false});return;}const km2=kmMode(d);work.unshift({uid:_wuid++,ref:null,repId:targetRepId(),trId:d.trId,trDesc:d.trDesc,tsId:d.tsId,tsNombre:d.tsNombre,seg:sk,rep:(d.rep||'').trim(),zona:(d.zona||'').trim(),obs:isServ?(d.obs||''):'',cant:1,fecha:d.fecha,km:km2?d.km:0,precioKm:km2?d.precioKm:0,monto:0,precio:km2?Math.round(d.km*d.precioKm):(+d.precio||0),fijo:isInt?!km2:false,del:false,isNew:true,edit:false});});
       m.close();save(null,true);
     });
     paint();
@@ -5349,6 +5446,13 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     const fac=bd.querySelector('.rrm-act--fac');if(fac)fac.addEventListener('click',()=>{_cfOpenFacturaModal(null,{ts:g.ts,semDesde:wkObj.desde,semHasta:wkObj.hasta,onBack:()=>_rrOpenDetail(g,periodLbl,wkObj)});});
     bd.querySelectorAll('.rre-vadd').forEach(b=>b.addEventListener('click',()=>{addRow(b.dataset.seg);render('add');}));
     bd.querySelectorAll('[data-editseg]').forEach(b=>b.addEventListener('click',()=>openSegEdit(b.dataset.editseg)));
+    // Vista dashboard: pestañas, editar/añadir/eliminar por fila
+    bd.querySelectorAll('[data-dashseg]').forEach(b=>b.addEventListener('click',()=>{if(_dashSeg===b.dataset.dashseg)return;_dashSeg=b.dataset.dashseg;render('filter');}));
+    bd.querySelectorAll('[data-dashadd]').forEach(b=>b.addEventListener('click',()=>openSegEdit(b.dataset.dashadd,true)));
+    bd.querySelectorAll('[data-dashbulk]').forEach(b=>b.addEventListener('click',()=>openSegEdit(b.dataset.dashbulk)));
+    bd.querySelectorAll('[data-dashedit]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();openSegEdit(_dashSeg);}));
+    bd.querySelectorAll('[data-dashdel]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();const w=W(b.dataset.dashdel);if(w)confirmDelete(w);}));
+    bd.querySelectorAll('[data-dashrow]').forEach(r=>r.addEventListener('click',e=>{if(e.target.closest('button'))return;openSegEdit(_dashSeg);}));
     // clic en la fila desglosa (edita) SOLO esa; el tacho borra con confirmación
     bd.querySelectorAll('.rrv-row').forEach(r=>r.addEventListener('click',e=>{if(e.target.closest('button'))return;openEdit(r.dataset.edituid);}));
     bd.querySelectorAll('.rrv-del').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();const w=W(b.dataset.deluid);if(w)confirmDelete(w);}));
@@ -5394,13 +5498,15 @@ function _rrOpenDetail(g,periodLbl,wkObj){
         '<div class="rrd-acts">'+acts+'</div>'+
       '</div>'+
       camFilterBar()+
-      '<div class="rrm-body">'+boardBody()+'</div>';
+      '<div class="rrm-body">'+dashBody()+'</div>';
     wire();
     const gs=window.gsap;
     if(!gs||reduce()){firstDraw=false;_lastTotal=t.f;return;}
     const kf=bd.querySelector('.k-flete');
     if(kf){if(firstDraw)countTo(kf,0,t.f,.28);else if(_lastTotal!=null&&_lastTotal!==t.f)countTo(kf,_lastTotal,t.f,0);}
     _lastTotal=t.f;
+    const _dash=bd.querySelector('.rrd-dash');
+    if(_dash&&!firstDraw){gs.from(_dash.querySelectorAll('.rrd-tbl tbody tr'),{opacity:0,y:8,duration:.32,stagger:.02,ease:'power2.out',clearProps:'all'});gs.from(_dash.querySelectorAll('.rrd-card'),{opacity:0,x:14,duration:.4,stagger:.08,delay:.05,ease:'power3.out',clearProps:'all'});gs.from(_dash.querySelectorAll('.rrd-zfill'),{scaleX:0,transformOrigin:'left center',duration:.55,stagger:.05,delay:.16,ease:'power3.out'});}
     const cols=bd.querySelectorAll('.rre-col'),items=bd.querySelectorAll('.rre-card, .rrv-row'),actsEl=bd.querySelectorAll('.rrd-acts .rrm-act');
     const selCard=()=>selUid!=null?bd.querySelector('.rre-card[data-uid="'+selUid+'"]'):null;
     if(firstDraw){firstDraw=false;
@@ -5411,6 +5517,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
       tl.from(bd.querySelectorAll('.rrm-kpi'),{opacity:0,y:-12,scale:.94,duration:.5,stagger:.08,ease:'back.out(1.7)',clearProps:'all'},.16);
       tl.from(cols,{opacity:0,y:20,scale:.96,duration:.55,stagger:.15,ease:'back.out(1.7)',clearProps:'all'},.3);
       tl.from(items,{opacity:0,y:25,scale:.9,duration:.6,stagger:.07,ease:'back.out(1.8)',clearProps:'all'},.55);
+      if(_dash){tl.from(_dash.querySelectorAll('.rrd-tab'),{opacity:0,y:-6,duration:.3,stagger:.03,clearProps:'all'},.22).from(_dash.querySelectorAll('.rrd-tbl tbody tr'),{opacity:0,y:8,duration:.3,stagger:.02,clearProps:'all'},.34).from(_dash.querySelectorAll('.rrd-card'),{opacity:0,x:14,duration:.42,stagger:.08,ease:'power3.out',clearProps:'all'},.38).from(_dash.querySelectorAll('.rrd-zfill'),{scaleX:0,transformOrigin:'left center',duration:.5,stagger:.05,ease:'power3.out'},.52);}
       return;}
     if(anim==='add'||anim==='move'||anim==='edit'){
       const card=selCard();
