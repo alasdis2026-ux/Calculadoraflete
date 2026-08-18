@@ -4369,7 +4369,8 @@ function showSaveAnim(text){
   .rrd-tab:active{transform:scale(.96)}
   .rrd-tab:not(.on):hover{background:#fff;color:var(--gray-800);box-shadow:0 2px 8px rgba(15,23,42,.08)}
   .rrd-tab.on{border-color:transparent;background:linear-gradient(135deg,#2578b8,#0B5F8D);color:#fff;box-shadow:0 8px 20px rgba(11,95,141,.34)}
-  .rrd-tab__dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+  .rrd-tab__dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;animation:rrdDotPulse 1.6s ease-in-out infinite}
+  @keyframes rrdDotPulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.4);opacity:.65}}
   .rrd-tab.on .rrd-tab__dot{background:#fff!important}
   .rrd-tab__n{min-width:20px;height:20px;padding:0 6px;display:inline-flex;align-items:center;justify-content:center;border-radius:999px;background:var(--gray-100,#f1f5f9);color:var(--gray-500,#64748b);font-size:11px;font-weight:800;font-variant-numeric:tabular-nums}
   .rrd-tab.on .rrd-tab__n{background:rgba(255,255,255,.22);color:#fff}
@@ -5345,7 +5346,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
   function dashTabs(){
     const segsPresent=SEGL.filter(sk=>work.some(w=>!w.del&&w.seg===sk));
     if(!segsPresent.length)return '';
-    const SEGDOT={local:'#0B5F8D',interior:'#F97316',servicios:'#10B981',transportadora:'#7c3aed'};
+    const SEGDOT={local:'#38BDF8',interior:'#F97316',servicios:'#10B981',transportadora:'#7c3aed'};
     const totalN=work.filter(w=>!w.del).reduce((a,w)=>a+camCount(w),0);
     return '<div class="rrd-tabs"><button class="rrd-tab'+(_dashSeg==='todos'?' on':'')+'" data-dashseg="todos"><span class="rrd-tab__dot rrd-tab__dot--all"></span>Todos<span class="rrd-tab__n">'+totalN+'</span></button>'+segsPresent.map(s=>{const n=work.filter(w=>!w.del&&w.seg===s).reduce((a,w)=>a+camCount(w),0);return '<button class="rrd-tab'+(_dashSeg===s?' on':'')+'" data-dashseg="'+s+'"><span class="rrd-tab__dot" style="background:'+SEGDOT[s]+'"></span>'+SEGN[s]+'<span class="rrd-tab__n">'+n+'</span></button>';}).join('')+'</div>';
   }
@@ -5354,7 +5355,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     if(!segsPresent.length)return '<div class="rre-board"><div class="rre-board-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 3h13v13H1zm13 5h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg><b>Todavía no hay servicios cargados</b><span>Usá «+ Servicio de reparto» para empezar.</span></div></div>';
     if(_dashEdit&&!segsPresent.includes(_dashSeg)){_dashEdit=false;_dashDraft=null;}
     if(!_dashSeg||(_dashSeg!=='todos'&&!segsPresent.includes(_dashSeg)))_dashSeg=segsPresent[0];
-    const SEGDOT={local:'#0B5F8D',interior:'#F97316',servicios:'#10B981',transportadora:'#7c3aed'};
+    const SEGDOT={local:'#38BDF8',interior:'#F97316',servicios:'#10B981',transportadora:'#7c3aed'};
     const CAL='<span class="rrd-calic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4.5" width="18" height="17" rx="2.5"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/></svg></span>';
     const dfec=w=>'<td class="rrd-fec">'+CAL+(w.fecha?String(w.fecha).slice(0,10).split('-').reverse().slice(0,2).join('/'):'—')+'</td>';
     const dchip=t=>'<span class="rrd-chip">'+_escp(t)+'</span>';
@@ -5548,7 +5549,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
   function wire(){
     const cf=bd.querySelector('#rrmCamFilter');if(cf)cf.addEventListener('click',()=>{const used=camsUsados();openChipPop(cf,{value:_camFilter||'',search:true,options:[{v:'',label:'Todos los camiones'}].concat(used.map(c=>({v:c,label:c}))),onPick:v=>{_camFilter=v||null;render('filter');}});});
     const cc=bd.querySelector('#rrmCamClear');if(cc)cc.addEventListener('click',()=>{_camFilter=null;render('filter');});
-    const asg=bd.querySelector('#rrmAddSeg');if(asg)asg.addEventListener('click',()=>{const SEGDOT={local:'#0B5F8D',interior:'#F97316',servicios:'#10B981',transportadora:'#7c3aed'};const emptySegs=SEGL.filter(sk=>!work.some(w=>!w.del&&w.seg===sk));openChipPop(asg,{value:'',options:emptySegs.map(sk=>({v:sk,label:SEGN[sk],dot:SEGDOT[sk]})),onPick:v=>{if(_camFilter)_camFilter=null;addRow(v);render('add');}});});
+    const asg=bd.querySelector('#rrmAddSeg');if(asg)asg.addEventListener('click',()=>{const SEGDOT={local:'#38BDF8',interior:'#F97316',servicios:'#10B981',transportadora:'#7c3aed'};const emptySegs=SEGL.filter(sk=>!work.some(w=>!w.del&&w.seg===sk));openChipPop(asg,{value:'',options:emptySegs.map(sk=>({v:sk,label:SEGN[sk],dot:SEGDOT[sk]})),onPick:v=>{if(_camFilter)_camFilter=null;addRow(v);render('add');}});});
     // Micro-animación GSAP en los botones de acción (ícono con pulso al pasar el mouse)
     [bd.querySelector('.rrm-act--print'),bd.querySelector('#rrmAddSeg')].forEach(b=>{if(!b||!window.gsap)return;const ic=b.querySelector('svg');if(!ic)return;b.addEventListener('mouseenter',()=>{gsap.killTweensOf(ic);gsap.fromTo(ic,{scale:1},{scale:1.2,duration:.26,yoyo:true,repeat:1,ease:'power2.inOut'});});});
     // Selectores PRO (Repartidor / Zona) en la tarjeta en edición
