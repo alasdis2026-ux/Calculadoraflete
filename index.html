@@ -4771,6 +4771,8 @@ function showSaveAnim(text){
   .cf-mfoot .cancel:hover{background:var(--gray-200,#e2e8f0)}
   .cf-mfoot .ok{background:var(--primary);color:#fff;box-shadow:0 5px 16px rgba(11,95,141,.30)}
   .cf-mfoot .ok:hover{box-shadow:0 8px 22px rgba(11,95,141,.38)}
+  .cf-mfoot .ok.cf-ok--warn{background:linear-gradient(180deg,#f59e0b,#d97706);box-shadow:0 5px 16px rgba(217,119,6,.32)}
+  .cf-mfoot .ok.cf-ok--warn:hover{box-shadow:0 8px 22px rgba(217,119,6,.4)}
 </style>
 <script>
 /* ════════ Helpers ════════ */
@@ -5183,9 +5185,12 @@ function _cfOpenFacturaModal(existing,preset){
     if(preSel){host.innerHTML=repsList.map(r=>{const dd=r.fechaISO?String(r.fechaISO).slice(0,10).split('-').reverse().join('/'):'—';return '<div class="cf-rep cf-rep--ro on"><span class="cf-rep__chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></span><span class="cf-rep__d">'+dd+'</span><span class="cf-rep__f">'+_gs(+r.flete||0)+'</span></div>';}).join('')+'<div class="cf-rep-sum"><span>Total a facturar</span><b>'+_gs(repFlete())+'</b></div>';return;}
     host.innerHTML=repsList.map(r=>{const on=repSel.has(r.id);const dd=r.fechaISO?String(r.fechaISO).slice(0,10).split('-').reverse().join('/'):'—';return '<label class="cf-rep'+(on?' on':'')+'"><input type="checkbox" data-rid="'+r.id+'"'+(on?' checked':'')+'><span class="cf-rep__chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></span><span class="cf-rep__d">'+dd+'</span><span class="cf-rep__f">'+_gs(+r.flete||0)+'</span></label>';}).join('')+'<div class="cf-rep-sum"><span>Seleccionado</span><b>'+_gs(repFlete())+'</b></div>';host.querySelectorAll('[data-rid]').forEach(c=>c.addEventListener('change',()=>{const id=+c.dataset.rid;if(c.checked)repSel.add(id);else repSel.delete(id);renderReps();renderPlBtn();updLive();}));}
   renderPlBtn();updLive();if(repsList)renderReps();
-  plBtn.addEventListener('click',()=>_facPlanillaPicker(pick=>{sel=pick;_cfClearVal(plF);renderPlBtn();updLive();}));
+  // Bloqueo por no-coincidencia: se arma en el 1er intento y recién el 2do registra igual
+  let _mismatchArmed=false;
+  const resetArm=()=>{if(!_mismatchArmed)return;_mismatchArmed=false;const okB0=m.$('.ok');if(okB0){okB0.classList.remove('cf-ok--warn');okB0.textContent=editing?'Guardar cambios':'Guardar factura';}};
+  plBtn.addEventListener('click',()=>_facPlanillaPicker(pick=>{sel=pick;_cfClearVal(plF);renderPlBtn();updLive();resetArm();}));
   nroI.addEventListener('input',()=>{nroI.value.trim()?_cfSetOk(nroF):_cfClearVal(nroF);});
-  mo.addEventListener('input',()=>{const n=parseInt(mo.value.replace(/[^\d]/g,''),10)||0;mo.value=n?_nnum(n):'';n>0?_cfSetOk(moF):_cfClearVal(moF);updLive();});
+  mo.addEventListener('input',()=>{const n=parseInt(mo.value.replace(/[^\d]/g,''),10)||0;mo.value=n?_nnum(n):'';n>0?_cfSetOk(moF):_cfClearVal(moF);updLive();resetArm();});
   m.$('.cancel').addEventListener('click',()=>{m.close();if(locked&&preset&&typeof preset.onBack==='function')setTimeout(preset.onBack,150);});
   m.$('.ok').addEventListener('click',async()=>{
     const nro=nroI.value.trim(),monto=parseInt(mo.value.replace(/[^\d]/g,''),10)||0,fecha=feI.value||null;
@@ -5195,6 +5200,20 @@ function _cfOpenFacturaModal(existing,preset){
     if(!sel){_cfSetErr(plF,'Elegí a qué planilla corresponde.');bad=true;}
     if(bad){showToast('Revisá los campos marcados 👀');return;}
     if(repsList&&repSel.size===0){showToast('Elegí al menos un reparto para facturar 👀');return;}
+    // No permitir registrar si el monto no coincide con el flete (salvo confirmación explícita)
+    const _flete=repFlete();
+    if(monto!==_flete){
+      if(!_mismatchArmed){
+        _mismatchArmed=true;
+        const dif=Math.abs(monto-_flete);
+        live.className='cf-live diff';
+        live.innerHTML='▲ El monto no coincide con el flete.<br>Flete <b>'+_gs(_flete)+'</b> · Factura <b>'+_gs(monto)+'</b> · Diferencia <b>'+_gs(dif)+'</b><br>Corregí el monto, o tocá de nuevo para registrarla igual.';
+        _cfSetErr(moF,'No coincide con el flete ('+_gs(_flete)+').');
+        const okB0=m.$('.ok');if(okB0){okB0.classList.add('cf-ok--warn');okB0.textContent='Registrar de todos modos';}
+        showToast('El monto no coincide con el flete 👀');
+        return;
+      }
+    }
     const okB=m.$('.ok'),okTxt=editing?'Guardar cambios':'Guardar factura';if(okB){okB.disabled=true;okB.classList.add('is-loading');okB.innerHTML='<span class="cf-spin"></span>Guardando…';}
     const row={nro:nro,fecha:fecha,monto:monto,transportadora_nombre:sel.ts,semana_desde:sel.semDesde,semana_hasta:sel.semHasta};
     try{
