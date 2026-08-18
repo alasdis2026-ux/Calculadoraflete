@@ -4390,6 +4390,7 @@ function showSaveAnim(text){
   .rrd-tablehd__acts{display:flex;gap:6px;flex-shrink:0}
   .rrd-hdbtn{display:inline-flex;align-items:center;gap:6px;border:1.5px solid transparent;background:transparent;color:var(--primary);border-radius:9px;padding:7px 12px;font:inherit;font-size:12.5px;font-weight:800;cursor:pointer;transition:background .14s}
   .rrd-hdbtn:hover{background:var(--accent-soft,#DBEAFE)}
+  .rrd-hdlock{display:inline-flex;align-items:center;gap:6px;border:1.5px solid rgba(22,163,74,.22);background:rgba(34,197,94,.1);color:#15803d;border-radius:9px;padding:7px 12px;font-size:12px;font-weight:800}
   .rrd-tablewrap{overflow-x:auto}
   .rrd-tbl{width:100%;border-collapse:collapse}
   .rrd-tbl:not(.rrd-tbl--edit){width:auto}
@@ -5408,7 +5409,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     const emptySegs=SEGL.filter(sk=>!work.some(w=>!w.del&&w.seg===sk));
     const lbl=_camFilter||'Todos los camiones';
     const filterUI=used.length?('<button type="button" class="rrm-camfilter'+(_camFilter?' on':'')+'" id="rrmCamFilter"><span class="rrm-camfilter__ic">'+TRUCKICON+'</span><span class="rrm-camfilter__t">'+_escp(lbl)+'</span><svg class="rrm-camfilter__arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg></button>'+(_camFilter?'<button type="button" class="rrm-camclear" id="rrmCamClear"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 6L6 18M6 6l12 12"/></svg> Ver todos</button>':'')):'';
-    const addUI=emptySegs.length?'<button type="button" class="rrm-addseg" id="rrmAddSeg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg> Agregar servicio</button>':'';
+    const addUI=(emptySegs.length&&!_facDeGrupo(g))?'<button type="button" class="rrm-addseg" id="rrmAddSeg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg> Agregar servicio</button>':'';
     if(!filterUI&&!addUI)return '';
     return '<div class="rrm-filterbar">'+filterUI+addUI+'</div>';
   }
@@ -5420,7 +5421,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
   const _dfKm=d=>_dashSeg==='interior'&&(+d.km>0)&&(+d.precioKm>0);
   const _dfFlete=d=>_dfKm(d)?Math.round(d.km*d.precioKm):(+d.precio||0);
   function _dashBlank(){const isTr=_dashSeg==='transportadora',tr=(trucks||[])[0]||null;return {k:_dashDK++,uid:null,isNew:true,trId:isTr?null:(tr?tr.id:null),trDesc:isTr?'':(tr?tr.d:''),tsId:tsObj?tsObj.id:g.tsId,tsNombre:g.ts,rep:'',zona:'',fecha:(wkObj?wkObj.desde:null),km:0,precioKm:0,precio:0,obs:'',cant:1,del:false};}
-  function _dashEnterEdit(sk,autoAdd){_dashSeg=sk;_dashDK=1;_dashDraft=work.filter(w=>!w.del&&w.seg===sk).map(w=>({k:_dashDK++,uid:w.uid,isNew:!!w.isNew,trId:w.trId,trDesc:w.trDesc,tsId:w.tsId,tsNombre:w.tsNombre,rep:w.rep||'',zona:w.zona||'',fecha:w.fecha||null,km:+w.km||0,precioKm:+w.precioKm||0,precio:+w.precio||0,obs:w.obs||'',cant:+w.cant||1,del:false}));_dashEdit=true;if(autoAdd)_dashDraft.push(_dashBlank());render('filter');}
+  function _dashEnterEdit(sk,autoAdd){if(_facDeGrupo(g)){showToast('Esta planilla ya está facturada · no se puede modificar');return;}_dashSeg=sk;_dashDK=1;_dashDraft=work.filter(w=>!w.del&&w.seg===sk).map(w=>({k:_dashDK++,uid:w.uid,isNew:!!w.isNew,trId:w.trId,trDesc:w.trDesc,tsId:w.tsId,tsNombre:w.tsNombre,rep:w.rep||'',zona:w.zona||'',fecha:w.fecha||null,km:+w.km||0,precioKm:+w.precioKm||0,precio:+w.precio||0,obs:w.obs||'',cant:+w.cant||1,del:false}));_dashEdit=true;if(autoAdd)_dashDraft.push(_dashBlank());render('filter');}
   function _dashExitEdit(){_dashEdit=false;_dashDraft=null;render('filter');}
   async function _dashSaveEdit(){const sk=_dashSeg,isInt=sk==='interior',isServ=sk==='servicios',isTr=sk==='transportadora';const alive=(_dashDraft||[]).filter(d=>!d.del);
     for(const d of alive){if(isTr){if(!(+d.cant>0)){showToast('Cargá la cantidad de camiones 👀');return;}}else if(!d.trId){showToast('Elegí el camión en todas las filas 👀');return;}if(!(_dfFlete(d)>0)){showToast('Cargá el flete en todas las filas 👀');return;}}
@@ -5500,6 +5501,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     }
     let hdActs;
     if(editing)hdActs='<button class="rrd-hdbtn" data-dashaddline="1"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg> Agregar</button><button class="rrd-hdbtn rrd-hdbtn--cancel" data-dashcancel="1">Cancelar</button><button class="rrd-hdbtn rrd-hdbtn--save" data-dashsave="1"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> Guardar</button>';
+    else if(_facDeGrupo(g))hdActs='<span class="rrd-hdlock"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><rect x="4.5" y="11" width="15" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg> Facturada · conciliada</span>';
     else hdActs='<button class="rrd-hdbtn" data-dashadd="'+sk+'"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg> Añadir</button>'+(items.some(w=>!w.isNew)?'<button class="rrd-hdbtn rrd-hdbtn--edit" data-dashedit="'+sk+'"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4z"/></svg> Editar</button>':'');
     const table='<div class="rrd-tablecard'+(editing?' is-editing':'')+'"><div class="rrd-tablehd"><div class="rrd-tablehd__t"><span class="rrd-tablehd__dot" style="background:'+SEGDOT[sk]+'"></span>'+(editing?'Editando '+SEGN[sk]:'Detalle de '+SEGN[sk])+'</div><div class="rrd-tablehd__acts">'+hdActs+'</div></div><div class="rrd-tablewrap"><table class="rrd-tbl'+(editing?' rrd-tbl--edit':'')+'"><thead>'+thead+'</thead><tbody>'+rowsHtml+'</tbody></table></div></div>';
     const src=editing?(_dashDraft||[]).filter(d=>!d.del):items;
@@ -5674,7 +5676,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     bd.querySelectorAll('[data-dashadd]').forEach(b=>b.addEventListener('click',()=>_dashEnterEdit(b.dataset.dashadd,true)));
     bd.querySelectorAll('[data-dashedit]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();_dashEnterEdit(b.dataset.dashedit);}));
     bd.querySelectorAll('[data-dashdel]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();const w=W(b.dataset.dashdel);if(w)confirmDelete(w);}));
-    bd.querySelectorAll('[data-dashrow]').forEach(r=>r.addEventListener('click',e=>{if(e.target.closest('button')||e.target.closest('.rrd-facc'))return;_dashEnterEdit(_dashSeg);}));
+    bd.querySelectorAll('[data-dashrow]').forEach(r=>r.addEventListener('click',e=>{if(e.target.closest('button')||e.target.closest('.rrd-facc'))return;if(_facDeGrupo(g))return;_dashEnterEdit(_dashSeg);}));
     // Check verde→azul: confirmar que el reparto entra en la factura (con loader interno)
     bd.querySelectorAll('[data-dashfac]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();if(b.classList.contains('is-loading'))return;const rid=b.dataset.dashfac,on=!_dashConf.has(rid),svg=b.innerHTML;b.classList.add('is-loading');b.innerHTML='<span class="rrd-facspin"></span>';setTimeout(()=>{b.classList.remove('is-loading');b.innerHTML=svg;if(on){_dashConf.add(rid);_dashOut.delete(rid);}else _dashConf.delete(rid);b.classList.toggle('conf',on);b.setAttribute('data-tip',on?'Confirmado · entra en la factura':'Confirmar para la factura');const tr=b.closest('tr');if(tr){tr.classList.remove('rrd-row-out');const mv=tr.querySelector('[data-dashmove]');if(mv)mv.classList.remove('out');}const gs=window.gsap;if(gs&&!reduce()){gs.killTweensOf(b);gs.fromTo(b,{scale:.55},{scale:1,duration:.45,ease:'back.out(3.2)'});}},380);}));
     // Flecha amarilla: pasar el reparto a otra planilla (con loader interno)
