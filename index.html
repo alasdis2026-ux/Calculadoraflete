@@ -4407,7 +4407,8 @@ function showSaveAnim(text){
   .rrd-mut{color:var(--gray-300)}
   .rrd-fec{color:var(--gray-500);font-variant-numeric:tabular-nums}
   .rrd-det{color:var(--gray-500);font-size:12px}
-  .rrd-flete{font-weight:800;color:#15803d;font-variant-numeric:tabular-nums}
+  .rrd-flete{font-weight:800;color:#15803d;font-variant-numeric:tabular-nums;font-size:12px}
+  .rrd-tbl td.rrd-flete{padding-left:6px;padding-right:8px}
   .rrd-calic{display:inline-flex;width:15px;height:15px;color:var(--gray-400);margin-right:7px;vertical-align:-2px}
   .rrd-calic svg{width:15px;height:15px}
   .rrd-fec{color:var(--gray-600);font-variant-numeric:tabular-nums;white-space:nowrap}
@@ -4464,12 +4465,14 @@ function showSaveAnim(text){
   .rrd-del:hover{background:#FEF2F2;color:#DC2626}
   .rrd-del:active{transform:scale(.9)}
   /* Columna Factura: check verde→azul + flecha amarilla (pasar a otra planilla) */
-  .rrd-facth{width:104px;text-align:right;white-space:nowrap;color:var(--gray-400,#94a3b8)}
-  .rrd-facc{width:104px;text-align:right;white-space:nowrap;padding-right:12px!important}
-  .rrd-facc button{position:relative;width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;border-radius:11px;cursor:pointer;vertical-align:middle;transition:background .16s,border-color .16s,box-shadow .16s,transform .1s;-webkit-tap-highlight-color:transparent}
-  .rrd-facc button+button{margin-left:6px}
-  .rrd-facc button svg{width:17px;height:17px;pointer-events:none}
+  .rrd-facth{width:92px;text-align:right;white-space:nowrap;color:var(--gray-400,#94a3b8)}
+  .rrd-facc{width:92px;text-align:right;white-space:nowrap;padding-right:12px!important}
+  .rrd-facc button{position:relative;width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border-radius:10px;cursor:pointer;vertical-align:middle;transition:background .16s,border-color .16s,box-shadow .16s,transform .1s;-webkit-tap-highlight-color:transparent}
+  .rrd-facc button+button{margin-left:5px}
+  .rrd-facc button svg{width:16px;height:16px;pointer-events:none}
   .rrd-facc button:active{transform:scale(.88)}
+  .rrd-facc button.is-loading{pointer-events:none}
+  .rrd-facspin{display:inline-block;width:15px;height:15px;border:2.2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:cfSpin .55s linear infinite;opacity:.9}
   .rrd-facchk{border:1.6px solid #bbf7d0;background:#f0fdf4;color:#16a34a}
   .rrd-facchk:hover{background:#dcfce7;border-color:#86efac;box-shadow:0 4px 12px rgba(22,163,74,.18)}
   .rrd-facchk.conf{border-color:transparent;background:linear-gradient(180deg,#3b82f6,#2563eb);color:#fff;box-shadow:0 6px 15px rgba(37,99,235,.34),inset 0 1px 0 rgba(255,255,255,.28)}
@@ -4481,10 +4484,17 @@ function showSaveAnim(text){
   .rrd-row-out>td.rrd-facc{opacity:1}
   .rrd-row-out .rrd-flete{text-decoration:line-through;text-decoration-color:rgba(217,119,6,.6)}
   /* Tooltip PRO animado en hover */
-  .rrd-facc button[data-tip]::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 9px);right:-4px;transform:translateY(4px) scale(.94);transform-origin:bottom right;background:#0f172a;color:#fff;font-size:11px;font-weight:600;letter-spacing:.1px;line-height:1;padding:7px 10px;border-radius:8px;white-space:nowrap;box-shadow:0 10px 24px rgba(15,23,42,.28);opacity:0;pointer-events:none;transition:opacity .18s ease,transform .22s cubic-bezier(.34,1.56,.64,1);z-index:40}
-  .rrd-facc button[data-tip]::before{content:'';position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%) translateY(4px);border:5px solid transparent;border-top-color:#0f172a;opacity:0;pointer-events:none;transition:opacity .18s ease,transform .22s cubic-bezier(.34,1.56,.64,1);z-index:40}
+  .rrd-facc button[data-tip]::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 12px);right:-4px;transform:translateY(6px) scale(.9);transform-origin:bottom right;color:#fff;font-size:11px;font-weight:700;letter-spacing:.1px;line-height:1;padding:7px 11px;border-radius:9px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .16s ease,transform .26s cubic-bezier(.34,1.6,.5,1);z-index:60}
+  .rrd-facc button[data-tip]::before{content:'';position:absolute;bottom:calc(100% + 6px);right:9px;transform:translateY(6px) scale(.9);border:5px solid transparent;opacity:0;pointer-events:none;transition:opacity .16s ease,transform .26s cubic-bezier(.34,1.6,.5,1);z-index:60}
   .rrd-facc button[data-tip]:hover::after{opacity:1;transform:translateY(0) scale(1)}
-  .rrd-facc button[data-tip]:hover::before{opacity:1;transform:translateX(-50%) translateY(0)}
+  .rrd-facc button[data-tip]:hover::before{opacity:1;transform:translateY(0) scale(1)}
+  /* color del globo según el botón */
+  .rrd-facchk[data-tip]::after{background:#15803d;box-shadow:0 10px 22px rgba(21,128,61,.34)}
+  .rrd-facchk[data-tip]::before{border-top-color:#15803d}
+  .rrd-facchk.conf[data-tip]::after{background:#1d4ed8;box-shadow:0 10px 22px rgba(29,78,216,.36)}
+  .rrd-facchk.conf[data-tip]::before{border-top-color:#1d4ed8}
+  .rrd-facmove[data-tip]::after{background:#b45309;box-shadow:0 10px 22px rgba(180,83,9,.34)}
+  .rrd-facmove[data-tip]::before{border-top-color:#b45309}
   .cf-rep--ro{cursor:default}
   .cf-rep--ro .cf-rep__chk{background:linear-gradient(180deg,#3b82f6,#2563eb);border-color:transparent;color:#fff}
   .rrd-empty{text-align:center;color:var(--gray-400);padding:26px}
@@ -5656,10 +5666,10 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     bd.querySelectorAll('[data-dashedit]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();_dashEnterEdit(b.dataset.dashedit);}));
     bd.querySelectorAll('[data-dashdel]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();const w=W(b.dataset.dashdel);if(w)confirmDelete(w);}));
     bd.querySelectorAll('[data-dashrow]').forEach(r=>r.addEventListener('click',e=>{if(e.target.closest('button'))return;_dashEnterEdit(_dashSeg);}));
-    // Check verde→azul: confirmar que el reparto entra en la factura
-    bd.querySelectorAll('[data-dashfac]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();const rid=b.dataset.dashfac,on=!_dashConf.has(rid);if(on){_dashConf.add(rid);_dashOut.delete(rid);}else _dashConf.delete(rid);b.classList.toggle('conf',on);b.setAttribute('data-tip',on?'Confirmado · entra en la factura':'Confirmar para la factura');const tr=b.closest('tr');if(tr){tr.classList.remove('rrd-row-out');const mv=tr.querySelector('[data-dashmove]');if(mv)mv.classList.remove('out');}const gs=window.gsap;if(gs&&!reduce()){gs.killTweensOf(b);gs.fromTo(b,{scale:.55},{scale:1,duration:.45,ease:'back.out(3.2)'});}}));
-    // Flecha amarilla: pasar el reparto a otra planilla (no entra en esta factura)
-    bd.querySelectorAll('[data-dashmove]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();const rid=b.dataset.dashmove,on=!_dashOut.has(rid);if(on){_dashOut.add(rid);_dashConf.delete(rid);}else _dashOut.delete(rid);b.classList.toggle('out',on);const tr=b.closest('tr');if(tr){tr.classList.toggle('rrd-row-out',on);const ck=tr.querySelector('[data-dashfac]');if(ck){ck.classList.remove('conf');ck.setAttribute('data-tip','Confirmar para la factura');}}const gs=window.gsap;if(gs&&!reduce()){gs.killTweensOf(b);gs.fromTo(b,{x:on?-7:7,rotate:on?-8:8},{x:0,rotate:0,duration:.55,ease:'elastic.out(1,.5)'});if(tr)gs.fromTo(tr,{backgroundColor:on?'rgba(245,158,11,.16)':'rgba(59,130,246,.10)'},{backgroundColor:'rgba(255,255,255,0)',duration:.7,ease:'power2.out'});}}));
+    // Check verde→azul: confirmar que el reparto entra en la factura (con loader interno)
+    bd.querySelectorAll('[data-dashfac]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();if(b.classList.contains('is-loading'))return;const rid=b.dataset.dashfac,on=!_dashConf.has(rid),svg=b.innerHTML;b.classList.add('is-loading');b.innerHTML='<span class="rrd-facspin"></span>';setTimeout(()=>{b.classList.remove('is-loading');b.innerHTML=svg;if(on){_dashConf.add(rid);_dashOut.delete(rid);}else _dashConf.delete(rid);b.classList.toggle('conf',on);b.setAttribute('data-tip',on?'Confirmado · entra en la factura':'Confirmar para la factura');const tr=b.closest('tr');if(tr){tr.classList.remove('rrd-row-out');const mv=tr.querySelector('[data-dashmove]');if(mv)mv.classList.remove('out');}const gs=window.gsap;if(gs&&!reduce()){gs.killTweensOf(b);gs.fromTo(b,{scale:.55},{scale:1,duration:.45,ease:'back.out(3.2)'});}},380);}));
+    // Flecha amarilla: pasar el reparto a otra planilla (con loader interno)
+    bd.querySelectorAll('[data-dashmove]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();if(b.classList.contains('is-loading'))return;const rid=b.dataset.dashmove,on=!_dashOut.has(rid),svg=b.innerHTML;b.classList.add('is-loading');b.innerHTML='<span class="rrd-facspin"></span>';setTimeout(()=>{b.classList.remove('is-loading');b.innerHTML=svg;if(on){_dashOut.add(rid);_dashConf.delete(rid);}else _dashOut.delete(rid);b.classList.toggle('out',on);const tr=b.closest('tr');if(tr){tr.classList.toggle('rrd-row-out',on);const ck=tr.querySelector('[data-dashfac]');if(ck){ck.classList.remove('conf');ck.setAttribute('data-tip','Confirmar para la factura');}}const gs=window.gsap;if(gs&&!reduce()){gs.killTweensOf(b);gs.fromTo(b,{x:on?-7:7,rotate:on?-8:8},{x:0,rotate:0,duration:.55,ease:'elastic.out(1,.5)'});if(tr)gs.fromTo(tr,{backgroundColor:on?'rgba(245,158,11,.16)':'rgba(59,130,246,.10)'},{backgroundColor:'rgba(255,255,255,0)',duration:.7,ease:'power2.out'});}},380);}));
     bd.querySelectorAll('[data-dashaddline]').forEach(b=>b.addEventListener('click',()=>{if(_dashDraft){_dashDraft.push(_dashBlank());render('filter');const wp=bd.querySelector('.rrd-tablewrap');if(wp)wp.scrollTop=wp.scrollHeight;}}));
     bd.querySelectorAll('[data-dashcancel]').forEach(b=>b.addEventListener('click',()=>_dashExitEdit()));
     bd.querySelectorAll('[data-dashsave]').forEach(b=>b.addEventListener('click',()=>_dashSaveEdit()));
