@@ -4395,7 +4395,9 @@ function showSaveAnim(text){
   .rrd-hdlock{display:inline-flex;align-items:center;gap:6px;border:1.5px solid rgba(22,163,74,.22);background:rgba(34,197,94,.1);color:#15803d;border-radius:9px;padding:7px 12px;font-size:12px;font-weight:800}
   .rrd-tablewrap{overflow-x:auto}
   .rrd-tbl{width:100%;border-collapse:collapse}
-  .rrd-tbl:not(.rrd-tbl--edit){width:auto}
+  .rrd-tbl:not(.rrd-tbl--edit) .rrd-grow{width:100%}
+  .rrd-resumen-bar{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:6px}
+  .rrd-resumen-bar .rrd-ktile{flex:1 1 0;max-width:360px;min-width:220px;margin-bottom:0}
   .rrd-tbl th{text-align:left;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-400,#94a3b8);padding:11px 14px;border-bottom:1.5px solid var(--gray-100,#f1f5f9);white-space:nowrap}
   .rrd-tbl th.r{text-align:right}
   .rrd-tbl td{padding:11px 14px;border-bottom:1px solid var(--gray-100,#f1f5f9);font-size:12.5px;color:var(--gray-700);white-space:nowrap}
@@ -5501,7 +5503,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     const CLIP='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>';
     const COINS='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.66 3.58 3 8 3s8-1.34 8-3V6M4 12v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/></svg>';
     const tile=(cls,ic,small,val)=>'<div class="rrd-ktile'+(cls?' '+cls:'')+'"><span class="rrd-ktile__ic">'+ic+'</span><div class="rrd-ktile__tx"><small>'+small+'</small><b>'+val+'</b></div></div>';
-    return '<div class="rrd-card rrd-resumen"><div class="rrd-card__t">Resumen · '+lbl+'</div>'+
+    return '<div class="rrd-resumen-bar">'+
       tile('rrd-ktile--flete',COINS,'Subtotal flete',_gs(sub))+
       tile('',CLIP,'Factura',fac!=null?_gs(fac):'Sin registros')+
       tile('',TRUCKICON,'Camiones',_nnum(nCam))+
@@ -5536,7 +5538,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
       const rows=allItems.map(w=>{const isTr=w.seg==='transportadora';const cam=isTr?((+w.cant||0)+' camión'+((+w.cant||0)===1?'':'es')):camLbl(w);const zn=isTr?'—':(w.zona||(w.seg==='servicios'&&w.obs)||'—');return '<tr'+_facRowCls(w)+(_facMode?' data-facrow="'+w.uid+'" style="cursor:pointer"':'')+'>'+dfec(w)+'<td class="rrd-cam"><span class="rrd-cam__ic">'+TRUCKICON+'</span><span class="rrd-cam__t">'+_escp(cam)+'</span></td><td><span class="rrd-segtag rrd-segtag--'+w.seg+'">'+SEGN[w.seg]+'</span></td><td>'+(isTr?'<span class="rrd-mut">—</span>':_escp(w.rep||'Tercerizado'))+'</td><td class="rrd-grow">'+(zn&&zn!=='—'?dchip(zn):'<span class="rrd-mut">—</span>')+'</td><td class="r rrd-flete">'+_gs(+w.precio||0)+'</td>'+_facActs(w)+'</tr>';}).join('')||'<tr><td colspan="7" class="rrd-empty">Sin líneas</td></tr>';
       const table='<div class="rrd-tablecard"><div class="rrd-tablehd"><div class="rrd-tablehd__t"><span class="rrd-tablehd__dot" style="background:linear-gradient(135deg,#2578b8,#0B5F8D)"></span>Todos los pedidos</div></div><div class="rrd-tablewrap"><table class="rrd-tbl"><thead><tr><th>Fecha</th><th>Camión</th><th>Segmento</th><th>Repartidor</th><th class="rrd-grow">Zona</th><th class="r">Flete</th><th class="rrd-facth r">'+(_facMode?'¿Entra?':'Factura')+'</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
       const nCam=allItems.reduce((a,w)=>a+camCount(w),0),sub=allItems.reduce((a,w)=>a+(+w.precio||0),0);
-      return '<div class="rrd-dash">'+'<div class="rrd-grid">'+table+'<div class="rrd-side">'+_dashResumen('General',allItems.length,nCam,sub)+'</div></div></div>';
+      return '<div class="rrd-dash">'+_dashResumen('General',allItems.length,nCam,sub)+table+'</div>';
     }
     const sk=_dashSeg,isInt=sk==='interior',isServ=sk==='servicios',isTr=sk==='transportadora';
     const editing=_dashEdit&&!!_dashDraft;
@@ -5578,8 +5580,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     const nCam=editing?src.reduce((a,d)=>a+(isTr?(+d.cant||0):1),0):items.reduce((a,w)=>a+camCount(w),0);
     const sub=editing?src.reduce((a,d)=>a+_dfFlete(d),0):items.reduce((a,w)=>a+(+w.precio||0),0);
     const resumen=_dashResumen(SEGN[sk],src.length,nCam,sub);
-    const chart='';
-    return '<div class="rrd-dash">'+'<div class="rrd-grid">'+table+'<div class="rrd-side">'+resumen+chart+'</div></div></div>';
+    return '<div class="rrd-dash">'+resumen+table+'</div>';
   }
   function boardBody(){const activeSegs=SEGL.filter(segVisible);if(!activeSegs.length)return '<div class="rre-board"><div class="rre-board-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 3h13v13H1zm13 5h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg><b>'+(_camFilter?'Ese camión no está en la planilla':'Todavía no hay servicios cargados')+'</b><span>'+(_camFilter?'Probá con «Ver todos».':'Usá «+ Servicio de reparto» para empezar.')+'</span></div></div>';const cols=activeSegs.map(function(sk){const items=work.filter(w=>!w.del&&w.seg===sk&&(!_camFilter||w.isNew||w.edit||camLbl(w)===_camFilter)).slice().sort((a,b)=>{if(a.isNew!==b.isNew)return a.isNew?-1:1;const fa=a.fecha||'',fb=b.fecha||'';if(sk==='interior'){const pa=+a.precioKm||0,pb=+b.precioKm||0;if(pa!==pb)return pa-pb;return fa<fb?-1:(fa>fb?1:0);}const ca=camLbl(a)||'',cb=camLbl(b)||'';if(ca!==cb)return ca.localeCompare(cb,'es');return fa<fb?-1:(fa>fb?1:0);});let sF=0;items.forEach(w=>sF+=(+w.precio||0));const nCam=items.reduce((s,w)=>s+camCount(w),0);const inner=items.map(function(w,idx){return (w.edit||w.isNew)?formHTML(w,idx):rowHTML(w,idx);}).join('')||'<div class="rre-col-empty">Sin camiones</div>';return '<div class="rre-col rre-col--'+sk+'" data-seg="'+sk+'"><div class="rre-col-hd"><span class="rre-col-dot"></span>'+SEGN[sk]+'<span class="rre-col-n">'+nCam+'</span><div class="rre-col-hdacts">'+((sk!=='transportadora'&&items.some(w=>!w.isNew))?'<button class="rre-vedit" data-editseg="'+sk+'" type="button"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4z"/></svg> Editar</button>':'')+'<button class="rre-vadd" data-seg="'+sk+'" type="button"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg> Añadir</button></div></div><div class="rre-col-body">'+inner+'</div>'+(items.length?'<div class="rre-col-foot"><span class="rre-foot-n">'+nCam+' camión'+(nCam===1?'':'es')+'</span><span class="rre-foot-sub">Subtotal flete <b>'+_gs(sF)+'</b></span></div>':'')+'</div>';}).join('');
     // Columnas "fantasma" para los segmentos que no están en pantalla: aparecen sólo al arrastrar.
