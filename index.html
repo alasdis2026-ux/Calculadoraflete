@@ -4392,6 +4392,7 @@ function showSaveAnim(text){
   .rrd-hdbtn:hover{background:var(--accent-soft,#DBEAFE)}
   .rrd-tablewrap{overflow-x:auto}
   .rrd-tbl{width:100%;border-collapse:collapse}
+  .rrd-tbl:not(.rrd-tbl--edit){width:auto}
   .rrd-tbl th{text-align:left;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-400,#94a3b8);padding:11px 14px;border-bottom:1.5px solid var(--gray-100,#f1f5f9);white-space:nowrap}
   .rrd-tbl th.r{text-align:right}
   .rrd-tbl td{padding:11px 14px;border-bottom:1px solid var(--gray-100,#f1f5f9);font-size:12.5px;color:var(--gray-700);white-space:nowrap}
@@ -4482,7 +4483,6 @@ function showSaveAnim(text){
   .rrd-facmove{background:rgba(217,119,6,.12);color:#b45309;border-color:rgba(217,119,6,.14)}
   .rrd-facmove:hover{background:#d97706;color:#fff;border-color:#d97706;box-shadow:0 8px 20px rgba(217,119,6,.32)}
   .rrd-facmove.out{background:#d97706;color:#fff;border-color:#d97706;box-shadow:0 8px 20px rgba(217,119,6,.32)}
-  .rrd-grow{width:100%}
   .rrd-row-out>td{opacity:.5}
   .rrd-row-out>td.rrd-facc{opacity:1}
   .rrd-row-out .rrd-flete{text-decoration:line-through;text-decoration-color:rgba(217,119,6,.6)}
@@ -5204,6 +5204,7 @@ function _facPlanillaPicker(onPick){
 let _rrMes=(function(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');})();
 let _rrWeek=undefined; // undefined=auto · null=Mes completo · 'YYYY-MM-DD'=semana
 let _rrSeg='todos';    // todos | local | interior | servicios
+let _rrTabAnim=false;  // true = el re-render viene de tocar un segmento (anim igual a la planilla)
 let _rrQ='';           // buscador general (transportista o camión)
 function _isoD(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function _dispD(iso){return iso?iso.split('-').reverse().join('/'):'—';}
@@ -5286,21 +5287,31 @@ function renderReporteRepartos(){
   host.querySelectorAll('[data-rrm]').forEach(b=>b.addEventListener('click',()=>_rrShiftMonth(+b.dataset.rrm)));
   const rrToday=host.querySelector('[data-rrtoday]');if(rrToday)rrToday.addEventListener('click',()=>{const d=new Date();_rrMes=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');_rrWeek=undefined;renderReporteRepartos();});
   host.querySelectorAll('[data-rrw]').forEach(b=>b.addEventListener('click',()=>{_rrWeek=b.dataset.rrw||null;renderReporteRepartos();}));
-  host.querySelectorAll('[data-rrseg]').forEach(b=>b.addEventListener('click',()=>{if(_rrSeg===b.dataset.rrseg)return;_rrSeg=b.dataset.rrseg;renderReporteRepartos();}));
+  host.querySelectorAll('[data-rrseg]').forEach(b=>b.addEventListener('click',()=>{if(_rrSeg===b.dataset.rrseg)return;_rrSeg=b.dataset.rrseg;_rrTabAnim=true;renderReporteRepartos();}));
   host.querySelectorAll('[data-rrts]').forEach(b=>b.addEventListener('click',()=>_rrOpenDetail(groups[+b.dataset.rrts],periodLbl,wkObj)));
   const _si=host.querySelector('.rr-search input'),_sc=host.querySelector('.rr-search__clear');
   if(_si){_si.addEventListener('input',()=>{_rrQ=_si.value;if(_sc)_sc.classList.toggle('show',!!_rrQ);_rrApplySearch();});}
   if(_sc){_sc.addEventListener('click',()=>{_rrQ='';if(_si){_si.value='';_si.focus();}_sc.classList.remove('show');_rrApplySearch();});}
   if(_rrQ)_rrApplySearch(); // aplicar la búsqueda ANTES de animar, para preservar el filtro al volver
   if(window.gsap){
+    const gs=gsap;
     const visCards=[].slice.call(host.querySelectorAll('.rr-card')).filter(c=>c.style.display!=='none');
-    const tl=gsap.timeline({defaults:{ease:'power2.out'}});
-    tl.from('#rrepHost .cf-hd',{opacity:0,y:-10,duration:.36,clearProps:'all'},0)
-      .from('#rrepHost .rr-mnav',{opacity:0,x:-8,duration:.3,clearProps:'all'},.05)
-      .from('#rrepHost .rr-chip',{opacity:0,y:-6,duration:.28,stagger:.025,clearProps:'all'},.09)
-      .from('#rrepHost .rr-search',{opacity:0,y:6,duration:.28,clearProps:'all'},.13)
-      .from('#rrepHost .rr-segtabs .rrd-tab',{opacity:0,y:8,duration:.3,stagger:.035,clearProps:'all'},.17);
-    if(visCards.length)tl.from(visCards,{opacity:0,y:12,duration:.34,stagger:.018,clearProps:'all'},.22);
+    if(_rrTabAnim){
+      // Igual que el filtro de la planilla: "pop" del tab activo + cascada de cards, sin re-animar la cabecera
+      _rrTabAnim=false;
+      const _tb=host.querySelectorAll('.rr-segtabs .rrd-tab');
+      if(_tb.length){gs.from(_tb,{opacity:0,y:-6,duration:.28,stagger:.03,ease:'power2.out',clearProps:'all'});const _at=host.querySelector('.rr-segtabs .rrd-tab.on');if(_at)gs.fromTo(_at,{scale:.88},{scale:1,duration:.44,ease:'back.out(2.6)',clearProps:'transform'});}
+      if(visCards.length)gs.from(visCards,{opacity:0,y:12,duration:.34,stagger:.018,ease:'power2.out',clearProps:'all'});
+    }else{
+      const tl=gs.timeline({defaults:{ease:'power2.out'}});
+      tl.from('#rrepHost .cf-hd',{opacity:0,y:-10,duration:.36,clearProps:'all'},0)
+        .from('#rrepHost .rr-mnav',{opacity:0,x:-8,duration:.3,clearProps:'all'},.05)
+        .from('#rrepHost .rr-chip',{opacity:0,y:-6,duration:.28,stagger:.025,clearProps:'all'},.09)
+        .from('#rrepHost .rr-search',{opacity:0,y:6,duration:.28,clearProps:'all'},.13)
+        .from('#rrepHost .rr-segtabs .rrd-tab',{opacity:0,y:-6,duration:.3,stagger:.03,clearProps:'all'},.17);
+      const _at=host.querySelector('.rr-segtabs .rrd-tab.on');if(_at)tl.fromTo(_at,{scale:.88},{scale:1,duration:.44,ease:'back.out(2.6)',clearProps:'transform'},.2);
+      if(visCards.length)tl.from(visCards,{opacity:0,y:12,duration:.34,stagger:.018,clearProps:'all'},.22);
+    }
   }
 }
 function _rrOpenDetail(g,periodLbl,wkObj){
@@ -5663,7 +5674,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     bd.querySelectorAll('[data-dashadd]').forEach(b=>b.addEventListener('click',()=>_dashEnterEdit(b.dataset.dashadd,true)));
     bd.querySelectorAll('[data-dashedit]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();_dashEnterEdit(b.dataset.dashedit);}));
     bd.querySelectorAll('[data-dashdel]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();const w=W(b.dataset.dashdel);if(w)confirmDelete(w);}));
-    bd.querySelectorAll('[data-dashrow]').forEach(r=>r.addEventListener('click',e=>{if(e.target.closest('button'))return;_dashEnterEdit(_dashSeg);}));
+    bd.querySelectorAll('[data-dashrow]').forEach(r=>r.addEventListener('click',e=>{if(e.target.closest('button')||e.target.closest('.rrd-facc'))return;_dashEnterEdit(_dashSeg);}));
     // Check verde→azul: confirmar que el reparto entra en la factura (con loader interno)
     bd.querySelectorAll('[data-dashfac]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();if(b.classList.contains('is-loading'))return;const rid=b.dataset.dashfac,on=!_dashConf.has(rid),svg=b.innerHTML;b.classList.add('is-loading');b.innerHTML='<span class="rrd-facspin"></span>';setTimeout(()=>{b.classList.remove('is-loading');b.innerHTML=svg;if(on){_dashConf.add(rid);_dashOut.delete(rid);}else _dashConf.delete(rid);b.classList.toggle('conf',on);b.setAttribute('data-tip',on?'Confirmado · entra en la factura':'Confirmar para la factura');const tr=b.closest('tr');if(tr){tr.classList.remove('rrd-row-out');const mv=tr.querySelector('[data-dashmove]');if(mv)mv.classList.remove('out');}const gs=window.gsap;if(gs&&!reduce()){gs.killTweensOf(b);gs.fromTo(b,{scale:.55},{scale:1,duration:.45,ease:'back.out(3.2)'});}},380);}));
     // Flecha amarilla: pasar el reparto a otra planilla (con loader interno)
