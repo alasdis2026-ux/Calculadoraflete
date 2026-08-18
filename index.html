@@ -1632,6 +1632,8 @@ async function dbDeleteReparto(id){
   const{error}=await sb.from('repartos').delete().eq('id',id);
   if(error)throw error;
 }
+// Vincula (o desvincula) un reparto con una factura
+async function dbSetRepartoFactura(id,facturaId){const{error}=await sb.from('repartos').update({factura_id:facturaId}).eq('id',id);if(error)throw error;}
 
 /* ── SEED ────────────────────────────────────────── */
 const SEED=[
@@ -4636,6 +4638,20 @@ function showSaveAnim(text){
   .cf-fld__err{font-size:11.5px;color:#c9505c;font-weight:700;min-height:0;line-height:1.3;transition:min-height .15s}
   .cf-fld.is-err .cf-fld__err{min-height:16px}
   .cf-live{display:flex;align-items:center;gap:9px;font-size:14.5px;font-weight:800;padding:14px 16px;border-radius:12px;margin-top:8px}
+  .cf-reps{display:flex;flex-direction:column;gap:8px}
+  .cf-rep{display:flex;align-items:center;gap:11px;background:#fff;border:1.5px solid var(--gray-200,#e2e8f0);border-radius:11px;padding:10px 13px;cursor:pointer;transition:border-color .14s,background .14s}
+  .cf-rep:hover{border-color:var(--gray-300)}
+  .cf-rep.on{border-color:var(--primary);background:var(--accent-soft,#DBEAFE)}
+  .cf-rep input{position:absolute;opacity:0;width:0;height:0}
+  .cf-rep__chk{width:22px;height:22px;border-radius:7px;border:2px solid var(--gray-300);display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0;transition:background .14s,border-color .14s}
+  .cf-rep.on .cf-rep__chk{background:var(--primary);border-color:var(--primary)}
+  .cf-rep__chk svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;opacity:0;transition:opacity .12s}
+  .cf-rep.on .cf-rep__chk svg{opacity:1}
+  .cf-rep__d{font-size:13.5px;font-weight:800;color:var(--gray-700);font-variant-numeric:tabular-nums}
+  .cf-rep__f{margin-left:auto;font-size:13.5px;font-weight:800;color:#15803d;font-variant-numeric:tabular-nums}
+  .cf-rep-sum{display:flex;align-items:center;justify-content:space-between;margin-top:4px;padding:8px 13px;border-top:1px dashed var(--gray-200)}
+  .cf-rep-sum span{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-400)}
+  .cf-rep-sum b{font-family:Sora,Inter,sans-serif;font-size:15px;font-weight:800;color:var(--primary);font-variant-numeric:tabular-nums}
   .cf-live.ok{background:var(--success-soft,#D1FAE5);color:#15803d}
   .cf-live.diff{background:var(--danger-soft,#FEE2E2);color:#c0424c}
   .cf-live.neutral{background:var(--gray-100,#f1f5f9);color:var(--gray-500,#64748b)}
@@ -4713,9 +4729,11 @@ let _cfRepMes=null;     // mes seleccionado; null = Total
 function _cfMonthKeys(){const s=new Set();(repartos||[]).forEach(r=>{const k=(r.fechaISO||'').slice(0,7);if(k)s.add(k);});return[...s].sort().reverse();}
 // ¿La planilla (transportadora dueña del camión + semana) de esta línea tiene factura registrada?
 function _cfFacturada(cl,fechaISO){if(!fechaISO)return false;const wk=(typeof isoWeekRange==='function')?isoWeekRange(fechaISO):null;if(!wk)return false;const own=cl.trId?tsOfTruck(cl.trId):null;const ts=(own&&own.n)||cl.tsNombre||'—';return !!(window.__cfFac||[]).find(x=>(x.transportadora_nombre||'')===ts&&(x.semana_desde||'')===wk.desde);}
-function _cfLines(mk){const out=[];(repartos||[]).forEach(r=>{if(mk&&(r.fechaISO||'').slice(0,7)!==mk)return;(r.clientes||[]).forEach(cl=>{if(!_cfFacturada(cl,r.fechaISO))return;out.push({seg:cl.seg||'local',monto:+cl.monto||0,flete:+cl.precio||0,cam:(cl.trDesc||'').toUpperCase(),km:+cl.km||0});});});return out;}
+// ¿El reparto está facturado? (tiene factura_id que apunta a una factura existente)
+function _repFacturado(r){return !!(r&&r.factura_id!=null&&(window.__cfFac||[]).find(x=>x.id===r.factura_id));}
+function _cfLines(mk){const out=[];(repartos||[]).forEach(r=>{if(mk&&(r.fechaISO||'').slice(0,7)!==mk)return;if(!_repFacturado(r))return;(r.clientes||[]).forEach(cl=>{out.push({seg:cl.seg||'local',monto:+cl.monto||0,flete:+cl.precio||0,cam:(cl.trDesc||'').toUpperCase(),km:+cl.km||0});});});return out;}
 // Monto e incidencia agrupados por zona (para el Reporte General)
-function _cfZonas(mk){const map={};(repartos||[]).forEach(r=>{if(mk&&(r.fechaISO||'').slice(0,7)!==mk)return;(r.clientes||[]).forEach(c=>{if(!_cfFacturada(c,r.fechaISO))return;const z=((c.zona||'').trim())||'Sin zona';const o=map[z]||(map[z]={zona:z,monto:0,flete:0,peso:0});o.monto+=+c.monto||0;o.flete+=+c.precio||0;o.peso+=+c.peso||0;});});return Object.values(map).map(z=>({zona:z.zona,monto:z.monto,flete:z.flete,peso:z.peso,incidencia:z.monto>0?z.flete/z.monto:0})).sort((a,b)=>b.monto-a.monto);}
+function _cfZonas(mk){const map={};(repartos||[]).forEach(r=>{if(mk&&(r.fechaISO||'').slice(0,7)!==mk)return;if(!_repFacturado(r))return;(r.clientes||[]).forEach(c=>{const z=((c.zona||'').trim())||'Sin zona';const o=map[z]||(map[z]={zona:z,monto:0,flete:0,peso:0});o.monto+=+c.monto||0;o.flete+=+c.precio||0;o.peso+=+c.peso||0;});});return Object.values(map).map(z=>({zona:z.zona,monto:z.monto,flete:z.flete,peso:z.peso,incidencia:z.monto>0?z.flete/z.monto:0})).sort((a,b)=>b.monto-a.monto);}
 
 function _cfReporteModel(mk){
   const auto={interior:{monto:0,flete:0,cam:{}},local:{monto:0,flete:0,cam:{}},transportadora:{monto:0,flete:0,cam:{}}};
@@ -4735,6 +4753,7 @@ function _cfGauge(p){p=Math.max(0,Math.min(1,p||0));const cx=150,cy=150,r=118;co
 async function renderReporte(){
   const host=document.getElementById('repHost');if(!host)return;
   if(!window.__cfFac){try{const fr=await sb.from('fact_facturas').select('*');window.__cfFac=fr.data||[];}catch(_){window.__cfFac=[];}}
+  _cfBackfillFacturas();
   try{const res=await sb.from('fact_reporte').select('*');_cfReporte={};(res.data||[]).forEach(r=>_cfReporte[r.mes]=r.data||{});}catch(e){console.error('[reporte]',e);}
   const m=_cfReporteModel(_cfRepMes);
   const months=_cfMonthKeys();
@@ -4898,9 +4917,11 @@ function _facEstadoDe(ts,semDesde){
 function _facRegistradaDe(ts,semDesde){if(!semDesde)return false;return !!(window.__cfFac||[]).find(x=>(x.transportadora_nombre||'')===ts&&(x.semana_desde||'')===semDesde);}
 // Monto de la factura registrada de una planilla (null si no hay)
 function _facMontoDe(ts,semDesde){if(!semDesde)return null;const f=(window.__cfFac||[]).find(x=>(x.transportadora_nombre||'')===ts&&(x.semana_desde||'')===semDesde);return f?(+f.monto||0):null;}
-// Chip binario Falta/Registrada para una tarjeta de planilla (usa g.reps para el mes completo)
+// Factura del grupo (por factura_id). null si el grupo no tiene factura.
+function _facDeGrupo(g){if(!g||g.facturaId==null)return null;return (window.__cfFac||[]).find(x=>x.id===g.facturaId)||null;}
+// Chip binario Falta/Registrada para una tarjeta de planilla — según la factura del grupo
 function _facChipDe(g,semDesde){
-  if(semDesde){return _facRegistradaDe(g.ts,semDesde)
+  if(semDesde){return _facDeGrupo(g)
     ?'<span class="cf-chip reg"><i class="cf-dot"></i>Factura registrada</span>'
     :'<span class="cf-chip falta"><i class="cf-dot"></i>Falta factura</span>';}
   const wks=[...new Set((g.reps||[]).map(r=>(r.fechaISO&&typeof isoWeekRange==='function')?isoWeekRange(r.fechaISO).desde:null).filter(Boolean))];
@@ -4961,8 +4982,8 @@ let _cfStatsTs=null; // filtro por transportadora (tsId) o null = todas
 function _gastoStats(mk,tsId){
   const seg={local:{g:0,n:0},interior:{g:0,n:0},servicios:{g:0,n:0},transportadora:{g:0,n:0}};
   const byTs={},byCam={};let total=0,intGasto=0,intKm=0;const plan=new Set();
-  (repartos||[]).forEach(r=>{ if(mk&&(r.fechaISO||'').slice(0,7)!==mk)return;
-    (r.clientes||[]).forEach(c=>{ if(!_cfFacturada(c,r.fechaISO))return; if(tsId&&c.tsId!==tsId)return;
+  (repartos||[]).forEach(r=>{ if(mk&&(r.fechaISO||'').slice(0,7)!==mk)return; if(!_repFacturado(r))return;
+    (r.clientes||[]).forEach(c=>{ if(tsId&&c.tsId!==tsId)return;
       const sk=c.seg||'local',fl=(+c.precio|| +c.gasto||0),d=r.fechaISO||'';
       total+=fl;if(!seg[sk])seg[sk]={g:0,n:0};seg[sk].g+=fl;seg[sk].n++;plan.add(r.id);
       const tid=c.tsId||0,tsn=c.tsNombre||'—';
@@ -4982,6 +5003,7 @@ function _gastoStats(mk,tsId){
 function _cfOpenStats(){
   const host=document.getElementById('statsHost');if(!host)return;
   if(!window.__cfFac){sb.from('fact_facturas').select('*').then(r=>{window.__cfFac=r.data||[];if(document.getElementById('statsHost'))_cfOpenStats();}).catch(()=>{window.__cfFac=[];_cfOpenStats();});return;}
+  _cfBackfillFacturas();
   const mk=_facMes,s=_gastoStats(mk,_cfStatsTs);
   const allTs=_gastoStats(mk,null).tsList; // todas las que tuvieron gasto este mes (para los botones)
   const tsBtns='<div class="gstat-tswrap">'+
@@ -5060,6 +5082,9 @@ function _cfOpenFacturaModal(existing,preset){
   }
   // "Bloqueado" = vino desde una planilla: la planilla ya está fija (sin "Cambiar") y el botón dice "Regresar"
   const locked=!editing&&!!(preset&&preset.ts&&preset.semDesde);
+  const repsList=(!editing&&preset&&preset.reps&&preset.reps.length)?preset.reps.slice():null;
+  let repSel=repsList?new Set(repsList.map(r=>r.id)):null;
+  const repFlete=()=>repsList?repsList.filter(r=>repSel.has(r.id)).reduce((s,r)=>s+(+r.flete||0),0):(sel?sel.flete:0);
   const subTxt=locked?'Cargá los datos de la factura para esta planilla.':'Cargá los datos y elegí la planilla (transportista + semana) que corresponde.';
   const m=_cfModalOpen('<div class="cf-mbox cf-mbox--form">'+
     '<h3>'+(editing?'Editar factura':'Registrar factura')+'</h3><p class="cf-msub">'+subTxt+'</p>'+
@@ -5073,18 +5098,20 @@ function _cfOpenFacturaModal(existing,preset){
       '<div class="cf-fld" data-fld><button type="button" class="cf-plbtn" id="cf_plbtn"></button><span class="cf-fld__err"></span></div>'+
       '<div class="cf-live neutral" id="cf_flive">Elegí la planilla y el monto para compararlo con el flete.</div>'+
     '</div>'+
+    (repsList?'<div class="cf-sec"><div class="cf-sec__t">'+_ic('truck')+'Repartos a facturar</div><div class="cf-reps" id="cf_reps"></div></div>':'')+
     '<div class="cf-mfoot"><button class="cancel">'+(locked?'Regresar':'Cancelar')+'</button><button class="ok">'+(editing?'Guardar cambios':'Guardar factura')+'</button></div></div>');
   const nroI=m.$('#cf_fnro'),feI=m.$('#cf_ffecha'),mo=m.$('#cf_fmonto'),plBtn=m.$('#cf_plbtn'),live=m.$('#cf_flive');
   const nroF=nroI.closest('[data-fld]'),moF=mo.closest('[data-fld]'),plF=plBtn.closest('[data-fld]');
   feI.value=(editing&&existing.fecha)?existing.fecha:(typeof todayISO==='function'?todayISO():new Date().toISOString().slice(0,10));
   if(editing){nroI.value=existing.nro||'';mo.value=existing.monto?_nnum(existing.monto):'';}
   function renderPlBtn(){
-    if(sel){plBtn.classList.add('set');plBtn.innerHTML='<span class="cf-plbtn__main"><span class="cf-plbtn__ts">'+_escp(sel.ts)+'</span><span class="cf-plbtn__sub">'+_dispD(sel.semDesde)+' al '+_dispD(sel.semHasta)+' · flete '+_gs(sel.flete)+'</span></span>'+(locked?'':'<span class="cf-plbtn__act">Cambiar</span>');}
+    if(sel){plBtn.classList.add('set');plBtn.innerHTML='<span class="cf-plbtn__main"><span class="cf-plbtn__ts">'+_escp(sel.ts)+'</span><span class="cf-plbtn__sub">'+_dispD(sel.semDesde)+' al '+_dispD(sel.semHasta)+' · flete '+_gs(repFlete())+'</span></span>'+(locked?'':'<span class="cf-plbtn__act">Cambiar</span>');}
     else{plBtn.classList.remove('set');plBtn.innerHTML='<span class="cf-plbtn__ph">— Elegir planilla —</span><span class="cf-plbtn__act">Elegir</span>';}
   }
   if(locked){plBtn.disabled=true;plBtn.classList.add('cf-plbtn--locked');}
-  function updLive(){const v=parseInt(mo.value.replace(/[^\d]/g,''),10)||0;if(!sel){live.className='cf-live neutral';live.textContent='Elegí la planilla y el monto para compararlo con el flete.';return;}if(!v){live.className='cf-live neutral';live.textContent='Ingresá el monto para compararlo con el flete ('+_gs(sel.flete)+').';return;}if(Math.round(v)===Math.round(sel.flete)){live.className='cf-live ok';live.textContent='✓ Coincide con el flete — quedará conciliada.';}else{live.className='cf-live diff';live.textContent='▲ No coincide: flete '+_gs(sel.flete)+' vs factura '+_gs(v)+'.';}}
-  renderPlBtn();updLive();
+  function updLive(){const v=parseInt(mo.value.replace(/[^\d]/g,''),10)||0;if(!sel){live.className='cf-live neutral';live.textContent='Elegí la planilla y el monto para compararlo con el flete.';return;}if(!v){live.className='cf-live neutral';live.textContent='Ingresá el monto para compararlo con el flete ('+_gs(repFlete())+').';return;}if(Math.round(v)===Math.round(repFlete())){live.className='cf-live ok';live.textContent='✓ Coincide con el flete — quedará conciliada.';}else{live.className='cf-live diff';live.textContent='▲ No coincide: flete '+_gs(repFlete())+' vs factura '+_gs(v)+'.';}}
+  function renderReps(){const host=m.$('#cf_reps');if(!host)return;host.innerHTML=repsList.map(r=>{const on=repSel.has(r.id);const dd=r.fechaISO?String(r.fechaISO).slice(0,10).split('-').reverse().join('/'):'—';return '<label class="cf-rep'+(on?' on':'')+'"><input type="checkbox" data-rid="'+r.id+'"'+(on?' checked':'')+'><span class="cf-rep__chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></span><span class="cf-rep__d">'+dd+'</span><span class="cf-rep__f">'+_gs(+r.flete||0)+'</span></label>';}).join('')+'<div class="cf-rep-sum"><span>Seleccionado</span><b>'+_gs(repFlete())+'</b></div>';host.querySelectorAll('[data-rid]').forEach(c=>c.addEventListener('change',()=>{const id=+c.dataset.rid;if(c.checked)repSel.add(id);else repSel.delete(id);renderReps();renderPlBtn();updLive();}));}
+  renderPlBtn();updLive();if(repsList)renderReps();
   plBtn.addEventListener('click',()=>_facPlanillaPicker(pick=>{sel=pick;_cfClearVal(plF);renderPlBtn();updLive();}));
   nroI.addEventListener('input',()=>{nroI.value.trim()?_cfSetOk(nroF):_cfClearVal(nroF);});
   mo.addEventListener('input',()=>{const n=parseInt(mo.value.replace(/[^\d]/g,''),10)||0;mo.value=n?_nnum(n):'';n>0?_cfSetOk(moF):_cfClearVal(moF);updLive();});
@@ -5096,14 +5123,16 @@ function _cfOpenFacturaModal(existing,preset){
     if(!(monto>0)){_cfSetErr(moF,'Che, ingresá el monto de la factura.');bad=true;}
     if(!sel){_cfSetErr(plF,'Elegí a qué planilla corresponde.');bad=true;}
     if(bad){showToast('Revisá los campos marcados 👀');return;}
+    if(repsList&&repSel.size===0){showToast('Elegí al menos un reparto para facturar 👀');return;}
     const okB=m.$('.ok'),okTxt=editing?'Guardar cambios':'Guardar factura';if(okB){okB.disabled=true;okB.classList.add('is-loading');okB.innerHTML='<span class="cf-spin"></span>Guardando…';}
     const row={nro:nro,fecha:fecha,monto:monto,transportadora_nombre:sel.ts,semana_desde:sel.semDesde,semana_hasta:sel.semHasta};
     try{
       if(editing){const up=await sb.from('fact_facturas').update(row).eq('id',existing.id);if(up.error)throw up.error;m.close();_cfCheckBurst('Registrado',true);}
-      else{const ins=await sb.from('fact_facturas').insert(row);if(ins.error)throw ins.error;m.close();_cfCheckBurst('Registrado',true);}
+      else{const ins=await sb.from('fact_facturas').insert(row).select('id').single();if(ins.error)throw ins.error;const facId=ins.data&&ins.data.id;if(repsList&&facId!=null){for(const rid of Array.from(repSel)){try{await dbSetRepartoFactura(rid,facId);const rr=repartos.find(x=>x.id===rid);if(rr)rr.factura_id=facId;}catch(_){}}}m.close();_cfCheckBurst('Registrado',true);}
       // Recarga facturas para refrescar chips/estado antes de volver a la vista.
       try{const fr=await sb.from('fact_facturas').select('*');window.__cfFac=fr.data||[];}catch(_){window.__cfFac=null;}
-      if(locked&&preset&&typeof preset.onBack==='function'){preset.onBack();} // volver a la MISMA planilla, listo para imprimir
+      if(repsList){renderReporteRepartos();} // se registró un subconjunto → volver al listado para ver la separación
+      else if(locked&&preset&&typeof preset.onBack==='function'){preset.onBack();} // volver a la MISMA planilla, listo para imprimir
       else{const _rrep=document.getElementById('viewRrep');if(_rrep&&_rrep.classList.contains('is-active'))renderReporteRepartos(); else renderFacturas();}
     }catch(e){console.error(e);showToast('Uy, no pude guardar la factura. Probá de nuevo.');if(okB){okB.disabled=false;okB.classList.remove('is-loading');okB.textContent=okTxt;}}
   });
@@ -5152,6 +5181,8 @@ function _rrApplySearch(){
   if(grid&&nr){const none=q&&vis===0;grid.style.display=none?'none':'';nr.style.display=none?'':'none';const nq=nr.querySelector('.rr-nq');if(nq)nq.textContent=_rrQ;
     if(none&&window.gsap)gsap.fromTo(nr,{opacity:0,y:8},{opacity:1,y:0,duration:.3,ease:'power2.out',clearProps:'all'});}
 }
+// Vincula facturas viejas (por transportadora+semana) a sus repartos, seteando factura_id (una vez).
+function _cfBackfillFacturas(){const facs=window.__cfFac||[];if(!facs.length)return;(repartos||[]).forEach(r=>{if(r.factura_id!=null||!r.fechaISO)return;const wk=(typeof isoWeekRange==='function')?isoWeekRange(r.fechaISO):null;if(!wk)return;const names=new Set();(r.clientes||[]).forEach(c=>{const own=c.trId?tsOfTruck(c.trId):null;names.add((own&&own.n)||c.tsNombre||'—');});const f=facs.find(x=>names.has(x.transportadora_nombre||'')&&(x.semana_desde||'')===wk.desde);if(f){r.factura_id=f.id;dbSetRepartoFactura(r.id,f.id).catch(()=>{});}});}
 function _rrGroups(weekDesde){
   const groups={};
   (repartos||[]).forEach(r=>{
@@ -5163,14 +5194,17 @@ function _rrGroups(weekDesde){
       // (así los repartos "Varios" / multi-transportadora se reparten en cada transportadora real).
       const own=cl.trId?tsOfTruck(cl.trId):null;
       const ts=(own&&own.n)||cl.tsNombre||'—';const tsId=(own&&own.id)||cl.tsId;
-      const g=groups[ts]||(groups[ts]={ts:ts,tsId:tsId,lines:[],monto:0,flete:0,reps:[]});cl._fecha=r.fechaISO||r.fecha||null;g.lines.push(cl);g.monto+=+cl.monto||0;g.flete+=+cl.precio||0;if(!g.reps.some(x=>x.id===r.id))g.reps.push({id:r.id,fecha:r.fecha,fechaISO:r.fechaISO});});
+      // Además de por transportadora, separar por factura (una semana puede tener varias planillas/facturas)
+      const fid=r.factura_id!=null?r.factura_id:null;const key=ts+'|'+(fid==null?'':fid);
+      const g=groups[key]||(groups[key]={ts:ts,tsId:tsId,facturaId:fid,semDesde:(weekDesde||(wk?wk.desde:null)),lines:[],monto:0,flete:0,reps:[]});cl._fecha=r.fechaISO||r.fecha||null;g.lines.push(cl);g.monto+=+cl.monto||0;g.flete+=+cl.precio||0;if(!g.reps.some(x=>x.id===r.id))g.reps.push({id:r.id,fecha:r.fecha,fechaISO:r.fechaISO,factura_id:fid});});
   });
   return Object.values(groups).sort((a,b)=>b.flete-a.flete);
 }
 function renderReporteRepartos(){
   const host=document.getElementById('rrepHost');if(!host)return;
   // Carga las facturas (una vez) para mostrar el estado en cada tarjeta
-  if(!window.__cfFac){sb.from('fact_facturas').select('*').then(r=>{window.__cfFac=r.data||[];if(document.getElementById('viewRrep').classList.contains('is-active'))renderReporteRepartos();}).catch(()=>{window.__cfFac=[];});}
+  if(!window.__cfFac){sb.from('fact_facturas').select('*').then(r=>{window.__cfFac=r.data||[];_cfBackfillFacturas();if(document.getElementById('viewRrep').classList.contains('is-active'))renderReporteRepartos();}).catch(()=>{window.__cfFac=[];});}
+  else _cfBackfillFacturas();
   const weeks=_weeksOfMonth(_rrMes);
   const today=_isoD(new Date());
   // Siempre una semana seleccionada (ya no hay "Mes completo"): la actual si cae en el mes, si no la primera
@@ -5196,7 +5230,7 @@ function renderReporteRepartos(){
   const search='<div class="rr-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input type="text" placeholder="Buscar transportista o camión…" value="'+_escp(_rrQ)+'" autocomplete="off"><button class="rr-search__clear'+(_rrQ?' show':'')+'" aria-label="Limpiar">&times;</button></div>';
   let cards;
   if(!groups.length){cards='<div class="cf-card"><div class="cf-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 3h13v13H1zm13 5h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg><b>Sin registros para esta semana 🚚</b><span>Cargá un flete en la Calculadora y aparece.</span></div></div>';}
-  else{cards='<div class="rr-grid">'+groups.map((g,i)=>{const chip=_facChipDe(g,_rrWeek);const facd=_rrWeek?_facRegistradaDe(g.ts,_rrWeek):false;const sk=_escp((g.ts+' '+g.lines.map(l=>l.trDesc||'').join(' ')).toLowerCase());return '<div class="rr-card'+(facd?' rr-card--facd':'')+'" data-rrts="'+i+'" data-search="'+sk+'">'+(facd?'<span class="rr-card__seal"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></span>':'')+'<div class="rr-card__ts">'+_escp(g.ts)+'</div><div class="rr-card__pd">'+periodLbl+'</div>'+(chip?'<div class="rr-card__st">'+chip+'</div>':'')+'<div class="rr-card__foot"><div><b>'+g.lines.reduce((s,l)=>s+((l.seg||'local')==='transportadora'?(+l.cant||1):1),0)+'</b><span>Camiones</span></div><div style="text-align:right"><b>'+_gs(g.flete)+'</b><span>Flete total</span></div></div><div class="rr-card__go">Ver planilla ›</div></div>';}).join('')+'</div>'+
+  else{cards='<div class="rr-grid">'+groups.map((g,i)=>{const chip=_facChipDe(g,_rrWeek);const facd=!!_facDeGrupo(g);const sk=_escp((g.ts+' '+g.lines.map(l=>l.trDesc||'').join(' ')).toLowerCase());return '<div class="rr-card'+(facd?' rr-card--facd':'')+'" data-rrts="'+i+'" data-search="'+sk+'">'+(facd?'<span class="rr-card__seal"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></span>':'')+'<div class="rr-card__ts">'+_escp(g.ts)+'</div><div class="rr-card__pd">'+periodLbl+'</div>'+(chip?'<div class="rr-card__st">'+chip+'</div>':'')+'<div class="rr-card__foot"><div><b>'+g.lines.reduce((s,l)=>s+((l.seg||'local')==='transportadora'?(+l.cant||1):1),0)+'</b><span>Camiones</span></div><div style="text-align:right"><b>'+_gs(g.flete)+'</b><span>Flete total</span></div></div><div class="rr-card__go">Ver planilla ›</div></div>';}).join('')+'</div>'+
     '<div class="rr-noresults cf-card" style="display:none"><div class="cf-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><b>Sin resultados para “<span class="rr-nq"></span>”</b><span>Probá con otro nombre de transportista o de camión.</span></div></div>';}
   host.innerHTML='<div class="cf-hd"><h2><img src="logo-alas-s.a.png">Reporte de Repartos</h2><span class="cf-count">'+groups.length+'</span><div class="rr-filterbar">'+nav+chips+'</div></div><div class="rr-toolbar">'+search+segFilter+'</div>'+cards;
   host.querySelectorAll('[data-rrm]').forEach(b=>b.addEventListener('click',()=>_rrShiftMonth(+b.dataset.rrm)));
@@ -5338,7 +5372,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     alive.filter(d=>!d.uid).forEach(d=>{if(isTr){work.unshift({uid:_wuid++,ref:null,repId:targetRepId(),trId:null,trDesc:trD(d),tsId:tsObj?tsObj.id:g.tsId,tsNombre:g.ts,seg:sk,rep:null,zona:null,obs:null,cant:+d.cant||0,fecha:d.fecha,km:0,precioKm:0,monto:0,precio:+d.precio||0,fijo:false,del:false,isNew:true,edit:false});return;}const km2=_dfKm(d);work.unshift({uid:_wuid++,ref:null,repId:targetRepId(),trId:d.trId,trDesc:d.trDesc,tsId:d.tsId,tsNombre:d.tsNombre,seg:sk,rep:(d.rep||'').trim(),zona:(d.zona||'').trim(),obs:isServ?(d.obs||''):'',cant:1,fecha:d.fecha,km:km2?d.km:0,precioKm:km2?d.precioKm:0,monto:0,precio:km2?Math.round(d.km*d.precioKm):(+d.precio||0),fijo:isInt?!km2:false,del:false,isNew:true,edit:false});});
     _dashEdit=false;_dashDraft=null;await save(null,true);}
   function _dashResumen(lbl,nLines,nCam,sub){
-    const fac=(wkObj?_facMontoDe(g.ts,wkObj.desde):null);
+    const _fg=_facDeGrupo(g);const fac=_fg?(+_fg.monto||0):null;
     const CLIP='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>';
     const COINS='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.66 3.58 3 8 3s8-1.34 8-3V6M4 12v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/></svg>';
     const tile=(cls,ic,small,val)=>'<div class="rrd-ktile'+(cls?' '+cls:'')+'"><span class="rrd-ktile__ic">'+ic+'</span><div class="rrd-ktile__tx"><small>'+small+'</small><b>'+val+'</b></div></div>';
@@ -5562,8 +5596,8 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     bd.querySelectorAll('.rre-pick').forEach(b=>b.addEventListener('click',()=>openRrePick(b)));
     bd.querySelectorAll('.cancel').forEach(b=>b.addEventListener('click',()=>goBack()));
     bd.querySelectorAll('.cancel-edit').forEach(b=>b.addEventListener('click',()=>{buildWork();render('toggle');}));
-    const pr=bd.querySelector('.print');if(pr)pr.addEventListener('click',()=>{const t=totals();_cfPrint({id:null,tsNombre:g.ts,semanaDesde:wkObj?wkObj.desde:null,semanaHasta:wkObj?wkObj.hasta:null,clientes:g.lines,totalMonto:t.m,totalFlete:t.f,incTotal:t.inc,factura_id:null});});
-    const fac=bd.querySelector('.rrm-act--fac');if(fac)fac.addEventListener('click',()=>{_cfOpenFacturaModal(null,{ts:g.ts,semDesde:wkObj.desde,semHasta:wkObj.hasta,onBack:()=>_rrOpenDetail(g,periodLbl,wkObj)});});
+    const pr=bd.querySelector('.print');if(pr)pr.addEventListener('click',()=>{const t=totals();_cfPrint({id:null,tsNombre:g.ts,semanaDesde:wkObj?wkObj.desde:null,semanaHasta:wkObj?wkObj.hasta:null,clientes:g.lines,totalMonto:t.m,totalFlete:t.f,incTotal:t.inc,factura_id:(g.facturaId!=null?g.facturaId:null)});});
+    const fac=bd.querySelector('.rrm-act--fac');if(fac)fac.addEventListener('click',()=>{const reps=(g.reps||[]).filter(rp=>rp.factura_id==null).map(rp=>{const r=repartos.find(x=>x.id===rp.id);const fl=((r&&r.clientes)||[]).filter(c=>{const own=c.trId?tsOfTruck(c.trId):null;return ((own&&own.n)||c.tsNombre||'—')===g.ts;}).reduce((s,c)=>s+(+c.precio||0),0);return {id:rp.id,fechaISO:rp.fechaISO,flete:fl};});_cfOpenFacturaModal(null,{ts:g.ts,semDesde:wkObj.desde,semHasta:wkObj.hasta,reps:reps,onBack:()=>_rrOpenDetail(g,periodLbl,wkObj)});});
     bd.querySelectorAll('.rre-vadd').forEach(b=>b.addEventListener('click',()=>{addRow(b.dataset.seg);render('add');}));
     bd.querySelectorAll('[data-editseg]').forEach(b=>b.addEventListener('click',()=>openSegEdit(b.dataset.editseg)));
     // Vista dashboard: pestañas + edición inline
@@ -5615,7 +5649,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     const editing=isEditing();
     bd.classList.toggle('is-editing',editing);
     const t=totals();
-    const facReg=wkObj?_facRegistradaDe(g.ts,wkObj.desde):false;
+    const facReg=!!_facDeGrupo(g);
     const facBtn=(!editing&&wkObj&&!facReg)?'<button class="rrm-act rrm-act--fac"><svg viewBox="0 0 24 24"><path d="M5 3h14a1 1 0 011 1v17l-3-2-3 2-3-2-3 2-3-2V4a1 1 0 011-1z"/><path d="M12 8v6M9 11h6"/></svg> Registrar factura</button>':'';
     const nCam=totalCam();
     const back=editing
