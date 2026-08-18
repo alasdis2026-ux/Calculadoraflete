@@ -4473,6 +4473,7 @@ function showSaveAnim(text){
   /* Columna Factura: check verde→azul + flecha amarilla (pasar a otra planilla) */
   .rrd-facth{width:184px;text-align:right;white-space:nowrap;color:var(--gray-400,#94a3b8)}
   .rrd-facc{width:184px;text-align:right;white-space:nowrap;padding-right:16px!important}
+  .rrd-facc--slim{width:66px!important}
   .rrd-segth{width:124px}
   .rrd-segpick{min-width:110px;font-weight:800!important;color:#0B5F8D}
   .rrd-segpick.moved{color:#b45309!important;background:rgba(217,119,6,.12)!important;border-color:rgba(217,119,6,.45)!important}
@@ -4503,11 +4504,13 @@ function showSaveAnim(text){
   .rrd-selchk.on{border-color:transparent;background:linear-gradient(180deg,#22c55e,#16a34a);color:#fff;box-shadow:0 6px 15px rgba(22,163,74,.32)}
   .rrd-selchk:active{transform:scale(.92)}
   /* Barra de selección de repartos para la factura */
-  .rrd-facbar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin:2px 0 14px;padding:12px 16px;border-radius:14px;background:linear-gradient(180deg,#eef6fc,#e3eefc);border:1px solid rgba(37,120,184,.22);box-shadow:0 6px 18px rgba(11,95,141,.1)}
-  .rrd-facbar__info{display:flex;flex-direction:column;gap:3px;min-width:0}
-  .rrd-facbar__t{display:inline-flex;align-items:center;gap:8px;font-weight:800;color:#0B5F8D;font-size:14px}
-  .rrd-facbar__t svg{width:18px;height:18px}
-  .rrd-facbar__sub{font-size:13px;color:var(--gray-600,#475569);font-weight:700}
+  .rrd-facbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;max-width:920px;margin:2px auto 16px;padding:11px 14px 11px 16px;border-radius:16px;background:linear-gradient(180deg,#f2f8fd,#e6eefb);border:1px solid rgba(37,120,184,.24);box-shadow:0 10px 26px rgba(11,95,141,.14)}
+  .rrd-facbar__badge{flex-shrink:0;width:40px;height:40px;border-radius:12px;display:inline-flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#1a7cb0,#0B5F8D);color:#fff;box-shadow:0 6px 14px rgba(11,95,141,.3),inset 0 1px 0 rgba(255,255,255,.2)}
+  .rrd-facbar__badge svg{width:20px;height:20px}
+  .rrd-facbar__info{display:flex;flex-direction:column;gap:4px;min-width:0;flex:1}
+  .rrd-facbar__t{font-weight:800;color:#0B5F8D;font-size:14.5px;line-height:1.15}
+  .rrd-facbar__sub{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;color:var(--gray-600,#475569);font-weight:700}
+  .rrd-facbar__cnt{display:inline-block;padding:2px 9px;border-radius:999px;background:rgba(37,120,184,.14);color:#0B5F8D;font-size:11.5px;font-weight:800}
   .rrd-facbar__sub b{color:#15803d}
   .rrd-facbar__acts{display:flex;gap:10px;flex-shrink:0}
   .rrd-facbar__btn{display:inline-flex;align-items:center;gap:7px;border:none;border-radius:11px;padding:10px 18px;font:inherit;font-size:13.5px;font-weight:800;cursor:pointer;transition:transform .12s,box-shadow .16s,background .16s}
@@ -5210,12 +5213,14 @@ function _cfOpenFacturaModal(existing,preset){
     }
     const okB=m.$('.ok'),okTxt=editing?'Guardar cambios':'Guardar factura';if(okB){okB.disabled=true;okB.classList.add('is-loading');okB.innerHTML='<span class="cf-spin"></span>Guardando…';}
     const row={nro:nro,fecha:fecha,monto:monto,transportadora_nombre:sel.ts,semana_desde:sel.semDesde,semana_hasta:sel.semHasta};
+    let _newFacId=null;
     try{
       if(editing){const up=await sb.from('fact_facturas').update(row).eq('id',existing.id);if(up.error)throw up.error;m.close();_cfCheckBurst('Registrado',true);}
-      else{const ins=await sb.from('fact_facturas').insert(row).select('id').single();if(ins.error)throw ins.error;const facId=ins.data&&ins.data.id;if(repsList&&facId!=null){for(const rid of Array.from(repSel)){try{await dbSetRepartoFactura(rid,facId);const rr=repartos.find(x=>x.id===rid);if(rr)rr.factura_id=facId;}catch(_){}}}m.close();_cfCheckBurst('Registrado',true);}
+      else{const ins=await sb.from('fact_facturas').insert(row).select('id').single();if(ins.error)throw ins.error;const facId=ins.data&&ins.data.id;_newFacId=facId;if(repsList&&facId!=null){for(const rid of Array.from(repSel)){try{await dbSetRepartoFactura(rid,facId);const rr=repartos.find(x=>x.id===rid);if(rr)rr.factura_id=facId;}catch(_){}}}m.close();_cfCheckBurst('Registrado',true);}
       // Recarga facturas para refrescar chips/estado antes de volver a la vista.
       try{const fr=await sb.from('fact_facturas').select('*');window.__cfFac=fr.data||[];}catch(_){window.__cfFac=null;}
-      if(repsList){renderReporteRepartos();} // se registró un subconjunto → volver al listado para ver la separación
+      // Al registrar desde una planilla se QUEDA en la planilla (ya facturada) para imprimir
+      if(repsList){if(preset&&typeof preset.onRegistered==='function')preset.onRegistered(_newFacId);else renderReporteRepartos();}
       else if(locked&&preset&&typeof preset.onBack==='function'){preset.onBack();} // volver a la MISMA planilla, listo para imprimir
       else{const _rrep=document.getElementById('viewRrep');if(_rrep&&_rrep.classList.contains('is-active'))renderReporteRepartos(); else renderFacturas();}
     }catch(e){console.error(e);showToast('Uy, no pude guardar la factura. Probá de nuevo.');if(okB){okB.disabled=false;okB.classList.remove('is-loading');okB.textContent=okTxt;}}
@@ -5529,7 +5534,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     const items=_dashSort(work.filter(w=>!w.del&&w.seg===sk&&(!_camFilter||camLbl(w)===_camFilter)),sk);
     let thead;
     const facReadReg=_dashSeg!=='todos'&&!!_facDeGrupo(g);
-    const actTh=editing?'<th class="rrd-actth"></th>':'';
+    const actTh=editing?'<th class="rrd-actth"></th>':(facReadReg?'':'<th class="rrd-facth rrd-facc--slim r"></th>');
     const segTh=(editing&&!isTr)?'<th class="rrd-segth">Segmento</th>':'';
     if(isTr)thead='<tr><th>Fecha</th><th class="rrd-grow">Detalle</th><th class="r">Cantidad</th><th class="r">Flete</th>'+actTh+'</tr>';
     else thead='<tr><th>Fecha</th>'+segTh+'<th>Camión</th><th>Repartidor</th><th class="rrd-grow">'+(isServ?'Servicio':'Zona')+'</th>'+(isInt?'<th class="r">Km · Precio/km</th>':'')+'<th class="r">Flete</th>'+actTh+'</tr>';
@@ -5546,8 +5551,9 @@ function _rrOpenDetail(g,periodLbl,wkObj){
         else{const zcell=isServ?('<td><input class="xls-in rrd-fin rrd-fobs" data-dk="'+d.k+'" placeholder="—" value="'+_escp(d.obs||'')+'"></td>'):('<td>'+pk('zona')+'</td>');const kmcell=isInt?('<td class="r"><div class="rrd-kmedit"><input class="xls-in r rrd-fin rrd-fkm" data-dk="'+d.k+'" inputmode="decimal" placeholder="Km" value="'+(d.km?_kmFmt(d.km):'')+'"><span>×</span><input class="xls-in r rrd-fin rrd-fpkm" data-dk="'+d.k+'" inputmode="numeric" placeholder="Precio por km" value="'+(d.precioKm?_nnum(d.precioKm):'')+'"></div></td>'):'';c=fecCell+segCell+'<td>'+pk('tr')+'</td><td>'+pk('rep')+'</td>'+zcell+kmcell+fleteCell+'<td class="rrd-actc"></td>';}
         return '<tr data-dk="'+d.k+'">'+c+'</tr>';}).join('')||'<tr><td colspan="8" class="rrd-empty">Sin líneas — agregá una.</td></tr>';
     }else{
-      // Las acciones de factura viven solo en la vista "Todos"; los segmentos quedan de lectura limpia
-      const acts=w=>'';
+      // La selección/factura vive solo en "Todos". En los segmentos queda solo el tacho (borrar),
+      // salvo que la planilla ya esté facturada (bloqueada).
+      const acts=w=>facReadReg?'':'<td class="rrd-facc rrd-facc--slim"><button class="rrd-facdel" data-dashdel="'+w.uid+'" data-tip="Eliminar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M10 11v6M14 11v6"/></svg></button></td>';
       const rowCls=w=>'';
       if(isTr)rowsHtml=items.map(w=>'<tr'+rowCls(w)+' data-dashrow="'+w.uid+'">'+dfec(w)+'<td class="rrd-cam rrd-grow"><span class="rrd-cam__ic">'+TRUCKICON+'</span><span class="rrd-cam__t">'+((+w.cant||0)+' camión'+((+w.cant||0)===1?'':'es'))+'</span></td><td class="r">'+(+w.cant||0)+'</td><td class="r rrd-flete">'+_gs(+w.precio||0)+'</td>'+acts(w)+'</tr>').join('');
       else rowsHtml=items.map(w=>{const km=(isInt&&+w.km>0)?(_kmFmt(+w.km)+' km × '+_gs(+w.precioKm||0)):'—';return '<tr'+rowCls(w)+' data-dashrow="'+w.uid+'">'+dfec(w)+'<td class="rrd-cam"><span class="rrd-cam__ic">'+TRUCKICON+'</span><span class="rrd-cam__t">'+_escp(camLbl(w))+'</span></td><td>'+_escp(w.rep||'Tercerizado')+'</td><td class="rrd-grow">'+(w.zona?dchip(w.zona):(isServ&&w.obs?dchip(w.obs):'<span class="rrd-mut">—</span>'))+'</td>'+(isInt?'<td class="r rrd-det">'+km+'</td>':'')+'<td class="r rrd-flete">'+_gs(+w.precio||0)+'</td>'+acts(w)+'</tr>';}).join('');
@@ -5728,7 +5734,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     // Cancelar la selección
     bd.querySelectorAll('[data-faccancel]').forEach(b=>b.addEventListener('click',()=>{_facMode=false;render('filter');}));
     // Continuar → abre el modal de factura con los repartos marcados
-    bd.querySelectorAll('[data-faccontinue]').forEach(b=>b.addEventListener('click',()=>{const reps=(g.reps||[]).filter(rp=>rp.factura_id==null&&_facSel.has(rp.id)).map(rp=>{const r=repartos.find(x=>x.id===rp.id);const fl=((r&&r.clientes)||[]).filter(c=>{const own=c.trId?tsOfTruck(c.trId):null;return ((own&&own.n)||c.tsNombre||'—')===g.ts;}).reduce((s,c)=>s+(+c.precio||0),0);return {id:rp.id,fechaISO:rp.fechaISO,flete:fl};});if(!reps.length){showToast('Marcá al menos un reparto');return;}_facMode=false;_cfOpenFacturaModal(null,{ts:g.ts,semDesde:wkObj.desde,semHasta:wkObj.hasta,reps:reps,preselected:true,onBack:()=>_rrOpenDetail(g,periodLbl,wkObj)});}));
+    bd.querySelectorAll('[data-faccontinue]').forEach(b=>b.addEventListener('click',()=>{const reps=(g.reps||[]).filter(rp=>rp.factura_id==null&&_facSel.has(rp.id)).map(rp=>{const r=repartos.find(x=>x.id===rp.id);const fl=((r&&r.clientes)||[]).filter(c=>{const own=c.trId?tsOfTruck(c.trId):null;return ((own&&own.n)||c.tsNombre||'—')===g.ts;}).reduce((s,c)=>s+(+c.precio||0),0);return {id:rp.id,fechaISO:rp.fechaISO,flete:fl};});if(!reps.length){showToast('Marcá al menos un reparto');return;}_facMode=false;_cfOpenFacturaModal(null,{ts:g.ts,semDesde:wkObj.desde,semHasta:wkObj.hasta,reps:reps,preselected:true,onBack:()=>_rrOpenDetail(g,periodLbl,wkObj),onRegistered:facId=>{const grs=_rrGroups(_rrWeek);const fresh=grs.find(x=>x.ts===g.ts&&x.facturaId===facId)||grs.find(x=>x.ts===g.ts);if(fresh)_rrOpenDetail(fresh,periodLbl,wkObj);else renderReporteRepartos();}});}));
     bd.querySelectorAll('.rre-vadd').forEach(b=>b.addEventListener('click',()=>{addRow(b.dataset.seg);render('add');}));
     bd.querySelectorAll('[data-editseg]').forEach(b=>b.addEventListener('click',()=>openSegEdit(b.dataset.editseg)));
     // Vista dashboard: pestañas + edición inline
@@ -5809,7 +5815,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     const _cand=(g.reps||[]).filter(rp=>rp.factura_id==null);
     const _selN=_cand.filter(rp=>_facSel.has(rp.id)).length;
     const _selTot=work.filter(w=>!w.del&&_facSel.has(w.repId)).reduce((s,w)=>s+(+w.precio||0),0);
-    const facBar=_facMode?'<div class="rrd-facbar"><div class="rrd-facbar__info"><span class="rrd-facbar__t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg> Elegí qué repartos entran en esta factura</span><span class="rrd-facbar__sub">'+_selN+' de '+_cand.length+' · <b>'+_gs(_selTot)+'</b></span></div><div class="rrd-facbar__acts"><button class="rrd-facbar__btn cancel" data-faccancel="1">Cancelar</button><button class="rrd-facbar__btn ok" data-faccontinue="1"'+(_selN?'':' disabled')+'>Continuar <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div></div>':'';
+    const facBar=_facMode?'<div class="rrd-facbar"><div class="rrd-facbar__badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div><div class="rrd-facbar__info"><span class="rrd-facbar__t">Elegí qué repartos entran en esta factura</span><span class="rrd-facbar__sub"><span class="rrd-facbar__cnt">'+_selN+' de '+_cand.length+'</span>Total <b>'+_gs(_selTot)+'</b></span></div><div class="rrd-facbar__acts"><button class="rrd-facbar__btn cancel" data-faccancel="1">Cancelar</button><button class="rrd-facbar__btn ok" data-faccontinue="1"'+(_selN?'':' disabled')+'>Continuar <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div></div>':'';
     const facMonto=wkObj?_facMontoDe(g.ts,wkObj.desde):null;
     const facKpi='<div class="rrm-kpi rrm-kpi--fac"><span>Factura</span><b class="k-fac'+(facMonto==null?' k-nofac':'')+'">'+(facMonto!=null?_gs(facMonto):'Sin registros')+'</b></div>';
     bd.innerHTML=
