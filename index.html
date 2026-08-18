@@ -4463,6 +4463,30 @@ function showSaveAnim(text){
   .rrd-del{color:#DC2626}
   .rrd-del:hover{background:#FEF2F2;color:#DC2626}
   .rrd-del:active{transform:scale(.9)}
+  /* Columna Factura: check verde→azul + flecha amarilla (pasar a otra planilla) */
+  .rrd-facth{width:104px;text-align:right;white-space:nowrap;color:var(--gray-400,#94a3b8)}
+  .rrd-facc{width:104px;text-align:right;white-space:nowrap;padding-right:12px!important}
+  .rrd-facc button{position:relative;width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;border-radius:11px;cursor:pointer;vertical-align:middle;transition:background .16s,border-color .16s,box-shadow .16s,transform .1s;-webkit-tap-highlight-color:transparent}
+  .rrd-facc button+button{margin-left:6px}
+  .rrd-facc button svg{width:17px;height:17px;pointer-events:none}
+  .rrd-facc button:active{transform:scale(.88)}
+  .rrd-facchk{border:1.6px solid #bbf7d0;background:#f0fdf4;color:#16a34a}
+  .rrd-facchk:hover{background:#dcfce7;border-color:#86efac;box-shadow:0 4px 12px rgba(22,163,74,.18)}
+  .rrd-facchk.conf{border-color:transparent;background:linear-gradient(180deg,#3b82f6,#2563eb);color:#fff;box-shadow:0 6px 15px rgba(37,99,235,.34),inset 0 1px 0 rgba(255,255,255,.28)}
+  .rrd-facchk.conf:hover{background:linear-gradient(180deg,#4c8dff,#2f6ff0)}
+  .rrd-facmove{border:1.6px solid #fde68a;background:#fffbeb;color:#d97706}
+  .rrd-facmove:hover{background:#fef3c7;border-color:#fcd34d;box-shadow:0 4px 12px rgba(217,119,6,.2)}
+  .rrd-facmove.out{border-color:transparent;background:linear-gradient(180deg,#f59e0b,#d97706);color:#fff;box-shadow:0 6px 15px rgba(217,119,6,.32),inset 0 1px 0 rgba(255,255,255,.3)}
+  .rrd-row-out>td{opacity:.5}
+  .rrd-row-out>td.rrd-facc{opacity:1}
+  .rrd-row-out .rrd-flete{text-decoration:line-through;text-decoration-color:rgba(217,119,6,.6)}
+  /* Tooltip PRO animado en hover */
+  .rrd-facc button[data-tip]::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 9px);right:-4px;transform:translateY(4px) scale(.94);transform-origin:bottom right;background:#0f172a;color:#fff;font-size:11px;font-weight:600;letter-spacing:.1px;line-height:1;padding:7px 10px;border-radius:8px;white-space:nowrap;box-shadow:0 10px 24px rgba(15,23,42,.28);opacity:0;pointer-events:none;transition:opacity .18s ease,transform .22s cubic-bezier(.34,1.56,.64,1);z-index:40}
+  .rrd-facc button[data-tip]::before{content:'';position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%) translateY(4px);border:5px solid transparent;border-top-color:#0f172a;opacity:0;pointer-events:none;transition:opacity .18s ease,transform .22s cubic-bezier(.34,1.56,.64,1);z-index:40}
+  .rrd-facc button[data-tip]:hover::after{opacity:1;transform:translateY(0) scale(1)}
+  .rrd-facc button[data-tip]:hover::before{opacity:1;transform:translateX(-50%) translateY(0)}
+  .cf-rep--ro{cursor:default}
+  .cf-rep--ro .cf-rep__chk{background:linear-gradient(180deg,#3b82f6,#2563eb);border-color:transparent;color:#fff}
   .rrd-empty{text-align:center;color:var(--gray-400);padding:26px}
   .rrd-side{display:flex;flex-direction:column;gap:14px}
   .rrd-card{background:#fff;border:1px solid var(--gray-200,#e2e8f0);border-radius:16px;padding:16px}
@@ -5087,6 +5111,8 @@ function _cfOpenFacturaModal(existing,preset){
   // "Bloqueado" = vino desde una planilla: la planilla ya está fija (sin "Cambiar") y el botón dice "Regresar"
   const locked=!editing&&!!(preset&&preset.ts&&preset.semDesde);
   const repsList=(!editing&&preset&&preset.reps&&preset.reps.length)?preset.reps.slice():null;
+  // preSel: la selección ya se hizo con los check verde/azul de la planilla → acá solo se muestra en lectura
+  const preSel=!!(repsList&&preset&&preset.preselected);
   let repSel=repsList?new Set(repsList.map(r=>r.id)):null;
   const repFlete=()=>repsList?repsList.filter(r=>repSel.has(r.id)).reduce((s,r)=>s+(+r.flete||0),0):(sel?sel.flete:0);
   const subTxt=locked?'Cargá los datos de la factura para esta planilla.':'Cargá los datos y elegí la planilla (transportista + semana) que corresponde.';
@@ -5102,7 +5128,7 @@ function _cfOpenFacturaModal(existing,preset){
       '<div class="cf-fld" data-fld><button type="button" class="cf-plbtn" id="cf_plbtn"></button><span class="cf-fld__err"></span></div>'+
       '<div class="cf-live neutral" id="cf_flive">Elegí la planilla y el monto para compararlo con el flete.</div>'+
     '</div>'+
-    (repsList?'<div class="cf-sec"><div class="cf-sec__t">'+_ic('truck')+'Repartos a facturar</div><div class="cf-reps" id="cf_reps"></div></div>':'')+
+    (repsList?'<div class="cf-sec"><div class="cf-sec__t">'+_ic('truck')+(preSel?'Repartos incluidos':'Repartos a facturar')+'</div><div class="cf-reps'+(preSel?' cf-reps--ro':'')+'" id="cf_reps"></div></div>':'')+
     '<div class="cf-mfoot"><button class="cancel">'+(locked?'Regresar':'Cancelar')+'</button><button class="ok">'+(editing?'Guardar cambios':'Guardar factura')+'</button></div></div>');
   const nroI=m.$('#cf_fnro'),feI=m.$('#cf_ffecha'),mo=m.$('#cf_fmonto'),plBtn=m.$('#cf_plbtn'),live=m.$('#cf_flive');
   const nroF=nroI.closest('[data-fld]'),moF=mo.closest('[data-fld]'),plF=plBtn.closest('[data-fld]');
@@ -5114,7 +5140,9 @@ function _cfOpenFacturaModal(existing,preset){
   }
   if(locked){plBtn.disabled=true;plBtn.classList.add('cf-plbtn--locked');}
   function updLive(){const v=parseInt(mo.value.replace(/[^\d]/g,''),10)||0;if(!sel){live.className='cf-live neutral';live.textContent='Elegí la planilla y el monto para compararlo con el flete.';return;}if(!v){live.className='cf-live neutral';live.textContent='Ingresá el monto para compararlo con el flete ('+_gs(repFlete())+').';return;}if(Math.round(v)===Math.round(repFlete())){live.className='cf-live ok';live.textContent='✓ Coincide con el flete — quedará conciliada.';}else{live.className='cf-live diff';live.textContent='▲ No coincide: flete '+_gs(repFlete())+' vs factura '+_gs(v)+'.';}}
-  function renderReps(){const host=m.$('#cf_reps');if(!host)return;host.innerHTML=repsList.map(r=>{const on=repSel.has(r.id);const dd=r.fechaISO?String(r.fechaISO).slice(0,10).split('-').reverse().join('/'):'—';return '<label class="cf-rep'+(on?' on':'')+'"><input type="checkbox" data-rid="'+r.id+'"'+(on?' checked':'')+'><span class="cf-rep__chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></span><span class="cf-rep__d">'+dd+'</span><span class="cf-rep__f">'+_gs(+r.flete||0)+'</span></label>';}).join('')+'<div class="cf-rep-sum"><span>Seleccionado</span><b>'+_gs(repFlete())+'</b></div>';host.querySelectorAll('[data-rid]').forEach(c=>c.addEventListener('change',()=>{const id=+c.dataset.rid;if(c.checked)repSel.add(id);else repSel.delete(id);renderReps();renderPlBtn();updLive();}));}
+  function renderReps(){const host=m.$('#cf_reps');if(!host)return;
+    if(preSel){host.innerHTML=repsList.map(r=>{const dd=r.fechaISO?String(r.fechaISO).slice(0,10).split('-').reverse().join('/'):'—';return '<div class="cf-rep cf-rep--ro on"><span class="cf-rep__chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></span><span class="cf-rep__d">'+dd+'</span><span class="cf-rep__f">'+_gs(+r.flete||0)+'</span></div>';}).join('')+'<div class="cf-rep-sum"><span>Total a facturar</span><b>'+_gs(repFlete())+'</b></div>';return;}
+    host.innerHTML=repsList.map(r=>{const on=repSel.has(r.id);const dd=r.fechaISO?String(r.fechaISO).slice(0,10).split('-').reverse().join('/'):'—';return '<label class="cf-rep'+(on?' on':'')+'"><input type="checkbox" data-rid="'+r.id+'"'+(on?' checked':'')+'><span class="cf-rep__chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></span><span class="cf-rep__d">'+dd+'</span><span class="cf-rep__f">'+_gs(+r.flete||0)+'</span></label>';}).join('')+'<div class="cf-rep-sum"><span>Seleccionado</span><b>'+_gs(repFlete())+'</b></div>';host.querySelectorAll('[data-rid]').forEach(c=>c.addEventListener('change',()=>{const id=+c.dataset.rid;if(c.checked)repSel.add(id);else repSel.delete(id);renderReps();renderPlBtn();updLive();}));}
   renderPlBtn();updLive();if(repsList)renderReps();
   plBtn.addEventListener('click',()=>_facPlanillaPicker(pick=>{sel=pick;_cfClearVal(plF);renderPlBtn();updLive();}));
   nroI.addEventListener('input',()=>{nroI.value.trim()?_cfSetOk(nroF):_cfClearVal(nroF);});
@@ -5292,7 +5320,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     if(g3){g3.fromTo(c,{opacity:0},{opacity:1,duration:.24,ease:'power2.out'});g3.fromTo(c.querySelector('svg'),{scale:0,rotate:-15,transformOrigin:'50% 50%'},{scale:1,rotate:0,duration:.36,delay:.05,ease:'back.out(2.6)'});g3.to(c,{opacity:0,duration:.3,delay:1.15,ease:'power2.in',onComplete:()=>c.remove()});}
     else setTimeout(()=>c.remove(),1500);
   }
-  let work=[],firstDraw=true,_wuid=1,selUid=null,_ddEl=null,_ddCleanup=null,_ddBtn=null,_lastTotal=null,_dragUid=null,_dashSeg=null,_dashEdit=false,_dashDraft=null,_dashDK=1;
+  let work=[],firstDraw=true,_wuid=1,selUid=null,_ddEl=null,_ddCleanup=null,_ddBtn=null,_lastTotal=null,_dragUid=null,_dashSeg=null,_dashEdit=false,_dashDraft=null,_dashDK=1,_dashOut=new Set(),_dashConf=new Set();
   const SEGL=['local','interior','servicios','transportadora'];
   // Conteo animado (el total "sube" con pop) — estilo prototipo, con nuestra lógica
   function countTo(el,from,to,delay){if(!el)return;const gs=window.gsap;if(!gs||from===to){el.textContent=_gs(to);return;}delay=delay||0;const o={v:from};el.textContent=_gs(from);gs.to(o,{v:to,duration:.8,delay:delay,ease:'power2.out',onUpdate:()=>{el.textContent=_gs(Math.round(o.v));},onComplete:()=>{el.textContent=_gs(to);}});gs.fromTo(el,{scale:1.15,textShadow:'0 0 30px rgba(21,128,61,.55)'},{scale:1,textShadow:'0 0 0px rgba(21,128,61,0)',duration:.55,delay:delay,ease:'back.out(2)',clearProps:'transform,textShadow'});}
@@ -5425,7 +5453,8 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     const editing=_dashEdit&&!!_dashDraft;
     const items=_dashSort(work.filter(w=>!w.del&&w.seg===sk&&(!_camFilter||camLbl(w)===_camFilter)),sk);
     let thead;
-    const actTh=editing?'<th class="rrd-actth"></th>':'';
+    const facReadReg=_dashSeg!=='todos'&&!!_facDeGrupo(g);
+    const actTh=editing?'<th class="rrd-actth"></th>':(facReadReg?'':'<th class="rrd-facth r">Factura</th>');
     if(isTr)thead='<tr><th>Fecha</th><th>Detalle</th><th class="r">Cantidad</th><th class="r">Flete</th>'+actTh+'</tr>';
     else thead='<tr><th>Fecha</th><th>Camión</th><th>Repartidor</th><th>'+(isServ?'Servicio':'Zona')+'</th>'+(isInt?'<th class="r">Km · Precio/km</th>':'')+'<th class="r">Flete</th>'+actTh+'</tr>';
     let rowsHtml;
@@ -5440,9 +5469,14 @@ function _rrOpenDetail(g,periodLbl,wkObj){
         else{const zcell=isServ?('<td><input class="xls-in rrd-fin rrd-fobs" data-dk="'+d.k+'" placeholder="—" value="'+_escp(d.obs||'')+'"></td>'):('<td>'+pk('zona')+'</td>');const kmcell=isInt?('<td class="r"><div class="rrd-kmedit"><input class="xls-in r rrd-fin rrd-fkm" data-dk="'+d.k+'" inputmode="decimal" placeholder="Km" value="'+(d.km?_kmFmt(d.km):'')+'"><span>×</span><input class="xls-in r rrd-fin rrd-fpkm" data-dk="'+d.k+'" inputmode="numeric" placeholder="Gs/km" value="'+(d.precioKm?_nnum(d.precioKm):'')+'"></div></td>'):'';c=fecCell+'<td>'+pk('tr')+'</td><td>'+pk('rep')+'</td>'+zcell+kmcell+fleteCell+'<td class="rrd-actc">'+dtrash(d.k)+'</td>';}
         return '<tr data-dk="'+d.k+'">'+c+'</tr>';}).join('')||'<tr><td colspan="8" class="rrd-empty">Sin líneas — agregá una.</td></tr>';
     }else{
-      const acts=w=>''; // en lectura no hay columna de acciones; el tacho solo aparece en edición
-      if(isTr)rowsHtml=items.map(w=>'<tr data-dashrow="'+w.uid+'">'+dfec(w)+'<td class="rrd-cam"><span class="rrd-cam__ic">'+TRUCKICON+'</span><span class="rrd-cam__t">'+((+w.cant||0)+' camión'+((+w.cant||0)===1?'':'es'))+'</span></td><td class="r">'+(+w.cant||0)+'</td><td class="r rrd-flete">'+_gs(+w.precio||0)+'</td>'+acts(w)+'</tr>').join('');
-      else rowsHtml=items.map(w=>{const km=(isInt&&+w.km>0)?(_kmFmt(+w.km)+' km × '+_gs(+w.precioKm||0)):'—';return '<tr data-dashrow="'+w.uid+'">'+dfec(w)+'<td class="rrd-cam"><span class="rrd-cam__ic">'+TRUCKICON+'</span><span class="rrd-cam__t">'+_escp(camLbl(w))+'</span></td><td>'+_escp(w.rep||'Tercerizado')+'</td><td>'+(w.zona?dchip(w.zona):(isServ&&w.obs?dchip(w.obs):'<span class="rrd-mut">—</span>'))+'</td>'+(isInt?'<td class="r rrd-det">'+km+'</td>':'')+'<td class="r rrd-flete">'+_gs(+w.precio||0)+'</td>'+acts(w)+'</tr>';}).join('');
+      // Columna de factura: check verde→azul (confirmar) + flecha amarilla (pasar a otra planilla)
+      const acts=w=>{if(facReadReg)return '';const rid=w.repId,conf=_dashConf.has(rid),out=_dashOut.has(rid);return '<td class="rrd-facc">'+
+        '<button class="rrd-facchk'+(conf?' conf':'')+'" data-dashfac="'+rid+'" data-tip="'+(conf?'Confirmado · entra en la factura':'Confirmar para la factura')+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></button>'+
+        '<button class="rrd-facmove'+(out?' out':'')+'" data-dashmove="'+rid+'" data-tip="Pasar a otra planilla"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>'+
+        '</td>';};
+      const rowCls=w=>(!facReadReg&&_dashOut.has(w.repId))?' class="rrd-row-out"':'';
+      if(isTr)rowsHtml=items.map(w=>'<tr'+rowCls(w)+' data-dashrow="'+w.uid+'">'+dfec(w)+'<td class="rrd-cam"><span class="rrd-cam__ic">'+TRUCKICON+'</span><span class="rrd-cam__t">'+((+w.cant||0)+' camión'+((+w.cant||0)===1?'':'es'))+'</span></td><td class="r">'+(+w.cant||0)+'</td><td class="r rrd-flete">'+_gs(+w.precio||0)+'</td>'+acts(w)+'</tr>').join('');
+      else rowsHtml=items.map(w=>{const km=(isInt&&+w.km>0)?(_kmFmt(+w.km)+' km × '+_gs(+w.precioKm||0)):'—';return '<tr'+rowCls(w)+' data-dashrow="'+w.uid+'">'+dfec(w)+'<td class="rrd-cam"><span class="rrd-cam__ic">'+TRUCKICON+'</span><span class="rrd-cam__t">'+_escp(camLbl(w))+'</span></td><td>'+_escp(w.rep||'Tercerizado')+'</td><td>'+(w.zona?dchip(w.zona):(isServ&&w.obs?dchip(w.obs):'<span class="rrd-mut">—</span>'))+'</td>'+(isInt?'<td class="r rrd-det">'+km+'</td>':'')+'<td class="r rrd-flete">'+_gs(+w.precio||0)+'</td>'+acts(w)+'</tr>';}).join('');
       if(!rowsHtml)rowsHtml='<tr><td colspan="8" class="rrd-empty">Sin líneas</td></tr>';
     }
     let hdActs;
@@ -5613,7 +5647,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     bd.querySelectorAll('.cancel').forEach(b=>b.addEventListener('click',()=>goBack()));
     bd.querySelectorAll('.cancel-edit').forEach(b=>b.addEventListener('click',()=>{buildWork();render('toggle');}));
     const pr=bd.querySelector('.print');if(pr)pr.addEventListener('click',()=>{const t=totals();_cfPrint({id:null,tsNombre:g.ts,semanaDesde:wkObj?wkObj.desde:null,semanaHasta:wkObj?wkObj.hasta:null,clientes:g.lines,totalMonto:t.m,totalFlete:t.f,incTotal:t.inc,factura_id:(g.facturaId!=null?g.facturaId:null)});});
-    const fac=bd.querySelector('.rrm-act--fac');if(fac)fac.addEventListener('click',()=>{const reps=(g.reps||[]).filter(rp=>rp.factura_id==null).map(rp=>{const r=repartos.find(x=>x.id===rp.id);const fl=((r&&r.clientes)||[]).filter(c=>{const own=c.trId?tsOfTruck(c.trId):null;return ((own&&own.n)||c.tsNombre||'—')===g.ts;}).reduce((s,c)=>s+(+c.precio||0),0);return {id:rp.id,fechaISO:rp.fechaISO,flete:fl};});_cfOpenFacturaModal(null,{ts:g.ts,semDesde:wkObj.desde,semHasta:wkObj.hasta,reps:reps,onBack:()=>_rrOpenDetail(g,periodLbl,wkObj)});});
+    const fac=bd.querySelector('.rrm-act--fac');if(fac)fac.addEventListener('click',()=>{const reps=(g.reps||[]).filter(rp=>rp.factura_id==null&&!_dashOut.has(String(rp.id))).map(rp=>{const r=repartos.find(x=>x.id===rp.id);const fl=((r&&r.clientes)||[]).filter(c=>{const own=c.trId?tsOfTruck(c.trId):null;return ((own&&own.n)||c.tsNombre||'—')===g.ts;}).reduce((s,c)=>s+(+c.precio||0),0);return {id:rp.id,fechaISO:rp.fechaISO,flete:fl};});if(!reps.length){showToast('Dejá al menos un reparto en la planilla para facturar');return;}_cfOpenFacturaModal(null,{ts:g.ts,semDesde:wkObj.desde,semHasta:wkObj.hasta,reps:reps,preselected:true,onBack:()=>_rrOpenDetail(g,periodLbl,wkObj)});});
     bd.querySelectorAll('.rre-vadd').forEach(b=>b.addEventListener('click',()=>{addRow(b.dataset.seg);render('add');}));
     bd.querySelectorAll('[data-editseg]').forEach(b=>b.addEventListener('click',()=>openSegEdit(b.dataset.editseg)));
     // Vista dashboard: pestañas + edición inline
@@ -5622,6 +5656,10 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     bd.querySelectorAll('[data-dashedit]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();_dashEnterEdit(b.dataset.dashedit);}));
     bd.querySelectorAll('[data-dashdel]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();const w=W(b.dataset.dashdel);if(w)confirmDelete(w);}));
     bd.querySelectorAll('[data-dashrow]').forEach(r=>r.addEventListener('click',e=>{if(e.target.closest('button'))return;_dashEnterEdit(_dashSeg);}));
+    // Check verde→azul: confirmar que el reparto entra en la factura
+    bd.querySelectorAll('[data-dashfac]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();const rid=b.dataset.dashfac,on=!_dashConf.has(rid);if(on){_dashConf.add(rid);_dashOut.delete(rid);}else _dashConf.delete(rid);b.classList.toggle('conf',on);b.setAttribute('data-tip',on?'Confirmado · entra en la factura':'Confirmar para la factura');const tr=b.closest('tr');if(tr){tr.classList.remove('rrd-row-out');const mv=tr.querySelector('[data-dashmove]');if(mv)mv.classList.remove('out');}const gs=window.gsap;if(gs&&!reduce()){gs.killTweensOf(b);gs.fromTo(b,{scale:.55},{scale:1,duration:.45,ease:'back.out(3.2)'});}}));
+    // Flecha amarilla: pasar el reparto a otra planilla (no entra en esta factura)
+    bd.querySelectorAll('[data-dashmove]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();const rid=b.dataset.dashmove,on=!_dashOut.has(rid);if(on){_dashOut.add(rid);_dashConf.delete(rid);}else _dashOut.delete(rid);b.classList.toggle('out',on);const tr=b.closest('tr');if(tr){tr.classList.toggle('rrd-row-out',on);const ck=tr.querySelector('[data-dashfac]');if(ck){ck.classList.remove('conf');ck.setAttribute('data-tip','Confirmar para la factura');}}const gs=window.gsap;if(gs&&!reduce()){gs.killTweensOf(b);gs.fromTo(b,{x:on?-7:7,rotate:on?-8:8},{x:0,rotate:0,duration:.55,ease:'elastic.out(1,.5)'});if(tr)gs.fromTo(tr,{backgroundColor:on?'rgba(245,158,11,.16)':'rgba(59,130,246,.10)'},{backgroundColor:'rgba(255,255,255,0)',duration:.7,ease:'power2.out'});}}));
     bd.querySelectorAll('[data-dashaddline]').forEach(b=>b.addEventListener('click',()=>{if(_dashDraft){_dashDraft.push(_dashBlank());render('filter');const wp=bd.querySelector('.rrd-tablewrap');if(wp)wp.scrollTop=wp.scrollHeight;}}));
     bd.querySelectorAll('[data-dashcancel]').forEach(b=>b.addEventListener('click',()=>_dashExitEdit()));
     bd.querySelectorAll('[data-dashsave]').forEach(b=>b.addEventListener('click',()=>_dashSaveEdit()));
