@@ -4729,8 +4729,8 @@ let _cfRepMes=null;     // mes seleccionado; null = Total
 function _cfMonthKeys(){const s=new Set();(repartos||[]).forEach(r=>{const k=(r.fechaISO||'').slice(0,7);if(k)s.add(k);});return[...s].sort().reverse();}
 // ¿La planilla (transportadora dueña del camión + semana) de esta línea tiene factura registrada?
 function _cfFacturada(cl,fechaISO){if(!fechaISO)return false;const wk=(typeof isoWeekRange==='function')?isoWeekRange(fechaISO):null;if(!wk)return false;const own=cl.trId?tsOfTruck(cl.trId):null;const ts=(own&&own.n)||cl.tsNombre||'—';return !!(window.__cfFac||[]).find(x=>(x.transportadora_nombre||'')===ts&&(x.semana_desde||'')===wk.desde);}
-// ¿El reparto está facturado? (tiene factura_id que apunta a una factura existente)
-function _repFacturado(r){return !!(r&&r.factura_id!=null&&(window.__cfFac||[]).find(x=>x.id===r.factura_id));}
+// ¿El reparto está facturado? (por factura_id explícito, o factura legacy de su transportadora+semana)
+function _repFacturado(r){if(!r)return false;if(r.factura_id!=null)return !!(window.__cfFac||[]).find(x=>x.id===r.factura_id);if(!r.fechaISO)return false;const wk=(typeof isoWeekRange==='function')?isoWeekRange(r.fechaISO):null;if(!wk)return false;return (r.clientes||[]).some(c=>{const own=c.trId?tsOfTruck(c.trId):null;const ts=(own&&own.n)||c.tsNombre||'—';return !!_facLegacy(ts,wk.desde);});}
 function _cfLines(mk){const out=[];(repartos||[]).forEach(r=>{if(mk&&(r.fechaISO||'').slice(0,7)!==mk)return;if(!_repFacturado(r))return;(r.clientes||[]).forEach(cl=>{out.push({seg:cl.seg||'local',monto:+cl.monto||0,flete:+cl.precio||0,cam:(cl.trDesc||'').toUpperCase(),km:+cl.km||0});});});return out;}
 // Monto e incidencia agrupados por zona (para el Reporte General)
 function _cfZonas(mk){const map={};(repartos||[]).forEach(r=>{if(mk&&(r.fechaISO||'').slice(0,7)!==mk)return;if(!_repFacturado(r))return;(r.clientes||[]).forEach(c=>{const z=((c.zona||'').trim())||'Sin zona';const o=map[z]||(map[z]={zona:z,monto:0,flete:0,peso:0});o.monto+=+c.monto||0;o.flete+=+c.precio||0;o.peso+=+c.peso||0;});});return Object.values(map).map(z=>({zona:z.zona,monto:z.monto,flete:z.flete,peso:z.peso,incidencia:z.monto>0?z.flete/z.monto:0})).sort((a,b)=>b.monto-a.monto);}
@@ -4917,8 +4917,12 @@ function _facEstadoDe(ts,semDesde){
 function _facRegistradaDe(ts,semDesde){if(!semDesde)return false;return !!(window.__cfFac||[]).find(x=>(x.transportadora_nombre||'')===ts&&(x.semana_desde||'')===semDesde);}
 // Monto de la factura registrada de una planilla (null si no hay)
 function _facMontoDe(ts,semDesde){if(!semDesde)return null;const f=(window.__cfFac||[]).find(x=>(x.transportadora_nombre||'')===ts&&(x.semana_desde||'')===semDesde);return f?(+f.monto||0):null;}
-// Factura del grupo (por factura_id). null si el grupo no tiene factura.
-function _facDeGrupo(g){if(!g||g.facturaId==null)return null;return (window.__cfFac||[]).find(x=>x.id===g.facturaId)||null;}
+// ¿La transportadora ya tiene facturas explícitas (por reparto) en esa semana? (split iniciado)
+function _tsFacSplit(ts,semDesde){if(!semDesde)return false;return (repartos||[]).some(r=>{if(!r.fechaISO||r.factura_id==null)return false;const wk=(typeof isoWeekRange==='function')?isoWeekRange(r.fechaISO):null;if(!wk||wk.desde!==semDesde)return false;const f=(window.__cfFac||[]).find(x=>x.id===r.factura_id);return f&&(f.transportadora_nombre||'')===ts;});}
+// Factura "legacy" (por ts+semana) que cubre lo pendiente, salvo que ya se esté dividiendo esa semana.
+function _facLegacy(ts,semDesde){if(!semDesde||_tsFacSplit(ts,semDesde))return null;return (window.__cfFac||[]).find(x=>(x.transportadora_nombre||'')===ts&&(x.semana_desde||'')===semDesde)||null;}
+// Factura del grupo: por factura_id explícito, o legacy (ts+semana) si no hay split.
+function _facDeGrupo(g){if(!g)return null;if(g.facturaId!=null)return (window.__cfFac||[]).find(x=>x.id===g.facturaId)||null;return _facLegacy(g.ts,g.semDesde);}
 // Chip binario Falta/Registrada para una tarjeta de planilla — según la factura del grupo
 function _facChipDe(g,semDesde){
   if(semDesde){return _facDeGrupo(g)
@@ -5181,8 +5185,8 @@ function _rrApplySearch(){
   if(grid&&nr){const none=q&&vis===0;grid.style.display=none?'none':'';nr.style.display=none?'':'none';const nq=nr.querySelector('.rr-nq');if(nq)nq.textContent=_rrQ;
     if(none&&window.gsap)gsap.fromTo(nr,{opacity:0,y:8},{opacity:1,y:0,duration:.3,ease:'power2.out',clearProps:'all'});}
 }
-// Vincula facturas viejas (por transportadora+semana) a sus repartos, seteando factura_id (una vez).
-function _cfBackfillFacturas(){const facs=window.__cfFac||[];if(!facs.length)return;(repartos||[]).forEach(r=>{if(r.factura_id!=null||!r.fechaISO)return;const wk=(typeof isoWeekRange==='function')?isoWeekRange(r.fechaISO):null;if(!wk)return;const names=new Set();(r.clientes||[]).forEach(c=>{const own=c.trId?tsOfTruck(c.trId):null;names.add((own&&own.n)||c.tsNombre||'—');});const f=facs.find(x=>names.has(x.transportadora_nombre||'')&&(x.semana_desde||'')===wk.desde);if(f){r.factura_id=f.id;dbSetRepartoFactura(r.id,f.id).catch(()=>{});}});}
+// (Se dejó de usar el backfill automático: ensuciaba repartos multi-transportadora. Ahora se usa fallback legacy en _facDeGrupo/_repFacturado.)
+function _cfBackfillFacturas(){}
 function _rrGroups(weekDesde){
   const groups={};
   (repartos||[]).forEach(r=>{
@@ -5195,7 +5199,10 @@ function _rrGroups(weekDesde){
       const own=cl.trId?tsOfTruck(cl.trId):null;
       const ts=(own&&own.n)||cl.tsNombre||'—';const tsId=(own&&own.id)||cl.tsId;
       // Además de por transportadora, separar por factura (una semana puede tener varias planillas/facturas)
-      const fid=r.factura_id!=null?r.factura_id:null;const key=ts+'|'+(fid==null?'':fid);
+      // La factura del reparto SOLO aplica a la transportadora dueña de esa factura
+      // (evita que un reparto "Varios" con factura de una transportadora parta mal a las otras).
+      let fid=null;if(r.factura_id!=null){const _f=(window.__cfFac||[]).find(x=>x.id===r.factura_id);if(_f&&(_f.transportadora_nombre||'')===ts)fid=r.factura_id;}
+      const key=ts+'|'+(fid==null?'':fid);
       const g=groups[key]||(groups[key]={ts:ts,tsId:tsId,facturaId:fid,semDesde:(weekDesde||(wk?wk.desde:null)),lines:[],monto:0,flete:0,reps:[]});cl._fecha=r.fechaISO||r.fecha||null;g.lines.push(cl);g.monto+=+cl.monto||0;g.flete+=+cl.precio||0;if(!g.reps.some(x=>x.id===r.id))g.reps.push({id:r.id,fecha:r.fecha,fechaISO:r.fechaISO,factura_id:fid});});
   });
   return Object.values(groups).sort((a,b)=>b.flete-a.flete);
