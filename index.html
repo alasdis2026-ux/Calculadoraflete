@@ -5425,8 +5425,9 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     const editing=_dashEdit&&!!_dashDraft;
     const items=_dashSort(work.filter(w=>!w.del&&w.seg===sk&&(!_camFilter||camLbl(w)===_camFilter)),sk);
     let thead;
-    if(isTr)thead='<tr><th>Fecha</th><th>Detalle</th><th class="r">Cantidad</th><th class="r">Flete</th><th class="rrd-actth"></th></tr>';
-    else thead='<tr><th>Fecha</th><th>Camión</th><th>Repartidor</th><th>'+(isServ?'Servicio':'Zona')+'</th>'+(isInt?'<th class="r">Km · Precio/km</th>':'')+'<th class="r">Flete</th><th class="rrd-actth"></th></tr>';
+    const actTh=editing?'<th class="rrd-actth"></th>':'';
+    if(isTr)thead='<tr><th>Fecha</th><th>Detalle</th><th class="r">Cantidad</th><th class="r">Flete</th>'+actTh+'</tr>';
+    else thead='<tr><th>Fecha</th><th>Camión</th><th>Repartidor</th><th>'+(isServ?'Servicio':'Zona')+'</th>'+(isInt?'<th class="r">Km · Precio/km</th>':'')+'<th class="r">Flete</th>'+actTh+'</tr>';
     let rowsHtml;
     if(editing){
       const CHV='<svg class="xls-chv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>';
@@ -5439,7 +5440,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
         else{const zcell=isServ?('<td><input class="xls-in rrd-fin rrd-fobs" data-dk="'+d.k+'" placeholder="—" value="'+_escp(d.obs||'')+'"></td>'):('<td>'+pk('zona')+'</td>');const kmcell=isInt?('<td class="r"><div class="rrd-kmedit"><input class="xls-in r rrd-fin rrd-fkm" data-dk="'+d.k+'" inputmode="decimal" placeholder="Km" value="'+(d.km?_kmFmt(d.km):'')+'"><span>×</span><input class="xls-in r rrd-fin rrd-fpkm" data-dk="'+d.k+'" inputmode="numeric" placeholder="Gs/km" value="'+(d.precioKm?_nnum(d.precioKm):'')+'"></div></td>'):'';c=fecCell+'<td>'+pk('tr')+'</td><td>'+pk('rep')+'</td>'+zcell+kmcell+fleteCell+'<td class="rrd-actc">'+dtrash(d.k)+'</td>';}
         return '<tr data-dk="'+d.k+'">'+c+'</tr>';}).join('')||'<tr><td colspan="8" class="rrd-empty">Sin líneas — agregá una.</td></tr>';
     }else{
-      const acts=w=>'<td class="rrd-actc"><button class="rrd-rowbtn rrd-del" data-dashdel="'+w.uid+'" title="Quitar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M10 11v6M14 11v6"/></svg></button></td>';
+      const acts=w=>''; // en lectura no hay columna de acciones; el tacho solo aparece en edición
       if(isTr)rowsHtml=items.map(w=>'<tr data-dashrow="'+w.uid+'">'+dfec(w)+'<td class="rrd-cam"><span class="rrd-cam__ic">'+TRUCKICON+'</span><span class="rrd-cam__t">'+((+w.cant||0)+' camión'+((+w.cant||0)===1?'':'es'))+'</span></td><td class="r">'+(+w.cant||0)+'</td><td class="r rrd-flete">'+_gs(+w.precio||0)+'</td>'+acts(w)+'</tr>').join('');
       else rowsHtml=items.map(w=>{const km=(isInt&&+w.km>0)?(_kmFmt(+w.km)+' km × '+_gs(+w.precioKm||0)):'—';return '<tr data-dashrow="'+w.uid+'">'+dfec(w)+'<td class="rrd-cam"><span class="rrd-cam__ic">'+TRUCKICON+'</span><span class="rrd-cam__t">'+_escp(camLbl(w))+'</span></td><td>'+_escp(w.rep||'Tercerizado')+'</td><td>'+(w.zona?dchip(w.zona):(isServ&&w.obs?dchip(w.obs):'<span class="rrd-mut">—</span>'))+'</td>'+(isInt?'<td class="r rrd-det">'+km+'</td>':'')+'<td class="r rrd-flete">'+_gs(+w.precio||0)+'</td>'+acts(w)+'</tr>';}).join('');
       if(!rowsHtml)rowsHtml='<tr><td colspan="8" class="rrd-empty">Sin líneas</td></tr>';
