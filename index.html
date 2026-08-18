@@ -4467,16 +4467,16 @@ function showSaveAnim(text){
   .rrd-del:hover{background:#FEF2F2;color:#DC2626}
   .rrd-del:active{transform:scale(.9)}
   /* Columna Factura: check verde→azul + flecha amarilla (pasar a otra planilla) */
-  .rrd-facth{width:92px;text-align:right;white-space:nowrap;color:var(--gray-400,#94a3b8)}
-  .rrd-facc{width:92px;text-align:right;white-space:nowrap;padding-right:12px!important}
-  /* Botones estilo Inventario (.action-btn): reposo tenue → hover relleno sólido + glow + elevación */
-  .rrd-facc button{position:relative;width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center;border:1px solid transparent;border-radius:12px;cursor:pointer;vertical-align:middle;overflow:visible;background:transparent;transition:transform .16s cubic-bezier(.34,1.56,.64,1),background .16s ease,color .16s ease,border-color .16s ease,box-shadow .16s ease;-webkit-tap-highlight-color:transparent}
-  .rrd-facc button+button{margin-left:7px}
-  .rrd-facc button svg{width:17px;height:17px;pointer-events:none}
+  .rrd-facth{width:108px;text-align:right;white-space:nowrap;color:var(--gray-400,#94a3b8)}
+  .rrd-facc{width:108px;text-align:right;white-space:nowrap;padding-right:14px!important}
+  /* Botones idénticos a Inventario (.action-btn): 40x40, reposo tenue → hover relleno sólido + glow + elevación */
+  .rrd-facc button{position:relative;width:40px;height:40px;display:inline-flex;align-items:center;justify-content:center;border:1px solid transparent;border-radius:12px;cursor:pointer;vertical-align:middle;overflow:visible;background:transparent;transition:transform .16s cubic-bezier(.34,1.56,.64,1),background .16s ease,color .16s ease,border-color .16s ease,box-shadow .16s ease;-webkit-tap-highlight-color:transparent}
+  .rrd-facc button+button{margin-left:8px}
+  .rrd-facc button svg{width:19px;height:19px;pointer-events:none}
   .rrd-facc button:hover{transform:translateY(-2px) scale(1.09)}
   .rrd-facc button:active{transform:translateY(-1px) scale(.94)}
   .rrd-facc button.is-loading{pointer-events:none;transform:none}
-  .rrd-facspin{display:inline-block;width:16px;height:16px;border:2.5px solid currentColor;border-right-color:transparent;border-radius:50%;animation:cfSpin .6s linear infinite;opacity:.9}
+  .rrd-facspin{display:inline-block;width:18px;height:18px;border:2.5px solid currentColor;border-right-color:transparent;border-radius:50%;animation:cfSpin .6s linear infinite;opacity:.9}
   .rrd-facchk{background:rgba(34,197,94,.13);color:#15803d;border-color:rgba(34,197,94,.14)}
   .rrd-facchk:hover{background:#16a34a;color:#fff;border-color:#16a34a;box-shadow:0 8px 20px rgba(22,163,74,.35)}
   .rrd-facchk.conf{background:rgba(37,99,235,.13);color:#1d4ed8;border-color:rgba(37,99,235,.16)}
@@ -4491,8 +4491,8 @@ function showSaveAnim(text){
   #rrdTip{position:fixed;z-index:9999;background:var(--tc,#1e293b);color:#fff;font:700 11.5px/1 'Inter',system-ui,sans-serif;letter-spacing:.2px;padding:6px 12px;border-radius:20px;white-space:nowrap;pointer-events:none;opacity:0;box-shadow:0 6px 16px rgba(0,0,0,.22)}
   #rrdTip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--tc,#1e293b)}
   /* Check azul PRO minimalista: reparto ya facturado / aprobado */
-  .rrd-facok{position:relative;display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;background:none;border:none;box-shadow:none;color:#1e50a8;cursor:default;vertical-align:middle}
-  .rrd-facok svg{width:21px;height:21px;pointer-events:none}
+  .rrd-facok{position:relative;display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:none;border:none;box-shadow:none;color:#1e50a8;cursor:default;vertical-align:middle}
+  .rrd-facok svg{width:22px;height:22px;pointer-events:none}
   .cf-rep--ro{cursor:default}
   .cf-rep--ro .cf-rep__chk{background:linear-gradient(180deg,#3b82f6,#2563eb);border-color:transparent;color:#fff}
   .rrd-empty{text-align:center;color:var(--gray-400);padding:26px}
