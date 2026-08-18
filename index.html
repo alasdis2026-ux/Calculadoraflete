@@ -4467,26 +4467,28 @@ function showSaveAnim(text){
   /* Columna Factura: check verde→azul + flecha amarilla (pasar a otra planilla) */
   .rrd-facth{width:92px;text-align:right;white-space:nowrap;color:var(--gray-400,#94a3b8)}
   .rrd-facc{width:92px;text-align:right;white-space:nowrap;padding-right:12px!important}
-  .rrd-facc button{position:relative;width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border-radius:10px;cursor:pointer;vertical-align:middle;transition:background .16s,border-color .16s,box-shadow .16s,transform .1s;-webkit-tap-highlight-color:transparent}
-  .rrd-facc button+button{margin-left:5px}
-  .rrd-facc button svg{width:16px;height:16px;pointer-events:none}
-  .rrd-facc button:active{transform:scale(.88)}
-  .rrd-facc button.is-loading{pointer-events:none}
-  .rrd-facspin{display:inline-block;width:15px;height:15px;border:2.2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:cfSpin .55s linear infinite;opacity:.9}
-  .rrd-facchk{border:1.6px solid #bbf7d0;background:#f0fdf4;color:#16a34a}
-  .rrd-facchk:hover{background:#dcfce7;border-color:#86efac;box-shadow:0 4px 12px rgba(22,163,74,.18)}
-  .rrd-facchk.conf{border-color:transparent;background:linear-gradient(180deg,#3b82f6,#2563eb);color:#fff;box-shadow:0 6px 15px rgba(37,99,235,.34),inset 0 1px 0 rgba(255,255,255,.28)}
-  .rrd-facchk.conf:hover{background:linear-gradient(180deg,#4c8dff,#2f6ff0)}
-  .rrd-facmove{border:1.6px solid #fde68a;background:#fffbeb;color:#d97706}
-  .rrd-facmove:hover{background:#fef3c7;border-color:#fcd34d;box-shadow:0 4px 12px rgba(217,119,6,.2)}
-  .rrd-facmove.out{border-color:transparent;background:linear-gradient(180deg,#f59e0b,#d97706);color:#fff;box-shadow:0 6px 15px rgba(217,119,6,.32),inset 0 1px 0 rgba(255,255,255,.3)}
+  /* Botones estilo Inventario (.action-btn): reposo tenue → hover relleno sólido + glow + elevación */
+  .rrd-facc button{position:relative;width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center;border:1px solid transparent;border-radius:12px;cursor:pointer;vertical-align:middle;overflow:visible;background:transparent;transition:transform .16s cubic-bezier(.34,1.56,.64,1),background .16s ease,color .16s ease,border-color .16s ease,box-shadow .16s ease;-webkit-tap-highlight-color:transparent}
+  .rrd-facc button+button{margin-left:7px}
+  .rrd-facc button svg{width:17px;height:17px;pointer-events:none}
+  .rrd-facc button:hover{transform:translateY(-2px) scale(1.09)}
+  .rrd-facc button:active{transform:translateY(-1px) scale(.94)}
+  .rrd-facc button.is-loading{pointer-events:none;transform:none}
+  .rrd-facspin{display:inline-block;width:16px;height:16px;border:2.5px solid currentColor;border-right-color:transparent;border-radius:50%;animation:cfSpin .6s linear infinite;opacity:.9}
+  .rrd-facchk{background:rgba(34,197,94,.13);color:#15803d;border-color:rgba(34,197,94,.14)}
+  .rrd-facchk:hover{background:#16a34a;color:#fff;border-color:#16a34a;box-shadow:0 8px 20px rgba(22,163,74,.35)}
+  .rrd-facchk.conf{background:rgba(37,99,235,.13);color:#1d4ed8;border-color:rgba(37,99,235,.16)}
+  .rrd-facchk.conf:hover{background:#2563eb;color:#fff;border-color:#2563eb;box-shadow:0 8px 20px rgba(37,99,235,.35)}
+  .rrd-facmove{background:rgba(217,119,6,.12);color:#b45309;border-color:rgba(217,119,6,.14)}
+  .rrd-facmove:hover{background:#d97706;color:#fff;border-color:#d97706;box-shadow:0 8px 20px rgba(217,119,6,.32)}
+  .rrd-facmove.out{background:#d97706;color:#fff;border-color:#d97706;box-shadow:0 8px 20px rgba(217,119,6,.32)}
+  .rrd-grow{width:100%}
   .rrd-row-out>td{opacity:.5}
   .rrd-row-out>td.rrd-facc{opacity:1}
   .rrd-row-out .rrd-flete{text-decoration:line-through;text-decoration-color:rgba(217,119,6,.6)}
-  /* Tooltip PRO global (position:fixed → nunca lo recorta el overflow de la tabla) */
-  #rrdTip{position:fixed;z-index:9999;background:var(--tc,#0f172a);color:#fff;font-size:11px;font-weight:700;letter-spacing:.1px;line-height:1;padding:7px 11px;border-radius:9px;white-space:nowrap;pointer-events:none;opacity:0;transform:translateX(-50%) translateY(6px) scale(.9);transform-origin:bottom center;transition:opacity .15s ease,transform .24s cubic-bezier(.34,1.6,.5,1);box-shadow:0 12px 26px rgba(15,23,42,.3)}
-  #rrdTip.show{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}
-  #rrdTip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--tc,#0f172a)}
+  /* Tooltip píldora estilo Inventario (position:fixed → nunca lo recorta el overflow); animado con GSAP */
+  #rrdTip{position:fixed;z-index:9999;background:var(--tc,#1e293b);color:#fff;font:700 11.5px/1 'Inter',system-ui,sans-serif;letter-spacing:.2px;padding:6px 12px;border-radius:20px;white-space:nowrap;pointer-events:none;opacity:0;box-shadow:0 6px 16px rgba(0,0,0,.22)}
+  #rrdTip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--tc,#1e293b)}
   /* Check azul PRO minimalista: reparto ya facturado / aprobado */
   .rrd-facok{position:relative;display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;background:none;border:none;box-shadow:none;color:#1e50a8;cursor:default;vertical-align:middle}
   .rrd-facok svg{width:21px;height:21px;pointer-events:none}
@@ -5460,8 +5462,8 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     let thead;
     const facReadReg=_dashSeg!=='todos'&&!!_facDeGrupo(g);
     const actTh=editing?'<th class="rrd-actth"></th>':'<th class="rrd-facth r">Factura</th>';
-    if(isTr)thead='<tr><th>Fecha</th><th>Detalle</th><th class="r">Cantidad</th><th class="r">Flete</th>'+actTh+'</tr>';
-    else thead='<tr><th>Fecha</th><th>Camión</th><th>Repartidor</th><th>'+(isServ?'Servicio':'Zona')+'</th>'+(isInt?'<th class="r">Km · Precio/km</th>':'')+'<th class="r">Flete</th>'+actTh+'</tr>';
+    if(isTr)thead='<tr><th>Fecha</th><th class="rrd-grow">Detalle</th><th class="r">Cantidad</th><th class="r">Flete</th>'+actTh+'</tr>';
+    else thead='<tr><th>Fecha</th><th>Camión</th><th>Repartidor</th><th class="rrd-grow">'+(isServ?'Servicio':'Zona')+'</th>'+(isInt?'<th class="r">Km · Precio/km</th>':'')+'<th class="r">Flete</th>'+actTh+'</tr>';
     let rowsHtml;
     if(editing){
       const CHV='<svg class="xls-chv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>';
@@ -5481,8 +5483,8 @@ function _rrOpenDetail(g,periodLbl,wkObj){
         '<button class="rrd-facmove'+(out?' out':'')+'" data-dashmove="'+rid+'" data-tip="Pasar a otra planilla"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>'+
         '</td>';};
       const rowCls=w=>(!facReadReg&&_dashOut.has(w.repId))?' class="rrd-row-out"':'';
-      if(isTr)rowsHtml=items.map(w=>'<tr'+rowCls(w)+' data-dashrow="'+w.uid+'">'+dfec(w)+'<td class="rrd-cam"><span class="rrd-cam__ic">'+TRUCKICON+'</span><span class="rrd-cam__t">'+((+w.cant||0)+' camión'+((+w.cant||0)===1?'':'es'))+'</span></td><td class="r">'+(+w.cant||0)+'</td><td class="r rrd-flete">'+_gs(+w.precio||0)+'</td>'+acts(w)+'</tr>').join('');
-      else rowsHtml=items.map(w=>{const km=(isInt&&+w.km>0)?(_kmFmt(+w.km)+' km × '+_gs(+w.precioKm||0)):'—';return '<tr'+rowCls(w)+' data-dashrow="'+w.uid+'">'+dfec(w)+'<td class="rrd-cam"><span class="rrd-cam__ic">'+TRUCKICON+'</span><span class="rrd-cam__t">'+_escp(camLbl(w))+'</span></td><td>'+_escp(w.rep||'Tercerizado')+'</td><td>'+(w.zona?dchip(w.zona):(isServ&&w.obs?dchip(w.obs):'<span class="rrd-mut">—</span>'))+'</td>'+(isInt?'<td class="r rrd-det">'+km+'</td>':'')+'<td class="r rrd-flete">'+_gs(+w.precio||0)+'</td>'+acts(w)+'</tr>';}).join('');
+      if(isTr)rowsHtml=items.map(w=>'<tr'+rowCls(w)+' data-dashrow="'+w.uid+'">'+dfec(w)+'<td class="rrd-cam rrd-grow"><span class="rrd-cam__ic">'+TRUCKICON+'</span><span class="rrd-cam__t">'+((+w.cant||0)+' camión'+((+w.cant||0)===1?'':'es'))+'</span></td><td class="r">'+(+w.cant||0)+'</td><td class="r rrd-flete">'+_gs(+w.precio||0)+'</td>'+acts(w)+'</tr>').join('');
+      else rowsHtml=items.map(w=>{const km=(isInt&&+w.km>0)?(_kmFmt(+w.km)+' km × '+_gs(+w.precioKm||0)):'—';return '<tr'+rowCls(w)+' data-dashrow="'+w.uid+'">'+dfec(w)+'<td class="rrd-cam"><span class="rrd-cam__ic">'+TRUCKICON+'</span><span class="rrd-cam__t">'+_escp(camLbl(w))+'</span></td><td>'+_escp(w.rep||'Tercerizado')+'</td><td class="rrd-grow">'+(w.zona?dchip(w.zona):(isServ&&w.obs?dchip(w.obs):'<span class="rrd-mut">—</span>'))+'</td>'+(isInt?'<td class="r rrd-det">'+km+'</td>':'')+'<td class="r rrd-flete">'+_gs(+w.precio||0)+'</td>'+acts(w)+'</tr>';}).join('');
       if(!rowsHtml)rowsHtml='<tr><td colspan="8" class="rrd-empty">Sin líneas</td></tr>';
     }
     let hdActs;
@@ -5671,8 +5673,8 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     // Tooltip global (position:fixed): siempre por encima, nunca recortado por el overflow
     (()=>{let tip=document.getElementById('rrdTip');if(!tip){tip=document.createElement('div');tip.id='rrdTip';document.body.appendChild(tip);}
       const colorOf=el=>el.classList.contains('rrd-facmove')?'#b45309':(el.classList.contains('rrd-facok')||el.classList.contains('conf'))?'#1d4ed8':'#15803d';
-      const place=el=>{const t=el.getAttribute('data-tip');if(!t)return;tip.textContent=t;tip.style.setProperty('--tc',colorOf(el));const r=el.getBoundingClientRect();let x=r.left+r.width/2;x=Math.max(72,Math.min(window.innerWidth-72,x));tip.style.left=x+'px';const h=tip.offsetHeight;tip.style.top=Math.max(6,r.top-h-11)+'px';tip.classList.add('show');};
-      const hide=()=>tip.classList.remove('show');
+      const place=el=>{const t=el.getAttribute('data-tip');if(!t)return;tip.textContent=t;tip.style.setProperty('--tc',colorOf(el));const r=el.getBoundingClientRect();let x=r.left+r.width/2;x=Math.max(72,Math.min(window.innerWidth-72,x));tip.style.left=x+'px';const h=tip.offsetHeight;tip.style.top=Math.max(6,r.top-h-11)+'px';const gs=window.gsap;if(gs&&!reduce()){gs.killTweensOf(tip);gs.fromTo(tip,{opacity:0,y:8,scale:.9,xPercent:-50},{opacity:1,y:0,scale:1,xPercent:-50,duration:.3,ease:'back.out(2.2)',transformOrigin:'50% 100%'});}else{tip.style.opacity='1';tip.style.transform='translateX(-50%)';}};
+      const hide=()=>{const gs=window.gsap;if(gs&&!reduce()){gs.killTweensOf(tip);gs.to(tip,{opacity:0,y:6,duration:.13,ease:'power1.out'});}else tip.style.opacity='0';};
       bd.querySelectorAll('.rrd-facc [data-tip]').forEach(el=>{el.addEventListener('mouseenter',()=>place(el));el.addEventListener('mouseleave',hide);el.addEventListener('click',hide);});})();
     bd.querySelectorAll('[data-dashaddline]').forEach(b=>b.addEventListener('click',()=>{if(_dashDraft){_dashDraft.push(_dashBlank());render('filter');const wp=bd.querySelector('.rrd-tablewrap');if(wp)wp.scrollTop=wp.scrollHeight;}}));
     bd.querySelectorAll('[data-dashcancel]').forEach(b=>b.addEventListener('click',()=>_dashExitEdit()));
