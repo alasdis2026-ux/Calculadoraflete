@@ -4434,7 +4434,12 @@ function showSaveAnim(text){
   .rrd-kmedit{display:flex;align-items:center;gap:5px;justify-content:flex-end}
   .rrd-kmedit>span{color:var(--gray-300);font-weight:800}
   .rrd-kmedit .rrd-fin{width:74px}
-  .rrd-tbl--edit .xls-pick{min-width:0}
+  .rrd-tbl--edit .xls-pick{display:inline-flex;align-items:center;gap:6px;width:100%;min-width:0;border:1.5px solid transparent;border-radius:8px;padding:7px 9px;font:inherit;font-size:12.5px;font-weight:600;color:var(--gray-800);background:transparent;cursor:pointer;text-align:left;transition:border-color .14s,background .14s}
+  .rrd-tbl--edit .xls-pick>span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .rrd-tbl--edit .xls-pick:hover{background:#fff;border-color:var(--gray-200,#e2e8f0)}
+  .rrd-tbl--edit .xls-pick.is-open{background:#fff;border-color:var(--accent,#3B82F6);box-shadow:0 0 0 3px rgba(37,120,184,.12)}
+  .rrd-tbl--edit .xls-pick.ph>span{color:var(--gray-400);font-weight:500}
+  .rrd-tbl--edit .xls-chv{width:14px;height:14px;color:var(--gray-400);flex-shrink:0}
   .rrd-erowdel{width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border:none;background:transparent;color:#DC2626;border-radius:8px;cursor:pointer;transition:background .14s}
   .rrd-erowdel svg{width:16px;height:16px;fill:none;stroke:currentColor}
   .rrd-erowdel:hover{background:#FEF2F2}
