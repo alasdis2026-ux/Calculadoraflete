@@ -4930,7 +4930,7 @@ async function renderFacturas(){
   const totalFact=shown.reduce((s,f)=>s+(+f.monto||0),0),nOk=shown.filter(f=>f._st==='ok').length,nDiff=shown.filter(f=>f._st==='diff').length;
   function kpi(cls,l,v,s){return '<div class="cf-kpi '+cls+'"><div><div class="cf-kpi__l">'+l+'</div><div class="cf-kpi__v">'+v+'</div><div class="cf-kpi__s">'+s+'</div></div></div>';}
   const kpis='<div class="cf-kpis">'+kpi('k3','Total facturado',_gs(totalFact),(_facWeek?'esta semana':'este mes'))+kpi('k2','Facturas registradas',shown.length,nOk+' conciliada'+(nOk===1?'':'s'))+kpi('k1','Con diferencia',nDiff,nDiff?'revisá el monto':'todo en orden')+'</div>';
-  const nav='<div class="rr-mnav"><button data-facm="-1" aria-label="Mes anterior">‹</button><span>'+_mesLbl(_facMes)+'</span><button data-facm="1" aria-label="Mes siguiente">›</button><button class="rr-mnav__today" data-factoday type="button">Hoy</button></div>';
+  const nav='<div class="rr-mnav"><button data-facm="-1" aria-label="Mes anterior">‹</button><span>'+_mesLbl(_facMes)+'</span><button data-facm="1" aria-label="Mes siguiente">›</button><button class="rr-mnav__today" data-factoday type="button">Semana actual</button></div>';
   const chips='<div class="rr-chips"><button class="rr-chip'+(!_facWeek?' on':'')+'" data-facw="">Mes completo</button>'+weeks.map(w=>'<button class="rr-chip'+(_facWeek===w.desde?' on':'')+'" data-facw="'+w.desde+'">'+_shD(w.desde)+'–'+_shD(w.hasta)+'</button>').join('')+'</div>';
   let table;
   if(!shown.length){table='<div class="cf-card"><div class="cf-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 3h14a1 1 0 011 1v17l-3-2-3 2-3-2-3 2-3-2V4a1 1 0 011-1z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><b>No hay facturas en este período</b><span>Registrá una y elegí la planilla del transportista que corresponde.</span></div></div>';}
@@ -5182,7 +5182,7 @@ function renderReporteRepartos(){
   const periodLbl=wkObj?(_dispD(wkObj.desde)+' al '+_dispD(wkObj.hasta)):'Mes completo';
   // Chips de semana: punto en pulso sobre la semana actual + conteo de planillas por semana
   const chips='<div class="rr-chips">'+weeks.map(w=>{const isCur=today>=w.desde&&today<=w.hasta;const n=_planillasDe(null,w.desde).length;return '<button class="rr-chip'+(_rrWeek===w.desde?' on':'')+'" data-rrw="'+w.desde+'">'+(isCur?'<span class="rr-chip__dot" title="Semana actual"></span>':'')+_shD(w.desde)+'–'+_shD(w.hasta)+(n?'<span class="rr-chip__n">'+n+'</span>':'')+'</button>';}).join('')+'</div>';
-  const nav='<div class="rr-mnav"><button data-rrm="-1" aria-label="Mes anterior">‹</button><span>'+monthLbl+'</span><button data-rrm="1" aria-label="Mes siguiente">›</button><button class="rr-mnav__today" data-rrtoday type="button">Hoy</button></div>';
+  const nav='<div class="rr-mnav"><button data-rrm="-1" aria-label="Mes anterior">‹</button><span>'+monthLbl+'</span><button data-rrm="1" aria-label="Mes siguiente">›</button><button class="rr-mnav__today" data-rrtoday type="button">Semana actual</button></div>';
   // Filtro de segmento PRO: ícono minimalista + label, centrado, con entrada GSAP
   const SEGF=[
     ['todos','Todos','<svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>'],
