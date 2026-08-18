@@ -5512,10 +5512,17 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     const CAL='<span class="rrd-calic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4.5" width="18" height="17" rx="2.5"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/></svg></span>';
     const dfec=w=>'<td class="rrd-fec">'+CAL+(w.fecha?String(w.fecha).slice(0,10).split('-').reverse().slice(0,2).join('/'):'—')+'</td>';
     const dchip=t=>'<span class="rrd-chip">'+_escp(t)+'</span>';
+    // Acciones de factura (aprobada / selección / borrar): SOLO en la vista "Todos"
+    const facReg2=!!_facDeGrupo(g);
+    const _facActs=w=>{
+      if(facReg2)return '<td class="rrd-facc"><span class="rrd-facok" data-tip="Factura registrada · aprobada"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span></td>';
+      if(_facMode){const on=_facSel.has(w.repId);return '<td class="rrd-facc"><button type="button" class="rrd-selchk'+(on?' on':'')+'" data-facsel="'+w.repId+'" data-tip="'+(on?'Entra en la factura':'No entra')+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></button></td>';}
+      return '<td class="rrd-facc"><button class="rrd-facdel" data-dashdel="'+w.uid+'" data-tip="Eliminar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M10 11v6M14 11v6"/></svg></button></td>';};
+    const _facRowCls=w=>(_facMode&&!_facSel.has(w.repId))?' class="rrd-row-out"':'';
     if(_dashSeg==='todos'){
       const allItems=[];SEGL.forEach(s=>{_dashSort(work.filter(w=>!w.del&&w.seg===s&&(!_camFilter||camLbl(w)===_camFilter)),s).forEach(w=>allItems.push(w));});
-      const rows=allItems.map(w=>{const isTr=w.seg==='transportadora';const cam=isTr?((+w.cant||0)+' camión'+((+w.cant||0)===1?'':'es')):camLbl(w);const zn=isTr?'—':(w.zona||(w.seg==='servicios'&&w.obs)||'—');return '<tr>'+dfec(w)+'<td class="rrd-cam"><span class="rrd-cam__ic">'+TRUCKICON+'</span><span class="rrd-cam__t">'+_escp(cam)+'</span></td><td><span class="rrd-segtag rrd-segtag--'+w.seg+'">'+SEGN[w.seg]+'</span></td><td>'+(isTr?'<span class="rrd-mut">—</span>':_escp(w.rep||'Tercerizado'))+'</td><td>'+(zn&&zn!=='—'?dchip(zn):'<span class="rrd-mut">—</span>')+'</td><td class="r rrd-flete">'+_gs(+w.precio||0)+'</td></tr>';}).join('')||'<tr><td colspan="6" class="rrd-empty">Sin líneas</td></tr>';
-      const table='<div class="rrd-tablecard"><div class="rrd-tablehd"><div class="rrd-tablehd__t"><span class="rrd-tablehd__dot" style="background:linear-gradient(135deg,#2578b8,#0B5F8D)"></span>Todos los pedidos</div></div><div class="rrd-tablewrap"><table class="rrd-tbl"><thead><tr><th>Fecha</th><th>Camión</th><th>Segmento</th><th>Repartidor</th><th>Zona</th><th class="r">Flete</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
+      const rows=allItems.map(w=>{const isTr=w.seg==='transportadora';const cam=isTr?((+w.cant||0)+' camión'+((+w.cant||0)===1?'':'es')):camLbl(w);const zn=isTr?'—':(w.zona||(w.seg==='servicios'&&w.obs)||'—');return '<tr'+_facRowCls(w)+(_facMode?' data-facrow="'+w.repId+'" style="cursor:pointer"':'')+'>'+dfec(w)+'<td class="rrd-cam"><span class="rrd-cam__ic">'+TRUCKICON+'</span><span class="rrd-cam__t">'+_escp(cam)+'</span></td><td><span class="rrd-segtag rrd-segtag--'+w.seg+'">'+SEGN[w.seg]+'</span></td><td>'+(isTr?'<span class="rrd-mut">—</span>':_escp(w.rep||'Tercerizado'))+'</td><td class="rrd-grow">'+(zn&&zn!=='—'?dchip(zn):'<span class="rrd-mut">—</span>')+'</td><td class="r rrd-flete">'+_gs(+w.precio||0)+'</td>'+_facActs(w)+'</tr>';}).join('')||'<tr><td colspan="7" class="rrd-empty">Sin líneas</td></tr>';
+      const table='<div class="rrd-tablecard"><div class="rrd-tablehd"><div class="rrd-tablehd__t"><span class="rrd-tablehd__dot" style="background:linear-gradient(135deg,#2578b8,#0B5F8D)"></span>Todos los pedidos</div></div><div class="rrd-tablewrap"><table class="rrd-tbl"><thead><tr><th>Fecha</th><th>Camión</th><th>Segmento</th><th>Repartidor</th><th class="rrd-grow">Zona</th><th class="r">Flete</th><th class="rrd-facth r">'+(_facMode?'¿Entra?':'Factura')+'</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
       const nCam=allItems.reduce((a,w)=>a+camCount(w),0),sub=allItems.reduce((a,w)=>a+(+w.precio||0),0);
       return '<div class="rrd-dash">'+'<div class="rrd-grid">'+table+'<div class="rrd-side">'+_dashResumen('General',allItems.length,nCam,sub)+'</div></div></div>';
     }
@@ -5524,7 +5531,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     const items=_dashSort(work.filter(w=>!w.del&&w.seg===sk&&(!_camFilter||camLbl(w)===_camFilter)),sk);
     let thead;
     const facReadReg=_dashSeg!=='todos'&&!!_facDeGrupo(g);
-    const actTh=editing?'<th class="rrd-actth"></th>':'<th class="rrd-facth r">'+(_facMode?'¿Entra?':'Factura')+'</th>';
+    const actTh=editing?'<th class="rrd-actth"></th>':'';
     const segTh=(editing&&!isTr)?'<th class="rrd-segth">Segmento</th>':'';
     if(isTr)thead='<tr><th>Fecha</th><th class="rrd-grow">Detalle</th><th class="r">Cantidad</th><th class="r">Flete</th>'+actTh+'</tr>';
     else thead='<tr><th>Fecha</th>'+segTh+'<th>Camión</th><th>Repartidor</th><th class="rrd-grow">'+(isServ?'Servicio':'Zona')+'</th>'+(isInt?'<th class="r">Km · Precio/km</th>':'')+'<th class="r">Flete</th>'+actTh+'</tr>';
@@ -5541,13 +5548,9 @@ function _rrOpenDetail(g,periodLbl,wkObj){
         else{const zcell=isServ?('<td><input class="xls-in rrd-fin rrd-fobs" data-dk="'+d.k+'" placeholder="—" value="'+_escp(d.obs||'')+'"></td>'):('<td>'+pk('zona')+'</td>');const kmcell=isInt?('<td class="r"><div class="rrd-kmedit"><input class="xls-in r rrd-fin rrd-fkm" data-dk="'+d.k+'" inputmode="decimal" placeholder="Km" value="'+(d.km?_kmFmt(d.km):'')+'"><span>×</span><input class="xls-in r rrd-fin rrd-fpkm" data-dk="'+d.k+'" inputmode="numeric" placeholder="Precio por km" value="'+(d.precioKm?_nnum(d.precioKm):'')+'"></div></td>'):'';c=fecCell+segCell+'<td>'+pk('tr')+'</td><td>'+pk('rep')+'</td>'+zcell+kmcell+fleteCell+'<td class="rrd-actc"></td>';}
         return '<tr data-dk="'+d.k+'">'+c+'</tr>';}).join('')||'<tr><td colspan="8" class="rrd-empty">Sin líneas — agregá una.</td></tr>';
     }else{
-      // Columna de factura: si la planilla ya está facturada → check azul PRO (aprobada);
-      // si no, check verde→azul (confirmar) + flecha amarilla (pasar a otra planilla)
-      const acts=w=>{
-        if(facReadReg)return '<td class="rrd-facc"><span class="rrd-facok" data-tip="Factura registrada · aprobada"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span></td>';
-        if(_facMode){const on=_facSel.has(w.repId);return '<td class="rrd-facc"><button type="button" class="rrd-selchk'+(on?' on':'')+'" data-facsel="'+w.repId+'" data-tip="'+(on?'Entra en la factura':'No entra')+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></button></td>';}
-        return '<td class="rrd-facc"><button class="rrd-facdel" data-dashdel="'+w.uid+'" data-tip="Eliminar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M10 11v6M14 11v6"/></svg></button></td>';};
-      const rowCls=w=>(_facMode&&!_facSel.has(w.repId))?' class="rrd-row-out"':'';
+      // Las acciones de factura viven solo en la vista "Todos"; los segmentos quedan de lectura limpia
+      const acts=w=>'';
+      const rowCls=w=>'';
       if(isTr)rowsHtml=items.map(w=>'<tr'+rowCls(w)+' data-dashrow="'+w.uid+'">'+dfec(w)+'<td class="rrd-cam rrd-grow"><span class="rrd-cam__ic">'+TRUCKICON+'</span><span class="rrd-cam__t">'+((+w.cant||0)+' camión'+((+w.cant||0)===1?'':'es'))+'</span></td><td class="r">'+(+w.cant||0)+'</td><td class="r rrd-flete">'+_gs(+w.precio||0)+'</td>'+acts(w)+'</tr>').join('');
       else rowsHtml=items.map(w=>{const km=(isInt&&+w.km>0)?(_kmFmt(+w.km)+' km × '+_gs(+w.precioKm||0)):'—';return '<tr'+rowCls(w)+' data-dashrow="'+w.uid+'">'+dfec(w)+'<td class="rrd-cam"><span class="rrd-cam__ic">'+TRUCKICON+'</span><span class="rrd-cam__t">'+_escp(camLbl(w))+'</span></td><td>'+_escp(w.rep||'Tercerizado')+'</td><td class="rrd-grow">'+(w.zona?dchip(w.zona):(isServ&&w.obs?dchip(w.obs):'<span class="rrd-mut">—</span>'))+'</td>'+(isInt?'<td class="r rrd-det">'+km+'</td>':'')+'<td class="r rrd-flete">'+_gs(+w.precio||0)+'</td>'+acts(w)+'</tr>';}).join('');
       if(!rowsHtml)rowsHtml='<tr><td colspan="8" class="rrd-empty">Sin líneas</td></tr>';
@@ -5723,7 +5726,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     bd.querySelectorAll('.cancel-edit').forEach(b=>b.addEventListener('click',()=>{buildWork();render('toggle');}));
     const pr=bd.querySelector('.print');if(pr)pr.addEventListener('click',()=>{const t=totals();_cfPrint({id:null,tsNombre:g.ts,semanaDesde:wkObj?wkObj.desde:null,semanaHasta:wkObj?wkObj.hasta:null,clientes:g.lines,totalMonto:t.m,totalFlete:t.f,incTotal:t.inc,factura_id:(g.facturaId!=null?g.facturaId:null)});});
     // "Registrar factura" → entra en MODO SELECCIÓN (todos los repartos marcados por defecto)
-    const fac=bd.querySelector('.rrm-act--fac');if(fac)fac.addEventListener('click',()=>{const cand=(g.reps||[]).filter(rp=>rp.factura_id==null);if(!cand.length){showToast('No hay repartos pendientes para facturar');return;}_facSel=new Set(cand.map(rp=>rp.id));_facMode=true;render('filter');});
+    const fac=bd.querySelector('.rrm-act--fac');if(fac)fac.addEventListener('click',()=>{const cand=(g.reps||[]).filter(rp=>rp.factura_id==null);if(!cand.length){showToast('No hay repartos pendientes para facturar');return;}_facSel=new Set(cand.map(rp=>rp.id));_facMode=true;_dashSeg='todos';render('filter');});
     // Cancelar la selección
     bd.querySelectorAll('[data-faccancel]').forEach(b=>b.addEventListener('click',()=>{_facMode=false;render('filter');}));
     // Continuar → abre el modal de factura con los repartos marcados
@@ -5741,6 +5744,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     const _facUpdateBar=()=>{const cand=(g.reps||[]).filter(rp=>rp.factura_id==null);const selN=cand.filter(rp=>_facSel.has(rp.id)).length;const tot=work.filter(w=>!w.del&&_facSel.has(w.repId)).reduce((s,w)=>s+(+w.precio||0),0);const sub=bd.querySelector('.rrd-facbar__sub');if(sub)sub.innerHTML=selN+' de '+cand.length+' · <b>'+_gs(tot)+'</b>';const cont=bd.querySelector('[data-faccontinue]');if(cont)cont.disabled=!selN;};
     const _facToggle=rid=>{rid=+rid;const on=!_facSel.has(rid);if(on)_facSel.add(rid);else _facSel.delete(rid);bd.querySelectorAll('[data-facsel="'+rid+'"]').forEach(btn=>{btn.classList.toggle('on',on);btn.setAttribute('data-tip',on?'Entra en la factura':'No entra');const tr=btn.closest('tr');if(tr)tr.classList.toggle('rrd-row-out',!on);const gs=window.gsap;if(gs&&!reduce())gs.fromTo(btn,{scale:.6},{scale:1,duration:.4,ease:'back.out(3)'});});_facUpdateBar();};
     bd.querySelectorAll('[data-facsel]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();_facToggle(b.dataset.facsel);}));
+    bd.querySelectorAll('[data-facrow]').forEach(r=>r.addEventListener('click',e=>{if(e.target.closest('button'))return;_facToggle(r.dataset.facrow);}));
     // Entrada PRO de los checks azules "aprobada"
     (()=>{const gs=window.gsap;if(!gs||reduce())return;const oks=bd.querySelectorAll('.rrd-facok');if(oks.length)gs.fromTo(oks,{scale:.4,opacity:0},{scale:1,opacity:1,duration:.5,ease:'back.out(2.6)',stagger:.05});})();
     // Tooltip global (position:fixed): siempre por encima, nunca recortado por el overflow
@@ -5815,7 +5819,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
         '<div class="rrd-left">'+back+'<div class="rrd-ttl"><h2>'+_escp(g.ts)+(editing?'<span class="rrd-edbadge"><i></i>Editando</span>':'')+'</h2><div class="rrm-pd">'+periodLbl+' · <span class="rrm-ncam">'+nCam+'</span> camiones</div></div></div>'+
         '<div class="rrd-acts">'+acts+'</div>'+
       '</div>'+
-      '<div class="rrd-bar">'+camFilterBar()+dashTabs()+'<div class="rrd-bar__sp"></div></div>'+
+      '<div class="rrd-bar">'+camFilterBar()+(_facMode?'':dashTabs())+'<div class="rrd-bar__sp"></div></div>'+
       facBar+
       '<div class="rrm-body">'+dashBody()+'</div>';
     wire();
