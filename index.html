@@ -4483,23 +4483,13 @@ function showSaveAnim(text){
   .rrd-row-out>td{opacity:.5}
   .rrd-row-out>td.rrd-facc{opacity:1}
   .rrd-row-out .rrd-flete{text-decoration:line-through;text-decoration-color:rgba(217,119,6,.6)}
-  /* Tooltip PRO animado en hover */
-  .rrd-facc [data-tip]::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 12px);right:-4px;transform:translateY(6px) scale(.9);transform-origin:bottom right;color:#fff;font-size:11px;font-weight:700;letter-spacing:.1px;line-height:1;padding:7px 11px;border-radius:9px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .16s ease,transform .26s cubic-bezier(.34,1.6,.5,1);z-index:60}
-  .rrd-facc [data-tip]::before{content:'';position:absolute;bottom:calc(100% + 6px);right:9px;transform:translateY(6px) scale(.9);border:5px solid transparent;opacity:0;pointer-events:none;transition:opacity .16s ease,transform .26s cubic-bezier(.34,1.6,.5,1);z-index:60}
-  .rrd-facc [data-tip]:hover::after{opacity:1;transform:translateY(0) scale(1)}
-  .rrd-facc [data-tip]:hover::before{opacity:1;transform:translateY(0) scale(1)}
-  /* color del globo según el botón */
-  .rrd-facchk[data-tip]::after{background:#15803d;box-shadow:0 10px 22px rgba(21,128,61,.34)}
-  .rrd-facchk[data-tip]::before{border-top-color:#15803d}
-  .rrd-facchk.conf[data-tip]::after{background:#1d4ed8;box-shadow:0 10px 22px rgba(29,78,216,.36)}
-  .rrd-facchk.conf[data-tip]::before{border-top-color:#1d4ed8}
-  .rrd-facmove[data-tip]::after{background:#b45309;box-shadow:0 10px 22px rgba(180,83,9,.34)}
-  .rrd-facmove[data-tip]::before{border-top-color:#b45309}
-  /* Check azul PRO: reparto ya facturado / aprobado */
-  .rrd-facok{position:relative;display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:10px;background:linear-gradient(180deg,#3b82f6,#2563eb);color:#fff;box-shadow:0 6px 15px rgba(37,99,235,.34),inset 0 1px 0 rgba(255,255,255,.28);cursor:default;vertical-align:middle}
-  .rrd-facok svg{width:16px;height:16px;pointer-events:none}
-  .rrd-facok[data-tip]::after{background:#1d4ed8;box-shadow:0 10px 22px rgba(29,78,216,.36)}
-  .rrd-facok[data-tip]::before{border-top-color:#1d4ed8}
+  /* Tooltip PRO global (position:fixed → nunca lo recorta el overflow de la tabla) */
+  #rrdTip{position:fixed;z-index:9999;background:var(--tc,#0f172a);color:#fff;font-size:11px;font-weight:700;letter-spacing:.1px;line-height:1;padding:7px 11px;border-radius:9px;white-space:nowrap;pointer-events:none;opacity:0;transform:translateX(-50%) translateY(6px) scale(.9);transform-origin:bottom center;transition:opacity .15s ease,transform .24s cubic-bezier(.34,1.6,.5,1);box-shadow:0 12px 26px rgba(15,23,42,.3)}
+  #rrdTip.show{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}
+  #rrdTip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--tc,#0f172a)}
+  /* Check azul PRO minimalista: reparto ya facturado / aprobado */
+  .rrd-facok{position:relative;display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;background:none;border:none;box-shadow:none;color:#1e50a8;cursor:default;vertical-align:middle}
+  .rrd-facok svg{width:21px;height:21px;pointer-events:none}
   .cf-rep--ro{cursor:default}
   .cf-rep--ro .cf-rep__chk{background:linear-gradient(180deg,#3b82f6,#2563eb);border-color:transparent;color:#fff}
   .rrd-empty{text-align:center;color:var(--gray-400);padding:26px}
@@ -5678,6 +5668,12 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     bd.querySelectorAll('[data-dashmove]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();if(b.classList.contains('is-loading'))return;const rid=b.dataset.dashmove,on=!_dashOut.has(rid),svg=b.innerHTML;b.classList.add('is-loading');b.innerHTML='<span class="rrd-facspin"></span>';setTimeout(()=>{b.classList.remove('is-loading');b.innerHTML=svg;if(on){_dashOut.add(rid);_dashConf.delete(rid);}else _dashOut.delete(rid);b.classList.toggle('out',on);const tr=b.closest('tr');if(tr){tr.classList.toggle('rrd-row-out',on);const ck=tr.querySelector('[data-dashfac]');if(ck){ck.classList.remove('conf');ck.setAttribute('data-tip','Confirmar para la factura');}}const gs=window.gsap;if(gs&&!reduce()){gs.killTweensOf(b);gs.fromTo(b,{x:on?-7:7,rotate:on?-8:8},{x:0,rotate:0,duration:.55,ease:'elastic.out(1,.5)'});if(tr)gs.fromTo(tr,{backgroundColor:on?'rgba(245,158,11,.16)':'rgba(59,130,246,.10)'},{backgroundColor:'rgba(255,255,255,0)',duration:.7,ease:'power2.out'});}},380);}));
     // Entrada PRO de los checks azules "aprobada"
     (()=>{const gs=window.gsap;if(!gs||reduce())return;const oks=bd.querySelectorAll('.rrd-facok');if(oks.length)gs.fromTo(oks,{scale:.4,opacity:0},{scale:1,opacity:1,duration:.5,ease:'back.out(2.6)',stagger:.05});})();
+    // Tooltip global (position:fixed): siempre por encima, nunca recortado por el overflow
+    (()=>{let tip=document.getElementById('rrdTip');if(!tip){tip=document.createElement('div');tip.id='rrdTip';document.body.appendChild(tip);}
+      const colorOf=el=>el.classList.contains('rrd-facmove')?'#b45309':(el.classList.contains('rrd-facok')||el.classList.contains('conf'))?'#1d4ed8':'#15803d';
+      const place=el=>{const t=el.getAttribute('data-tip');if(!t)return;tip.textContent=t;tip.style.setProperty('--tc',colorOf(el));const r=el.getBoundingClientRect();let x=r.left+r.width/2;x=Math.max(72,Math.min(window.innerWidth-72,x));tip.style.left=x+'px';const h=tip.offsetHeight;tip.style.top=Math.max(6,r.top-h-11)+'px';tip.classList.add('show');};
+      const hide=()=>tip.classList.remove('show');
+      bd.querySelectorAll('.rrd-facc [data-tip]').forEach(el=>{el.addEventListener('mouseenter',()=>place(el));el.addEventListener('mouseleave',hide);el.addEventListener('click',hide);});})();
     bd.querySelectorAll('[data-dashaddline]').forEach(b=>b.addEventListener('click',()=>{if(_dashDraft){_dashDraft.push(_dashBlank());render('filter');const wp=bd.querySelector('.rrd-tablewrap');if(wp)wp.scrollTop=wp.scrollHeight;}}));
     bd.querySelectorAll('[data-dashcancel]').forEach(b=>b.addEventListener('click',()=>_dashExitEdit()));
     bd.querySelectorAll('[data-dashsave]').forEach(b=>b.addEventListener('click',()=>_dashSaveEdit()));
