@@ -4702,9 +4702,11 @@ async function _cfLoadFac(){try{const res=await sb.from('fact_facturas').select(
 let _cfReporte={};      // {mes:{...manual...}} desde fact_reporte
 let _cfRepMes=null;     // mes seleccionado; null = Total
 function _cfMonthKeys(){const s=new Set();(repartos||[]).forEach(r=>{const k=(r.fechaISO||'').slice(0,7);if(k)s.add(k);});return[...s].sort().reverse();}
-function _cfLines(mk){const out=[];(repartos||[]).forEach(r=>{if(mk&&(r.fechaISO||'').slice(0,7)!==mk)return;(r.clientes||[]).forEach(cl=>out.push({seg:cl.seg||'local',monto:+cl.monto||0,flete:+cl.precio||0,cam:(cl.trDesc||'').toUpperCase(),km:+cl.km||0}));});return out;}
+// ¿La planilla (transportadora dueña del camión + semana) de esta línea tiene factura registrada?
+function _cfFacturada(cl,fechaISO){if(!fechaISO)return false;const wk=(typeof isoWeekRange==='function')?isoWeekRange(fechaISO):null;if(!wk)return false;const own=cl.trId?tsOfTruck(cl.trId):null;const ts=(own&&own.n)||cl.tsNombre||'—';return !!(window.__cfFac||[]).find(x=>(x.transportadora_nombre||'')===ts&&(x.semana_desde||'')===wk.desde);}
+function _cfLines(mk){const out=[];(repartos||[]).forEach(r=>{if(mk&&(r.fechaISO||'').slice(0,7)!==mk)return;(r.clientes||[]).forEach(cl=>{if(!_cfFacturada(cl,r.fechaISO))return;out.push({seg:cl.seg||'local',monto:+cl.monto||0,flete:+cl.precio||0,cam:(cl.trDesc||'').toUpperCase(),km:+cl.km||0});});});return out;}
 // Monto e incidencia agrupados por zona (para el Reporte General)
-function _cfZonas(mk){const map={};(repartos||[]).forEach(r=>{if(mk&&(r.fechaISO||'').slice(0,7)!==mk)return;(r.clientes||[]).forEach(c=>{const z=((c.zona||'').trim())||'Sin zona';const o=map[z]||(map[z]={zona:z,monto:0,flete:0,peso:0});o.monto+=+c.monto||0;o.flete+=+c.precio||0;o.peso+=+c.peso||0;});});return Object.values(map).map(z=>({zona:z.zona,monto:z.monto,flete:z.flete,peso:z.peso,incidencia:z.monto>0?z.flete/z.monto:0})).sort((a,b)=>b.monto-a.monto);}
+function _cfZonas(mk){const map={};(repartos||[]).forEach(r=>{if(mk&&(r.fechaISO||'').slice(0,7)!==mk)return;(r.clientes||[]).forEach(c=>{if(!_cfFacturada(c,r.fechaISO))return;const z=((c.zona||'').trim())||'Sin zona';const o=map[z]||(map[z]={zona:z,monto:0,flete:0,peso:0});o.monto+=+c.monto||0;o.flete+=+c.precio||0;o.peso+=+c.peso||0;});});return Object.values(map).map(z=>({zona:z.zona,monto:z.monto,flete:z.flete,peso:z.peso,incidencia:z.monto>0?z.flete/z.monto:0})).sort((a,b)=>b.monto-a.monto);}
 
 function _cfReporteModel(mk){
   const auto={interior:{monto:0,flete:0,cam:{}},local:{monto:0,flete:0,cam:{}},transportadora:{monto:0,flete:0,cam:{}}};
@@ -4723,6 +4725,7 @@ function _cfGauge(p){p=Math.max(0,Math.min(1,p||0));const cx=150,cy=150,r=118;co
 
 async function renderReporte(){
   const host=document.getElementById('repHost');if(!host)return;
+  if(!window.__cfFac){try{const fr=await sb.from('fact_facturas').select('*');window.__cfFac=fr.data||[];}catch(_){window.__cfFac=[];}}
   try{const res=await sb.from('fact_reporte').select('*');_cfReporte={};(res.data||[]).forEach(r=>_cfReporte[r.mes]=r.data||{});}catch(e){console.error('[reporte]',e);}
   const m=_cfReporteModel(_cfRepMes);
   const months=_cfMonthKeys();
@@ -4950,7 +4953,7 @@ function _gastoStats(mk,tsId){
   const seg={local:{g:0,n:0},interior:{g:0,n:0},servicios:{g:0,n:0},transportadora:{g:0,n:0}};
   const byTs={},byCam={};let total=0,intGasto=0,intKm=0;const plan=new Set();
   (repartos||[]).forEach(r=>{ if(mk&&(r.fechaISO||'').slice(0,7)!==mk)return;
-    (r.clientes||[]).forEach(c=>{ if(tsId&&c.tsId!==tsId)return;
+    (r.clientes||[]).forEach(c=>{ if(!_cfFacturada(c,r.fechaISO))return; if(tsId&&c.tsId!==tsId)return;
       const sk=c.seg||'local',fl=(+c.precio|| +c.gasto||0),d=r.fechaISO||'';
       total+=fl;if(!seg[sk])seg[sk]={g:0,n:0};seg[sk].g+=fl;seg[sk].n++;plan.add(r.id);
       const tid=c.tsId||0,tsn=c.tsNombre||'—';
@@ -4969,6 +4972,7 @@ function _gastoStats(mk,tsId){
 }
 function _cfOpenStats(){
   const host=document.getElementById('statsHost');if(!host)return;
+  if(!window.__cfFac){sb.from('fact_facturas').select('*').then(r=>{window.__cfFac=r.data||[];if(document.getElementById('statsHost'))_cfOpenStats();}).catch(()=>{window.__cfFac=[];_cfOpenStats();});return;}
   const mk=_facMes,s=_gastoStats(mk,_cfStatsTs);
   const allTs=_gastoStats(mk,null).tsList; // todas las que tuvieron gasto este mes (para los botones)
   const tsBtns='<div class="gstat-tswrap">'+
