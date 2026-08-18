@@ -5392,7 +5392,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     if(g3){g3.fromTo(c,{opacity:0},{opacity:1,duration:.24,ease:'power2.out'});g3.fromTo(c.querySelector('svg'),{scale:0,rotate:-15,transformOrigin:'50% 50%'},{scale:1,rotate:0,duration:.36,delay:.05,ease:'back.out(2.6)'});g3.to(c,{opacity:0,duration:.3,delay:1.15,ease:'power2.in',onComplete:()=>c.remove()});}
     else setTimeout(()=>c.remove(),1500);
   }
-  let work=[],firstDraw=true,_wuid=1,selUid=null,_ddEl=null,_ddCleanup=null,_ddBtn=null,_lastTotal=null,_dragUid=null,_dashSeg=null,_dashEdit=false,_dashDraft=null,_dashDK=1,_facMode=false,_facSel=new Set();
+  let work=[],firstDraw=true,_wuid=1,selUid=null,_ddEl=null,_ddCleanup=null,_ddBtn=null,_lastTotal=null,_dragUid=null,_dashSeg='todos',_dashEdit=false,_dashDraft=null,_dashDK=1,_facMode=false,_facSel=new Set();
   const SEGL=['local','interior','servicios','transportadora'];
   // Conteo animado (el total "sube" con pop) — estilo prototipo, con nuestra lógica
   function countTo(el,from,to,delay){if(!el)return;const gs=window.gsap;if(!gs||from===to){el.textContent=_gs(to);return;}delay=delay||0;const o={v:from};el.textContent=_gs(from);gs.to(o,{v:to,duration:.8,delay:delay,ease:'power2.out',onUpdate:()=>{el.textContent=_gs(Math.round(o.v));},onComplete:()=>{el.textContent=_gs(to);}});gs.fromTo(el,{scale:1.15,textShadow:'0 0 30px rgba(21,128,61,.55)'},{scale:1,textShadow:'0 0 0px rgba(21,128,61,0)',duration:.55,delay:delay,ease:'back.out(2)',clearProps:'transform,textShadow'});}
