@@ -4484,10 +4484,10 @@ function showSaveAnim(text){
   .rrd-row-out>td.rrd-facc{opacity:1}
   .rrd-row-out .rrd-flete{text-decoration:line-through;text-decoration-color:rgba(217,119,6,.6)}
   /* Tooltip PRO animado en hover */
-  .rrd-facc button[data-tip]::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 12px);right:-4px;transform:translateY(6px) scale(.9);transform-origin:bottom right;color:#fff;font-size:11px;font-weight:700;letter-spacing:.1px;line-height:1;padding:7px 11px;border-radius:9px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .16s ease,transform .26s cubic-bezier(.34,1.6,.5,1);z-index:60}
-  .rrd-facc button[data-tip]::before{content:'';position:absolute;bottom:calc(100% + 6px);right:9px;transform:translateY(6px) scale(.9);border:5px solid transparent;opacity:0;pointer-events:none;transition:opacity .16s ease,transform .26s cubic-bezier(.34,1.6,.5,1);z-index:60}
-  .rrd-facc button[data-tip]:hover::after{opacity:1;transform:translateY(0) scale(1)}
-  .rrd-facc button[data-tip]:hover::before{opacity:1;transform:translateY(0) scale(1)}
+  .rrd-facc [data-tip]::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 12px);right:-4px;transform:translateY(6px) scale(.9);transform-origin:bottom right;color:#fff;font-size:11px;font-weight:700;letter-spacing:.1px;line-height:1;padding:7px 11px;border-radius:9px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .16s ease,transform .26s cubic-bezier(.34,1.6,.5,1);z-index:60}
+  .rrd-facc [data-tip]::before{content:'';position:absolute;bottom:calc(100% + 6px);right:9px;transform:translateY(6px) scale(.9);border:5px solid transparent;opacity:0;pointer-events:none;transition:opacity .16s ease,transform .26s cubic-bezier(.34,1.6,.5,1);z-index:60}
+  .rrd-facc [data-tip]:hover::after{opacity:1;transform:translateY(0) scale(1)}
+  .rrd-facc [data-tip]:hover::before{opacity:1;transform:translateY(0) scale(1)}
   /* color del globo según el botón */
   .rrd-facchk[data-tip]::after{background:#15803d;box-shadow:0 10px 22px rgba(21,128,61,.34)}
   .rrd-facchk[data-tip]::before{border-top-color:#15803d}
@@ -4495,6 +4495,11 @@ function showSaveAnim(text){
   .rrd-facchk.conf[data-tip]::before{border-top-color:#1d4ed8}
   .rrd-facmove[data-tip]::after{background:#b45309;box-shadow:0 10px 22px rgba(180,83,9,.34)}
   .rrd-facmove[data-tip]::before{border-top-color:#b45309}
+  /* Check azul PRO: reparto ya facturado / aprobado */
+  .rrd-facok{position:relative;display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:10px;background:linear-gradient(180deg,#3b82f6,#2563eb);color:#fff;box-shadow:0 6px 15px rgba(37,99,235,.34),inset 0 1px 0 rgba(255,255,255,.28);cursor:default;vertical-align:middle}
+  .rrd-facok svg{width:16px;height:16px;pointer-events:none}
+  .rrd-facok[data-tip]::after{background:#1d4ed8;box-shadow:0 10px 22px rgba(29,78,216,.36)}
+  .rrd-facok[data-tip]::before{border-top-color:#1d4ed8}
   .cf-rep--ro{cursor:default}
   .cf-rep--ro .cf-rep__chk{background:linear-gradient(180deg,#3b82f6,#2563eb);border-color:transparent;color:#fff}
   .rrd-empty{text-align:center;color:var(--gray-400);padding:26px}
@@ -5464,7 +5469,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     const items=_dashSort(work.filter(w=>!w.del&&w.seg===sk&&(!_camFilter||camLbl(w)===_camFilter)),sk);
     let thead;
     const facReadReg=_dashSeg!=='todos'&&!!_facDeGrupo(g);
-    const actTh=editing?'<th class="rrd-actth"></th>':(facReadReg?'':'<th class="rrd-facth r">Factura</th>');
+    const actTh=editing?'<th class="rrd-actth"></th>':'<th class="rrd-facth r">Factura</th>';
     if(isTr)thead='<tr><th>Fecha</th><th>Detalle</th><th class="r">Cantidad</th><th class="r">Flete</th>'+actTh+'</tr>';
     else thead='<tr><th>Fecha</th><th>Camión</th><th>Repartidor</th><th>'+(isServ?'Servicio':'Zona')+'</th>'+(isInt?'<th class="r">Km · Precio/km</th>':'')+'<th class="r">Flete</th>'+actTh+'</tr>';
     let rowsHtml;
@@ -5479,8 +5484,9 @@ function _rrOpenDetail(g,periodLbl,wkObj){
         else{const zcell=isServ?('<td><input class="xls-in rrd-fin rrd-fobs" data-dk="'+d.k+'" placeholder="—" value="'+_escp(d.obs||'')+'"></td>'):('<td>'+pk('zona')+'</td>');const kmcell=isInt?('<td class="r"><div class="rrd-kmedit"><input class="xls-in r rrd-fin rrd-fkm" data-dk="'+d.k+'" inputmode="decimal" placeholder="Km" value="'+(d.km?_kmFmt(d.km):'')+'"><span>×</span><input class="xls-in r rrd-fin rrd-fpkm" data-dk="'+d.k+'" inputmode="numeric" placeholder="Gs/km" value="'+(d.precioKm?_nnum(d.precioKm):'')+'"></div></td>'):'';c=fecCell+'<td>'+pk('tr')+'</td><td>'+pk('rep')+'</td>'+zcell+kmcell+fleteCell+'<td class="rrd-actc">'+dtrash(d.k)+'</td>';}
         return '<tr data-dk="'+d.k+'">'+c+'</tr>';}).join('')||'<tr><td colspan="8" class="rrd-empty">Sin líneas — agregá una.</td></tr>';
     }else{
-      // Columna de factura: check verde→azul (confirmar) + flecha amarilla (pasar a otra planilla)
-      const acts=w=>{if(facReadReg)return '';const rid=w.repId,conf=_dashConf.has(rid),out=_dashOut.has(rid);return '<td class="rrd-facc">'+
+      // Columna de factura: si la planilla ya está facturada → check azul PRO (aprobada);
+      // si no, check verde→azul (confirmar) + flecha amarilla (pasar a otra planilla)
+      const acts=w=>{if(facReadReg)return '<td class="rrd-facc"><span class="rrd-facok" data-tip="Factura registrada · aprobada"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span></td>';const rid=w.repId,conf=_dashConf.has(rid),out=_dashOut.has(rid);return '<td class="rrd-facc">'+
         '<button class="rrd-facchk'+(conf?' conf':'')+'" data-dashfac="'+rid+'" data-tip="'+(conf?'Confirmado · entra en la factura':'Confirmar para la factura')+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></button>'+
         '<button class="rrd-facmove'+(out?' out':'')+'" data-dashmove="'+rid+'" data-tip="Pasar a otra planilla"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>'+
         '</td>';};
@@ -5670,6 +5676,8 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     bd.querySelectorAll('[data-dashfac]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();if(b.classList.contains('is-loading'))return;const rid=b.dataset.dashfac,on=!_dashConf.has(rid),svg=b.innerHTML;b.classList.add('is-loading');b.innerHTML='<span class="rrd-facspin"></span>';setTimeout(()=>{b.classList.remove('is-loading');b.innerHTML=svg;if(on){_dashConf.add(rid);_dashOut.delete(rid);}else _dashConf.delete(rid);b.classList.toggle('conf',on);b.setAttribute('data-tip',on?'Confirmado · entra en la factura':'Confirmar para la factura');const tr=b.closest('tr');if(tr){tr.classList.remove('rrd-row-out');const mv=tr.querySelector('[data-dashmove]');if(mv)mv.classList.remove('out');}const gs=window.gsap;if(gs&&!reduce()){gs.killTweensOf(b);gs.fromTo(b,{scale:.55},{scale:1,duration:.45,ease:'back.out(3.2)'});}},380);}));
     // Flecha amarilla: pasar el reparto a otra planilla (con loader interno)
     bd.querySelectorAll('[data-dashmove]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();if(b.classList.contains('is-loading'))return;const rid=b.dataset.dashmove,on=!_dashOut.has(rid),svg=b.innerHTML;b.classList.add('is-loading');b.innerHTML='<span class="rrd-facspin"></span>';setTimeout(()=>{b.classList.remove('is-loading');b.innerHTML=svg;if(on){_dashOut.add(rid);_dashConf.delete(rid);}else _dashOut.delete(rid);b.classList.toggle('out',on);const tr=b.closest('tr');if(tr){tr.classList.toggle('rrd-row-out',on);const ck=tr.querySelector('[data-dashfac]');if(ck){ck.classList.remove('conf');ck.setAttribute('data-tip','Confirmar para la factura');}}const gs=window.gsap;if(gs&&!reduce()){gs.killTweensOf(b);gs.fromTo(b,{x:on?-7:7,rotate:on?-8:8},{x:0,rotate:0,duration:.55,ease:'elastic.out(1,.5)'});if(tr)gs.fromTo(tr,{backgroundColor:on?'rgba(245,158,11,.16)':'rgba(59,130,246,.10)'},{backgroundColor:'rgba(255,255,255,0)',duration:.7,ease:'power2.out'});}},380);}));
+    // Entrada PRO de los checks azules "aprobada"
+    (()=>{const gs=window.gsap;if(!gs||reduce())return;const oks=bd.querySelectorAll('.rrd-facok');if(oks.length)gs.fromTo(oks,{scale:.4,opacity:0},{scale:1,opacity:1,duration:.5,ease:'back.out(2.6)',stagger:.05});})();
     bd.querySelectorAll('[data-dashaddline]').forEach(b=>b.addEventListener('click',()=>{if(_dashDraft){_dashDraft.push(_dashBlank());render('filter');const wp=bd.querySelector('.rrd-tablewrap');if(wp)wp.scrollTop=wp.scrollHeight;}}));
     bd.querySelectorAll('[data-dashcancel]').forEach(b=>b.addEventListener('click',()=>_dashExitEdit()));
     bd.querySelectorAll('[data-dashsave]').forEach(b=>b.addEventListener('click',()=>_dashSaveEdit()));
