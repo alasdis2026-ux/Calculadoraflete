@@ -5187,6 +5187,14 @@ function _rrApplySearch(){
 }
 // (Se dejó de usar el backfill automático: ensuciaba repartos multi-transportadora. Ahora se usa fallback legacy en _facDeGrupo/_repFacturado.)
 function _cfBackfillFacturas(){}
+// Limpieza única: el backfill anterior seteó factura_id incorrectos (repartos "Varios"). Se resetean a null.
+function _cfResetBackfill(){
+  try{if(localStorage.getItem('cf_facreset_v1'))return;}catch(_){return;}
+  const done=()=>{try{localStorage.setItem('cf_facreset_v1','1');}catch(_){ }};
+  const ids=(repartos||[]).filter(r=>r.factura_id!=null).map(r=>r.id);
+  if(!ids.length){done();return;}
+  sb.from('repartos').update({factura_id:null}).in('id',ids).then(()=>{(repartos||[]).forEach(r=>{r.factura_id=null;});done();const v=document.getElementById('viewRrep');if(v&&v.classList.contains('is-active'))renderReporteRepartos();}).catch(()=>{});
+}
 function _rrGroups(weekDesde){
   const groups={};
   (repartos||[]).forEach(r=>{
@@ -5210,8 +5218,8 @@ function _rrGroups(weekDesde){
 function renderReporteRepartos(){
   const host=document.getElementById('rrepHost');if(!host)return;
   // Carga las facturas (una vez) para mostrar el estado en cada tarjeta
-  if(!window.__cfFac){sb.from('fact_facturas').select('*').then(r=>{window.__cfFac=r.data||[];_cfBackfillFacturas();if(document.getElementById('viewRrep').classList.contains('is-active'))renderReporteRepartos();}).catch(()=>{window.__cfFac=[];});}
-  else _cfBackfillFacturas();
+  if(!window.__cfFac){sb.from('fact_facturas').select('*').then(r=>{window.__cfFac=r.data||[];if(document.getElementById('viewRrep').classList.contains('is-active'))renderReporteRepartos();}).catch(()=>{window.__cfFac=[];});}
+  _cfResetBackfill();
   const weeks=_weeksOfMonth(_rrMes);
   const today=_isoD(new Date());
   // Siempre una semana seleccionada (ya no hay "Mes completo"): la actual si cae en el mes, si no la primera
