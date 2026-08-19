@@ -4296,8 +4296,8 @@ function showSaveAnim(text){
   .rrm-selgo:disabled{opacity:.5;pointer-events:none;box-shadow:none;transform:none}
   .rrm-selcancel:hover{background:var(--gray-50,#f8fafc)}
   /* KPI Factura resaltado en modo selección */
-  .rrd-ktile--fac-sel{background:linear-gradient(135deg,#22c55e,#16a34a);border-color:transparent;box-shadow:0 10px 26px rgba(22,163,74,.34);transition:background .2s,box-shadow .2s}
-  .rrd-ktile--fac-sel.empty{background:linear-gradient(135deg,#ef4444,#dc2626);box-shadow:0 10px 26px rgba(220,38,38,.34)}
+  .rrd-ktile.rrd-ktile--fac-sel{background:linear-gradient(135deg,#14b8a6,#0d9488);border-color:transparent;box-shadow:0 12px 28px rgba(13,148,136,.38);transition:background .22s,box-shadow .22s}
+  .rrd-ktile.rrd-ktile--fac-sel.empty{background:linear-gradient(135deg,#f87171,#dc2626);box-shadow:0 12px 28px rgba(220,38,38,.36)}
   .rrd-ktile--fac-sel .rrd-ktile__ic{background:rgba(255,255,255,.2);color:#fff}
   .rrd-ktile--fac-sel .rrd-ktile__tx small{color:rgba(255,255,255,.85)}
   .rrd-ktile--fac-sel .rrd-ktile__tx b{color:#fff}
@@ -4516,9 +4516,9 @@ function showSaveAnim(text){
   .rrd-row-out>td.rrd-facc{opacity:1}
   .rrd-row-out .rrd-flete{text-decoration:line-through;text-decoration-color:rgba(148,163,184,.7)}
   /* Modo selección: checkbox por fila (entra / no entra) */
-  .rrd-selchk{position:relative;width:40px;height:40px;display:inline-flex;align-items:center;justify-content:center;border:2px solid var(--gray-300,#cbd5e1);border-radius:11px;background:#fff;color:#cbd5e1;cursor:pointer;vertical-align:middle;transition:transform .16s cubic-bezier(.34,1.56,.64,1),background .16s,border-color .16s,color .16s,box-shadow .16s}
+  .rrd-selchk{position:relative;width:40px;height:40px;display:inline-flex;align-items:center;justify-content:center;border:2px solid #86efac;border-radius:11px;background:#f0fdf4;color:#16a34a;cursor:pointer;vertical-align:middle;transition:transform .16s cubic-bezier(.34,1.56,.64,1),background .16s,border-color .16s,color .16s,box-shadow .16s}
   .rrd-selchk svg{width:20px;height:20px;pointer-events:none}
-  .rrd-selchk:hover{border-color:#93c5fd;color:#60a5fa;transform:translateY(-1px)}
+  .rrd-selchk:hover{border-color:#22c55e;background:#dcfce7;color:#15803d;transform:translateY(-1px)}
   .rrd-selchk.on{border-color:transparent;background:linear-gradient(180deg,#3b82f6,#2563eb);color:#fff;box-shadow:0 6px 15px rgba(37,99,235,.34)}
   .rrd-selchk:active{transform:scale(.92)}
   /* Barra de selección de repartos para la factura */
@@ -5786,7 +5786,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     (()=>{const gs=window.gsap;if(!gs||reduce())return;const oks=bd.querySelectorAll('.rrd-facok');if(oks.length)gs.fromTo(oks,{scale:.4,opacity:0},{scale:1,opacity:1,duration:.5,ease:'back.out(2.6)',stagger:.05});})();
     // Tooltip global (position:fixed): siempre por encima, nunca recortado por el overflow
     (()=>{let tip=document.getElementById('rrdTip');if(!tip){tip=document.createElement('div');tip.id='rrdTip';document.body.appendChild(tip);}
-      const colorOf=el=>el.classList.contains('rrd-facdel')?'#dc2626':el.classList.contains('rrd-selchk')?'#2563eb':(el.classList.contains('rrd-facok')||el.classList.contains('conf'))?'#1d4ed8':'#15803d';
+      const colorOf=el=>el.classList.contains('rrd-facdel')?'#dc2626':el.classList.contains('rrd-selchk')?(el.classList.contains('on')?'#2563eb':'#16a34a'):el.classList.contains('rrd-facok')?'#1d4ed8':'#15803d';
       const place=el=>{const t=el.getAttribute('data-tip');if(!t)return;tip.textContent=t;tip.style.setProperty('--tc',colorOf(el));const r=el.getBoundingClientRect();let x=r.left+r.width/2;x=Math.max(72,Math.min(window.innerWidth-72,x));tip.style.left=x+'px';const h=tip.offsetHeight;tip.style.top=Math.max(6,r.top-h-11)+'px';const gs=window.gsap;if(gs&&!reduce()){gs.killTweensOf(tip);gs.fromTo(tip,{opacity:0,y:8,scale:.9,xPercent:-50},{opacity:1,y:0,scale:1,xPercent:-50,duration:.3,ease:'back.out(2.2)',transformOrigin:'50% 100%'});}else{tip.style.opacity='1';tip.style.transform='translateX(-50%)';}};
       const hide=()=>{const gs=window.gsap;if(gs&&!reduce()){gs.killTweensOf(tip);gs.to(tip,{opacity:0,y:6,duration:.13,ease:'power1.out'});}else tip.style.opacity='0';};
       bd.querySelectorAll('.rrd-facc [data-tip]').forEach(el=>{el.addEventListener('mouseenter',()=>place(el));el.addEventListener('mouseleave',hide);el.addEventListener('click',hide);});})();
