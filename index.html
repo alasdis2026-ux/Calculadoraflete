@@ -4306,6 +4306,20 @@ function showSaveAnim(text){
   .rrd-ktile__cnt--dark{color:#0B5F8D;background:linear-gradient(180deg,#eef6fc,#e3eefb);border:1px solid rgba(37,120,184,.16)}
   .rrd-ktile__cnt--big{font-size:12.5px;padding:5px 13px;gap:7px;margin-top:8px;box-shadow:0 2px 6px rgba(11,95,141,.08)}
   .rrd-ktile__cnt--big svg{width:16px;height:16px;fill:none;stroke:currentColor}
+  /* Píldora segmentada de camiones por segmento (estilo stat) */
+  .rrd-segpill{display:inline-flex;margin-top:9px;border-radius:13px;overflow:hidden;border:1px solid var(--gray-200,#e7edf3);box-shadow:0 3px 10px rgba(15,23,42,.07);width:fit-content;max-width:100%}
+  .rrd-segpill__seg{display:flex;align-items:center;gap:8px;padding:7px 14px;background:#fff}
+  .rrd-segpill__seg+.rrd-segpill__seg{border-left:1px solid var(--gray-200,#eef2f6)}
+  .rrd-segpill__seg svg{width:19px;height:19px;flex-shrink:0;color:var(--gray-400,#94a3b8)}
+  .rrd-segpill__tx{display:flex;flex-direction:column;line-height:1.05}
+  .rrd-segpill__tx small{font-size:8.5px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-400,#94a3b8)}
+  .rrd-segpill__tx b{font-size:17px;font-weight:800;color:var(--gray-900,#0f172a);font-variant-numeric:tabular-nums}
+  .rrd-segpill__seg.on{background:linear-gradient(135deg,#3b82f6,#2563eb)}
+  .rrd-segpill__seg.on svg{color:#fff}
+  .rrd-segpill__seg.on small{color:rgba(255,255,255,.85)}
+  .rrd-segpill__seg.on b{color:#fff}
+  .rrd-resumen-bar .rrd-ktile--wide{max-width:560px;flex:1.5 1 0}
+  .rrd-ktile--wide .rrd-ktile__tx{overflow:visible}
   .rrm-act--save{background:var(--primary);color:#fff;border-color:var(--primary);min-width:150px;justify-content:center}
   .rrm-act--save:hover{background:#0a4f75;border-color:#0a4f75;color:#fff;transform:translateY(-1px);box-shadow:0 8px 20px rgba(11,95,141,.34)}
   .rrm-act--save:active{transform:translateY(0) scale(.98)}
@@ -5536,9 +5550,11 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     else aprobTile=tile('rrd-ktile--k-aprob'+(facReg!=null?' rrd-ktile--flete':''),CHECK,'Flete aprobado',_gs(facReg!=null?sub:0));
     // 2) Factura — el monto registrado (o en aprobación, el monto capturado)
     const facTile=tile('rrd-ktile--k-fac',CLIP,'Factura',_facMode?_gs(_facMonto):(facReg!=null?_gs(facReg):'Sin registros'));
-    // 3) Flete total + cantidad de camiones al lado (chip más grande, con mini camión)
-    const TRUCKMINI='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6.5" width="11.5" height="8.5" rx="1.5"/><path d="M13 9h3.6l3.9 3.9V15H13z"/><circle cx="5.8" cy="17.5" r="1.7"/><circle cx="17.6" cy="17.5" r="1.7"/></svg>';
-    const totalTile=tile('rrd-ktile--k-total',TRUCKICON,'Flete total',_gs(sub),'<span class="rrd-ktile__cnt rrd-ktile__cnt--dark rrd-ktile__cnt--big">'+TRUCKMINI+_nnum(nCam)+' camiones</span>');
+    // 3) Flete total + píldora segmentada de camiones por segmento (estilo stat, 1er segmento resaltado)
+    const SEGIC={local:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>',interior:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V9l6-3v3l6-3v15"/><path d="M15 21V6l6 3v12"/><path d="M6 12h.01M6 16h.01M12 12h.01M12 16h.01M18 13h.01M18 17h.01"/></svg>',servicios:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 01-5.4 5.4L4 17v3h3l5.3-5.3a4 4 0 015.4-5.4l-2.5 2.5-2-2 2.5-2.5z"/></svg>',transportadora:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6.5" width="11.5" height="8.5" rx="1.5"/><path d="M13 9h3.6l3.9 3.9V15H13z"/><circle cx="5.8" cy="17.5" r="1.7"/><circle cx="17.6" cy="17.5" r="1.7"/></svg>'};
+    const _pres=SEGL.filter(sk=>work.some(w=>!w.del&&w.seg===sk));
+    const _segHtml=_pres.map((sk,i)=>{const n=work.filter(w=>!w.del&&w.seg===sk).reduce((a,w)=>a+camCount(w),0);return '<div class="rrd-segpill__seg'+(i===0?' on':'')+'">'+SEGIC[sk]+'<div class="rrd-segpill__tx"><small>'+SEGN[sk]+'</small><b>'+n+'</b></div></div>';}).join('');
+    const totalTile=tile('rrd-ktile--k-total rrd-ktile--wide',TRUCKICON,'Flete total',_gs(sub),'<div class="rrd-segpill">'+_segHtml+'</div>');
     return '<div class="rrd-resumen-bar">'+aprobTile+facTile+totalTile+'</div>';}
   function _dashChart(items,isServ){const zc={};items.forEach(w=>{const z=w.zona||(isServ&&w.obs)||'—';if(z&&z!=='—')zc[z]=(zc[z]||0)+1;});const zarr=Object.keys(zc).map(z=>({z,n:zc[z]})).sort((a,b)=>b.n-a.n).slice(0,7);const zmax=Math.max(1,...zarr.map(x=>x.n));return '<div class="rrd-card rrd-zonas"><div class="rrd-card__t">'+(isServ?'Servicios más frecuentes':'Zonas más frecuentes')+'</div>'+(zarr.length?zarr.map(x=>'<div class="rrd-zrow"><span class="rrd-zname" title="'+_escp(x.z)+'">'+_escp(x.z)+'</span><div class="rrd-ztrack"><div class="rrd-zfill" style="width:'+Math.max(9,x.n/zmax*100).toFixed(1)+'%"></div></div><span class="rrd-zn">'+x.n+'</span></div>').join(''):'<div class="rrd-zempty">Sin datos</div>')+'</div>';}
   // Pestañas de segmento (se muestran en la barra superior, centradas)
