@@ -4296,12 +4296,14 @@ function showSaveAnim(text){
   .rrm-selgo:disabled{opacity:.5;pointer-events:none;box-shadow:none;transform:none}
   .rrm-selcancel:hover{background:var(--gray-50,#f8fafc)}
   /* KPI Factura resaltado en modo selección */
-  .rrd-ktile.rrd-ktile--fac-sel{background:linear-gradient(135deg,#14b8a6,#0d9488);border-color:transparent;box-shadow:0 12px 28px rgba(13,148,136,.38);transition:background .22s,box-shadow .22s}
-  .rrd-ktile.rrd-ktile--fac-sel.empty{background:linear-gradient(135deg,#f87171,#dc2626);box-shadow:0 12px 28px rgba(220,38,38,.36)}
-  .rrd-ktile--fac-sel .rrd-ktile__ic{background:rgba(255,255,255,.2);color:#fff}
-  .rrd-ktile--fac-sel .rrd-ktile__tx small{color:rgba(255,255,255,.85)}
-  .rrd-ktile--fac-sel .rrd-ktile__tx b{color:#fff}
+  .rrd-ktile.rrd-ktile--aprob{background:linear-gradient(135deg,#14b8a6,#0d9488);border-color:transparent;box-shadow:0 12px 28px rgba(13,148,136,.38);transition:background .22s,box-shadow .22s}
+  .rrd-ktile.rrd-ktile--aprob.ok{background:linear-gradient(135deg,#22c55e,#16a34a);box-shadow:0 12px 28px rgba(22,163,74,.4)}
+  .rrd-ktile.rrd-ktile--aprob.over{background:linear-gradient(135deg,#f87171,#dc2626);box-shadow:0 12px 28px rgba(220,38,38,.36)}
+  .rrd-ktile--aprob .rrd-ktile__ic{background:rgba(255,255,255,.2);color:#fff}
+  .rrd-ktile--aprob .rrd-ktile__tx small{color:rgba(255,255,255,.85)}
+  .rrd-ktile--aprob .rrd-ktile__tx b{color:#fff}
   .rrd-ktile__cnt{display:inline-block;margin-top:3px;font-size:11px;font-weight:800;color:#fff;background:rgba(255,255,255,.18);padding:2px 9px;border-radius:999px}
+  .rrd-ktile__cnt--dark{color:var(--gray-600,#475569);background:var(--gray-100,#f1f5f9)}
   .rrm-act--save{background:var(--primary);color:#fff;border-color:var(--primary);min-width:150px;justify-content:center}
   .rrm-act--save:hover{background:#0a4f75;border-color:#0a4f75;color:#fff;transform:translateY(-1px);box-shadow:0 8px 20px rgba(11,95,141,.34)}
   .rrm-act--save:active{transform:translateY(0) scale(.98)}
@@ -5222,6 +5224,8 @@ function _cfOpenFacturaModal(existing,preset){
     if(!(monto>0)){_cfSetErr(moF,'Che, ingresá el monto de la factura.');bad=true;}
     if(!sel){_cfSetErr(plF,'Elegí a qué planilla corresponde.');bad=true;}
     if(bad){showToast('Revisá los campos marcados 👀');return;}
+    // captureOnly: solo devolver Nº+monto (no persiste; la conciliación se hace aprobando líneas después)
+    if(preset&&preset.captureOnly){m.close();if(typeof preset.onCapture==='function')preset.onCapture(nro,monto,fecha);return;}
     if(repsList&&repSel.size===0){showToast('Elegí al menos un reparto para facturar 👀');return;}
     // No permitir registrar si el monto no coincide con el flete de los repartos elegidos
     const _flete=repFlete();
@@ -5417,7 +5421,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     if(g3){g3.fromTo(c,{opacity:0},{opacity:1,duration:.24,ease:'power2.out'});g3.fromTo(c.querySelector('svg'),{scale:0,rotate:-15,transformOrigin:'50% 50%'},{scale:1,rotate:0,duration:.36,delay:.05,ease:'back.out(2.6)'});g3.to(c,{opacity:0,duration:.3,delay:1.15,ease:'power2.in',onComplete:()=>c.remove()});}
     else setTimeout(()=>c.remove(),1500);
   }
-  let work=[],firstDraw=true,_wuid=1,selUid=null,_ddEl=null,_ddCleanup=null,_ddBtn=null,_lastTotal=null,_dragUid=null,_dashSeg='todos',_dashEdit=false,_dashDraft=null,_dashDK=1,_facMode=false,_facSel=new Set();
+  let work=[],firstDraw=true,_wuid=1,selUid=null,_ddEl=null,_ddCleanup=null,_ddBtn=null,_lastTotal=null,_dragUid=null,_dashSeg='todos',_dashEdit=false,_dashDraft=null,_dashDK=1,_facMode=false,_facSel=new Set(),_facNro='',_facMonto=0;
   const SEGL=['local','interior','servicios','transportadora'];
   // Conteo animado (el total "sube" con pop) — estilo prototipo, con nuestra lógica
   function countTo(el,from,to,delay){if(!el)return;const gs=window.gsap;if(!gs||from===to){el.textContent=_gs(to);return;}delay=delay||0;const o={v:from};el.textContent=_gs(from);gs.to(o,{v:to,duration:.8,delay:delay,ease:'power2.out',onUpdate:()=>{el.textContent=_gs(Math.round(o.v));},onComplete:()=>{el.textContent=_gs(to);}});gs.fromTo(el,{scale:1.15,textShadow:'0 0 30px rgba(21,128,61,.55)'},{scale:1,textShadow:'0 0 0px rgba(21,128,61,0)',duration:.55,delay:delay,ease:'back.out(2)',clearProps:'transform,textShadow'});}
@@ -5513,20 +5517,22 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     alive.filter(d=>!d.uid).forEach(d=>{const w={uid:_wuid++,ref:null,repId:targetRepId(),tsId:d.tsId||(tsObj?tsObj.id:g.tsId),tsNombre:d.tsNombre||g.ts,monto:0,del:false,isNew:true,edit:false};_applyLineToWork(w,d,tseg(d));work.unshift(w);});
     _dashEdit=false;_dashDraft=null;await save(null,true);}
   function _dashResumen(lbl,nLines,nCam,sub){
-    const _fg=_facDeGrupo(g);const fac=_fg?(+_fg.monto||0):null;
+    const _fg=_facDeGrupo(g);const facReg=_fg?(+_fg.monto||0):null;
     const CLIP='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>';
     const COINS='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.66 3.58 3 8 3s8-1.34 8-3V6M4 12v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/></svg>';
+    const CHECK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>';
     const tile=(cls,ic,small,val,extra)=>'<div class="rrd-ktile'+(cls?' '+cls:'')+'"><span class="rrd-ktile__ic">'+ic+'</span><div class="rrd-ktile__tx"><small>'+small+'</small><b>'+val+'</b>'+(extra||'')+'</div></div>';
-    // En modo selección el KPI "Factura" muestra en vivo lo que vas tildando (total + X de N)
-    let facTile;
+    // 1) Flete aprobado — en modo aprobación crece con lo tildado; verde al conciliar con la factura
+    let aprobTile;
     if(_facMode){const cand=work.filter(w=>!w.del);const selN=cand.filter(w=>_facSel.has(w.uid)).length;const tot=cand.filter(w=>_facSel.has(w.uid)).reduce((s,w)=>s+(+w.precio||0),0);
-      facTile=tile('rrd-ktile--fac-sel'+(selN===0?' empty':''),CLIP,'Entrando en la factura',_gs(tot),'<span class="rrd-ktile__cnt">'+selN+' de '+cand.length+' líneas</span>');}
-    else facTile=tile('',CLIP,'Factura',fac!=null?_gs(fac):'Sin registros');
-    return '<div class="rrd-resumen-bar">'+
-      tile('rrd-ktile--flete',COINS,'Subtotal flete',_gs(sub))+
-      facTile+
-      tile('',TRUCKICON,'Camiones',_nnum(nCam))+
-    '</div>';}
+      const st=(_facMonto>0&&tot===_facMonto)?' ok':(_facMonto>0&&tot>_facMonto?' over':'');
+      aprobTile=tile('rrd-ktile--aprob'+st,CHECK,'Flete aprobado',_gs(tot),'<span class="rrd-ktile__cnt">'+selN+' de '+cand.length+' líneas</span>');}
+    else aprobTile=tile('rrd-ktile--flete',CHECK,'Flete aprobado',_gs(facReg!=null?sub:0));
+    // 2) Factura — el monto registrado (o en aprobación, el monto capturado)
+    const facTile=tile('',CLIP,'Factura',_facMode?_gs(_facMonto):(facReg!=null?_gs(facReg):'Sin registros'));
+    // 3) Flete total + cantidad de camiones al lado
+    const totalTile=tile('',TRUCKICON,'Flete total',_gs(sub),'<span class="rrd-ktile__cnt rrd-ktile__cnt--dark">'+_nnum(nCam)+' camiones</span>');
+    return '<div class="rrd-resumen-bar">'+aprobTile+facTile+totalTile+'</div>';}
   function _dashChart(items,isServ){const zc={};items.forEach(w=>{const z=w.zona||(isServ&&w.obs)||'—';if(z&&z!=='—')zc[z]=(zc[z]||0)+1;});const zarr=Object.keys(zc).map(z=>({z,n:zc[z]})).sort((a,b)=>b.n-a.n).slice(0,7);const zmax=Math.max(1,...zarr.map(x=>x.n));return '<div class="rrd-card rrd-zonas"><div class="rrd-card__t">'+(isServ?'Servicios más frecuentes':'Zonas más frecuentes')+'</div>'+(zarr.length?zarr.map(x=>'<div class="rrd-zrow"><span class="rrd-zname" title="'+_escp(x.z)+'">'+_escp(x.z)+'</span><div class="rrd-ztrack"><div class="rrd-zfill" style="width:'+Math.max(9,x.n/zmax*100).toFixed(1)+'%"></div></div><span class="rrd-zn">'+x.n+'</span></div>').join(''):'<div class="rrd-zempty">Sin datos</div>')+'</div>';}
   // Pestañas de segmento (se muestran en la barra superior, centradas)
   function dashTabs(){
@@ -5549,7 +5555,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     const facReg2=!!_facDeGrupo(g);
     const _facActs=w=>{
       if(facReg2)return '<td class="rrd-facc"><span class="rrd-facok" data-tip="Factura registrada · aprobada"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span></td>';
-      if(_facMode){const on=_facSel.has(w.uid);return '<td class="rrd-facc"><button type="button" class="rrd-selchk'+(on?' on':'')+'" data-facsel="'+w.uid+'" data-tip="'+(on?'Entra en la factura':'No entra')+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></button></td>';}
+      if(_facMode){const on=_facSel.has(w.uid);return '<td class="rrd-facc"><button type="button" class="rrd-selchk'+(on?' on':'')+'" data-facsel="'+w.uid+'" data-tip="'+(on?'Aprobado':'Aprobar en la factura')+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></button></td>';}
       return '<td class="rrd-facc"><button class="rrd-facdel" data-dashdel="'+w.uid+'" data-tip="Eliminar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M10 11v6M14 11v6"/></svg></button></td>';};
     const _facRowCls=w=>(_facMode&&!_facSel.has(w.uid))?' class="rrd-row-out"':'';
     if(_dashSeg==='todos'){
@@ -5759,11 +5765,24 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     bd.querySelectorAll('.cancel-edit').forEach(b=>b.addEventListener('click',()=>{buildWork();render('toggle');}));
     const pr=bd.querySelector('.print');if(pr)pr.addEventListener('click',()=>{const t=totals();_cfPrint({id:null,tsNombre:g.ts,semanaDesde:wkObj?wkObj.desde:null,semanaHasta:wkObj?wkObj.hasta:null,clientes:g.lines,totalMonto:t.m,totalFlete:t.f,incTotal:t.inc,factura_id:(g.facturaId!=null?g.facturaId:null)});});
     // "Registrar factura" → entra en MODO SELECCIÓN (todos los repartos marcados por defecto)
-    const fac=bd.querySelector('.rrm-act--fac');if(fac)fac.addEventListener('click',()=>{if(!work.some(w=>!w.del)){showToast('No hay repartos pendientes para facturar');return;}_facSel=new Set(work.filter(w=>!w.del).map(w=>w.uid));_facMode=true;_dashSeg='todos';render('filter');});
-    // Cancelar la selección
-    bd.querySelectorAll('[data-faccancel]').forEach(b=>b.addEventListener('click',()=>{_facMode=false;render('filter');}));
-    // Continuar → abre el modal de factura con las LÍNEAS marcadas (una factura puede cubrir camiones sueltos)
-    bd.querySelectorAll('[data-faccontinue]').forEach(b=>b.addEventListener('click',()=>{const selW=work.filter(w=>!w.del&&_facSel.has(w.uid));if(!selW.length){showToast('Marcá al menos una línea');return;}const reps=selW.map(w=>({id:w.uid,repId:w.repId,cl:w.ref,fechaISO:w.fecha,flete:+w.precio||0}));_facMode=false;_cfOpenFacturaModal(null,{ts:g.ts,semDesde:wkObj.desde,semHasta:wkObj.hasta,reps:reps,preselected:true,perLine:true,onBack:()=>_rrOpenDetail(g,periodLbl,wkObj),onRegistered:facId=>{const grs=_rrGroups(_rrWeek);const fresh=grs.find(x=>x.ts===g.ts&&x.facturaId===facId)||grs.find(x=>x.ts===g.ts);if(fresh)_rrOpenDetail(fresh,periodLbl,wkObj);else renderReporteRepartos();}});}));
+    // Registrar factura: PRIMERO Nº+monto, después se aprueban las líneas contra ese monto
+    const fac=bd.querySelector('.rrm-act--fac');if(fac)fac.addEventListener('click',()=>{if(!work.some(w=>!w.del)){showToast('No hay repartos pendientes para facturar');return;}_cfOpenFacturaModal(null,{ts:g.ts,semDesde:wkObj.desde,semHasta:wkObj.hasta,captureOnly:true,onCapture:(nro,monto)=>{_facNro=nro;_facMonto=+monto||0;_facSel=new Set();_facMode=true;_dashSeg='todos';render('filter');}});});
+    // Cancelar la aprobación (descarta; nada se persiste hasta imprimir)
+    bd.querySelectorAll('[data-faccancel]').forEach(b=>b.addEventListener('click',()=>{_facMode=false;_facSel=new Set();_facMonto=0;_facNro='';render('filter');}));
+    // Imprimir (habilitado al conciliar): crea la factura, asigna las líneas aprobadas y luego imprime
+    bd.querySelectorAll('[data-facprint]').forEach(b=>b.addEventListener('click',async()=>{const selW=work.filter(w=>!w.del&&_facSel.has(w.uid));const tot=selW.reduce((s,w)=>s+(+w.precio||0),0);if(!(_facMonto>0&&tot===_facMonto)){showToast('El flete aprobado no coincide con la factura 🚫');return;}if(b.classList.contains('is-loading'))return;const _ov=b.innerHTML;b.classList.add('is-loading');b.disabled=true;b.innerHTML='<span class="cf-spin"></span>Registrando…';
+      try{const row={nro:_facNro,fecha:(typeof todayISO==='function'?todayISO():new Date().toISOString().slice(0,10)),monto:_facMonto,transportadora_nombre:g.ts,semana_desde:wkObj.desde,semana_hasta:wkObj.hasta};
+        const ins=await sb.from('fact_facturas').insert(row).select('id').single();if(ins.error)throw ins.error;const facId=ins.data&&ins.data.id;
+        const _aff=new Set();selW.forEach(w=>{if(w.ref){w.ref.factura_id=facId;if(w.repId!=null)_aff.add(w.repId);}});
+        for(const rid of _aff){const rr=repartos.find(x=>x.id===rid);if(rr){try{await dbUpdateClientes(rid,rr.clientes);}catch(_){}}}
+        try{const fr=await sb.from('fact_facturas').select('*');window.__cfFac=fr.data||[];}catch(_){}
+        const _mt=_facMonto;_facMode=false;_facSel=new Set();_facMonto=0;_facNro='';
+        _cfCheckBurst('Registrado',true);
+        const grs=_rrGroups(_rrWeek);const fresh=grs.find(x=>x.ts===g.ts&&x.facturaId===facId);
+        if(fresh){_cfPrint({id:facId,tsNombre:g.ts,semanaDesde:wkObj.desde,semanaHasta:wkObj.hasta,clientes:fresh.lines,totalMonto:_mt,totalFlete:fresh.flete,incTotal:null,factura_id:facId});_rrOpenDetail(fresh,periodLbl,wkObj);}
+        else renderReporteRepartos();
+      }catch(e){console.error(e);showToast('Uy, no pude registrar. Probá de nuevo.');b.disabled=false;b.classList.remove('is-loading');b.innerHTML=_ov;}
+    }));
     bd.querySelectorAll('.rre-vadd').forEach(b=>b.addEventListener('click',()=>{addRow(b.dataset.seg);render('add');}));
     bd.querySelectorAll('[data-editseg]').forEach(b=>b.addEventListener('click',()=>openSegEdit(b.dataset.editseg)));
     // Vista dashboard: pestañas + edición inline
@@ -5774,11 +5793,10 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     bd.querySelectorAll('[data-dashrow]').forEach(r=>r.addEventListener('click',e=>{if(e.target.closest('button')||e.target.closest('.rrd-facc'))return;if(_facMode){const w=W(r.dataset.dashrow);if(w)_facToggle(w.repId);return;}if(_facDeGrupo(g))return;_dashEnterEdit(_dashSeg);}));
     // Check verde→azul: confirmar que el reparto entra en la factura (con loader interno)
     // Modo selección: marcar/desmarcar qué repartos entran en la factura (in-place, sin re-render)
-    const _facUpdateBar=()=>{const cand=work.filter(w=>!w.del);const selN=cand.filter(w=>_facSel.has(w.uid)).length;const tot=cand.filter(w=>_facSel.has(w.uid)).reduce((s,w)=>s+(+w.precio||0),0);
-      const kv=bd.querySelector('.rrd-ktile--fac-sel b');if(kv)kv.textContent=_gs(tot);
-      const kc=bd.querySelector('.rrd-ktile--fac-sel .rrd-ktile__cnt');if(kc)kc.textContent=selN+' de '+cand.length+' líneas';
-      const kt=bd.querySelector('.rrd-ktile--fac-sel');if(kt)kt.classList.toggle('empty',selN===0);const gs2=window.gsap;if(kt&&gs2&&!reduce())gs2.fromTo(kt,{scale:1.025},{scale:1,duration:.3,ease:'power2.out'});
-      const cont=bd.querySelector('[data-faccontinue]');if(cont){cont.disabled=!selN;const ls=cont.querySelector('.rrm-selgo__lbl');if(ls)ls.textContent=(selN&&selN===cand.length)?'Registrar factura':('Continuar ('+selN+')');}};
+    const _facUpdateBar=()=>{const cand=work.filter(w=>!w.del);const selN=cand.filter(w=>_facSel.has(w.uid)).length;const tot=cand.filter(w=>_facSel.has(w.uid)).reduce((s,w)=>s+(+w.precio||0),0);const conc=(_facMonto>0&&tot===_facMonto);
+      const kt=bd.querySelector('.rrd-ktile--aprob');
+      if(kt){const kv=kt.querySelector('b');if(kv)kv.textContent=_gs(tot);const kc=kt.querySelector('.rrd-ktile__cnt');if(kc)kc.textContent=selN+' de '+cand.length+' líneas';kt.classList.toggle('ok',conc);kt.classList.toggle('over',_facMonto>0&&tot>_facMonto);const gs2=window.gsap;if(gs2&&!reduce())gs2.fromTo(kt,{scale:1.025},{scale:1,duration:.3,ease:'power2.out'});}
+      const pb=bd.querySelector('[data-facprint]');if(pb){pb.disabled=!conc;pb.setAttribute('title',conc?'':'Aprobá hasta que el flete coincida con la factura');}};
     const _facToggle=uid=>{uid=+uid;const on=!_facSel.has(uid);if(on)_facSel.add(uid);else _facSel.delete(uid);bd.querySelectorAll('[data-facsel="'+uid+'"]').forEach(btn=>{btn.classList.toggle('on',on);btn.setAttribute('data-tip',on?'Entra en la factura':'No entra');const tr=btn.closest('tr');if(tr)tr.classList.toggle('rrd-row-out',!on);const gs=window.gsap;if(gs&&!reduce())gs.fromTo(btn,{scale:.6},{scale:1,duration:.4,ease:'back.out(3)'});});_facUpdateBar();};
     bd.querySelectorAll('[data-facsel]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();_facToggle(b.dataset.facsel);}));
     bd.querySelectorAll('[data-facrow]').forEach(r=>r.addEventListener('click',e=>{if(e.target.closest('button'))return;_facToggle(r.dataset.facrow);}));
@@ -5845,11 +5863,11 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     const _cand=work.filter(w=>!w.del);
     const _selN=_cand.filter(w=>_facSel.has(w.uid)).length;
     const _selTot=_cand.filter(w=>_facSel.has(w.uid)).reduce((s,w)=>s+(+w.precio||0),0);
-    const _selFull=(_selN&&_selN===_cand.length);
+    const _conc=(_facMonto>0&&_selTot===_facMonto); // aprobado === factura → conciliado
     const acts=(editing||_facMode)?''
       :facBtn+'<button class="rrm-act rrm-act--print ok print"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6v-8z"/></svg> Imprimir</button>';
-    // En modo selección: Cancelar / Registrar centrados en la barra
-    const _selActs=_facMode?'<div class="rrd-selacts"><button class="rrm-act rrm-selcancel" data-faccancel="1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg> Cancelar</button><button class="rrm-act rrm-selgo" data-faccontinue="1"'+(_selN?'':' disabled')+'><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> <span class="rrm-selgo__lbl">'+(_selFull?'Registrar factura':'Continuar ('+_selN+')')+'</span></button></div>':'';
+    // Modo aprobación (post-registro): Cancelar + Imprimir (habilitado al conciliar)
+    const _selActs=_facMode?'<div class="rrd-selacts"><button class="rrm-act rrm-selcancel" data-faccancel="1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg> Cancelar</button><button class="rrm-act rrm-selgo" data-facprint="1"'+(_conc?'':' disabled')+' title="'+(_conc?'':'Aprobá hasta que el flete coincida con la factura')+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6v-8z"/></svg> Imprimir</button></div>':'';
     const _fkg=_facDeGrupo(g);const facMonto=_fkg?(+_fkg.monto||0):null;
     const facKpi='<div class="rrm-kpi rrm-kpi--fac"><span>Factura</span><b class="k-fac'+(facMonto==null?' k-nofac':'')+'">'+(facMonto!=null?_gs(facMonto):'Sin registros')+'</b></div>';
     bd.innerHTML=
