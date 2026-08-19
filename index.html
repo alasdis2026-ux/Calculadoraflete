@@ -2643,6 +2643,8 @@ document.getElementById('mCltMonto').addEventListener('keydown',e=>{if(e.key==='
 
 /* Save reparto */
 document.getElementById('btnGuardar').addEventListener('click',async()=>{
+  const _gb=document.getElementById('btnGuardar');
+  if(_gb&&_gb.dataset.saving==='1')return; // evita doble guardado
   const c=computeReparto();
   if(!c.clientes.length){showToast('¡Ojo! Agregá al menos un camión al reparto');return;}
   if(c.clientes.some(cl=>!cl.trId)){showToast('Falta elegir el camión en alguna fila');return;}
@@ -2670,6 +2672,8 @@ document.getElementById('btnGuardar').addEventListener('click',async()=>{
     clientes:c.clientes.map(cl=>({id:cl.id,trId:cl.trId,tsId:cl.tsId,trDesc:cl.trDesc,tsNombre:cl.tsNombre,seg:cl.seg||'local',rep:(cl.seg==='transportadora'?(cl.rep||null):(cl.rep||'Tercerizado')),zona:cl.zona||null,peso:cl.peso||0,km:cl.km||0,precioKm:cl.precioKm||0,fijo:!!cl.fijo,monto:cl.monto,precio:cl.precio,gasto:cl.gasto,inc:cl.inc,pct:cl.pct,factura_id:(cl.id!=null&&_prevCl[cl.id]&&_prevCl[cl.id].factura_id!=null)?_prevCl[cl.id].factura_id:null})),
   };
   const isNew=currentReparto.id===null;
+  const _gbOrig=_gb?_gb.innerHTML:'';
+  if(_gb){_gb.dataset.saving='1';_gb.disabled=true;_gb.classList.add('is-loading');_gb.innerHTML='<span class="cf-spin"></span> Guardando…';}
   try{
     const savedId=await dbSaveReparto(snap);
     snap.id=savedId;
@@ -2683,7 +2687,9 @@ document.getElementById('btnGuardar').addEventListener('click',async()=>{
     }
     _cfCheckBurst(isNew?'Reparto agregado':'Reparto actualizado',true);
   }catch(err){
-    showToast('Error al guardar reparto');
+    console.error('[guardar reparto]',err);showToast('Error al guardar reparto');
+  }finally{
+    if(_gb){_gb.dataset.saving='';_gb.disabled=false;_gb.classList.remove('is-loading');_gb.innerHTML=_gbOrig;}
   }
 });
 
