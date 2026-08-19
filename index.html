@@ -4308,14 +4308,16 @@ function showSaveAnim(text){
   .rrd-ktile__cnt--big svg{width:16px;height:16px;fill:none;stroke:currentColor}
   /* Tile "Flete total" partido en dos mitades (flete | camiones/segmento resaltado) */
   .rrd-ktile--split{padding:0;align-items:stretch;overflow:hidden}
-  .rrd-khalf{flex:1 1 0;display:flex;align-items:center;gap:12px;padding:15px 18px;min-width:0}
+  .rrd-khalf{flex:1 1 auto;display:flex;align-items:center;gap:13px;padding:16px 20px;min-width:0;white-space:nowrap}
   .rrd-khalf+.rrd-khalf{border-left:1px solid var(--gray-200,#e7edf3)}
-  .rrd-khalf .rrd-ktile__ic{width:42px;height:42px}
-  .rrd-khalf--accent{background:linear-gradient(135deg,#3b82f6,#2563eb);border-left-color:transparent}
+  .rrd-khalf .rrd-ktile__ic{width:44px;height:44px}
+  .rrd-khalf--accent{flex:0 0 auto;min-width:118px;background:linear-gradient(135deg,#3b82f6,#2563eb);border-left-color:transparent}
   .rrd-khalf--accent .rrd-ktile__ic{background:rgba(255,255,255,.2);color:#fff}
   .rrd-khalf.rrd-khalf--accent .rrd-ktile__tx small{color:rgba(255,255,255,.85)}
   .rrd-khalf.rrd-khalf--accent .rrd-ktile__tx b{color:#fff}
-  .rrd-resumen-bar .rrd-ktile--split{max-width:780px;flex:2.5 1 0;min-width:440px}
+  .rrd-resumen-bar .rrd-ktile--split{max-width:none;flex:2.8 1 0;min-width:540px}
+  .rrd-khalf .rrd-ktile__tx{overflow:visible}
+  .rrd-khalf .rrd-ktile__tx b{overflow:visible;text-overflow:clip}
   .rrd-khalf .rrd-ktile__tx b{white-space:nowrap;font-size:20px}
   @media(max-width:1200px){.rrd-resumen-bar .rrd-ktile--split{min-width:100%;flex-basis:100%}}
   .rrm-act--save{background:var(--primary);color:#fff;border-color:var(--primary);min-width:150px;justify-content:center}
@@ -4427,7 +4429,7 @@ function showSaveAnim(text){
   .rrd-tbl:not(.rrd-tbl--edit){width:auto;margin-left:auto;margin-right:auto}
   .rrd-resumen-bar{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:6px}
   .rrd-selacts{display:flex;gap:10px;justify-content:center;align-items:center}
-  .rrd-resumen-bar .rrd-ktile{flex:1 1 0;max-width:360px;min-width:220px;margin-bottom:0}
+  .rrd-resumen-bar .rrd-ktile{flex:1 1 0;max-width:300px;min-width:200px;margin-bottom:0}
   .rrd-tbl th{text-align:left;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-400,#94a3b8);padding:11px 14px;border-bottom:1.5px solid var(--gray-100,#f1f5f9);white-space:nowrap}
   .rrd-tbl th.r{text-align:right}
   .rrd-tbl td{padding:11px 14px;border-bottom:1px solid var(--gray-100,#f1f5f9);font-size:12.5px;color:var(--gray-700);white-space:nowrap}
@@ -4462,7 +4464,7 @@ function showSaveAnim(text){
   .rrd-ktile--k-fac::before{background:linear-gradient(90deg,#22c55e,#15803d)}
   .rrd-ktile:last-child{margin-bottom:0}
   .rrd-ktile:hover{transform:translateY(-2px)}
-  .rrd-ktile__ic{width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#eef6fc,#dbeafe);color:var(--primary);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:inset 0 1px 0 rgba(255,255,255,.6)}
+  .rrd-ktile__ic{width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#eef6fc,#dbeafe);color:var(--primary);display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid rgba(37,120,184,.1);box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 3px 8px rgba(37,120,184,.1)}
   .rrd-ktile__ic svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.9}
   .rrd-ktile__tx{display:flex;flex-direction:column;gap:2px;min-width:0}
   .rrd-ktile__tx small{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--gray-400,#94a3b8)}
