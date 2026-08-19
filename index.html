@@ -4296,7 +4296,8 @@ function showSaveAnim(text){
   .rrm-selgo:disabled{opacity:.5;pointer-events:none;box-shadow:none;transform:none}
   .rrm-selcancel:hover{background:var(--gray-50,#f8fafc)}
   /* KPI Factura resaltado en modo selección */
-  .rrd-ktile--fac-sel{background:linear-gradient(135deg,#3b82f6,#2563eb);border-color:transparent;box-shadow:0 10px 26px rgba(37,99,235,.34)}
+  .rrd-ktile--fac-sel{background:linear-gradient(135deg,#22c55e,#16a34a);border-color:transparent;box-shadow:0 10px 26px rgba(22,163,74,.34);transition:background .2s,box-shadow .2s}
+  .rrd-ktile--fac-sel.empty{background:linear-gradient(135deg,#ef4444,#dc2626);box-shadow:0 10px 26px rgba(220,38,38,.34)}
   .rrd-ktile--fac-sel .rrd-ktile__ic{background:rgba(255,255,255,.2);color:#fff}
   .rrd-ktile--fac-sel .rrd-ktile__tx small{color:rgba(255,255,255,.85)}
   .rrd-ktile--fac-sel .rrd-ktile__tx b{color:#fff}
@@ -4407,8 +4408,9 @@ function showSaveAnim(text){
   .rrd-hdlock{display:inline-flex;align-items:center;gap:6px;border:1.5px solid rgba(22,163,74,.22);background:rgba(34,197,94,.1);color:#15803d;border-radius:9px;padding:7px 12px;font-size:12px;font-weight:800}
   .rrd-tablewrap{overflow-x:auto}
   .rrd-tbl{width:100%;border-collapse:collapse}
-  .rrd-tbl:not(.rrd-tbl--edit) .rrd-grow{width:100%}
+  .rrd-tbl:not(.rrd-tbl--edit){width:auto;margin-left:auto;margin-right:auto}
   .rrd-resumen-bar{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:6px}
+  .rrd-selacts{display:flex;gap:10px;justify-content:center;align-items:center}
   .rrd-resumen-bar .rrd-ktile{flex:1 1 0;max-width:360px;min-width:220px;margin-bottom:0}
   .rrd-tbl th{text-align:left;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-400,#94a3b8);padding:11px 14px;border-bottom:1.5px solid var(--gray-100,#f1f5f9);white-space:nowrap}
   .rrd-tbl th.r{text-align:right}
@@ -5518,7 +5520,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     // En modo selección el KPI "Factura" muestra en vivo lo que vas tildando (total + X de N)
     let facTile;
     if(_facMode){const cand=work.filter(w=>!w.del);const selN=cand.filter(w=>_facSel.has(w.uid)).length;const tot=cand.filter(w=>_facSel.has(w.uid)).reduce((s,w)=>s+(+w.precio||0),0);
-      facTile=tile('rrd-ktile--fac-sel',CLIP,'Entrando en la factura',_gs(tot),'<span class="rrd-ktile__cnt">'+selN+' de '+cand.length+' líneas</span>');}
+      facTile=tile('rrd-ktile--fac-sel'+(selN===0?' empty':''),CLIP,'Entrando en la factura',_gs(tot),'<span class="rrd-ktile__cnt">'+selN+' de '+cand.length+' líneas</span>');}
     else facTile=tile('',CLIP,'Factura',fac!=null?_gs(fac):'Sin registros');
     return '<div class="rrd-resumen-bar">'+
       tile('rrd-ktile--flete',COINS,'Subtotal flete',_gs(sub))+
@@ -5775,7 +5777,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     const _facUpdateBar=()=>{const cand=work.filter(w=>!w.del);const selN=cand.filter(w=>_facSel.has(w.uid)).length;const tot=cand.filter(w=>_facSel.has(w.uid)).reduce((s,w)=>s+(+w.precio||0),0);
       const kv=bd.querySelector('.rrd-ktile--fac-sel b');if(kv)kv.textContent=_gs(tot);
       const kc=bd.querySelector('.rrd-ktile--fac-sel .rrd-ktile__cnt');if(kc)kc.textContent=selN+' de '+cand.length+' líneas';
-      const kt=bd.querySelector('.rrd-ktile--fac-sel');const gs2=window.gsap;if(kt&&gs2&&!reduce())gs2.fromTo(kt,{scale:1.025},{scale:1,duration:.3,ease:'power2.out'});
+      const kt=bd.querySelector('.rrd-ktile--fac-sel');if(kt)kt.classList.toggle('empty',selN===0);const gs2=window.gsap;if(kt&&gs2&&!reduce())gs2.fromTo(kt,{scale:1.025},{scale:1,duration:.3,ease:'power2.out'});
       const cont=bd.querySelector('[data-faccontinue]');if(cont){cont.disabled=!selN;const ls=cont.querySelector('.rrm-selgo__lbl');if(ls)ls.textContent=(selN&&selN===cand.length)?'Registrar factura':('Continuar ('+selN+')');}};
     const _facToggle=uid=>{uid=+uid;const on=!_facSel.has(uid);if(on)_facSel.add(uid);else _facSel.delete(uid);bd.querySelectorAll('[data-facsel="'+uid+'"]').forEach(btn=>{btn.classList.toggle('on',on);btn.setAttribute('data-tip',on?'Entra en la factura':'No entra');const tr=btn.closest('tr');if(tr)tr.classList.toggle('rrd-row-out',!on);const gs=window.gsap;if(gs&&!reduce())gs.fromTo(btn,{scale:.6},{scale:1,duration:.4,ease:'back.out(3)'});});_facUpdateBar();};
     bd.querySelectorAll('[data-facsel]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();_facToggle(b.dataset.facsel);}));
@@ -5844,10 +5846,10 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     const _selN=_cand.filter(w=>_facSel.has(w.uid)).length;
     const _selTot=_cand.filter(w=>_facSel.has(w.uid)).reduce((s,w)=>s+(+w.precio||0),0);
     const _selFull=(_selN&&_selN===_cand.length);
-    const acts=editing?'':(_facMode
-      ? '<button class="rrm-act rrm-selcancel" data-faccancel="1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg> Cancelar</button><button class="rrm-act rrm-selgo" data-faccontinue="1"'+(_selN?'':' disabled')+'><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> <span class="rrm-selgo__lbl">'+(_selFull?'Registrar factura':'Continuar ('+_selN+')')+'</span></button>'
-      : facBtn+'<button class="rrm-act rrm-act--print ok print"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6v-8z"/></svg> Imprimir</button>');
-    const facBar='';
+    const acts=(editing||_facMode)?''
+      :facBtn+'<button class="rrm-act rrm-act--print ok print"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6v-8z"/></svg> Imprimir</button>';
+    // En modo selección: Cancelar / Registrar centrados en la barra
+    const _selActs=_facMode?'<div class="rrd-selacts"><button class="rrm-act rrm-selcancel" data-faccancel="1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg> Cancelar</button><button class="rrm-act rrm-selgo" data-faccontinue="1"'+(_selN?'':' disabled')+'><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> <span class="rrm-selgo__lbl">'+(_selFull?'Registrar factura':'Continuar ('+_selN+')')+'</span></button></div>':'';
     const _fkg=_facDeGrupo(g);const facMonto=_fkg?(+_fkg.monto||0):null;
     const facKpi='<div class="rrm-kpi rrm-kpi--fac"><span>Factura</span><b class="k-fac'+(facMonto==null?' k-nofac':'')+'">'+(facMonto!=null?_gs(facMonto):'Sin registros')+'</b></div>';
     bd.innerHTML=
@@ -5855,7 +5857,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
         '<div class="rrd-left">'+back+'<div class="rrd-ttl"><h2>'+_escp(g.ts)+(editing?'<span class="rrd-edbadge"><i></i>Editando</span>':'')+'</h2><div class="rrm-pd">'+periodLbl+' · <span class="rrm-ncam">'+nCam+'</span> camiones</div></div></div>'+
         '<div class="rrd-acts">'+acts+'</div>'+
       '</div>'+
-      '<div class="rrd-bar">'+camFilterBar()+(_facMode?'':dashTabs())+'<div class="rrd-bar__sp"></div></div>'+
+      '<div class="rrd-bar">'+camFilterBar()+(_facMode?_selActs:dashTabs())+'<div class="rrd-bar__sp"></div></div>'+
       '<div class="rrm-body">'+dashBody()+'</div>';
     wire();
     const gs=window.gsap;
