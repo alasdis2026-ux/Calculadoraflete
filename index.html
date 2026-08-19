@@ -2652,6 +2652,8 @@ document.getElementById('btnGuardar').addEventListener('click',async()=>{
   const fDisp=new Date(fISO+'T00:00:00').toLocaleDateString('es-PY',{day:'2-digit',month:'long',year:'numeric'});
   const tsIds=[...new Set(c.clientes.map(cl=>cl.tsId).filter(Boolean))];
   const first=c.clientes.find(cl=>cl.trId)||c.clientes[0];
+  // Preservar factura_id de los clientes existentes (un camión nuevo NO hereda la factura)
+  const _prevCl={};if(currentReparto.id!=null){const _pr=(repartos||[]).find(r=>r.id===currentReparto.id);if(_pr)(_pr.clientes||[]).forEach(c=>{if(c&&c.id!=null)_prevCl[c.id]=c;});}
   const snap={
     id:currentReparto.id!==null?currentReparto.id:null,
     fecha:fDisp,fechaISO:fISO,
@@ -2665,7 +2667,7 @@ document.getElementById('btnGuardar').addEventListener('click',async()=>{
     totalMonto:c.totalMonto,incTotal:c.incTotal,
     gastoPermitido:c.gastoPermitido,diferencia:c.diferencia,
     zona:'',
-    clientes:c.clientes.map(cl=>({id:cl.id,trId:cl.trId,tsId:cl.tsId,trDesc:cl.trDesc,tsNombre:cl.tsNombre,seg:cl.seg||'local',rep:(cl.seg==='transportadora'?(cl.rep||null):(cl.rep||'Tercerizado')),zona:cl.zona||null,peso:cl.peso||0,km:cl.km||0,precioKm:cl.precioKm||0,fijo:!!cl.fijo,monto:cl.monto,precio:cl.precio,gasto:cl.gasto,inc:cl.inc,pct:cl.pct})),
+    clientes:c.clientes.map(cl=>({id:cl.id,trId:cl.trId,tsId:cl.tsId,trDesc:cl.trDesc,tsNombre:cl.tsNombre,seg:cl.seg||'local',rep:(cl.seg==='transportadora'?(cl.rep||null):(cl.rep||'Tercerizado')),zona:cl.zona||null,peso:cl.peso||0,km:cl.km||0,precioKm:cl.precioKm||0,fijo:!!cl.fijo,monto:cl.monto,precio:cl.precio,gasto:cl.gasto,inc:cl.inc,pct:cl.pct,factura_id:(cl.id!=null&&_prevCl[cl.id]&&_prevCl[cl.id].factura_id!=null)?_prevCl[cl.id].factura_id:null})),
   };
   const isNew=currentReparto.id===null;
   try{
