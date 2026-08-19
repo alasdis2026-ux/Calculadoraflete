@@ -5243,7 +5243,9 @@ function _cfOpenFacturaModal(existing,preset){
     sel={ts:existing.transportadora_nombre,semDesde:sd,semHasta:existing.semana_hasta||_wkHasta(sd),flete:_fleteDe(existing.transportadora_nombre,sd)};
   }
   if(!sel&&preset&&preset.ts&&preset.semDesde){
-    sel={ts:preset.ts,semDesde:preset.semDesde,semHasta:preset.semHasta||_wkHasta(preset.semDesde),flete:_fleteDe(preset.ts,preset.semDesde)};
+    // Si viene desde una planilla PENDIENTE, usar su flete (solo esas líneas), no el de toda la
+    // transportadora+semana (que sumaría también las líneas de la planilla ya cerrada).
+    sel={ts:preset.ts,semDesde:preset.semDesde,semHasta:preset.semHasta||_wkHasta(preset.semDesde),flete:(preset.flete!=null?+preset.flete:_fleteDe(preset.ts,preset.semDesde))};
   }
   // "Bloqueado" = vino desde una planilla: la planilla ya está fija (sin "Cambiar") y el botón dice "Regresar"
   const locked=!editing&&!!(preset&&preset.ts&&preset.semDesde);
@@ -5893,7 +5895,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     const pr=bd.querySelector('.print');if(pr)pr.addEventListener('click',()=>{const t=totals();_cfPrint({id:null,tsNombre:g.ts,semanaDesde:wkObj?wkObj.desde:null,semanaHasta:wkObj?wkObj.hasta:null,clientes:g.lines,totalMonto:t.m,totalFlete:t.f,incTotal:t.inc,factura_id:(g.facturaId!=null?g.facturaId:null)});});
     // "Registrar factura" → entra en MODO SELECCIÓN (todos los repartos marcados por defecto)
     // Registrar factura: PRIMERO Nº+monto, después se aprueban las líneas contra ese monto
-    const fac=bd.querySelector('.rrm-act--fac');if(fac)fac.addEventListener('click',()=>{if(!work.some(w=>!w.del)){showToast('No hay repartos pendientes para facturar');return;}_cfOpenFacturaModal(null,{ts:g.ts,semDesde:wkObj.desde,semHasta:wkObj.hasta,captureOnly:true,onCapture:(nro,monto)=>{_facNro=nro;_facMonto=+monto||0;_facSel=new Set();_facMode=true;_dashSeg='todos';render('filter');}});});
+    const fac=bd.querySelector('.rrm-act--fac');if(fac)fac.addEventListener('click',()=>{if(!work.some(w=>!w.del)){showToast('No hay repartos pendientes para facturar');return;}_cfOpenFacturaModal(null,{ts:g.ts,semDesde:wkObj.desde,semHasta:wkObj.hasta,flete:work.filter(w=>!w.del).reduce((s,w)=>s+(+w.precio||0),0),captureOnly:true,onCapture:(nro,monto)=>{_facNro=nro;_facMonto=+monto||0;_facSel=new Set();_facMode=true;_dashSeg='todos';render('filter');}});});
     // Cancelar la aprobación (descarta; nada se persiste hasta imprimir)
     bd.querySelectorAll('[data-faccancel]').forEach(b=>b.addEventListener('click',()=>{_facMode=false;_facSel=new Set();_facMonto=0;_facNro='';render('filter');}));
     // Imprimir (habilitado al conciliar): crea la factura, asigna las líneas aprobadas y luego imprime
