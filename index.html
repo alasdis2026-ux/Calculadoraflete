@@ -4303,7 +4303,9 @@ function showSaveAnim(text){
   .rrd-ktile--aprob .rrd-ktile__tx small{color:rgba(255,255,255,.85)}
   .rrd-ktile--aprob .rrd-ktile__tx b{color:#fff}
   .rrd-ktile__cnt{display:inline-flex;align-items:center;gap:5px;width:fit-content;margin-top:5px;font-size:10.5px;font-weight:800;letter-spacing:.2px;color:#fff;background:rgba(255,255,255,.2);padding:3px 10px;border-radius:999px}
-  .rrd-ktile__cnt--dark{color:var(--gray-500,#64748b);background:var(--gray-100,#f3f6f9);border:1px solid var(--gray-200,#e7edf3)}
+  .rrd-ktile__cnt--dark{color:#0B5F8D;background:linear-gradient(180deg,#eef6fc,#e3eefb);border:1px solid rgba(37,120,184,.16)}
+  .rrd-ktile__cnt--big{font-size:12.5px;padding:5px 13px;gap:7px;margin-top:8px;box-shadow:0 2px 6px rgba(11,95,141,.08)}
+  .rrd-ktile__cnt--big svg{width:16px;height:16px;fill:none;stroke:currentColor}
   .rrm-act--save{background:var(--primary);color:#fff;border-color:var(--primary);min-width:150px;justify-content:center}
   .rrm-act--save:hover{background:#0a4f75;border-color:#0a4f75;color:#fff;transform:translateY(-1px);box-shadow:0 8px 20px rgba(11,95,141,.34)}
   .rrm-act--save:active{transform:translateY(0) scale(.98)}
@@ -4430,7 +4432,7 @@ function showSaveAnim(text){
   .rrd-fec{color:var(--gray-500);font-variant-numeric:tabular-nums}
   .rrd-det{color:var(--gray-500);font-size:12px}
   .rrd-flete{font-weight:800;color:#15803d;font-variant-numeric:tabular-nums;font-size:12px}
-  .rrd-tbl td.rrd-flete{padding-left:6px;padding-right:8px}
+  .rrd-tbl td.rrd-flete{padding-left:6px;padding-right:8px;color:#15803d;font-size:13px}
   .rrd-calic{display:inline-flex;width:15px;height:15px;color:var(--gray-400);margin-right:7px;vertical-align:-2px}
   .rrd-calic svg{width:15px;height:15px}
   .rrd-fec{color:var(--gray-600);font-variant-numeric:tabular-nums;white-space:nowrap}
@@ -4450,10 +4452,13 @@ function showSaveAnim(text){
   .rrd-ktile__tx{display:flex;flex-direction:column;gap:2px;min-width:0}
   .rrd-ktile__tx small{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--gray-400,#94a3b8)}
   .rrd-ktile__tx b{font-family:Sora,Inter,sans-serif;font-size:22px;font-weight:800;color:var(--gray-900,#0f172a);line-height:1.08;font-variant-numeric:tabular-nums;overflow:hidden;text-overflow:ellipsis}
+  /* Colores por KPI (tarjeta blanca): flete total/aprobado azul oscuro, factura verde oscuro */
+  .rrd-ktile--k-aprob .rrd-ktile__tx b,.rrd-ktile--k-total .rrd-ktile__tx b{color:#0B5F8D}
+  .rrd-ktile--k-fac .rrd-ktile__tx b{color:#15803d}
   .rrd-ktile--flete{background:linear-gradient(135deg,#2578b8,#0B5F8D);border-color:transparent;box-shadow:0 10px 26px rgba(11,95,141,.3)}
   .rrd-ktile--flete .rrd-ktile__ic{background:rgba(255,255,255,.18);color:#fff}
   .rrd-ktile--flete .rrd-ktile__tx small{color:rgba(255,255,255,.82)}
-  .rrd-ktile--flete .rrd-ktile__tx b{color:#fff}
+  .rrd-ktile.rrd-ktile--flete .rrd-ktile__tx b,.rrd-ktile.rrd-ktile--aprob .rrd-ktile__tx b{color:#fff}
   /* Edición inline */
   .rrd-tbl--edit td{padding:6px 10px}
   .rrd-fin{width:100%;min-width:0;border:1.5px solid rgba(37,120,184,.26);border-radius:8px;padding:7px 9px;font:inherit;font-size:12.5px;color:var(--gray-800);background:rgba(37,120,184,.06);outline:none;transition:border-color .14s,background .14s,box-shadow .14s}
@@ -5527,12 +5532,13 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     let aprobTile;
     if(_facMode){const cand=work.filter(w=>!w.del);const selN=cand.filter(w=>_facSel.has(w.uid)).length;const tot=cand.filter(w=>_facSel.has(w.uid)).reduce((s,w)=>s+(+w.precio||0),0);
       const st=(_facMonto>0&&tot===_facMonto)?' ok':(_facMonto>0&&tot>_facMonto?' over':'');
-      aprobTile=tile('rrd-ktile--aprob'+st,CHECK,'Flete aprobado',_gs(tot),'<span class="rrd-ktile__cnt">'+selN+' de '+cand.length+' líneas</span>');}
-    else aprobTile=tile(facReg!=null?'rrd-ktile--flete':'',CHECK,'Flete aprobado',_gs(facReg!=null?sub:0));
+      aprobTile=tile('rrd-ktile--k-aprob rrd-ktile--aprob'+st,CHECK,'Flete aprobado',_gs(tot),'<span class="rrd-ktile__cnt">'+selN+' de '+cand.length+' líneas</span>');}
+    else aprobTile=tile('rrd-ktile--k-aprob'+(facReg!=null?' rrd-ktile--flete':''),CHECK,'Flete aprobado',_gs(facReg!=null?sub:0));
     // 2) Factura — el monto registrado (o en aprobación, el monto capturado)
-    const facTile=tile('',CLIP,'Factura',_facMode?_gs(_facMonto):(facReg!=null?_gs(facReg):'Sin registros'));
-    // 3) Flete total + cantidad de camiones al lado
-    const totalTile=tile('',TRUCKICON,'Flete total',_gs(sub),'<span class="rrd-ktile__cnt rrd-ktile__cnt--dark">'+_nnum(nCam)+' camiones</span>');
+    const facTile=tile('rrd-ktile--k-fac',CLIP,'Factura',_facMode?_gs(_facMonto):(facReg!=null?_gs(facReg):'Sin registros'));
+    // 3) Flete total + cantidad de camiones al lado (chip más grande, con mini camión)
+    const TRUCKMINI='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6.5" width="11.5" height="8.5" rx="1.5"/><path d="M13 9h3.6l3.9 3.9V15H13z"/><circle cx="5.8" cy="17.5" r="1.7"/><circle cx="17.6" cy="17.5" r="1.7"/></svg>';
+    const totalTile=tile('rrd-ktile--k-total',TRUCKICON,'Flete total',_gs(sub),'<span class="rrd-ktile__cnt rrd-ktile__cnt--dark rrd-ktile__cnt--big">'+TRUCKMINI+_nnum(nCam)+' camiones</span>');
     return '<div class="rrd-resumen-bar">'+aprobTile+facTile+totalTile+'</div>';}
   function _dashChart(items,isServ){const zc={};items.forEach(w=>{const z=w.zona||(isServ&&w.obs)||'—';if(z&&z!=='—')zc[z]=(zc[z]||0)+1;});const zarr=Object.keys(zc).map(z=>({z,n:zc[z]})).sort((a,b)=>b.n-a.n).slice(0,7);const zmax=Math.max(1,...zarr.map(x=>x.n));return '<div class="rrd-card rrd-zonas"><div class="rrd-card__t">'+(isServ?'Servicios más frecuentes':'Zonas más frecuentes')+'</div>'+(zarr.length?zarr.map(x=>'<div class="rrd-zrow"><span class="rrd-zname" title="'+_escp(x.z)+'">'+_escp(x.z)+'</span><div class="rrd-ztrack"><div class="rrd-zfill" style="width:'+Math.max(9,x.n/zmax*100).toFixed(1)+'%"></div></div><span class="rrd-zn">'+x.n+'</span></div>').join(''):'<div class="rrd-zempty">Sin datos</div>')+'</div>';}
   // Pestañas de segmento (se muestran en la barra superior, centradas)
