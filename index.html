@@ -4315,7 +4315,9 @@ function showSaveAnim(text){
   .rrd-khalf--accent .rrd-ktile__ic{background:rgba(255,255,255,.2);color:#fff}
   .rrd-khalf.rrd-khalf--accent .rrd-ktile__tx small{color:rgba(255,255,255,.85)}
   .rrd-khalf.rrd-khalf--accent .rrd-ktile__tx b{color:#fff}
-  .rrd-resumen-bar .rrd-ktile--split{max-width:640px;flex:1.9 1 0}
+  .rrd-resumen-bar .rrd-ktile--split{max-width:780px;flex:2.5 1 0;min-width:440px}
+  .rrd-khalf .rrd-ktile__tx b{white-space:nowrap;font-size:20px}
+  @media(max-width:1200px){.rrd-resumen-bar .rrd-ktile--split{min-width:100%;flex-basis:100%}}
   .rrm-act--save{background:var(--primary);color:#fff;border-color:var(--primary);min-width:150px;justify-content:center}
   .rrm-act--save:hover{background:#0a4f75;border-color:#0a4f75;color:#fff;transform:translateY(-1px);box-shadow:0 8px 20px rgba(11,95,141,.34)}
   .rrm-act--save:active{transform:translateY(0) scale(.98)}
@@ -5549,12 +5551,11 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     // 3) Flete total + píldora segmentada de camiones por segmento (estilo stat, 1er segmento resaltado)
     const SEGIC={local:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>',interior:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V9l6-3v3l6-3v15"/><path d="M15 21V6l6 3v12"/><path d="M6 12h.01M6 16h.01M12 12h.01M12 16h.01M18 13h.01M18 17h.01"/></svg>',servicios:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 01-5.4 5.4L4 17v3h3l5.3-5.3a4 4 0 015.4-5.4l-2.5 2.5-2-2 2.5-2.5z"/></svg>',transportadora:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6.5" width="11.5" height="8.5" rx="1.5"/><path d="M13 9h3.6l3.9 3.9V15H13z"/><circle cx="5.8" cy="17.5" r="1.7"/><circle cx="17.6" cy="17.5" r="1.7"/></svg>'};
     const _pres=SEGL.filter(sk=>work.some(w=>!w.del&&w.seg===sk));
-    const _mul=_pres.length>1;const _rk=_pres[0]||'local';
-    const _rIc=_mul?TRUCKICON:SEGIC[_rk];const _rLbl=_mul?'Camiones':SEGN[_rk];
-    // Tile "Flete total" alargado, mitad izquierda (flete) + mitad derecha resaltada (camiones)
+    const _mul=_pres.length>1;const _rLbl=_mul?'Camiones':SEGN[_pres[0]||'local'];
+    // Tile "Flete total" alargado, mitad izquierda (flete, ícono $) + mitad derecha resaltada (camiones, ícono camión)
     const totalTile='<div class="rrd-ktile rrd-ktile--k-total rrd-ktile--split">'+
-      '<div class="rrd-khalf"><span class="rrd-ktile__ic">'+TRUCKICON+'</span><div class="rrd-ktile__tx"><small>Flete total</small><b>'+_gs(sub)+'</b></div></div>'+
-      '<div class="rrd-khalf rrd-khalf--accent"><span class="rrd-ktile__ic">'+_rIc+'</span><div class="rrd-ktile__tx"><small>'+_rLbl+'</small><b>'+_nnum(nCam)+'</b></div></div>'+
+      '<div class="rrd-khalf"><span class="rrd-ktile__ic">'+COINS+'</span><div class="rrd-ktile__tx"><small>Flete total</small><b>'+_gs(sub)+'</b></div></div>'+
+      '<div class="rrd-khalf rrd-khalf--accent"><span class="rrd-ktile__ic">'+TRUCKICON+'</span><div class="rrd-ktile__tx"><small>'+_rLbl+'</small><b>'+_nnum(nCam)+'</b></div></div>'+
       '</div>';
     return '<div class="rrd-resumen-bar">'+aprobTile+facTile+totalTile+'</div>';}
   function _dashChart(items,isServ){const zc={};items.forEach(w=>{const z=w.zona||(isServ&&w.obs)||'—';if(z&&z!=='—')zc[z]=(zc[z]||0)+1;});const zarr=Object.keys(zc).map(z=>({z,n:zc[z]})).sort((a,b)=>b.n-a.n).slice(0,7);const zmax=Math.max(1,...zarr.map(x=>x.n));return '<div class="rrd-card rrd-zonas"><div class="rrd-card__t">'+(isServ?'Servicios más frecuentes':'Zonas más frecuentes')+'</div>'+(zarr.length?zarr.map(x=>'<div class="rrd-zrow"><span class="rrd-zname" title="'+_escp(x.z)+'">'+_escp(x.z)+'</span><div class="rrd-ztrack"><div class="rrd-zfill" style="width:'+Math.max(9,x.n/zmax*100).toFixed(1)+'%"></div></div><span class="rrd-zn">'+x.n+'</span></div>').join(''):'<div class="rrd-zempty">Sin datos</div>')+'</div>';}
