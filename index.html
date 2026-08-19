@@ -4440,18 +4440,18 @@ function showSaveAnim(text){
   .segmodal-hd p{margin:0;font-size:13px;color:var(--gray-500,#64748b)}
   .segmodal-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px}
   .segmodal-card{position:relative;display:flex;flex-direction:column;align-items:center;gap:9px;padding:22px 14px 18px;border:1.5px solid var(--gray-200,#e7edf3);border-radius:16px;background:#fff;cursor:pointer;transition:transform .16s cubic-bezier(.34,1.5,.6,1),border-color .16s,box-shadow .16s}
-  .segmodal-card:hover{transform:translateY(-2px);border-color:#1e40af;box-shadow:0 10px 24px rgba(30,58,138,.16)}
+  .segmodal-card:hover{transform:translateY(-2px);border-color:#0B5F8D;box-shadow:0 10px 24px rgba(11,95,141,.18)}
   .segmodal-card:active{transform:translateY(0) scale(.99)}
-  .segmodal-card.sug{border-color:#1e40af;box-shadow:0 8px 22px rgba(30,58,138,.14)}
-  .segmodal-ic{width:60px;height:60px;border-radius:17px;display:flex;align-items:center;justify-content:center;color:#fff;background:linear-gradient(135deg,#1d4ed8,#1e3a8a);box-shadow:0 7px 16px rgba(30,58,138,.35),inset 0 1px 0 rgba(255,255,255,.22);transition:transform .18s ease}
+  .segmodal-card.sug{border-color:#0B5F8D;box-shadow:0 8px 22px rgba(11,95,141,.15)}
+  .segmodal-ic{width:60px;height:60px;border-radius:17px;display:flex;align-items:center;justify-content:center;color:#fff;background:linear-gradient(135deg,#2578b8,#0B5F8D);box-shadow:0 7px 16px rgba(11,95,141,.35),inset 0 1px 0 rgba(255,255,255,.22);transition:transform .18s ease}
   .segmodal-card:hover .segmodal-ic{transform:scale(1.04)}
   .segmodal-ic svg{width:28px;height:28px}
   .segmodal-card[data-seg="local"] .segmodal-ic svg{width:25px;height:25px}
   .segmodal-card[data-seg="interior"] .segmodal-ic svg{width:33px;height:33px}
   .segmodal-card[data-seg="servicios"] .segmodal-ic svg{width:31px;height:31px}
   .segmodal-nm{font-weight:800;font-size:15.5px;color:var(--gray-900,#0f172a)}
-  .segmodal-cnt{font-size:11.5px;font-weight:700;color:#1e40af}
-  .segmodal-sug{position:absolute;top:-9px;right:12px;font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:#fff;background:linear-gradient(135deg,#1d4ed8,#1e3a8a);padding:3px 9px;border-radius:999px;box-shadow:0 4px 10px rgba(30,58,138,.4)}
+  .segmodal-cnt{font-size:11.5px;font-weight:700;color:#0B5F8D}
+  .segmodal-sug{position:absolute;top:-9px;right:12px;font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:#fff;background:linear-gradient(135deg,#2578b8,#0B5F8D);padding:3px 9px;border-radius:999px;box-shadow:0 4px 10px rgba(11,95,141,.4)}
   .rrd-tablewrap{overflow-x:auto}
   .rrd-tbl{width:100%;border-collapse:collapse}
   .rrd-tbl:not(.rrd-tbl--edit){width:auto;margin-left:auto;margin-right:auto}
@@ -5566,9 +5566,8 @@ function _rrOpenDetail(g,periodLbl,wkObj){
   function _dashPickSeg(isAdd){if(_facDeGrupo(g)){showToast('Esta planilla ya está facturada · no se puede modificar');return;}const present=SEGL.filter(sk=>work.some(w=>!w.del&&w.seg===sk));if(present.length<=1){_dashEnterEdit(present[0]||'local',isAdd);return;}_openSegModal(present,isAdd);}
   function _openSegModal(segs,isAdd){
     const SEGICON={local:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="9" height="7" rx="1"/><path d="M12 10h3.5l3 3V15H12z"/><circle cx="6.5" cy="17" r="1.5"/><circle cx="15.5" cy="17" r="1.5"/></svg>',interior:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="5.5" width="13" height="10" rx="1"/><path d="M14 8.5h4.2l3.8 3.8V15.5H14z"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/></svg>',servicios:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v2.6M12 18.9v2.6M2.5 12h2.6M18.9 12h2.6M5.2 5.2l1.9 1.9M16.9 16.9l1.9 1.9M18.8 5.2l-1.9 1.9M7.1 16.9l-1.9 1.9"/></svg>',transportadora:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="5.5" width="13" height="10" rx="1"/><path d="M14 8.5h4.2l3.8 3.8V15.5H14z"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/></svg>'};
-    let sug=segs[0],sugN=-1;segs.forEach(sk=>{const n=work.filter(w=>!w.del&&w.seg===sk).reduce((a,w)=>a+camCount(w),0);if(n>sugN){sugN=n;sug=sk;}});
     const ov=document.createElement('div');ov.className='segmodal-ov';
-    ov.innerHTML='<div class="segmodal"><button class="segmodal-x" aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button><div class="segmodal-hd"><h3>Elegir segmento</h3><p>'+(isAdd?'¿Dónde querés añadir?':'¿Qué segmento editás?')+'</p></div><div class="segmodal-grid">'+segs.map(sk=>{const n=work.filter(w=>!w.del&&w.seg===sk).reduce((a,w)=>a+camCount(w),0);return '<button class="segmodal-card'+(sk===sug?' sug':'')+'" data-seg="'+sk+'"><span class="segmodal-ic">'+SEGICON[sk]+'</span><span class="segmodal-nm">'+SEGN[sk]+'</span><span class="segmodal-cnt">'+n+' camión'+(n===1?'':'es')+'</span>'+(sk===sug?'<span class="segmodal-sug">Sugerido</span>':'')+'</button>';}).join('')+'</div></div>';
+    ov.innerHTML='<div class="segmodal"><button class="segmodal-x" aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button><div class="segmodal-hd"><h3>Elegir segmento</h3><p>'+(isAdd?'¿Dónde querés añadir?':'¿Qué segmento editás?')+'</p></div><div class="segmodal-grid">'+segs.map(sk=>{const n=work.filter(w=>!w.del&&w.seg===sk).reduce((a,w)=>a+camCount(w),0);return '<button class="segmodal-card" data-seg="'+sk+'"><span class="segmodal-ic">'+SEGICON[sk]+'</span><span class="segmodal-nm">'+SEGN[sk]+'</span><span class="segmodal-cnt">'+n+' camión'+(n===1?'':'es')+'</span></button>';}).join('')+'</div></div>';
     document.body.appendChild(ov);
     const gs=window.gsap;
     const close=()=>{if(gs&&!reduce()){gs.to(ov.querySelector('.segmodal'),{scale:.94,y:8,opacity:0,duration:.18,ease:'power2.in'});gs.to(ov,{opacity:0,duration:.2,ease:'power2.in',onComplete:()=>ov.remove()});}else ov.remove();};
