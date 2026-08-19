@@ -3400,7 +3400,8 @@ async function calSaveEdit(){
       if(!calDayRepartos().length){closeCalModal();return;}
       renderCalDay('toggle');return;
     }
-    const newClientes=rows.map(function(w){const tr=(ts.trucks||[]).find(t=>t.id===w.trId);const kmEntered=+w.km||0;const isIntFijo=w.seg==='interior'&&(!!w.fijo||!(kmEntered>0));const km=(w.seg==='interior'&&!isIntFijo)?kmEntered:0;const pkm=(km>0&&+w.precio>0)?Math.round(+w.precio/km):0;return {id:w.cId||nextClienteId++,trId:w.trId,tsId:w.tsId||r.tsId,tsNombre:w.tsNombre||r.tsNombre,seg:w.seg,rep:(w.rep||'').trim()||'Tercerizado',zona:(w.zona||'').trim()||null,peso:+w.peso||0,km:km,precioKm:pkm,fijo:isIntFijo,obs:w.obs||null,cant:w.cant||null,monto:w.monto,precio:w.precio,gasto:w.precio,trDesc:tr?tr.d:(w.trDesc||''),pct:0,inc:(w.monto>0&&w.precio>0?w.precio/w.monto*100:null)};});
+    const _origMap={};(r.clientes||[]).forEach(c=>{if(c&&c.id!=null)_origMap[c.id]=c;});
+    const newClientes=rows.map(function(w){const tr=(ts.trucks||[]).find(t=>t.id===w.trId);const kmEntered=+w.km||0;const isIntFijo=w.seg==='interior'&&(!!w.fijo||!(kmEntered>0));const km=(w.seg==='interior'&&!isIntFijo)?kmEntered:0;const pkm=(km>0&&+w.precio>0)?Math.round(+w.precio/km):0;const _o=w.cId!=null?_origMap[w.cId]:null;return {id:w.cId||nextClienteId++,trId:w.trId,tsId:w.tsId||r.tsId,tsNombre:w.tsNombre||r.tsNombre,seg:w.seg,rep:(w.rep||'').trim()||'Tercerizado',zona:(w.zona||'').trim()||null,peso:+w.peso||0,km:km,precioKm:pkm,fijo:isIntFijo,obs:w.obs||null,cant:w.cant||null,monto:w.monto,precio:w.precio,gasto:w.precio,trDesc:tr?tr.d:(w.trDesc||''),pct:0,inc:(w.monto>0&&w.precio>0?w.precio/w.monto*100:null),factura_id:(_o&&_o.factura_id!=null)?_o.factura_id:null};});
     const tM=newClientes.reduce((s,c)=>s+(+c.monto||0),0);
     const tF=newClientes.reduce((s,c)=>s+(+c.precio||0),0);
     const iT=tM>0?tF/tM*100:null;const gp=Math.round(tM*0.03);const dif=tF-gp;
