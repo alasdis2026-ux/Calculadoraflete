@@ -5073,7 +5073,12 @@ function _facRegistradaDe(ts,semDesde){if(!semDesde)return false;return !!(windo
 // Monto de la factura registrada de una planilla (null si no hay)
 function _facMontoDe(ts,semDesde){if(!semDesde)return null;const f=(window.__cfFac||[]).find(x=>(x.transportadora_nombre||'')===ts&&(x.semana_desde||'')===semDesde);return f?(+f.monto||0):null;}
 // ¿La transportadora ya tiene facturas explícitas (por reparto) en esa semana? (split iniciado)
-function _tsFacSplit(ts,semDesde){if(!semDesde)return false;return (repartos||[]).some(r=>{if(!r.fechaISO||r.factura_id==null)return false;const wk=(typeof isoWeekRange==='function')?isoWeekRange(r.fechaISO):null;if(!wk||wk.desde!==semDesde)return false;const f=(window.__cfFac||[]).find(x=>x.id===r.factura_id);return f&&(f.transportadora_nombre||'')===ts;});}
+function _tsFacSplit(ts,semDesde){if(!semDesde)return false;return (repartos||[]).some(r=>{if(!r.fechaISO)return false;const wk=(typeof isoWeekRange==='function')?isoWeekRange(r.fechaISO):null;if(!wk||wk.desde!==semDesde)return false;
+  // Factura a nivel reparto (legacy viejo)
+  if(r.factura_id!=null){const f=(window.__cfFac||[]).find(x=>x.id===r.factura_id);if(f&&(f.transportadora_nombre||'')===ts)return true;}
+  // Factura POR LÍNEA (flujo nuevo): si ALGUNA línea de esta transportadora ya tiene factura_id,
+  // esta semana ya usa facturación por-línea → se apaga el match "legacy" (que absorbía repartos nuevos).
+  return (r.clientes||[]).some(cl=>{if(cl.factura_id==null)return false;const own=cl.trId?tsOfTruck(cl.trId):null;const cts=(own&&own.n)||cl.tsNombre||'—';if(cts!==ts)return false;const f=(window.__cfFac||[]).find(x=>x.id===cl.factura_id);return f&&(f.transportadora_nombre||'')===ts;});});}
 // Factura "legacy" (por ts+semana) que cubre lo pendiente, salvo que ya se esté dividiendo esa semana.
 function _facLegacy(ts,semDesde){if(!semDesde||_tsFacSplit(ts,semDesde))return null;return (window.__cfFac||[]).find(x=>(x.transportadora_nombre||'')===ts&&(x.semana_desde||'')===semDesde)||null;}
 // Factura del grupo: por factura_id explícito, o legacy (ts+semana) si no hay split.
@@ -5635,8 +5640,9 @@ function _rrOpenDetail(g,periodLbl,wkObj){
   function dashBody(){
     const segsPresent=SEGL.filter(sk=>work.some(w=>!w.del&&w.seg===sk));
     if(!segsPresent.length)return '<div class="rre-board"><div class="rre-board-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 3h13v13H1zm13 5h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg><b>Todavía no hay servicios cargados</b><span>Usá «+ Servicio de reparto» para empezar.</span></div></div>';
-    if(_dashEdit&&!segsPresent.includes(_dashSeg)){_dashEdit=false;_dashDraft=null;}
-    if(!_dashSeg||(_dashSeg!=='todos'&&!segsPresent.includes(_dashSeg)))_dashSeg=segsPresent[0];
+    // Si estamos editando un segmento NUEVO (aún sin líneas en work), no cancelar la edición ni
+    // resetear _dashSeg: el borrador (_dashDraft) tiene las filas nuevas y debe seguir mostrándose.
+    if(!_dashEdit&&(!_dashSeg||(_dashSeg!=='todos'&&!segsPresent.includes(_dashSeg))))_dashSeg=segsPresent[0];
     const SEGDOT={local:'#38BDF8',interior:'#F97316',servicios:'#10B981',transportadora:'#7c3aed'};
     const CAL='<span class="rrd-calic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4.5" width="18" height="17" rx="2.5"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/></svg></span>';
     const dfec=w=>'<td class="rrd-fec">'+CAL+(w.fecha?String(w.fecha).slice(0,10).split('-').reverse().slice(0,2).join('/'):'—')+'</td>';
@@ -5914,11 +5920,11 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     bd.querySelectorAll('.rrd-fobs').forEach(i=>i.addEventListener('input',()=>{const d=_DD(i.dataset.dk);if(d)d.obs=i.value;}));
     bd.querySelectorAll('.rrd-erowdel').forEach(b=>b.addEventListener('click',()=>{const d=_DD(b.dataset.dk);if(!d)return;const tr=b.closest('tr'),gs=window.gsap;const go=()=>{d.del=true;render('filter');};if(gs&&tr)gs.to(tr,{opacity:0,x:22,duration:.2,ease:'power2.in',onComplete:go});else go();}));
     // Cambiar de segmento un reparto (mueve la línea a Local/Interior/Servicios y guarda)
-    bd.querySelectorAll('.rrd-segpick').forEach(b=>b.addEventListener('click',()=>{const d=_DD(b.dataset.segpick);if(!d)return;openChipPop(b,{value:d.seg||_dashSeg,options:[['local','Local'],['interior','Interior'],['servicios','Servicios']].map(s=>({v:s[0],label:s[1]})),onPick:v=>{if(v){d.seg=v;render('filter');}}});}));
+    bd.querySelectorAll('.rrd-segpick').forEach(b=>b.addEventListener('click',()=>{const d=_DD(b.dataset.segpick);if(!d)return;openChipPop(b,{value:d.seg||_dashSeg,options:[['local','Local'],['interior','Interior'],['servicios','Servicios']].map(s=>({v:s[0],label:s[1]})),onPick:v=>{if(v){d.seg=v;if(d.zona&&!_zonasFor(v).some(z=>z.n===d.zona))d.zona='';render('filter');}}});}));
     bd.querySelectorAll('.rrd-tbl--edit .xls-pick:not(.rrd-segpick)').forEach(b=>b.addEventListener('click',()=>{const d=_DD(b.dataset.dk);if(!d)return;const kind=b.dataset.pick,setT=(t,ph)=>{const s=b.querySelector('span');if(s)s.textContent=t;b.classList.toggle('ph',!!ph);};
       if(kind==='tr')openChipPop(b,{value:d.trId?String(d.trId):'',search:true,options:(trucks||[]).map(t=>({v:String(t.id),label:t.d})),onPick:v=>{const t=(trucks||[]).find(x=>String(x.id)===v);d.trId=+v;d.trDesc=t?t.d:'';setT(t?t.d:'—',false);}});
       else if(kind==='rep')openChipPop(b,{value:d.rep||'',search:true,addLabel:'Agregar repartidor nuevo',options:()=>(_repartidores||[]).map(n=>({v:n,label:n})),onPick:v=>{d.rep=v;setT(v||'Tercerizado',!v);},onAdd:()=>_openAddRepartidor(name=>{d.rep=name;setT(name,false);})});
-      else if(kind==='zona')openChipPop(b,{value:d.zona||'',search:true,addLabel:'Agregar zona nueva',options:()=>_zonasFor(_dashSeg).map(z=>({v:z.n,label:z.n})),onPick:v=>{d.zona=v;setT(v||'—',!v);},onAdd:q=>_openAddZona(_dashSeg,q,name=>{d.zona=name;setT(name,false);})});}));
+      else if(kind==='zona'){const zseg=d.seg||_dashSeg;openChipPop(b,{value:d.zona||'',search:true,addLabel:'Agregar zona nueva',options:()=>_zonasFor(zseg).map(z=>({v:z.n,label:z.n})),onPick:v=>{d.zona=v;setT(v||'—',!v);},onAdd:q=>_openAddZona(zseg,q,name=>{d.zona=name;setT(name,false);})});}}));
     // clic en la fila desglosa (edita) SOLO esa; el tacho borra con confirmación
     bd.querySelectorAll('.rrv-row').forEach(r=>r.addEventListener('click',e=>{if(e.target.closest('button'))return;openEdit(r.dataset.edituid);}));
     bd.querySelectorAll('.rrv-del').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();const w=W(b.dataset.deluid);if(w)confirmDelete(w);}));
@@ -5949,6 +5955,11 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     const facReg=!!_facDeGrupo(g);
     const facBtn=(!editing&&!_facMode&&wkObj&&!facReg)?'<button class="rrm-act rrm-act--fac"><svg viewBox="0 0 24 24"><path d="M5 3h14a1 1 0 011 1v17l-3-2-3 2-3-2-3 2-3-2V4a1 1 0 011-1z"/><path d="M12 8v6M9 11h6"/></svg> Registrar factura</button>':'';
     const nCam=totalCam();
+    // KPI por segmento: "Flete total" y "Camiones" siguen la pestaña activa (Local / Interior / …)
+    // y el filtro de camión, igual que la tabla. En "Todos" es el total del grupo.
+    const _kpiSegW=work.filter(w=>!w.del&&(_dashSeg==='todos'||(w.seg||'local')===_dashSeg)&&(!_camFilter||camLbl(w)===_camFilter));
+    const _kpiSub=_kpiSegW.reduce((a,w)=>a+(+w.precio||0),0);
+    const _kpiCam=_kpiSegW.reduce((a,w)=>a+camCount(w),0);
     const back=editing
       ?'<button class="rrd-back cancel-edit" type="button"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg> Cancelar</button>'
       :'<button class="rrd-back cancel" type="button"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg> Volver</button>';
@@ -5966,7 +5977,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     bd.innerHTML=
       '<div class="rrd-topbar rrd-topbar--kpi">'+
         '<div class="rrd-left">'+back+'<div class="rrd-ttl"><h2>'+_escp(g.ts)+(editing?'<span class="rrd-edbadge"><i></i>Editando</span>':'')+'</h2><div class="rrm-pd">'+periodLbl+'</div></div></div>'+
-        '<div class="rrd-topresumen">'+_dashResumen('General',0,nCam,t.f)+'</div>'+
+        '<div class="rrd-topresumen">'+_dashResumen('General',0,_kpiCam,_kpiSub)+'</div>'+
         '<div class="rrd-acts">'+acts+'</div>'+
       '</div>'+
       '<div class="rrd-bar">'+camFilterBar()+(_facMode?_selActs:dashTabs())+'<div class="rrd-bar__sp"></div></div>'+
