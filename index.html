@@ -5402,6 +5402,35 @@ function _rrGroups(weekDesde){
   });
   return Object.values(groups).sort((a,b)=>b.flete-a.flete);
 }
+// Migración única: pasa las facturas "legacy" (registradas por transportadora+semana, sin factura_id
+// por-línea) a facturación POR LÍNEA. Ata solo las líneas con flete > 0 (las que forman el monto
+// conciliado); las líneas en Gs 0 quedan SUELTAS (pendientes) para que un reparto agregado después
+// NO quede dentro de la planilla ya cerrada. Al quedar alguna línea atada, _tsFacSplit apaga el
+// match legacy y las líneas nuevas forman su propia planilla pendiente en la misma semana.
+function _cfMigrateLegacyPerLine(){
+  try{if(localStorage.getItem('cf_legacymig_v2'))return;}catch(_){return;}
+  const facs=window.__cfFac;
+  if(!facs)return; // las facturas aún no cargaron; se reintenta en el próximo render
+  const done=()=>{try{localStorage.setItem('cf_legacymig_v2','1');}catch(_){}};
+  if(!facs.length){done();return;}
+  const dirty=new Set();
+  (repartos||[]).forEach(r=>{
+    if(!r.fechaISO)return;
+    const wk=(typeof isoWeekRange==='function')?isoWeekRange(r.fechaISO):null;
+    if(!wk)return;
+    (r.clientes||[]).forEach(cl=>{
+      if(cl.factura_id!=null)return;        // ya es por-línea
+      if((+cl.precio||0)<=0)return;         // Gs 0 → queda pendiente (no se ata a la factura)
+      const own=cl.trId?tsOfTruck(cl.trId):null;
+      const ts=(own&&own.n)||cl.tsNombre||'—';
+      const f=facs.find(x=>(x.transportadora_nombre||'')===ts&&(x.semana_desde||'')===wk.desde);
+      if(f){cl.factura_id=f.id;dirty.add(r.id);}
+    });
+  });
+  if(!dirty.size){done();return;}
+  const ids=[...dirty];
+  Promise.all(ids.map(rid=>{const rr=(repartos||[]).find(x=>x.id===rid);return rr?dbUpdateClientes(rid,rr.clientes).catch(()=>{}):Promise.resolve();})).then(()=>{done();const v=document.getElementById('viewRrep');if(v&&v.classList.contains('is-active'))renderReporteRepartos();});
+}
 // Diagnóstico: dump del estado de factura_id por reparto/cliente. Uso en consola: _diagFac('CELSO ORTIZ')
 window._diagFac=function(tsFiltro){const rowsD=[];(repartos||[]).forEach(r=>{(r.clientes||[]).forEach(c=>{const o=c.trId?tsOfTruck(c.trId):null;const ts=(o&&o.n)||c.tsNombre||'—';if(tsFiltro&&ts!==tsFiltro)return;rowsD.push({reparto:r.id,fecha:r.fechaISO,ts:ts,rep:c.rep,precio:c.precio,r_factura_id:(r.factura_id===undefined?'(sin campo)':r.factura_id),cl_factura_id:(c.factura_id===undefined?'(sin campo)':c.factura_id)});});});console.log('=== DIAG FACTURA'+(tsFiltro?' · '+tsFiltro:'')+' ===');console.table(rowsD);console.log('facturas registradas:',(window.__cfFac||[]).map(f=>({id:f.id,ts:f.transportadora_nombre,monto:f.monto,semana:f.semana_desde})));return rowsD;};
 function renderReporteRepartos(){
@@ -5409,6 +5438,7 @@ function renderReporteRepartos(){
   // Carga las facturas (una vez) para mostrar el estado en cada tarjeta
   if(!window.__cfFac){sb.from('fact_facturas').select('*').then(r=>{window.__cfFac=r.data||[];if(document.getElementById('viewRrep').classList.contains('is-active'))renderReporteRepartos();}).catch(()=>{window.__cfFac=[];});}
   _cfResetBackfill();
+  _cfMigrateLegacyPerLine();
   const weeks=_weeksOfMonth(_rrMes);
   const today=_isoD(new Date());
   // Siempre una semana seleccionada (ya no hay "Mes completo"): la actual si cae en el mes, si no la primera
