@@ -4440,18 +4440,18 @@ function showSaveAnim(text){
   .segmodal-hd p{margin:0;font-size:13px;color:var(--gray-500,#64748b)}
   .segmodal-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px}
   .segmodal-card{position:relative;display:flex;flex-direction:column;align-items:center;gap:9px;padding:22px 14px 18px;border:1.5px solid var(--gray-200,#e7edf3);border-radius:16px;background:#fff;cursor:pointer;transition:transform .16s cubic-bezier(.34,1.5,.6,1),border-color .16s,box-shadow .16s}
-  .segmodal-card:hover{transform:translateY(-4px);border-color:#2563eb;box-shadow:0 14px 30px rgba(37,99,235,.18)}
-  .segmodal-card:active{transform:translateY(-1px) scale(.98)}
-  .segmodal-card.sug{border-color:#2563eb;box-shadow:0 10px 26px rgba(37,99,235,.16)}
-  .segmodal-ic{width:60px;height:60px;border-radius:17px;display:flex;align-items:center;justify-content:center;color:#fff;background:linear-gradient(135deg,#3b82f6,#2563eb);box-shadow:0 8px 18px rgba(37,99,235,.32),inset 0 1px 0 rgba(255,255,255,.28);transition:transform .18s cubic-bezier(.34,1.5,.6,1)}
-  .segmodal-card:hover .segmodal-ic{transform:scale(1.08) rotate(-3deg)}
+  .segmodal-card:hover{transform:translateY(-2px);border-color:#1e40af;box-shadow:0 10px 24px rgba(30,58,138,.16)}
+  .segmodal-card:active{transform:translateY(0) scale(.99)}
+  .segmodal-card.sug{border-color:#1e40af;box-shadow:0 8px 22px rgba(30,58,138,.14)}
+  .segmodal-ic{width:60px;height:60px;border-radius:17px;display:flex;align-items:center;justify-content:center;color:#fff;background:linear-gradient(135deg,#1d4ed8,#1e3a8a);box-shadow:0 7px 16px rgba(30,58,138,.35),inset 0 1px 0 rgba(255,255,255,.22);transition:transform .18s ease}
+  .segmodal-card:hover .segmodal-ic{transform:scale(1.04)}
   .segmodal-ic svg{width:28px;height:28px}
   .segmodal-card[data-seg="local"] .segmodal-ic svg{width:25px;height:25px}
   .segmodal-card[data-seg="interior"] .segmodal-ic svg{width:33px;height:33px}
   .segmodal-card[data-seg="servicios"] .segmodal-ic svg{width:31px;height:31px}
   .segmodal-nm{font-weight:800;font-size:15.5px;color:var(--gray-900,#0f172a)}
-  .segmodal-cnt{font-size:11.5px;font-weight:700;color:#2563eb}
-  .segmodal-sug{position:absolute;top:-9px;right:12px;font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:#fff;background:linear-gradient(135deg,#3b82f6,#2563eb);padding:3px 9px;border-radius:999px;box-shadow:0 4px 10px rgba(37,99,235,.38)}
+  .segmodal-cnt{font-size:11.5px;font-weight:700;color:#1e40af}
+  .segmodal-sug{position:absolute;top:-9px;right:12px;font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:#fff;background:linear-gradient(135deg,#1d4ed8,#1e3a8a);padding:3px 9px;border-radius:999px;box-shadow:0 4px 10px rgba(30,58,138,.4)}
   .rrd-tablewrap{overflow-x:auto}
   .rrd-tbl{width:100%;border-collapse:collapse}
   .rrd-tbl:not(.rrd-tbl--edit){width:auto;margin-left:auto;margin-right:auto}
@@ -5576,7 +5576,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     ov.querySelector('.segmodal-x').addEventListener('click',close);
     ov.querySelectorAll('[data-seg]').forEach(b=>b.addEventListener('click',()=>{const sk=b.dataset.seg;ov.remove();_dashEnterEdit(sk,isAdd);}));
     document.addEventListener('keydown',function _esc(e){if(e.key==='Escape'){close();document.removeEventListener('keydown',_esc);}});
-    if(gs&&!reduce()){gs.from(ov,{opacity:0,duration:.22});gs.from(ov.querySelector('.segmodal'),{opacity:0,scale:.88,y:18,duration:.44,ease:'back.out(1.7)'});gs.from(ov.querySelectorAll('.segmodal-card'),{opacity:0,y:16,scale:.9,duration:.42,stagger:.07,delay:.12,ease:'back.out(1.8)',clearProps:'all'});}
+    if(gs&&!reduce()){gs.from(ov,{opacity:0,duration:.2});gs.from(ov.querySelector('.segmodal'),{opacity:0,scale:.98,y:10,duration:.28,ease:'power2.out'});gs.from(ov.querySelectorAll('.segmodal-card'),{opacity:0,y:8,duration:.3,stagger:.05,delay:.07,ease:'power2.out',clearProps:'all'});}
   }
   // Aplica una línea del draft a un work item según el segmento destino (tseg)
   function _applyLineToWork(w,d,tseg){const isTr=tseg==='transportadora',isInt=tseg==='interior',isServ=tseg==='servicios';w.seg=tseg;if(isTr){w.cant=+d.cant||1;w.precio=+d.precio||0;w.trId=null;w.trDesc=((+d.cant||1)+' camión'+((+d.cant||1)===1?'':'es'));w.rep=null;w.zona=null;w.km=0;w.precioKm=0;w.fijo=false;w.obs=null;w.fecha=d.fecha;return;}const km2=isInt&&_dfKm(d);w.trId=d.trId;w.trDesc=d.trDesc;w.tsId=d.tsId||w.tsId;w.tsNombre=d.tsNombre||w.tsNombre;w.rep=(d.rep||'').trim();w.zona=isServ?'':(d.zona||'').trim();w.fecha=d.fecha;w.obs=isServ?((d.obs||d.zona||'').trim()):'';w.fijo=isInt?!km2:false;w.cant=1;if(km2){w.km=d.km;w.precioKm=d.precioKm;w.precio=Math.round(d.km*d.precioKm);}else{w.km=0;w.precioKm=0;w.precio=(+d.precio||0)||Math.round((+d.km||0)*(+d.precioKm||0));}}
