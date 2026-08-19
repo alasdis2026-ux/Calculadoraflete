@@ -4429,6 +4429,25 @@ function showSaveAnim(text){
   .rrd-hdbtn{display:inline-flex;align-items:center;gap:6px;border:1.5px solid transparent;background:transparent;color:var(--primary);border-radius:9px;padding:7px 12px;font:inherit;font-size:12.5px;font-weight:800;cursor:pointer;transition:background .14s}
   .rrd-hdbtn:hover{background:var(--accent-soft,#DBEAFE)}
   .rrd-hdlock{display:inline-flex;align-items:center;gap:6px;border:1.5px solid rgba(22,163,74,.22);background:rgba(34,197,94,.1);color:#15803d;border-radius:9px;padding:7px 12px;font-size:12px;font-weight:800}
+  /* Modal PRO: elegir segmento para añadir/editar */
+  .segmodal-ov{position:fixed;inset:0;z-index:9998;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(15,23,42,.5);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+  .segmodal{position:relative;width:min(560px,100%);background:#fff;border-radius:22px;padding:26px 24px 28px;box-shadow:0 30px 70px rgba(15,23,42,.35)}
+  .segmodal-x{position:absolute;top:15px;right:15px;width:34px;height:34px;border:none;background:var(--gray-100,#f1f5f9);border-radius:10px;color:var(--gray-500,#64748b);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .14s}
+  .segmodal-x svg{width:18px;height:18px}
+  .segmodal-x:hover{background:var(--gray-200,#e2e8f0)}
+  .segmodal-hd{text-align:center;margin-bottom:20px}
+  .segmodal-hd h3{margin:0 0 4px;font-family:Sora,Inter,sans-serif;font-size:20px;font-weight:800;color:var(--gray-900,#0f172a)}
+  .segmodal-hd p{margin:0;font-size:13px;color:var(--gray-500,#64748b)}
+  .segmodal-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px}
+  .segmodal-card{position:relative;display:flex;flex-direction:column;align-items:center;gap:9px;padding:22px 14px 18px;border:1.5px solid var(--gray-200,#e7edf3);border-radius:16px;background:#fff;cursor:pointer;transition:transform .16s cubic-bezier(.34,1.5,.6,1),border-color .16s,box-shadow .16s}
+  .segmodal-card:hover{transform:translateY(-3px);border-color:var(--c);box-shadow:0 12px 26px rgba(15,23,42,.12)}
+  .segmodal-card:active{transform:translateY(-1px) scale(.98)}
+  .segmodal-card.sug{border-color:var(--c);box-shadow:0 8px 22px rgba(15,23,42,.08)}
+  .segmodal-ic{width:56px;height:56px;border-radius:16px;display:flex;align-items:center;justify-content:center;color:var(--c);background:#f4f8fc;border:1px solid #e7edf3}
+  .segmodal-ic svg{width:28px;height:28px}
+  .segmodal-nm{font-weight:800;font-size:15px;color:var(--gray-900,#0f172a)}
+  .segmodal-cnt{font-size:11.5px;font-weight:700;color:var(--gray-400,#94a3b8)}
+  .segmodal-sug{position:absolute;top:-9px;right:12px;font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:#fff;background:linear-gradient(135deg,#22c55e,#16a34a);padding:3px 9px;border-radius:999px;box-shadow:0 4px 10px rgba(22,163,74,.35)}
   .rrd-tablewrap{overflow-x:auto}
   .rrd-tbl{width:100%;border-collapse:collapse}
   .rrd-tbl:not(.rrd-tbl--edit){width:auto;margin-left:auto;margin-right:auto}
@@ -5536,6 +5555,23 @@ function _rrOpenDetail(g,periodLbl,wkObj){
   function _dashBlank(){const isTr=_dashSeg==='transportadora',tr=(trucks||[])[0]||null;return {k:_dashDK++,uid:null,isNew:true,seg:_dashSeg,trId:isTr?null:(tr?tr.id:null),trDesc:isTr?'':(tr?tr.d:''),tsId:tsObj?tsObj.id:g.tsId,tsNombre:g.ts,rep:'',zona:'',fecha:(wkObj?wkObj.desde:null),km:0,precioKm:0,precio:0,obs:'',cant:1,del:false};}
   function _dashEnterEdit(sk,autoAdd){if(_facDeGrupo(g)){showToast('Esta planilla ya está facturada · no se puede modificar');return;}_dashSeg=sk;_dashDK=1;_dashDraft=work.filter(w=>!w.del&&w.seg===sk).map(w=>({k:_dashDK++,uid:w.uid,isNew:!!w.isNew,seg:w.seg||sk,trId:w.trId,trDesc:w.trDesc,tsId:w.tsId,tsNombre:w.tsNombre,rep:w.rep||'',zona:w.zona||'',fecha:w.fecha||null,km:+w.km||0,precioKm:+w.precioKm||0,precio:+w.precio||0,obs:w.obs||'',cant:+w.cant||1,del:false}));_dashEdit=true;if(autoAdd)_dashDraft.push(_dashBlank());render('filter');}
   function _dashExitEdit(){_dashEdit=false;_dashDraft=null;render('filter');}
+  // Desde "Todos": si hay 1 segmento entra directo; si hay varios, muestra un modal PRO para elegir
+  function _dashPickSeg(isAdd){if(_facDeGrupo(g)){showToast('Esta planilla ya está facturada · no se puede modificar');return;}const present=SEGL.filter(sk=>work.some(w=>!w.del&&w.seg===sk));if(present.length<=1){_dashEnterEdit(present[0]||'local',isAdd);return;}_openSegModal(present,isAdd);}
+  function _openSegModal(segs,isAdd){
+    const SEGICON={local:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>',interior:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V9l6-3v3l6-3v15"/><path d="M15 21V6l6 3v12"/><path d="M6 12h.01M6 16h.01M12 12h.01M12 16h.01"/></svg>',servicios:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 01-5.4 5.4L4 17v3h3l5.3-5.3a4 4 0 015.4-5.4l-2.5 2.5-2-2 2.5-2.5z"/></svg>',transportadora:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6.5" width="11.5" height="8.5" rx="1.5"/><path d="M13 9h3.6l3.9 3.9V15H13z"/><circle cx="5.8" cy="17.5" r="1.7"/><circle cx="17.6" cy="17.5" r="1.7"/></svg>'};
+    const SEGDOT={local:'#38BDF8',interior:'#F97316',servicios:'#10B981',transportadora:'#7c3aed'};
+    let sug=segs[0],sugN=-1;segs.forEach(sk=>{const n=work.filter(w=>!w.del&&w.seg===sk).reduce((a,w)=>a+camCount(w),0);if(n>sugN){sugN=n;sug=sk;}});
+    const ov=document.createElement('div');ov.className='segmodal-ov';
+    ov.innerHTML='<div class="segmodal"><button class="segmodal-x" aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button><div class="segmodal-hd"><h3>'+(isAdd?'¿Dónde querés añadir?':'¿Qué segmento editás?')+'</h3><p>Elegí el segmento</p></div><div class="segmodal-grid">'+segs.map(sk=>{const n=work.filter(w=>!w.del&&w.seg===sk).reduce((a,w)=>a+camCount(w),0);return '<button class="segmodal-card'+(sk===sug?' sug':'')+'" data-seg="'+sk+'" style="--c:'+SEGDOT[sk]+'"><span class="segmodal-ic">'+SEGICON[sk]+'</span><span class="segmodal-nm">'+SEGN[sk]+'</span><span class="segmodal-cnt">'+n+' camión'+(n===1?'':'es')+'</span>'+(sk===sug?'<span class="segmodal-sug">Sugerido</span>':'')+'</button>';}).join('')+'</div></div>';
+    document.body.appendChild(ov);
+    const gs=window.gsap;
+    const close=()=>{if(gs&&!reduce()){gs.to(ov.querySelector('.segmodal'),{scale:.94,y:8,opacity:0,duration:.18,ease:'power2.in'});gs.to(ov,{opacity:0,duration:.2,ease:'power2.in',onComplete:()=>ov.remove()});}else ov.remove();};
+    ov.addEventListener('click',e=>{if(e.target===ov)close();});
+    ov.querySelector('.segmodal-x').addEventListener('click',close);
+    ov.querySelectorAll('[data-seg]').forEach(b=>b.addEventListener('click',()=>{const sk=b.dataset.seg;ov.remove();_dashEnterEdit(sk,isAdd);}));
+    document.addEventListener('keydown',function _esc(e){if(e.key==='Escape'){close();document.removeEventListener('keydown',_esc);}});
+    if(gs&&!reduce()){gs.from(ov,{opacity:0,duration:.22});gs.from(ov.querySelector('.segmodal'),{opacity:0,scale:.88,y:18,duration:.44,ease:'back.out(1.7)'});gs.from(ov.querySelectorAll('.segmodal-card'),{opacity:0,y:16,scale:.9,duration:.42,stagger:.07,delay:.12,ease:'back.out(1.8)',clearProps:'all'});}
+  }
   // Aplica una línea del draft a un work item según el segmento destino (tseg)
   function _applyLineToWork(w,d,tseg){const isTr=tseg==='transportadora',isInt=tseg==='interior',isServ=tseg==='servicios';w.seg=tseg;if(isTr){w.cant=+d.cant||1;w.precio=+d.precio||0;w.trId=null;w.trDesc=((+d.cant||1)+' camión'+((+d.cant||1)===1?'':'es'));w.rep=null;w.zona=null;w.km=0;w.precioKm=0;w.fijo=false;w.obs=null;w.fecha=d.fecha;return;}const km2=isInt&&_dfKm(d);w.trId=d.trId;w.trDesc=d.trDesc;w.tsId=d.tsId||w.tsId;w.tsNombre=d.tsNombre||w.tsNombre;w.rep=(d.rep||'').trim();w.zona=isServ?'':(d.zona||'').trim();w.fecha=d.fecha;w.obs=isServ?((d.obs||d.zona||'').trim()):'';w.fijo=isInt?!km2:false;w.cant=1;if(km2){w.km=d.km;w.precioKm=d.precioKm;w.precio=Math.round(d.km*d.precioKm);}else{w.km=0;w.precioKm=0;w.precio=(+d.precio||0)||Math.round((+d.km||0)*(+d.precioKm||0));}}
   async function _dashSaveEdit(){const sk=_dashSeg;const alive=(_dashDraft||[]).filter(d=>!d.del);const tseg=d=>d.seg||sk;
@@ -5599,7 +5635,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     if(_dashSeg==='todos'){
       const allItems=[];SEGL.forEach(s=>{_dashSort(work.filter(w=>!w.del&&w.seg===s&&(!_camFilter||camLbl(w)===_camFilter)),s).forEach(w=>allItems.push(w));});
       const rows=allItems.map(w=>{const isTr=w.seg==='transportadora';const cam=isTr?((+w.cant||0)+' camión'+((+w.cant||0)===1?'':'es')):camLbl(w);const zn=isTr?'—':(w.zona||(w.seg==='servicios'&&w.obs)||'—');return '<tr'+_facRowCls(w)+(_facMode?' data-facrow="'+w.uid+'" style="cursor:pointer"':'')+'>'+dfec(w)+'<td class="rrd-cam"><span class="rrd-cam__ic">'+TRUCKICON+'</span><span class="rrd-cam__t">'+_escp(cam)+'</span></td><td><span class="rrd-segtag rrd-segtag--'+w.seg+'">'+SEGN[w.seg]+'</span></td><td>'+(isTr?'<span class="rrd-mut">—</span>':_escp(w.rep||'Tercerizado'))+'</td><td class="rrd-grow">'+(zn&&zn!=='—'?dchip(zn):'<span class="rrd-mut">—</span>')+'</td><td class="r rrd-flete">'+_gs(+w.precio||0)+'</td>'+_facActs(w)+'</tr>';}).join('')||'<tr><td colspan="7" class="rrd-empty">Sin líneas</td></tr>';
-      const table='<div class="rrd-tablecard"><div class="rrd-tablehd"><div class="rrd-tablehd__t"><span class="rrd-tablehd__dot" style="background:linear-gradient(135deg,#2578b8,#0B5F8D)"></span>Todos los pedidos</div></div><div class="rrd-tablewrap"><table class="rrd-tbl"><thead><tr><th>Fecha</th><th>Camión</th><th>Segmento</th><th>Repartidor</th><th class="rrd-grow">Zona</th><th class="r">Flete</th><th class="rrd-facth r">'+(_facMode?'¿Entra?':'Factura')+'</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
+      const table='<div class="rrd-tablecard"><div class="rrd-tablehd"><div class="rrd-tablehd__t"><span class="rrd-tablehd__dot" style="background:linear-gradient(135deg,#2578b8,#0B5F8D)"></span>Todos los pedidos</div>'+((!_facMode&&!_facDeGrupo(g))?'<div class="rrd-tablehd__acts"><button class="rrd-hdbtn" data-todosadd="1"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg> Añadir</button>'+(work.some(w=>!w.del&&!w.isNew)?'<button class="rrd-hdbtn rrd-hdbtn--edit" data-todosedit="1"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4z"/></svg> Editar</button>':'')+'</div>':'')+'</div><div class="rrd-tablewrap"><table class="rrd-tbl"><thead><tr><th>Fecha</th><th>Camión</th><th>Segmento</th><th>Repartidor</th><th class="rrd-grow">Zona</th><th class="r">Flete</th><th class="rrd-facth r">'+(_facMode?'¿Entra?':'Factura')+'</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
       const nCam=allItems.reduce((a,w)=>a+camCount(w),0),sub=allItems.reduce((a,w)=>a+(+w.precio||0),0);
       return '<div class="rrd-dash">'+table+'</div>';
     }
@@ -5616,7 +5652,8 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     if(editing){
       const CHV='<svg class="xls-chv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>';
       const dtrash=k=>'<button type="button" class="rrd-erowdel" data-dk="'+k+'" title="Quitar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M10 11v6M14 11v6"/></svg></button>';
-      rowsHtml=(_dashDraft||[]).filter(d=>!d.del).map(d=>{const dd=d.fecha?String(d.fecha).slice(0,10):'';const pk=k=>{const on=k==='tr'?d.trId:k==='rep'?d.rep:d.zona;const lbl=k==='tr'?(d.trId?_escp(d.trDesc||'—'):'Elegir'):k==='rep'?(d.rep?_escp(d.rep):'Tercerizado'):(d.zona?_escp(d.zona):'—');return '<button type="button" class="xls-pick'+(on?'':' ph')+'" data-dk="'+d.k+'" data-pick="'+k+'"><span>'+lbl+'</span>'+CHV+'</button>';};
+      const _dCam=d=>{const t=d.trId?(trucks.find(x=>x.id===d.trId)||{}).d:null;return t||d.trDesc||'';};
+      rowsHtml=(_dashDraft||[]).filter(d=>!d.del&&(d.isNew||!_camFilter||_dCam(d)===_camFilter)).map(d=>{const dd=d.fecha?String(d.fecha).slice(0,10):'';const pk=k=>{const on=k==='tr'?d.trId:k==='rep'?d.rep:d.zona;const lbl=k==='tr'?(d.trId?_escp(d.trDesc||'—'):'Elegir'):k==='rep'?(d.rep?_escp(d.rep):'Tercerizado'):(d.zona?_escp(d.zona):'—');return '<button type="button" class="xls-pick'+(on?'':' ph')+'" data-dk="'+d.k+'" data-pick="'+k+'"><span>'+lbl+'</span>'+CHV+'</button>';};
         const km2=_dfKm(d);const fleteCell='<td class="r"><input class="xls-in r rrd-fin rrd-fflete'+(km2?' is-auto':'')+'" data-dk="'+d.k+'" inputmode="numeric" placeholder="0"'+(km2?' readonly':'')+' value="'+(km2?_nnum(_dfFlete(d)):(d.precio?_nnum(d.precio):''))+'"></td>';
         const fecCell='<td><input type="date" class="xls-in rrd-fin rrd-fdate" data-dk="'+d.k+'" value="'+dd+'"></td>';
         const segCell='<td><button type="button" class="xls-pick rrd-segpick'+((d.seg&&d.seg!==sk)?' moved':'')+'" data-segpick="'+d.k+'"><span>'+SEGN[d.seg||sk]+'</span>'+CHV+'</button></td>';
@@ -5794,7 +5831,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
   function wire(){
     const cf=bd.querySelector('#rrmCamFilter');if(cf)cf.addEventListener('click',()=>{const used=camsUsados();openChipPop(cf,{value:_camFilter||'',search:true,options:[{v:'',label:'Todos los camiones'}].concat(used.map(c=>({v:c,label:c}))),onPick:v=>{_camFilter=v||null;render('filter');}});});
     const cc=bd.querySelector('#rrmCamClear');if(cc)cc.addEventListener('click',()=>{_camFilter=null;render('filter');});
-    const asg=bd.querySelector('#rrmAddSeg');if(asg)asg.addEventListener('click',()=>{const SEGDOT={local:'#38BDF8',interior:'#F97316',servicios:'#10B981',transportadora:'#7c3aed'};const emptySegs=SEGL.filter(sk=>!work.some(w=>!w.del&&w.seg===sk));openChipPop(asg,{value:'',options:emptySegs.map(sk=>({v:sk,label:SEGN[sk],dot:SEGDOT[sk]})),onPick:v=>{if(_camFilter)_camFilter=null;addRow(v);render('add');}});});
+    const asg=bd.querySelector('#rrmAddSeg');if(asg)asg.addEventListener('click',()=>{const SEGDOT={local:'#38BDF8',interior:'#F97316',servicios:'#10B981',transportadora:'#7c3aed'};const emptySegs=SEGL.filter(sk=>!work.some(w=>!w.del&&w.seg===sk));openChipPop(asg,{value:'',options:emptySegs.map(sk=>({v:sk,label:SEGN[sk],dot:SEGDOT[sk]})),onPick:v=>{if(_camFilter)_camFilter=null;_dashEnterEdit(v,true);}});});
     // Micro-animación GSAP en los botones de acción (ícono con pulso al pasar el mouse)
     [bd.querySelector('.rrm-act--print'),bd.querySelector('#rrmAddSeg')].forEach(b=>{if(!b||!window.gsap)return;const ic=b.querySelector('svg');if(!ic)return;b.addEventListener('mouseenter',()=>{gsap.killTweensOf(ic);gsap.fromTo(ic,{scale:1},{scale:1.2,duration:.26,yoyo:true,repeat:1,ease:'power2.inOut'});});});
     // Selectores PRO (Repartidor / Zona) en la tarjeta en edición
@@ -5827,6 +5864,8 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     bd.querySelectorAll('[data-dashseg]').forEach(b=>b.addEventListener('click',()=>{if(_dashSeg===b.dataset.dashseg&&!_dashEdit)return;_dashEdit=false;_dashDraft=null;_dashSeg=b.dataset.dashseg;render('filter');}));
     bd.querySelectorAll('[data-dashadd]').forEach(b=>b.addEventListener('click',()=>_dashEnterEdit(b.dataset.dashadd,true)));
     bd.querySelectorAll('[data-dashedit]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();_dashEnterEdit(b.dataset.dashedit);}));
+    bd.querySelectorAll('[data-todosadd]').forEach(b=>b.addEventListener('click',()=>_dashPickSeg(true)));
+    bd.querySelectorAll('[data-todosedit]').forEach(b=>b.addEventListener('click',()=>_dashPickSeg(false)));
     bd.querySelectorAll('[data-dashdel]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();const w=W(b.dataset.dashdel);if(w)confirmDelete(w);}));
     bd.querySelectorAll('[data-dashrow]').forEach(r=>r.addEventListener('click',e=>{if(e.target.closest('button')||e.target.closest('.rrd-facc'))return;if(_facMode){const w=W(r.dataset.dashrow);if(w)_facToggle(w.repId);return;}if(_facDeGrupo(g))return;_dashEnterEdit(_dashSeg);}));
     // Check verde→azul: confirmar que el reparto entra en la factura (con loader interno)
