@@ -4874,7 +4874,7 @@ function _cfFacturada(cl,fechaISO){if(!fechaISO)return false;const wk=(typeof is
 // ¿El reparto está facturado? (por factura_id explícito, o factura legacy de su transportadora+semana)
 function _repFacturado(r){if(!r)return false;if(r.factura_id!=null)return !!(window.__cfFac||[]).find(x=>x.id===r.factura_id);if(!r.fechaISO)return false;const wk=(typeof isoWeekRange==='function')?isoWeekRange(r.fechaISO):null;if(!wk)return false;return (r.clientes||[]).some(c=>{const own=c.trId?tsOfTruck(c.trId):null;const ts=(own&&own.n)||c.tsNombre||'—';return !!_facLegacy(ts,wk.desde);});}
 // Facturado POR LÍNEA (cliente): usa cl.factura_id, con fallback al del reparto y a legacy por ts+semana.
-function _clFacturado(cl,r){const fid=(cl&&cl.factura_id!=null)?cl.factura_id:(r&&r.factura_id);if(fid!=null)return !!(window.__cfFac||[]).find(x=>x.id===fid);if(!r||!r.fechaISO)return false;const wk=(typeof isoWeekRange==='function')?isoWeekRange(r.fechaISO):null;if(!wk)return false;const own=cl.trId?tsOfTruck(cl.trId):null;const ts=(own&&own.n)||cl.tsNombre||'—';return !!_facLegacy(ts,wk.desde);}
+function _clFacturado(cl,r){const _repHasCl=r&&(r.clientes||[]).some(c=>c.factura_id!=null);const fid=(cl&&cl.factura_id!=null)?cl.factura_id:(_repHasCl?null:(r&&r.factura_id));if(fid!=null)return !!(window.__cfFac||[]).find(x=>x.id===fid);if(!r||!r.fechaISO)return false;const wk=(typeof isoWeekRange==='function')?isoWeekRange(r.fechaISO):null;if(!wk)return false;const own=cl.trId?tsOfTruck(cl.trId):null;const ts=(own&&own.n)||cl.tsNombre||'—';return !!_facLegacy(ts,wk.desde);}
 function _cfLines(mk){const out=[];(repartos||[]).forEach(r=>{if(mk&&(r.fechaISO||'').slice(0,7)!==mk)return;(r.clientes||[]).forEach(cl=>{if(!_clFacturado(cl,r))return;out.push({seg:cl.seg||'local',monto:+cl.monto||0,flete:+cl.precio||0,cam:(cl.trDesc||'').toUpperCase(),km:+cl.km||0});});});return out;}
 // Monto e incidencia agrupados por zona (para el Reporte General)
 function _cfZonas(mk){const map={};(repartos||[]).forEach(r=>{if(mk&&(r.fechaISO||'').slice(0,7)!==mk)return;(r.clientes||[]).forEach(c=>{if(!_clFacturado(c,r))return;const z=((c.zona||'').trim())||'Sin zona';const o=map[z]||(map[z]={zona:z,monto:0,flete:0,peso:0});o.monto+=+c.monto||0;o.flete+=+c.precio||0;o.peso+=+c.peso||0;});});return Object.values(map).map(z=>({zona:z.zona,monto:z.monto,flete:z.flete,peso:z.peso,incidencia:z.monto>0?z.flete/z.monto:0})).sort((a,b)=>b.monto-a.monto);}
@@ -5368,6 +5368,9 @@ function _rrGroups(weekDesde){
     // Corte por mes: aunque la semana cruce (ej. 27/07–02/08), cada reparto queda en SU mes
     if((r.fechaISO||'').slice(0,7)!==_rrMes)return;
     if(weekDesde){if(!wk||wk.desde!==weekDesde)return;}
+    // Si el reparto YA tiene facturas por-línea, un cliente nuevo (sin factura_id) queda PENDIENTE
+    // (no hereda el factura_id del reparto → no se mete en la planilla ya cerrada).
+    const _repHasCl=(r.clientes||[]).some(c=>c.factura_id!=null);
     (r.clientes||[]).forEach(cl=>{if(_rrSeg!=='todos'&&(cl.seg||'local')!==_rrSeg)return;
       // Agrupar por la transportadora DUEÑA del camión (según trId), no por el tsNombre guardado
       // (así los repartos "Varios" / multi-transportadora se reparten en cada transportadora real).
@@ -5378,7 +5381,7 @@ function _rrGroups(weekDesde){
       // (evita que un reparto "Varios" con factura de una transportadora parta mal a las otras).
       // Factura POR LÍNEA (cliente): cada camión/línea puede entrar en distinta factura.
       // Fallback al factura_id del reparto para las facturas viejas (registradas por fecha).
-      const rawFid=(cl.factura_id!=null)?cl.factura_id:r.factura_id;
+      const rawFid=(cl.factura_id!=null)?cl.factura_id:(_repHasCl?null:r.factura_id);
       let fid=null;if(rawFid!=null){const _f=(window.__cfFac||[]).find(x=>x.id===rawFid);if(_f&&(_f.transportadora_nombre||'')===ts)fid=rawFid;}
       const key=ts+'|'+(fid==null?'':fid);
       const g=groups[key]||(groups[key]={ts:ts,tsId:tsId,facturaId:fid,semDesde:(weekDesde||(wk?wk.desde:null)),lines:[],monto:0,flete:0,reps:[]});cl._fecha=r.fechaISO||r.fecha||null;cl._repId=r.id;g.lines.push(cl);g.monto+=+cl.monto||0;g.flete+=+cl.precio||0;if(!g.reps.some(x=>x.id===r.id))g.reps.push({id:r.id,fecha:r.fecha,fechaISO:r.fechaISO,factura_id:fid});});
