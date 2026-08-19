@@ -4306,20 +4306,17 @@ function showSaveAnim(text){
   .rrd-ktile__cnt--dark{color:#0B5F8D;background:linear-gradient(180deg,#eef6fc,#e3eefb);border:1px solid rgba(37,120,184,.16)}
   .rrd-ktile__cnt--big{font-size:12.5px;padding:5px 13px;gap:7px;margin-top:8px;box-shadow:0 2px 6px rgba(11,95,141,.08)}
   .rrd-ktile__cnt--big svg{width:16px;height:16px;fill:none;stroke:currentColor}
-  /* Tile "Flete total" partido en dos mitades (flete | camiones/segmento resaltado) */
-  .rrd-ktile--split{padding:0;align-items:stretch;overflow:hidden}
-  .rrd-khalf{flex:1 1 auto;display:flex;align-items:center;gap:13px;padding:16px 20px;min-width:0;white-space:nowrap}
-  .rrd-khalf+.rrd-khalf{border-left:1px solid var(--gray-200,#e7edf3)}
-  .rrd-khalf .rrd-ktile__ic{width:44px;height:44px}
-  .rrd-khalf--accent{flex:0 0 auto;min-width:118px;background:linear-gradient(135deg,#3b82f6,#2563eb);border-left-color:transparent}
-  .rrd-khalf--accent .rrd-ktile__ic{background:rgba(255,255,255,.2);color:#fff}
-  .rrd-khalf.rrd-khalf--accent .rrd-ktile__tx small{color:rgba(255,255,255,.85)}
-  .rrd-khalf.rrd-khalf--accent .rrd-ktile__tx b{color:#fff}
-  .rrd-resumen-bar .rrd-ktile--split{max-width:none;flex:2.8 1 0;min-width:540px}
-  .rrd-khalf .rrd-ktile__tx{overflow:visible}
-  .rrd-khalf .rrd-ktile__tx b{overflow:visible;text-overflow:clip}
-  .rrd-khalf .rrd-ktile__tx b{white-space:nowrap;font-size:20px}
-  @media(max-width:1200px){.rrd-resumen-bar .rrd-ktile--split{min-width:100%;flex-basis:100%}}
+  /* Tile "Flete total": flete a la izquierda + panel de camión embebido a la derecha */
+  .rrd-resumen-bar .rrd-ktile--total{flex:2.4 1 0;min-width:460px;max-width:none}
+  .rrd-ktile--total .rrd-ktile__tx{overflow:visible}
+  .rrd-ktile--total .rrd-ktile__tx b{white-space:nowrap;overflow:visible;text-overflow:clip}
+  .rrd-total__cam{margin-left:auto;display:flex;align-items:center;gap:11px;padding:11px 18px;border-radius:15px;background:linear-gradient(135deg,#3b82f6,#2563eb);box-shadow:0 8px 20px rgba(37,99,235,.28),inset 0 1px 0 rgba(255,255,255,.28);flex-shrink:0}
+  .rrd-total__camic{width:38px;height:38px;border-radius:11px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:inset 0 1px 0 rgba(255,255,255,.25)}
+  .rrd-total__camic svg{width:21px;height:21px;fill:none;stroke:#fff;stroke-width:1.9}
+  .rrd-total__camtx{display:flex;flex-direction:column;line-height:1.05}
+  .rrd-total__camtx small{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:rgba(255,255,255,.82)}
+  .rrd-total__camtx b{font-size:20px;font-weight:800;color:#fff;font-variant-numeric:tabular-nums}
+  @media(max-width:1200px){.rrd-resumen-bar .rrd-ktile--total{min-width:100%;flex-basis:100%}}
   .rrm-act--save{background:var(--primary);color:#fff;border-color:var(--primary);min-width:150px;justify-content:center}
   .rrm-act--save:hover{background:#0a4f75;border-color:#0a4f75;color:#fff;transform:translateY(-1px);box-shadow:0 8px 20px rgba(11,95,141,.34)}
   .rrm-act--save:active{transform:translateY(0) scale(.98)}
@@ -4458,12 +4455,15 @@ function showSaveAnim(text){
   .rrd-segtag--transportadora{background:#EDE9FE;color:#6D28D9}
   .rrd-actth{width:52px}
   /* KPIs PRO azules — tiles grandes con ícono */
-  .rrd-ktile{position:relative;display:flex;align-items:center;gap:14px;background:#fff;border:1px solid var(--gray-200,#e7edf3);border-radius:18px;padding:15px 18px;margin-bottom:11px;box-shadow:0 4px 14px rgba(15,23,42,.05);transition:transform .2s cubic-bezier(.34,1.4,.6,1),box-shadow .2s ease}
-  .rrd-ktile::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:18px 18px 0 0;background:linear-gradient(90deg,#2578b8,#0B5F8D);z-index:2}
+  .rrd-ktile{position:relative;overflow:hidden;display:flex;align-items:center;gap:15px;background:#fff;border:1px solid #eaf0f6;border-radius:18px;padding:17px 20px;margin-bottom:11px;box-shadow:0 6px 20px rgba(15,23,42,.05);transition:transform .22s cubic-bezier(.34,1.4,.6,1),box-shadow .22s ease}
+  .rrd-ktile::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#2b7fc4,#0B5F8D);z-index:2}
+  .rrd-ktile::after{content:'';position:absolute;top:-45%;right:-12%;width:150px;height:150px;border-radius:50%;background:radial-gradient(circle,rgba(37,120,184,.07),transparent 68%);pointer-events:none;z-index:0}
   .rrd-ktile--flete::before,.rrd-ktile--aprob::before,.rrd-ktile--aprob.ok::before,.rrd-ktile--aprob.over::before{display:none}
   .rrd-ktile--k-fac::before{background:linear-gradient(90deg,#22c55e,#15803d)}
+  .rrd-ktile--k-fac::after{background:radial-gradient(circle,rgba(22,163,74,.07),transparent 68%)}
+  .rrd-ktile>*{position:relative;z-index:1}
   .rrd-ktile:last-child{margin-bottom:0}
-  .rrd-ktile:hover{transform:translateY(-2px)}
+  .rrd-ktile:hover{transform:translateY(-3px);box-shadow:0 14px 30px rgba(15,23,42,.1)}
   .rrd-ktile__ic{width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#eef6fc,#dbeafe);color:var(--primary);display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid rgba(37,120,184,.1);box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 3px 8px rgba(37,120,184,.1)}
   .rrd-ktile__ic svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.9}
   .rrd-ktile__tx{display:flex;flex-direction:column;gap:2px;min-width:0}
@@ -5557,10 +5557,11 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     const SEGIC={local:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>',interior:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V9l6-3v3l6-3v15"/><path d="M15 21V6l6 3v12"/><path d="M6 12h.01M6 16h.01M12 12h.01M12 16h.01M18 13h.01M18 17h.01"/></svg>',servicios:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 01-5.4 5.4L4 17v3h3l5.3-5.3a4 4 0 015.4-5.4l-2.5 2.5-2-2 2.5-2.5z"/></svg>',transportadora:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6.5" width="11.5" height="8.5" rx="1.5"/><path d="M13 9h3.6l3.9 3.9V15H13z"/><circle cx="5.8" cy="17.5" r="1.7"/><circle cx="17.6" cy="17.5" r="1.7"/></svg>'};
     const _pres=SEGL.filter(sk=>work.some(w=>!w.del&&w.seg===sk));
     const _mul=_pres.length>1;const _rLbl=_mul?'Camiones':SEGN[_pres[0]||'local'];
-    // Tile "Flete total" alargado, mitad izquierda (flete, ícono $) + mitad derecha resaltada (camiones, ícono camión)
-    const totalTile='<div class="rrd-ktile rrd-ktile--k-total rrd-ktile--split">'+
-      '<div class="rrd-khalf"><span class="rrd-ktile__ic">'+COINS+'</span><div class="rrd-ktile__tx"><small>Flete total</small><b>'+_gs(sub)+'</b></div></div>'+
-      '<div class="rrd-khalf rrd-khalf--accent"><span class="rrd-ktile__ic">'+TRUCKICON+'</span><div class="rrd-ktile__tx"><small>'+_rLbl+'</small><b>'+_nnum(nCam)+'</b></div></div>'+
+    // Tile "Flete total": flete a la izquierda (ícono $) + panel de camión embebido a la derecha
+    const totalTile='<div class="rrd-ktile rrd-ktile--k-total rrd-ktile--total">'+
+      '<span class="rrd-ktile__ic">'+COINS+'</span>'+
+      '<div class="rrd-ktile__tx"><small>Flete total</small><b>'+_gs(sub)+'</b></div>'+
+      '<div class="rrd-total__cam"><span class="rrd-total__camic">'+TRUCKICON+'</span><div class="rrd-total__camtx"><small>'+_rLbl+'</small><b>'+_nnum(nCam)+'</b></div></div>'+
       '</div>';
     return '<div class="rrd-resumen-bar">'+aprobTile+facTile+totalTile+'</div>';}
   function _dashChart(items,isServ){const zc={};items.forEach(w=>{const z=w.zona||(isServ&&w.obs)||'—';if(z&&z!=='—')zc[z]=(zc[z]||0)+1;});const zarr=Object.keys(zc).map(z=>({z,n:zc[z]})).sort((a,b)=>b.n-a.n).slice(0,7);const zmax=Math.max(1,...zarr.map(x=>x.n));return '<div class="rrd-card rrd-zonas"><div class="rrd-card__t">'+(isServ?'Servicios más frecuentes':'Zonas más frecuentes')+'</div>'+(zarr.length?zarr.map(x=>'<div class="rrd-zrow"><span class="rrd-zname" title="'+_escp(x.z)+'">'+_escp(x.z)+'</span><div class="rrd-ztrack"><div class="rrd-zfill" style="width:'+Math.max(9,x.n/zmax*100).toFixed(1)+'%"></div></div><span class="rrd-zn">'+x.n+'</span></div>').join(''):'<div class="rrd-zempty">Sin datos</div>')+'</div>';}
@@ -5914,7 +5915,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     if(kf){if(firstDraw)countTo(kf,0,t.f,.28);else if(_lastTotal!=null&&_lastTotal!==t.f)countTo(kf,_lastTotal,t.f,0);}
     _lastTotal=t.f;
     const _dash=bd.querySelector('.rrd-dash');
-    if(_dash&&!firstDraw){const _tb=bd.querySelectorAll('.rrd-tab');if(_tb.length){gs.from(_tb,{opacity:0,y:-6,duration:.28,stagger:.03,ease:'power2.out',clearProps:'all'});const _at=bd.querySelector('.rrd-tab.on');if(_at)gs.fromTo(_at,{scale:.88},{scale:1,duration:.44,ease:'back.out(2.6)',clearProps:'transform'});}gs.from(_dash.querySelectorAll('.rrd-tbl tbody tr'),{opacity:0,y:8,duration:.32,stagger:.02,ease:'power2.out',clearProps:'all'});gs.from(_dash.querySelectorAll('.rrd-card'),{opacity:0,x:14,duration:.4,stagger:.08,delay:.05,ease:'power3.out',clearProps:'all'});gs.from(_dash.querySelectorAll('.rrd-zfill'),{scaleX:0,transformOrigin:'left center',duration:.55,stagger:.05,delay:.16,ease:'power3.out'});}
+    if(_dash&&!firstDraw){gs.from(_dash.querySelectorAll('.rrd-ktile'),{opacity:0,y:16,scale:.96,duration:.5,stagger:.09,ease:'back.out(1.6)',clearProps:'all'});const _kcam=_dash.querySelector('.rrd-total__cam');if(_kcam)gs.from(_kcam,{opacity:0,scale:.7,duration:.5,delay:.26,ease:'back.out(2.6)',clearProps:'transform,opacity'});const _tb=bd.querySelectorAll('.rrd-tab');if(_tb.length){gs.from(_tb,{opacity:0,y:-6,duration:.28,stagger:.03,ease:'power2.out',clearProps:'all'});const _at=bd.querySelector('.rrd-tab.on');if(_at)gs.fromTo(_at,{scale:.88},{scale:1,duration:.44,ease:'back.out(2.6)',clearProps:'transform'});}gs.from(_dash.querySelectorAll('.rrd-tbl tbody tr'),{opacity:0,y:8,duration:.32,stagger:.02,ease:'power2.out',clearProps:'all'});gs.from(_dash.querySelectorAll('.rrd-card'),{opacity:0,x:14,duration:.4,stagger:.08,delay:.05,ease:'power3.out',clearProps:'all'});gs.from(_dash.querySelectorAll('.rrd-zfill'),{scaleX:0,transformOrigin:'left center',duration:.55,stagger:.05,delay:.16,ease:'power3.out'});}
     const cols=bd.querySelectorAll('.rre-col'),items=bd.querySelectorAll('.rre-card, .rrv-row'),actsEl=bd.querySelectorAll('.rrd-acts .rrm-act');
     const selCard=()=>selUid!=null?bd.querySelector('.rre-card[data-uid="'+selUid+'"]'):null;
     if(firstDraw){firstDraw=false;
@@ -5925,7 +5926,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
       tl.from(bd.querySelectorAll('.rrm-kpi'),{opacity:0,y:-12,scale:.94,duration:.5,stagger:.08,ease:'back.out(1.7)',clearProps:'all'},.16);
       tl.from(cols,{opacity:0,y:20,scale:.96,duration:.55,stagger:.15,ease:'back.out(1.7)',clearProps:'all'},.3);
       tl.from(items,{opacity:0,y:25,scale:.9,duration:.6,stagger:.07,ease:'back.out(1.8)',clearProps:'all'},.55);
-      if(_dash){tl.from(bd.querySelectorAll('.rrd-tab'),{opacity:0,y:-6,duration:.3,stagger:.03,clearProps:'all'},.22).from(_dash.querySelectorAll('.rrd-tbl tbody tr'),{opacity:0,y:8,duration:.3,stagger:.02,clearProps:'all'},.34).from(_dash.querySelectorAll('.rrd-card'),{opacity:0,x:14,duration:.42,stagger:.08,ease:'power3.out',clearProps:'all'},.38).from(_dash.querySelectorAll('.rrd-zfill'),{scaleX:0,transformOrigin:'left center',duration:.5,stagger:.05,ease:'power3.out'},.52);}
+      if(_dash){tl.from(bd.querySelectorAll('.rrd-ktile'),{opacity:0,y:16,scale:.96,duration:.5,stagger:.09,ease:'back.out(1.6)',clearProps:'all'},.14).from(bd.querySelectorAll('.rrd-total__cam'),{opacity:0,scale:.7,duration:.5,ease:'back.out(2.6)',clearProps:'transform,opacity'},.42).from(bd.querySelectorAll('.rrd-tab'),{opacity:0,y:-6,duration:.3,stagger:.03,clearProps:'all'},.22).from(_dash.querySelectorAll('.rrd-tbl tbody tr'),{opacity:0,y:8,duration:.3,stagger:.02,clearProps:'all'},.34).from(_dash.querySelectorAll('.rrd-card'),{opacity:0,x:14,duration:.42,stagger:.08,ease:'power3.out',clearProps:'all'},.38).from(_dash.querySelectorAll('.rrd-zfill'),{scaleX:0,transformOrigin:'left center',duration:.5,stagger:.05,ease:'power3.out'},.52);}
       return;}
     if(anim==='add'||anim==='move'||anim==='edit'){
       const card=selCard();
