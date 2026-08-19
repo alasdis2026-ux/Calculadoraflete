@@ -5397,6 +5397,8 @@ function _rrGroups(weekDesde){
   });
   return Object.values(groups).sort((a,b)=>b.flete-a.flete);
 }
+// Diagnóstico: dump del estado de factura_id por reparto/cliente. Uso en consola: _diagFac('CELSO ORTIZ')
+window._diagFac=function(tsFiltro){const rowsD=[];(repartos||[]).forEach(r=>{(r.clientes||[]).forEach(c=>{const o=c.trId?tsOfTruck(c.trId):null;const ts=(o&&o.n)||c.tsNombre||'—';if(tsFiltro&&ts!==tsFiltro)return;rowsD.push({reparto:r.id,fecha:r.fechaISO,ts:ts,rep:c.rep,precio:c.precio,r_factura_id:(r.factura_id===undefined?'(sin campo)':r.factura_id),cl_factura_id:(c.factura_id===undefined?'(sin campo)':c.factura_id)});});});console.log('=== DIAG FACTURA'+(tsFiltro?' · '+tsFiltro:'')+' ===');console.table(rowsD);console.log('facturas registradas:',(window.__cfFac||[]).map(f=>({id:f.id,ts:f.transportadora_nombre,monto:f.monto,semana:f.semana_desde})));return rowsD;};
 function renderReporteRepartos(){
   const host=document.getElementById('rrepHost');if(!host)return;
   // Carga las facturas (una vez) para mostrar el estado en cada tarjeta
