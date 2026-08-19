@@ -5949,7 +5949,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     const facKpi='<div class="rrm-kpi rrm-kpi--fac"><span>Factura</span><b class="k-fac'+(facMonto==null?' k-nofac':'')+'">'+(facMonto!=null?_gs(facMonto):'Sin registros')+'</b></div>';
     bd.innerHTML=
       '<div class="rrd-topbar rrd-topbar--kpi">'+
-        '<div class="rrd-left">'+back+'<div class="rrd-ttl"><h2>'+_escp(g.ts)+(editing?'<span class="rrd-edbadge"><i></i>Editando</span>':'')+'</h2><div class="rrm-pd">'+periodLbl+' · <span class="rrm-ncam">'+nCam+'</span> camiones</div></div></div>'+
+        '<div class="rrd-left">'+back+'<div class="rrd-ttl"><h2>'+_escp(g.ts)+(editing?'<span class="rrd-edbadge"><i></i>Editando</span>':'')+'</h2><div class="rrm-pd">'+periodLbl+'</div></div></div>'+
         '<div class="rrd-topresumen">'+_dashResumen('General',0,nCam,t.f)+'</div>'+
         '<div class="rrd-acts">'+acts+'</div>'+
       '</div>'+
