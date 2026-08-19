@@ -4268,6 +4268,19 @@ function showSaveAnim(text){
   /* Detalle de planilla como sub-vista (no modal) */
   .rr-detail{display:block}
   .rrd-topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;background:#fff;padding:12px 0;margin-bottom:8px;border-bottom:1px solid var(--gray-100,#f1f5f9)}
+  /* KPIs en la línea del topbar (centrados entre título y botones) */
+  .rrd-topbar--kpi{flex-wrap:wrap;gap:16px}
+  .rrd-topresumen{flex:1 1 520px;min-width:0;display:flex;justify-content:center}
+  .rrd-topresumen .rrd-resumen-bar{margin:0;gap:10px;width:100%;flex-wrap:nowrap}
+  .rrd-topresumen .rrd-ktile{padding:11px 15px;gap:12px;border-radius:15px;box-shadow:0 4px 14px rgba(15,23,42,.06)}
+  .rrd-topresumen .rrd-ktile::before{height:3px}
+  .rrd-topresumen .rrd-ktile__ic{width:38px;height:38px;border-radius:11px}
+  .rrd-topresumen .rrd-ktile__ic svg{width:20px;height:20px}
+  .rrd-topresumen .rrd-ktile__tx small{font-size:9px}
+  .rrd-topresumen .rrd-ktile__tx b{font-size:17px}
+  .rrd-topbar--kpi .rrd-ktile--total{flex:1.5 1 0!important;min-width:0!important;max-width:none!important;justify-content:center;gap:20px}
+  .rrd-topresumen .rrd-total__div{margin:2px 0}
+  @media(max-width:1280px){.rrd-topresumen{flex-basis:100%;order:3}.rrd-topresumen .rrd-resumen-bar{flex-wrap:wrap}}
   .rr-detail.is-editing .rrd-topbar{border-bottom:2px solid #FCD34D;box-shadow:0 6px 16px rgba(245,158,11,.1)}
   .rrd-left{display:flex;align-items:center;gap:14px;min-width:0}
   .rrd-topbar .rrm-kpis{margin:0;flex-wrap:nowrap}
@@ -5588,7 +5601,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
       const rows=allItems.map(w=>{const isTr=w.seg==='transportadora';const cam=isTr?((+w.cant||0)+' camión'+((+w.cant||0)===1?'':'es')):camLbl(w);const zn=isTr?'—':(w.zona||(w.seg==='servicios'&&w.obs)||'—');return '<tr'+_facRowCls(w)+(_facMode?' data-facrow="'+w.uid+'" style="cursor:pointer"':'')+'>'+dfec(w)+'<td class="rrd-cam"><span class="rrd-cam__ic">'+TRUCKICON+'</span><span class="rrd-cam__t">'+_escp(cam)+'</span></td><td><span class="rrd-segtag rrd-segtag--'+w.seg+'">'+SEGN[w.seg]+'</span></td><td>'+(isTr?'<span class="rrd-mut">—</span>':_escp(w.rep||'Tercerizado'))+'</td><td class="rrd-grow">'+(zn&&zn!=='—'?dchip(zn):'<span class="rrd-mut">—</span>')+'</td><td class="r rrd-flete">'+_gs(+w.precio||0)+'</td>'+_facActs(w)+'</tr>';}).join('')||'<tr><td colspan="7" class="rrd-empty">Sin líneas</td></tr>';
       const table='<div class="rrd-tablecard"><div class="rrd-tablehd"><div class="rrd-tablehd__t"><span class="rrd-tablehd__dot" style="background:linear-gradient(135deg,#2578b8,#0B5F8D)"></span>Todos los pedidos</div></div><div class="rrd-tablewrap"><table class="rrd-tbl"><thead><tr><th>Fecha</th><th>Camión</th><th>Segmento</th><th>Repartidor</th><th class="rrd-grow">Zona</th><th class="r">Flete</th><th class="rrd-facth r">'+(_facMode?'¿Entra?':'Factura')+'</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
       const nCam=allItems.reduce((a,w)=>a+camCount(w),0),sub=allItems.reduce((a,w)=>a+(+w.precio||0),0);
-      return '<div class="rrd-dash">'+_dashResumen('General',allItems.length,nCam,sub)+table+'</div>';
+      return '<div class="rrd-dash">'+table+'</div>';
     }
     const sk=_dashSeg,isInt=sk==='interior',isServ=sk==='servicios',isTr=sk==='transportadora';
     const editing=_dashEdit&&!!_dashDraft;
@@ -5630,7 +5643,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     const nCam=editing?src.reduce((a,d)=>a+(isTr?(+d.cant||0):1),0):items.reduce((a,w)=>a+camCount(w),0);
     const sub=editing?src.reduce((a,d)=>a+_dfFlete(d),0):items.reduce((a,w)=>a+(+w.precio||0),0);
     const resumen=_dashResumen(SEGN[sk],src.length,nCam,sub);
-    return '<div class="rrd-dash">'+resumen+table+'</div>';
+    return '<div class="rrd-dash">'+table+'</div>';
   }
   function boardBody(){const activeSegs=SEGL.filter(segVisible);if(!activeSegs.length)return '<div class="rre-board"><div class="rre-board-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 3h13v13H1zm13 5h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg><b>'+(_camFilter?'Ese camión no está en la planilla':'Todavía no hay servicios cargados')+'</b><span>'+(_camFilter?'Probá con «Ver todos».':'Usá «+ Servicio de reparto» para empezar.')+'</span></div></div>';const cols=activeSegs.map(function(sk){const items=work.filter(w=>!w.del&&w.seg===sk&&(!_camFilter||w.isNew||w.edit||camLbl(w)===_camFilter)).slice().sort((a,b)=>{if(a.isNew!==b.isNew)return a.isNew?-1:1;const fa=a.fecha||'',fb=b.fecha||'';if(sk==='interior'){const pa=+a.precioKm||0,pb=+b.precioKm||0;if(pa!==pb)return pa-pb;return fa<fb?-1:(fa>fb?1:0);}const ca=camLbl(a)||'',cb=camLbl(b)||'';if(ca!==cb)return ca.localeCompare(cb,'es');return fa<fb?-1:(fa>fb?1:0);});let sF=0;items.forEach(w=>sF+=(+w.precio||0));const nCam=items.reduce((s,w)=>s+camCount(w),0);const inner=items.map(function(w,idx){return (w.edit||w.isNew)?formHTML(w,idx):rowHTML(w,idx);}).join('')||'<div class="rre-col-empty">Sin camiones</div>';return '<div class="rre-col rre-col--'+sk+'" data-seg="'+sk+'"><div class="rre-col-hd"><span class="rre-col-dot"></span>'+SEGN[sk]+'<span class="rre-col-n">'+nCam+'</span><div class="rre-col-hdacts">'+((sk!=='transportadora'&&items.some(w=>!w.isNew))?'<button class="rre-vedit" data-editseg="'+sk+'" type="button"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4z"/></svg> Editar</button>':'')+'<button class="rre-vadd" data-seg="'+sk+'" type="button"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg> Añadir</button></div></div><div class="rre-col-body">'+inner+'</div>'+(items.length?'<div class="rre-col-foot"><span class="rre-foot-n">'+nCam+' camión'+(nCam===1?'':'es')+'</span><span class="rre-foot-sub">Subtotal flete <b>'+_gs(sF)+'</b></span></div>':'')+'</div>';}).join('');
     // Columnas "fantasma" para los segmentos que no están en pantalla: aparecen sólo al arrastrar.
@@ -5896,8 +5909,9 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     const _fkg=_facDeGrupo(g);const facMonto=_fkg?(+_fkg.monto||0):null;
     const facKpi='<div class="rrm-kpi rrm-kpi--fac"><span>Factura</span><b class="k-fac'+(facMonto==null?' k-nofac':'')+'">'+(facMonto!=null?_gs(facMonto):'Sin registros')+'</b></div>';
     bd.innerHTML=
-      '<div class="rrd-topbar">'+
+      '<div class="rrd-topbar rrd-topbar--kpi">'+
         '<div class="rrd-left">'+back+'<div class="rrd-ttl"><h2>'+_escp(g.ts)+(editing?'<span class="rrd-edbadge"><i></i>Editando</span>':'')+'</h2><div class="rrm-pd">'+periodLbl+' · <span class="rrm-ncam">'+nCam+'</span> camiones</div></div></div>'+
+        '<div class="rrd-topresumen">'+_dashResumen('General',0,nCam,t.f)+'</div>'+
         '<div class="rrd-acts">'+acts+'</div>'+
       '</div>'+
       '<div class="rrd-bar">'+camFilterBar()+(_facMode?_selActs:dashTabs())+'<div class="rrd-bar__sp"></div></div>'+
@@ -5909,7 +5923,8 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     if(kf){if(firstDraw)countTo(kf,0,t.f,.28);else if(_lastTotal!=null&&_lastTotal!==t.f)countTo(kf,_lastTotal,t.f,0);}
     _lastTotal=t.f;
     const _dash=bd.querySelector('.rrd-dash');
-    if(_dash&&!firstDraw){gs.from(_dash.querySelectorAll('.rrd-ktile'),{opacity:0,y:16,scale:.96,duration:.5,stagger:.09,ease:'back.out(1.6)',clearProps:'all'});const _tb=bd.querySelectorAll('.rrd-tab');if(_tb.length){gs.from(_tb,{opacity:0,y:-6,duration:.28,stagger:.03,ease:'power2.out',clearProps:'all'});const _at=bd.querySelector('.rrd-tab.on');if(_at)gs.fromTo(_at,{scale:.88},{scale:1,duration:.44,ease:'back.out(2.6)',clearProps:'transform'});}gs.from(_dash.querySelectorAll('.rrd-tbl tbody tr'),{opacity:0,y:8,duration:.32,stagger:.02,ease:'power2.out',clearProps:'all'});gs.from(_dash.querySelectorAll('.rrd-card'),{opacity:0,x:14,duration:.4,stagger:.08,delay:.05,ease:'power3.out',clearProps:'all'});gs.from(_dash.querySelectorAll('.rrd-zfill'),{scaleX:0,transformOrigin:'left center',duration:.55,stagger:.05,delay:.16,ease:'power3.out'});}
+    if(!firstDraw){gs.from(bd.querySelectorAll('.rrd-ktile'),{opacity:0,y:14,scale:.96,duration:.48,stagger:.08,ease:'back.out(1.6)',clearProps:'all'});}
+    if(_dash&&!firstDraw){const _tb=bd.querySelectorAll('.rrd-tab');if(_tb.length){gs.from(_tb,{opacity:0,y:-6,duration:.28,stagger:.03,ease:'power2.out',clearProps:'all'});const _at=bd.querySelector('.rrd-tab.on');if(_at)gs.fromTo(_at,{scale:.88},{scale:1,duration:.44,ease:'back.out(2.6)',clearProps:'transform'});}gs.from(_dash.querySelectorAll('.rrd-tbl tbody tr'),{opacity:0,y:8,duration:.32,stagger:.02,ease:'power2.out',clearProps:'all'});gs.from(_dash.querySelectorAll('.rrd-card'),{opacity:0,x:14,duration:.4,stagger:.08,delay:.05,ease:'power3.out',clearProps:'all'});gs.from(_dash.querySelectorAll('.rrd-zfill'),{scaleX:0,transformOrigin:'left center',duration:.55,stagger:.05,delay:.16,ease:'power3.out'});}
     const cols=bd.querySelectorAll('.rre-col'),items=bd.querySelectorAll('.rre-card, .rrv-row'),actsEl=bd.querySelectorAll('.rrd-acts .rrm-act');
     const selCard=()=>selUid!=null?bd.querySelector('.rre-card[data-uid="'+selUid+'"]'):null;
     if(firstDraw){firstDraw=false;
