@@ -3429,10 +3429,13 @@ var _calRepSeg={};
 // KPIs PRO (Monto / Flete / Incidencia), pestañas de segmento como filtro y tabla rrd.
 function renderCalReparto(r){
   const cl=r.clientes||[];
-  const over=r.diferencia>0;
   const incVal=(r.incTotal!==null&&r.incTotal!==undefined)?r.incTotal:null;
   const incOk=incVal!==null&&incVal<3;
   const incTxt=incVal!==null?incVal.toFixed(2)+'%':'—';
+  // Objetivo (3%) SIEMPRE coherente con la incidencia (no dependemos de r.diferencia guardada,
+  // que puede quedar desactualizada). La diferencia se recalcula de los totales.
+  const _difObj=Math.round((r.totalFlete||0)-0.03*(r.totalMonto||0));
+  const over=incVal!==null?!incOk:(_difObj>0);
   const SEGN={local:'Local',interior:'Interior',servicios:'Servicios',transportadora:'Transportadora'};
   const SEGDOT={local:'#38BDF8',interior:'#F97316',servicios:'#10B981',transportadora:'#7c3aed'};
   const SEGORD=['local','interior','servicios','transportadora'];
@@ -3440,7 +3443,7 @@ function renderCalReparto(r){
   const CLIP='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>';
   const COINS='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.66 3.58 3 8 3s8-1.34 8-3V6M4 12v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/></svg>';
   const PCT='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M19 5L5 19"/><circle cx="7.5" cy="7.5" r="2.4"/><circle cx="16.5" cy="16.5" r="2.4"/></svg>';
-  const TARGET='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="4.2"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/></svg>';
+  const STATS='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16"/><path d="M6.5 20v-6M12 20V8M17.5 20v-9.5"/></svg>';
   // Transportadora dueña del bloque (según los camiones)
   const tsSet=[...new Set(cl.map(c=>{const o=c.trId?tsOfTruck(c.trId):null;return (o&&o.n)||c.tsNombre||r.tsNombre||'—';}))];
   const tsName=tsSet.length===1?tsSet[0]:(r.tsNombre||'Varios');
@@ -3455,7 +3458,7 @@ function renderCalReparto(r){
     tile('rrd-ktile--k-fac',CLIP,'Monto repartido',fmtGs(r.totalMonto))+
     tile('rrd-ktile--k-total',COINS,'Flete',fmtGs(r.totalFlete))+
     tile('rrd-ktile--inc'+(incVal===null?'':(incOk?' ok':' over')),PCT,'Incidencia',incTxt)+
-    tile('rrd-ktile--obj'+(over?' over':' ok'),TARGET,over?'Sobre el objetivo (3%)':'Dentro del objetivo (3%)',over?('+'+fmtGs(r.diferencia)):'Dentro')+
+    '<div class="rrd-ktile rrd-ktile--obj crd-obj '+(over?'over':'ok')+'"><span class="rrd-ktile__ic">'+STATS+'</span><div class="rrd-ktile__tx"><b class="crd-obj__t">'+(over?'Sobre el objetivo (3%)':'Dentro del objetivo (3%)')+'</b>'+(over?'<small class="crd-obj__d">+'+fmtGs(_difObj)+'</small>':'')+'</div></div>'+
     '</div>';
   // Pestañas de segmento (Todos + presentes)
   const tabs='<div class="rrd-tabs crd-tabs"><button class="rrd-tab'+(seg==='todos'?' on':'')+'" data-calseg="'+r.id+':todos"><span class="rrd-tab__dot rrd-tab__dot--all"></span>Todos<span class="rrd-tab__n">'+cl.length+'</span></button>'+present.map(sk=>{const n=cl.filter(c=>(c.seg||'local')===sk).length;return '<button class="rrd-tab'+(seg===sk?' on':'')+'" data-calseg="'+r.id+':'+sk+'"><span class="rrd-tab__dot" style="background:'+SEGDOT[sk]+'"></span>'+SEGN[sk]+'<span class="rrd-tab__n">'+n+'</span></button>';}).join('')+'</div>';
@@ -3474,12 +3477,13 @@ function renderCalReparto(r){
       '<td class="r crt-inc '+(hasInc?(clOk?'ok':'over'):'')+'">'+(hasInc?c.inc.toFixed(2)+'%':'—')+'</td></tr>';
   }).join('')||'<tr><td colspan="'+nCols+'" class="rrd-empty">Sin líneas en este segmento</td></tr>';
   const thead='<tr><th>Camión</th><th>Segmento</th><th>Repartidor</th><th class="rrd-grow">Zona</th>'+(showKm?'<th class="r">Km · Precio/km</th>':'')+'<th class="r">Monto</th><th class="r">Flete</th><th class="r">Incid.</th></tr>';
-  const hd='<div class="cal-rep-hd"><div class="cal-rep-hd-left"></div>'+
-    '<div class="cal-rep-actions">'+
+  const acts='<div class="cal-rep-actions crd-barrow__acts">'+
       '<button class="cal-rep-btn edit" type="button" data-editr="'+r.id+'"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="15" height="15"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>Editar</button>'+
       '<button class="cal-rep-btn del" type="button" data-delr="'+r.id+'" title="Eliminar"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="15" height="15"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>'+
-    '</div></div>';
-  return '<div class="cal-rep cal-rep--pro" data-repid="'+r.id+'">'+hd+kpis+tabs+'<div class="rrd-tablewrap crd-tablewrap"><table class="rrd-tbl"><thead>'+thead+'</thead><tbody>'+rows+'</tbody></table></div></div>';
+    '</div>';
+  // Barra: pestañas de segmento centradas + acciones (Editar/Eliminar) a la derecha, misma línea
+  const bar='<div class="crd-barrow"><span class="crd-barrow__sp"></span>'+tabs+acts+'</div>';
+  return '<div class="cal-rep cal-rep--pro" data-repid="'+r.id+'">'+kpis+bar+'<div class="rrd-tablewrap crd-tablewrap"><table class="rrd-tbl"><thead>'+thead+'</thead><tbody>'+rows+'</tbody></table></div></div>';
 }
 
 function closeCalModal(){
@@ -4539,7 +4543,16 @@ function showSaveAnim(text){
   .cal-rep--pro .crd-kpis{margin-bottom:14px}
   .cal-rep--pro .crd-kpis .rrd-ktile{min-width:170px}
   .rrd-ktile--cam .rrd-ktile__tx b{color:#0B5F8D}
-  .cal-rep--pro .crd-tabs{margin:0 auto 14px;width:max-content;max-width:100%}
+  /* Tile Objetivo: solo el estado (verde/rojo), un poco más grande, sin valor grande aparte */
+  .rrd-ktile--obj .rrd-ktile__tx b{font-size:14.5px;line-height:1.2}
+  .rrd-ktile--obj .crd-obj__d{font-size:11px;font-weight:800;margin-top:2px}
+  .rrd-ktile--obj.over .crd-obj__d{color:#dc2626}
+  .rrd-ktile--obj.ok .crd-obj__d{color:#15803d}
+  /* Barra: pestañas de segmento centradas + Editar/Eliminar a la derecha (misma línea) */
+  .crd-barrow{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;margin-bottom:14px}
+  .crd-barrow .crd-tabs{margin:0;justify-self:center}
+  .crd-barrow__acts{grid-column:3;justify-self:end;display:flex;gap:8px}
+  @media(max-width:760px){.crd-barrow{grid-template-columns:1fr;justify-items:center}.crd-barrow__sp{display:none}.crd-barrow__acts{grid-column:1;justify-self:center}}
   .cal-rep--pro .crd-tablewrap{overflow-x:auto}
   .crd-ts{display:inline-flex;align-items:center;gap:8px;font-family:Sora,Inter,sans-serif;font-size:16px;font-weight:800;color:#0f172a;letter-spacing:-.2px}
   .crd-ts__ic{width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,#eef6fc,#dbeafe);color:#0B5F8D;display:flex;align-items:center;justify-content:center;flex-shrink:0}
