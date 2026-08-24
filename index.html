@@ -5302,15 +5302,23 @@ function _cfOpenStats(){
   const camPct=Math.min(100,Math.round(s.camList.length/Math.max(1,allTs.reduce((a,t)=>a+t.cam,0))*100));
   const heroDonut=(items,cb,cl)=>{const total=items.reduce((a,i)=>a+i.value,0)||1,C=2*Math.PI*46,gap=3;let cum=0;const arcs=items.map(it=>{const len=(it.value/total)*C,vis=Math.max(0,len-gap),c='<circle cx="60" cy="60" r="46" fill="none" stroke="'+it.lc+'" stroke-width="16" stroke-dasharray="'+vis.toFixed(2)+' '+(C-vis).toFixed(2)+'" stroke-dashoffset="'+(-cum).toFixed(2)+'"/>';cum+=len;return c;}).join('');return '<div class="ghd-chart"><svg viewBox="0 0 120 120" class="ghd-svg"><g transform="rotate(-90 60 60)">'+arcs+'</g></svg><div class="ghd-center"><b>'+cb+'</b><span>'+cl+'</span></div></div>';};
   const heroGauge=(pct,cb,cl)=>{const C=2*Math.PI*46,vis=Math.max(0,Math.min(1,pct))*C;return '<div class="ghd-chart"><svg viewBox="0 0 120 120" class="ghd-svg"><g transform="rotate(-90 60 60)"><circle cx="60" cy="60" r="46" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="16"/><circle cx="60" cy="60" r="46" fill="none" stroke="#9FD3FF" stroke-width="16" stroke-linecap="round" stroke-dasharray="'+vis.toFixed(2)+' '+(C-vis).toFixed(2)+'"/></g></svg><div class="ghd-center"><b>'+cb+'</b><span>'+cl+'</span></div></div>';};
+  // Donut PRO sin número al centro: aro limpio con segmentos redondeados sobre pista tenue
+  const heroRing=items=>{const total=items.reduce((a,i)=>a+i.value,0)||1,C=2*Math.PI*46,gap=4;let cum=0;
+    const track='<circle cx="60" cy="60" r="46" fill="none" stroke="rgba(255,255,255,.16)" stroke-width="15"/>';
+    const arcs=items.map(it=>{const len=(it.value/total)*C,vis=Math.max(1.5,len-gap),c='<circle cx="60" cy="60" r="46" fill="none" stroke="'+it.lc+'" stroke-width="15" stroke-linecap="round" stroke-dasharray="'+vis.toFixed(2)+' '+(C-vis).toFixed(2)+'" stroke-dashoffset="'+(-cum).toFixed(2)+'"/>';cum+=len;return c;}).join('');
+    return '<div class="ghd-chart ghd-chart--clean"><svg viewBox="0 0 120 120" class="ghd-svg"><g transform="rotate(-90 60 60)">'+track+arcs+'</g></svg></div>';};
   const st=(v,l)=>'<div class="ghero-st"><b>'+v+'</b><span>'+l+'</span></div>';
+  const SEGKS=['local','interior','servicios','transportadora'];
+  const salItems=SEGKS.map(k=>({label:SEGN[k],value:s.seg[k]?s.seg[k].n:0,lc:SEGCL[k]})).filter(i=>i.value>0);
+  const totalSal=SEGKS.reduce((a,k)=>a+(s.seg[k]?s.seg[k].n:0),0);
   const kpis='<div class="gstat-topgrid">'+
     '<div class="card gstat-hero"><h3>Gasto total del mes</h3>'+
-      '<div class="ghero-top">'+heroDonut(segItems,_gsShort(s.total),'gasto')+'<div class="ghero-info"><div class="ghero-big"><span class="u">Gs.</span>'+_nnum(s.total)+'</div><div class="gstat-hero-row">'+gchip+'<span class="gstat-hero-sub">vs '+_mesLbl(_prevMk)+'</span></div></div></div>'+
+      '<div class="ghero-top">'+heroRing(segItems)+'<div class="ghero-info"><div class="ghero-big"><span class="u">Gs.</span>'+_nnum(s.total)+'</div><div class="gstat-hero-row">'+gchip+'<span class="gstat-hero-sub">vs '+_mesLbl(_prevMk)+'</span></div></div></div>'+
       '<div class="ghero-stats">'+segItems.map(it=>st(_gs(it.value),esc(it.label)+' · '+_pct(it.value/(s.total||1)))).join('')+'</div>'+
     '</div>'+
-    '<div class="card gstat-hero"><h3>Camiones usados</h3>'+
-      '<div class="ghero-top">'+heroGauge(camPct/100,camPct+'%','flota')+'<div class="ghero-info"><div class="ghero-big">'+_nnum(s.camList.length)+'<small> usados</small></div><div class="gstat-hero-row"><span class="gchip flat">'+_nnum(s.tsList.length)+' transportadoras</span></div></div></div>'+
-      '<div class="ghero-stats">'+st(_nnum(s.tsList.length),'Transportadoras')+st(_nnum(s.intKm),'Km interior')+st(_nnum(s.camList.length),'Camiones usados')+'</div>'+
+    '<div class="card gstat-hero"><h3>Salidas del mes</h3>'+
+      '<div class="ghero-top">'+heroRing(salItems)+'<div class="ghero-info"><div class="ghero-big">'+_nnum(totalSal)+'<small> salidas</small></div><div class="gstat-hero-row"><span class="gchip flat">'+_nnum(s.tsList.length)+' transportadoras</span></div></div></div>'+
+      '<div class="ghero-stats">'+SEGKS.map(k=>st(_nnum(s.seg[k]?s.seg[k].n:0),SEGN[k])).join('')+'</div>'+
     '</div>'+
   '</div>';
   const nav='<div class="rr-mnav"><button data-statm="-1" aria-label="Mes anterior">‹</button><span>'+_mesLbl(mk)+'</span><button data-statm="1" aria-label="Mes siguiente">›</button><button class="rr-mnav__today" data-stattoday type="button">Hoy</button></div>';
