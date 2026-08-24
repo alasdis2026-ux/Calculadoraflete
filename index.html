@@ -3245,12 +3245,8 @@ function renderCalDay(anim){
   const totMonto=list.reduce((a,r)=>a+(r.totalMonto||0),0);
   const totFlete=list.reduce((a,r)=>a+(r.totalFlete||0),0);
   const incs=list.filter(r=>r.incTotal!==null&&r.incTotal!==undefined).map(r=>r.incTotal);
-  const incProm=incs.length?incs.reduce((a,b)=>a+b,0)/incs.length:null;
-  const incOk=incProm!==null&&incProm<3;
-  document.getElementById('calModalKpis').innerHTML=
-    '<div class="cal-kpi"><span class="cal-kpi-lbl">Total monto</span><span class="cal-kpi-val k-daymonto">'+fmtGs(totMonto)+'</span></div>'+
-    '<div class="cal-kpi"><span class="cal-kpi-lbl">Total flete</span><span class="cal-kpi-val k-dayflete">'+fmtGs(totFlete)+'</span></div>'+
-    (incProm!==null?'<div class="cal-kpi"><span class="cal-kpi-lbl">Incidencia promedio</span><span class="cal-kpi-val '+(incOk?'ok':'over')+'">'+incProm.toFixed(2)+'%</span></div>':'');
+  // KPIs del día ocultas: cada bloque de reparto ya muestra sus propios KPIs (Monto/Flete/Incidencia/Objetivo)
+  const _kpiTop=document.getElementById('calModalKpis');if(_kpiTop){_kpiTop.innerHTML='';_kpiTop.style.display='none';}
   const body=document.getElementById('calModalBody');
   body.innerHTML=list.length
     ? list.map(r=>(calEditRepId===r.id?calRepEditHTML(r):renderCalReparto(r))).join('')
@@ -3444,6 +3440,7 @@ function renderCalReparto(r){
   const CLIP='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>';
   const COINS='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.66 3.58 3 8 3s8-1.34 8-3V6M4 12v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/></svg>';
   const PCT='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M19 5L5 19"/><circle cx="7.5" cy="7.5" r="2.4"/><circle cx="16.5" cy="16.5" r="2.4"/></svg>';
+  const TARGET='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="4.2"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/></svg>';
   // Transportadora dueña del bloque (según los camiones)
   const tsSet=[...new Set(cl.map(c=>{const o=c.trId?tsOfTruck(c.trId):null;return (o&&o.n)||c.tsNombre||r.tsNombre||'—';}))];
   const tsName=tsSet.length===1?tsSet[0]:(r.tsNombre||'Varios');
@@ -3454,9 +3451,11 @@ function renderCalReparto(r){
   // KPIs PRO
   const tile=(cls,ic,lbl,val)=>'<div class="rrd-ktile '+cls+'"><span class="rrd-ktile__ic">'+ic+'</span><div class="rrd-ktile__tx"><small>'+lbl+'</small><b>'+val+'</b></div></div>';
   const kpis='<div class="rrd-resumen-bar crd-kpis">'+
-    tile('rrd-ktile--k-fac',CLIP,'Monto',fmtGs(r.totalMonto))+
+    tile('rrd-ktile--cam',TRUCK,'Camiones',_nnum(cl.length))+
+    tile('rrd-ktile--k-fac',CLIP,'Monto repartido',fmtGs(r.totalMonto))+
     tile('rrd-ktile--k-total',COINS,'Flete',fmtGs(r.totalFlete))+
     tile('rrd-ktile--inc'+(incVal===null?'':(incOk?' ok':' over')),PCT,'Incidencia',incTxt)+
+    tile('rrd-ktile--obj'+(over?' over':' ok'),TARGET,over?'Sobre el objetivo (3%)':'Dentro del objetivo (3%)',over?('+'+fmtGs(r.diferencia)):'Dentro')+
     '</div>';
   // Pestañas de segmento (Todos + presentes)
   const tabs='<div class="rrd-tabs crd-tabs"><button class="rrd-tab'+(seg==='todos'?' on':'')+'" data-calseg="'+r.id+':todos"><span class="rrd-tab__dot rrd-tab__dot--all"></span>Todos<span class="rrd-tab__n">'+cl.length+'</span></button>'+present.map(sk=>{const n=cl.filter(c=>(c.seg||'local')===sk).length;return '<button class="rrd-tab'+(seg===sk?' on':'')+'" data-calseg="'+r.id+':'+sk+'"><span class="rrd-tab__dot" style="background:'+SEGDOT[sk]+'"></span>'+SEGN[sk]+'<span class="rrd-tab__n">'+n+'</span></button>';}).join('')+'</div>';
@@ -3475,11 +3474,7 @@ function renderCalReparto(r){
       '<td class="r crt-inc '+(hasInc?(clOk?'ok':'over'):'')+'">'+(hasInc?c.inc.toFixed(2)+'%':'—')+'</td></tr>';
   }).join('')||'<tr><td colspan="'+nCols+'" class="rrd-empty">Sin líneas en este segmento</td></tr>';
   const thead='<tr><th>Camión</th><th>Segmento</th><th>Repartidor</th><th class="rrd-grow">Zona</th>'+(showKm?'<th class="r">Km · Precio/km</th>':'')+'<th class="r">Monto</th><th class="r">Flete</th><th class="r">Incid.</th></tr>';
-  const hd='<div class="cal-rep-hd"><div class="cal-rep-hd-left">'+
-      '<span class="crd-ts"><span class="crd-ts__ic">'+TRUCK+'</span>'+esc(tsName)+'</span>'+
-      '<span class="cal-rep-count">'+cl.length+' <small>camión'+(cl.length!==1?'es':'')+'</small></span>'+
-      '<span class="cal-rep-dif-chip '+(over?'over':'ok')+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="'+(over?'M13 17h8m0 0V9m0 8l-8-8-4 4-6-6':'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6')+'"/></svg>'+(over?'Sobre el objetivo':'Dentro del objetivo')+' (3%)'+(over?' · +'+fmtGs(r.diferencia):'')+'</span>'+
-    '</div>'+
+  const hd='<div class="cal-rep-hd"><div class="cal-rep-hd-left"></div>'+
     '<div class="cal-rep-actions">'+
       '<button class="cal-rep-btn edit" type="button" data-editr="'+r.id+'"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="15" height="15"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>Editar</button>'+
       '<button class="cal-rep-btn del" type="button" data-delr="'+r.id+'" title="Eliminar"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="15" height="15"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>'+
@@ -4529,19 +4524,21 @@ function showSaveAnim(text){
   /* Colores por KPI (tarjeta blanca): flete total/aprobado azul oscuro, factura verde oscuro */
   .rrd-ktile--k-aprob .rrd-ktile__tx b,.rrd-ktile--k-total .rrd-ktile__tx b{color:#0B5F8D}
   .rrd-ktile--k-fac .rrd-ktile__tx b{color:#15803d}
-  /* Tile de Incidencia (detalle del día) */
-  .rrd-ktile--inc::before{background:linear-gradient(90deg,#94a3b8,#64748b)}
-  .rrd-ktile--inc.ok::before{background:linear-gradient(90deg,#22c55e,#15803d)}
-  .rrd-ktile--inc.over::before{background:linear-gradient(90deg,#f87171,#dc2626)}
-  .rrd-ktile--inc.ok .rrd-ktile__tx b{color:#15803d}
-  .rrd-ktile--inc.over .rrd-ktile__tx b{color:#dc2626}
-  .rrd-ktile--inc .rrd-ktile__ic{background:linear-gradient(135deg,#f1f5f9,#e2e8f0);color:#475569;border-color:rgba(100,116,139,.15)}
-  .rrd-ktile--inc.ok .rrd-ktile__ic{background:linear-gradient(135deg,#dcfce7,#bbf7d0);color:#15803d;border-color:rgba(21,128,61,.15)}
-  .rrd-ktile--inc.over .rrd-ktile__ic{background:linear-gradient(135deg,#fee2e2,#fecaca);color:#dc2626;border-color:rgba(220,38,38,.15)}
+  /* Tiles de Incidencia y Objetivo (detalle del día) */
+  .rrd-ktile--inc::before,.rrd-ktile--obj::before{background:linear-gradient(90deg,#94a3b8,#64748b)}
+  .rrd-ktile--inc.ok::before,.rrd-ktile--obj.ok::before{background:linear-gradient(90deg,#22c55e,#15803d)}
+  .rrd-ktile--inc.over::before,.rrd-ktile--obj.over::before{background:linear-gradient(90deg,#f87171,#dc2626)}
+  .rrd-ktile--inc.ok .rrd-ktile__tx b,.rrd-ktile--obj.ok .rrd-ktile__tx b{color:#15803d}
+  .rrd-ktile--inc.over .rrd-ktile__tx b,.rrd-ktile--obj.over .rrd-ktile__tx b{color:#dc2626}
+  .rrd-ktile--inc .rrd-ktile__ic,.rrd-ktile--obj .rrd-ktile__ic{background:linear-gradient(135deg,#f1f5f9,#e2e8f0);color:#475569;border-color:rgba(100,116,139,.15)}
+  .rrd-ktile--inc.ok .rrd-ktile__ic,.rrd-ktile--obj.ok .rrd-ktile__ic{background:linear-gradient(135deg,#dcfce7,#bbf7d0);color:#15803d;border-color:rgba(21,128,61,.15)}
+  .rrd-ktile--inc.over .rrd-ktile__ic,.rrd-ktile--obj.over .rrd-ktile__ic{background:linear-gradient(135deg,#fee2e2,#fecaca);color:#dc2626;border-color:rgba(220,38,38,.15)}
   /* Bloque de reparto (detalle del día) con estilo PRO */
   .cal-rep--pro{background:#fff;border:1px solid #eef2f7;border-radius:20px;padding:18px 20px 20px;margin-bottom:16px;box-shadow:0 8px 26px rgba(15,23,42,.06)}
-  .cal-rep--pro .cal-rep-hd{margin-bottom:14px}
+  .cal-rep--pro .cal-rep-hd{margin-bottom:14px;min-height:34px}
   .cal-rep--pro .crd-kpis{margin-bottom:14px}
+  .cal-rep--pro .crd-kpis .rrd-ktile{min-width:170px}
+  .rrd-ktile--cam .rrd-ktile__tx b{color:#0B5F8D}
   .cal-rep--pro .crd-tabs{margin:0 auto 14px;width:max-content;max-width:100%}
   .cal-rep--pro .crd-tablewrap{overflow-x:auto}
   .crd-ts{display:inline-flex;align-items:center;gap:8px;font-family:Sora,Inter,sans-serif;font-size:16px;font-weight:800;color:#0f172a;letter-spacing:-.2px}
