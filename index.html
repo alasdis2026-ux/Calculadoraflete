@@ -3228,7 +3228,7 @@ async function openCalModal(iso){
     tl.from('#calDayWrap .cal-day-ttl',{opacity:0,x:-8,duration:.45,ease:'back.out(1.6)',clearProps:'all'},.12);
     tl.from('#calModalKpis .cal-kpi',{opacity:0,y:-12,scale:.94,duration:.5,stagger:.08,ease:'back.out(1.7)',clearProps:'all'},.16);
     tl.from('#calModalBody .cal-rep',{opacity:0,y:22,scale:.96,duration:.55,stagger:.12,ease:'back.out(1.7)',clearProps:'all'},.3);
-    tl.from('#calModalBody .cal-rep-table tbody tr',{opacity:0,x:-10,duration:.4,stagger:.03,ease:'power2.out',clearProps:'all'},.52);
+    tl.from('#calModalBody .cal-rep tbody tr',{opacity:0,x:-10,duration:.4,stagger:.03,ease:'power2.out',clearProps:'all'},.52);
   }
 }
 
@@ -3280,10 +3280,15 @@ function renderCalDay(anim){
     g.from(editCard.querySelectorAll('tbody tr'),{opacity:0,y:12,scale:.96,duration:.38,stagger:.03,ease:'back.out(1.7)',clearProps:'all'});
     return;
   }
+  if(anim==='segtab'){
+    const at=body.querySelectorAll('.cal-rep--pro .rrd-tab.on');if(at.length)g.fromTo(at,{scale:.88},{scale:1,duration:.44,ease:'back.out(2.6)',clearProps:'transform'});
+    g.from(body.querySelectorAll('.cal-rep--pro .rrd-tbl tbody tr'),{opacity:0,y:8,duration:.32,stagger:.02,ease:'power2.out',clearProps:'all'});
+    return;
+  }
   // 'toggle' / default: fade del body + stagger de tarjetas + pulse de KPIs
   g.fromTo(body,{opacity:0,y:10},{opacity:1,y:0,duration:.36,ease:'power3.out',clearProps:'transform,opacity'});
   if(cards.length)g.from(cards,{opacity:0,y:18,scale:.96,duration:.5,stagger:.09,delay:.05,ease:'back.out(1.7)',clearProps:'all'});
-  g.from(body.querySelectorAll('.cal-rep-table tbody tr'),{opacity:0,x:-8,duration:.34,stagger:.02,delay:.16,ease:'power2.out',clearProps:'all'});
+  g.from(body.querySelectorAll('.cal-rep tbody tr'),{opacity:0,x:-8,duration:.34,stagger:.02,delay:.16,ease:'power2.out',clearProps:'all'});
   g.fromTo(document.querySelectorAll('#calModalKpis .cal-kpi'),{scale:.97},{scale:1,duration:.42,stagger:.05,ease:'back.out(2)',clearProps:'transform'});
 }
 
@@ -3422,54 +3427,64 @@ async function calSaveEdit(){
 }
 
 // Tarjeta de reparto para el modal del día (sin repetir los KPIs del día)
+// Filtro de segmento por bloque (repId -> segmento activo) en el detalle del día
+var _calRepSeg={};
+// Vista de reparto (lectura) con el MISMO estilo del detalle de Reporte de Repartos:
+// KPIs PRO (Monto / Flete / Incidencia), pestañas de segmento como filtro y tabla rrd.
 function renderCalReparto(r){
-  const over=r.diferencia>0;
-  const inc=r.incTotal!==null?r.incTotal.toFixed(2)+'%':'—';
-  const incOk=r.incTotal!==null&&r.incTotal<3;
   const cl=r.clientes||[];
-  // Agrupado por segmento (Local / Interior / Servicios) con subtotales
-  const SEGORD=[['local','Local'],['interior','Interior'],['servicios','Servicios'],['transportadora','Transportadora']];
-  const _multiSeg=[...new Set(cl.map(c=>c.seg||'local'))].length>1;
-  const showKm=cl.some(c=>(c.seg||'local')==='interior');
+  const over=r.diferencia>0;
+  const incVal=(r.incTotal!==null&&r.incTotal!==undefined)?r.incTotal:null;
+  const incOk=incVal!==null&&incVal<3;
+  const incTxt=incVal!==null?incVal.toFixed(2)+'%':'—';
+  const SEGN={local:'Local',interior:'Interior',servicios:'Servicios',transportadora:'Transportadora'};
+  const SEGDOT={local:'#38BDF8',interior:'#F97316',servicios:'#10B981',transportadora:'#7c3aed'};
+  const SEGORD=['local','interior','servicios','transportadora'];
+  const TRUCK='<svg viewBox="0 0 24 24"><rect x="2.5" y="7" width="11" height="8" rx="1"/><path d="M13.5 9.5H17l3.5 3.5V15h-7z"/><circle cx="7" cy="17.5" r="1.6"/><circle cx="17.5" cy="17.5" r="1.6"/></svg>';
+  const CLIP='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>';
+  const COINS='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.66 3.58 3 8 3s8-1.34 8-3V6M4 12v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/></svg>';
+  const PCT='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M19 5L5 19"/><circle cx="7.5" cy="7.5" r="2.4"/><circle cx="16.5" cy="16.5" r="2.4"/></svg>';
+  // Transportadora dueña del bloque (según los camiones)
+  const tsSet=[...new Set(cl.map(c=>{const o=c.trId?tsOfTruck(c.trId):null;return (o&&o.n)||c.tsNombre||r.tsNombre||'—';}))];
+  const tsName=tsSet.length===1?tsSet[0]:(r.tsNombre||'Varios');
+  // Segmentos presentes + filtro activo del bloque
+  const present=SEGORD.filter(sk=>cl.some(c=>(c.seg||'local')===sk));
+  let seg=_calRepSeg[r.id]||'todos';if(seg!=='todos'&&!present.includes(seg))seg='todos';
+  const showKm=cl.some(c=>(c.seg||'local')==='interior')&&(seg==='todos'||seg==='interior');
+  // KPIs PRO
+  const tile=(cls,ic,lbl,val)=>'<div class="rrd-ktile '+cls+'"><span class="rrd-ktile__ic">'+ic+'</span><div class="rrd-ktile__tx"><small>'+lbl+'</small><b>'+val+'</b></div></div>';
+  const kpis='<div class="rrd-resumen-bar crd-kpis">'+
+    tile('rrd-ktile--k-fac',CLIP,'Monto',fmtGs(r.totalMonto))+
+    tile('rrd-ktile--k-total',COINS,'Flete',fmtGs(r.totalFlete))+
+    tile('rrd-ktile--inc'+(incVal===null?'':(incOk?' ok':' over')),PCT,'Incidencia',incTxt)+
+    '</div>';
+  // Pestañas de segmento (Todos + presentes)
+  const tabs='<div class="rrd-tabs crd-tabs"><button class="rrd-tab'+(seg==='todos'?' on':'')+'" data-calseg="'+r.id+':todos"><span class="rrd-tab__dot rrd-tab__dot--all"></span>Todos<span class="rrd-tab__n">'+cl.length+'</span></button>'+present.map(sk=>{const n=cl.filter(c=>(c.seg||'local')===sk).length;return '<button class="rrd-tab'+(seg===sk?' on':'')+'" data-calseg="'+r.id+':'+sk+'"><span class="rrd-tab__dot" style="background:'+SEGDOT[sk]+'"></span>'+SEGN[sk]+'<span class="rrd-tab__n">'+n+'</span></button>';}).join('')+'</div>';
+  // Filas (filtradas por segmento activo)
+  const vis=cl.filter(c=>seg==='todos'||(c.seg||'local')===seg);
   const nCols=showKm?8:7;
-  const SEGCLR={local:'crt-grp',interior:'crt-grp crt-grp--interior',servicios:'crt-grp crt-grp--servicios',transportadora:'crt-grp crt-grp--transportadora'};
-  let rows='';
-  SEGORD.forEach(function(pair){const sk=pair[0],slbl=pair[1];const ls=cl.filter(c=>(c.seg||'local')===sk);if(!ls.length)return;let sM=0,sF=0,sP=0,sK=0;
-    if(_multiSeg)rows+='<tr class="'+SEGCLR[sk]+'"><td colspan="'+nCols+'">'+slbl+'</td></tr>';
-    ls.forEach(function(c){const hasInc=c.inc!==null&&c.inc!==undefined,clOk=hasInc&&c.inc<3,fl=(c.precio||c.gasto)||0;sM+=c.monto||0;sF+=fl;sP+=+c.peso||0;sK+=(sk==='interior'?(+c.km||0):0);
-      const kmCell=showKm?'<td class="crt-num">'+(sk==='interior'&&+c.km>0?_nnum(+c.km):'—')+'</td>':'';
-      rows+='<tr><td class="crt-name">'+esc(c.trDesc||c.nombre||'—')+'</td><td class="crt-txt">'+(c.rep?esc(c.rep):'—')+'</td><td class="crt-txt">'+(c.zona?esc(c.zona):'—')+'</td>'+kmCell+'<td class="crt-num">'+(+c.peso>0?_nnum(+c.peso):'—')+'</td><td class="crt-num">'+fmtGs(c.monto||0)+'</td><td class="crt-num">'+(fl?fmtGs(fl):'—')+'</td><td class="crt-inc '+(hasInc?(clOk?'ok':'over'):'')+'">'+(hasInc?c.inc.toFixed(2)+'%':'—')+'</td></tr>';});
-    if(_multiSeg)rows+='<tr class="crt-sub"><td colspan="3">Subtotal '+slbl+'</td>'+(showKm?'<td class="crt-num">'+(sK>0?_nnum(sK):'—')+'</td>':'')+'<td class="crt-num">'+(sP>0?_nnum(sP):'—')+'</td><td class="crt-num">'+fmtGs(sM)+'</td><td class="crt-num">'+fmtGs(sF)+'</td><td></td></tr>';
-  });
-  const totPeso=cl.reduce((s,c)=>s+(+c.peso||0),0);
-  const totKm=cl.reduce((s,c)=>s+((c.seg||'local')==='interior'?(+c.km||0):0),0);
-  return`<div class="cal-rep">
-    <div class="cal-rep-hd">
-      <div class="cal-rep-hd-left">
-        <span class="cal-rep-seg">${(function(){const SL={local:'LOCAL',interior:'INTERIOR',servicios:'SERVICIOS',transportadora:'TRANSPORTADORA'};const segs=[...new Set(cl.map(c=>c.seg||'local'))];return segs.map(s=>'<span class="crs crs--'+s+'">'+(SL[s]||s.toUpperCase())+'</span>').join('');})()}</span>
-        <span class="cal-rep-count">${cl.length} <small>camión${cl.length!==1?'es':''}</small></span>
-        <span class="cal-rep-dif-chip ${over?'over':'ok'}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="${over?'M13 17h8m0 0V9m0 8l-8-8-4 4-6-6':'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6'}"/></svg>${over?'Sobre el objetivo':'Dentro del objetivo'} (3%)${over?' · +'+fmtGs(r.diferencia):''}</span>
-      </div>
-      <div class="cal-rep-actions">
-        <button class="cal-rep-btn edit" type="button" data-editr="${r.id}"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="15" height="15"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>Editar</button>
-        <button class="cal-rep-btn del" type="button" data-delr="${r.id}" title="Eliminar"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="15" height="15"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>
-      </div>
-    </div>
-    <div class="cal-rep-table-wrap">
-      <table class="cal-rep-table">
-        <thead><tr><th>Camión</th><th>Repartidor</th><th>Zona</th>${showKm?'<th class="r">Km</th>':''}<th class="r">Peso (kg)</th><th class="r">Monto</th><th class="r">Flete</th><th class="r">Incid.</th></tr></thead>
-        <tbody>${rows}</tbody>
-        <tfoot><tr class="crt-total">
-          <td colspan="3">TOTAL</td>
-          ${showKm?'<td class="crt-num">'+(totKm>0?_nnum(totKm):'—')+'</td>':''}
-          <td class="crt-num">${totPeso>0?_nnum(totPeso):'—'}</td>
-          <td class="crt-num">${fmtGs(r.totalMonto)}</td>
-          <td class="crt-num">${fmtGs(r.totalFlete)}</td>
-          <td class="crt-inc ${incOk?'ok':'over'}">${inc}</td>
-        </tr></tfoot>
-      </table>
-    </div>
-  </div>`;
+  const rows=vis.map(c=>{const sk=c.seg||'local';const fl=(c.precio||c.gasto)||0;const hasInc=c.inc!==null&&c.inc!==undefined;const clOk=hasInc&&c.inc<3;
+    const km=(sk==='interior'&&+c.km>0)?(_nnum(+c.km)+' km × '+fmtGs(+c.precioKm||0)):'<span class="rrd-mut">—</span>';
+    return '<tr><td class="rrd-cam"><span class="rrd-cam__ic">'+TRUCK+'</span><span class="rrd-cam__t">'+esc(c.trDesc||c.nombre||'—')+'</span></td>'+
+      '<td><span class="rrd-segtag rrd-segtag--'+sk+'">'+SEGN[sk]+'</span></td>'+
+      '<td>'+(c.rep?esc(c.rep):'<span class="rrd-mut">Tercerizado</span>')+'</td>'+
+      '<td class="rrd-grow">'+(c.zona?'<span class="rrd-chip">'+esc(c.zona)+'</span>':'<span class="rrd-mut">—</span>')+'</td>'+
+      (showKm?'<td class="r rrd-det">'+km+'</td>':'')+
+      '<td class="r">'+fmtGs(c.monto||0)+'</td>'+
+      '<td class="r rrd-flete">'+(fl?fmtGs(fl):'—')+'</td>'+
+      '<td class="r crt-inc '+(hasInc?(clOk?'ok':'over'):'')+'">'+(hasInc?c.inc.toFixed(2)+'%':'—')+'</td></tr>';
+  }).join('')||'<tr><td colspan="'+nCols+'" class="rrd-empty">Sin líneas en este segmento</td></tr>';
+  const thead='<tr><th>Camión</th><th>Segmento</th><th>Repartidor</th><th class="rrd-grow">Zona</th>'+(showKm?'<th class="r">Km · Precio/km</th>':'')+'<th class="r">Monto</th><th class="r">Flete</th><th class="r">Incid.</th></tr>';
+  const hd='<div class="cal-rep-hd"><div class="cal-rep-hd-left">'+
+      '<span class="crd-ts"><span class="crd-ts__ic">'+TRUCK+'</span>'+esc(tsName)+'</span>'+
+      '<span class="cal-rep-count">'+cl.length+' <small>camión'+(cl.length!==1?'es':'')+'</small></span>'+
+      '<span class="cal-rep-dif-chip '+(over?'over':'ok')+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="'+(over?'M13 17h8m0 0V9m0 8l-8-8-4 4-6-6':'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6')+'"/></svg>'+(over?'Sobre el objetivo':'Dentro del objetivo')+' (3%)'+(over?' · +'+fmtGs(r.diferencia):'')+'</span>'+
+    '</div>'+
+    '<div class="cal-rep-actions">'+
+      '<button class="cal-rep-btn edit" type="button" data-editr="'+r.id+'"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="15" height="15"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>Editar</button>'+
+      '<button class="cal-rep-btn del" type="button" data-delr="'+r.id+'" title="Eliminar"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="15" height="15"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>'+
+    '</div></div>';
+  return '<div class="cal-rep cal-rep--pro" data-repid="'+r.id+'">'+hd+kpis+tabs+'<div class="rrd-tablewrap crd-tablewrap"><table class="rrd-tbl"><thead>'+thead+'</thead><tbody>'+rows+'</tbody></table></div></div>';
 }
 
 function closeCalModal(){
@@ -3503,6 +3518,8 @@ document.getElementById('calModalBody').addEventListener('click',async e=>{
   const delUid=e.target.closest('[data-cal-deluid]');
   const pickBtn=e.target.closest('.cal-e-pick');
   const modoBtn=e.target.closest('[data-calmodo]');
+  const segTab=e.target.closest('[data-calseg]');
+  if(segTab){e.stopPropagation();const parts=segTab.dataset.calseg.split(':');const rid=+parts[0],sk=parts[1];if(_calRepSeg[rid]===sk)return;_calRepSeg[rid]=sk;renderCalDay('segtab');return;}
   if(modoBtn){e.stopPropagation();if(!calWork)return;const w=calWork.find(x=>x.uid===+modoBtn.dataset.uid);if(!w)return;const fijo=modoBtn.dataset.calmodo==='fijo';if(!!w.fijo===fijo)return;w.fijo=fijo;if(fijo){w.km=0;w.precioKm=0;}renderCalDay('rows');return;}
   if(pickBtn){e.stopPropagation();calOpenPick(pickBtn);return;}
   if(editBtn){const id=+editBtn.dataset.editr;const r=calDayRepartos().find(x=>x.id===id);if(!r)return;calEditRepId=id;calWork=calBuildWork(r);renderCalDay('edit');return;}
@@ -4512,6 +4529,24 @@ function showSaveAnim(text){
   /* Colores por KPI (tarjeta blanca): flete total/aprobado azul oscuro, factura verde oscuro */
   .rrd-ktile--k-aprob .rrd-ktile__tx b,.rrd-ktile--k-total .rrd-ktile__tx b{color:#0B5F8D}
   .rrd-ktile--k-fac .rrd-ktile__tx b{color:#15803d}
+  /* Tile de Incidencia (detalle del día) */
+  .rrd-ktile--inc::before{background:linear-gradient(90deg,#94a3b8,#64748b)}
+  .rrd-ktile--inc.ok::before{background:linear-gradient(90deg,#22c55e,#15803d)}
+  .rrd-ktile--inc.over::before{background:linear-gradient(90deg,#f87171,#dc2626)}
+  .rrd-ktile--inc.ok .rrd-ktile__tx b{color:#15803d}
+  .rrd-ktile--inc.over .rrd-ktile__tx b{color:#dc2626}
+  .rrd-ktile--inc .rrd-ktile__ic{background:linear-gradient(135deg,#f1f5f9,#e2e8f0);color:#475569;border-color:rgba(100,116,139,.15)}
+  .rrd-ktile--inc.ok .rrd-ktile__ic{background:linear-gradient(135deg,#dcfce7,#bbf7d0);color:#15803d;border-color:rgba(21,128,61,.15)}
+  .rrd-ktile--inc.over .rrd-ktile__ic{background:linear-gradient(135deg,#fee2e2,#fecaca);color:#dc2626;border-color:rgba(220,38,38,.15)}
+  /* Bloque de reparto (detalle del día) con estilo PRO */
+  .cal-rep--pro{background:#fff;border:1px solid #eef2f7;border-radius:20px;padding:18px 20px 20px;margin-bottom:16px;box-shadow:0 8px 26px rgba(15,23,42,.06)}
+  .cal-rep--pro .cal-rep-hd{margin-bottom:14px}
+  .cal-rep--pro .crd-kpis{margin-bottom:14px}
+  .cal-rep--pro .crd-tabs{margin:0 auto 14px;width:max-content;max-width:100%}
+  .cal-rep--pro .crd-tablewrap{overflow-x:auto}
+  .crd-ts{display:inline-flex;align-items:center;gap:8px;font-family:Sora,Inter,sans-serif;font-size:16px;font-weight:800;color:#0f172a;letter-spacing:-.2px}
+  .crd-ts__ic{width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,#eef6fc,#dbeafe);color:#0B5F8D;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .crd-ts__ic svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.9}
   .rrd-ktile--flete{background:linear-gradient(135deg,#2578b8,#0B5F8D);border-color:transparent;box-shadow:0 10px 26px rgba(11,95,141,.3)}
   .rrd-ktile--flete .rrd-ktile__ic{background:rgba(255,255,255,.18);color:#fff}
   .rrd-ktile--flete .rrd-ktile__tx small{color:rgba(255,255,255,.82)}
