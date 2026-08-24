@@ -4025,17 +4025,25 @@ function showSaveAnim(text){
   .rep2 .ch-inc span{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:rgba(255,255,255,.72)}
   .rep2 .ch-inc b{font-size:16px;font-weight:800;color:#fff;white-space:nowrap;font-variant-numeric:tabular-nums}
   /* Camiones */
-  .rep2 .mini-bar{display:flex;border-top:1px solid var(--soft-line)}
-  .rep2 .mini-seg{flex:1;padding:12px 16px;border-right:1px solid var(--soft-line);display:flex;align-items:center;gap:12px}
-  .rep2 .mini-seg:last-child{border-right:none}
-  .rep2 .mini-txt{min-width:0}
-  .rep2 .mini-ic{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:var(--gray-100);color:var(--gray-500)}
-  .rep2 .mini-ic svg{width:21px;height:21px}
+  /* Salidas por canal: tarjetas minimalistas con número destacado */
+  .rep2 .mini-panel{background:transparent!important;border:none!important;box-shadow:none!important;padding:0!important}
+  .rep2 .mini-bar{display:flex;gap:12px;border:none}
+  .rep2 .mini-seg{flex:1;position:relative;display:flex;align-items:center;gap:15px;padding:16px 18px;background:#fff;border:1px solid #eef2f7;border-radius:16px;box-shadow:0 4px 14px rgba(15,23,42,.05);overflow:hidden;transition:transform .2s,box-shadow .2s}
+  .rep2 .mini-seg::before{content:'';position:absolute;top:0;left:0;bottom:0;width:4px;background:var(--orange,#F97316)}
+  .rep2 .mini-seg--per::before{background:var(--accent,#3B82F6)}
+  .rep2 .mini-seg.total::before{background:#8B5CF6}
+  .rep2 .mini-seg:hover{transform:translateY(-2px);box-shadow:0 11px 26px rgba(15,23,42,.1)}
+  .rep2 .mini-txt{display:flex;flex-direction:column;min-width:0}
+  .rep2 .mini-ic{width:46px;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:var(--gray-100);color:var(--gray-500)}
+  .rep2 .mini-ic svg{width:23px;height:23px}
   .rep2 .mini-seg--int .mini-ic{background:var(--orange-soft,#FFEDD5);color:var(--orange,#F97316)}
   .rep2 .mini-seg--per .mini-ic{background:var(--accent-soft,#DBEAFE);color:var(--accent,#3B82F6)}
-  .rep2 .mini-seg .ml{display:block;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)}
-  .rep2 .mini-seg .mv{display:block;font-family:Sora,Inter,sans-serif;font-weight:800;font-size:19px;color:var(--text);padding-top:2px;font-variant-numeric:tabular-nums}
   .rep2 .mini-seg.total .mini-ic{background:#EDE9FE;color:#8B5CF6}
+  .rep2 .mini-seg .mv{display:block;font-family:Sora,Inter,sans-serif;font-weight:800;font-size:32px;line-height:1;color:#0f172a;font-variant-numeric:tabular-nums;letter-spacing:-1px}
+  .rep2 .mini-seg--int .mv{color:#c2410c}
+  .rep2 .mini-seg--per .mv{color:#1d4ed8}
+  .rep2 .mini-seg.total .mv{color:#6d28d9}
+  .rep2 .mini-seg .ml{display:block;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#94a3b8;margin-top:5px}
   /* Monto e incidencia por zona */
   /* Monto e incidencia por zona: gráfico + tabla lado a lado */
   .rep2 .rep2-zt-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
@@ -5034,16 +5042,16 @@ function _cfZonas(mk){const map={};(repartos||[]).forEach(r=>{if(mk&&(r.fechaISO
 
 function _cfReporteModel(mk){
   const auto={interior:{monto:0,flete:0,cam:{}},local:{monto:0,flete:0,cam:{}},transportadora:{monto:0,flete:0,cam:{}}};
-  _cfLines(mk).forEach(l=>{const k=l.seg==='interior'?'interior':l.seg==='servicios'?'transportadora':'local';const o=auto[k];o.monto+=l.monto;o.flete+=l.flete;if(l.cam)o.cam[l.cam]=1;});
+  _cfLines(mk).forEach(l=>{const k=l.seg==='interior'?'interior':l.seg==='servicios'?'transportadora':'local';const o=auto[k];o.monto+=l.monto;o.flete+=l.flete;o.n=(o.n||0)+1;if(l.cam)o.cam[l.cam]=1;});
   const mkList=mk?[mk]:Object.keys(_cfReporte);
   function man(key){const r={peso:0,gratificaciones:0,viatico:0};mkList.forEach(mm=>{const s=(_cfReporte[mm]&&_cfReporte[mm].seg&&_cfReporte[mm].seg[key])||{};r.peso+=+s.peso||0;r.gratificaciones+=+s.gratificaciones||0;r.viatico+=+s.viatico||0;});return r;}
   const fac={facturacionMes:0,retira:0,notaCredito:0,factUltimoDiaMesPasado:0,pesoEnHierros:0};
   mkList.forEach(mm=>{const r=_cfReporte[mm]||{};fac.facturacionMes+=+r.facturacionMes||0;fac.retira+=+r.retira||0;fac.notaCredito+=+r.notaCredito||0;fac.factUltimoDiaMesPasado+=+r.factUltimoDiaMesPasado||0;fac.pesoEnHierros+=+r.pesoEnHierros||0;});
-  function seg(key){const a=auto[key],mm=man(key),cam=Object.keys(a.cam).length;let gt,inc;if(key==='transportadora'){gt=a.flete;inc=a.monto>0?a.flete/a.monto:0;}else{gt=a.flete+mm.gratificaciones+mm.viatico;inc=a.monto>0?gt/a.monto:0;}return{monto:a.monto,flete:a.flete,cam:cam,peso:mm.peso,gratificaciones:mm.gratificaciones,viatico:mm.viatico,gastoTotal:gt,incidencia:inc};}
+  function seg(key){const a=auto[key],mm=man(key),cam=Object.keys(a.cam).length;let gt,inc;if(key==='transportadora'){gt=a.flete;inc=a.monto>0?a.flete/a.monto:0;}else{gt=a.flete+mm.gratificaciones+mm.viatico;inc=a.monto>0?gt/a.monto:0;}return{monto:a.monto,flete:a.flete,cam:cam,salidas:a.n||0,peso:mm.peso,gratificaciones:mm.gratificaciones,viatico:mm.viatico,gastoTotal:gt,incidencia:inc};}
   const I=seg('interior'),L=seg('local'),T=seg('transportadora');
   const monto=I.monto+L.monto+T.monto,gasto=I.gastoTotal+L.gastoTotal+T.gastoTotal;
   const facTotal=fac.facturacionMes+fac.factUltimoDiaMesPasado,disp=facTotal-fac.retira;
-  return{interior:I,local:L,transportadora:T,fac:fac,gen:{monto:monto,gasto:gasto,incidencia:monto>0?gasto/monto:0,peso:I.peso+L.peso+T.peso,pesoEnHierros:fac.pesoEnHierros,facturacionTotal:facTotal,disponible:disp,nivel:(monto>0&&disp>0)?monto/disp:0},camiones:{interior:I.cam,periferia:L.cam,transportadora:T.cam,total:I.cam+L.cam+T.cam}};
+  return{interior:I,local:L,transportadora:T,fac:fac,gen:{monto:monto,gasto:gasto,incidencia:monto>0?gasto/monto:0,peso:I.peso+L.peso+T.peso,pesoEnHierros:fac.pesoEnHierros,facturacionTotal:facTotal,disponible:disp,nivel:(monto>0&&disp>0)?monto/disp:0},camiones:{interior:I.cam,periferia:L.cam,transportadora:T.cam,total:I.cam+L.cam+T.cam},salidas:{interior:I.salidas,periferia:L.salidas,transportadora:T.salidas,total:I.salidas+L.salidas+T.salidas}};
 }
 function _cfGauge(p){p=Math.max(0,Math.min(1,p||0));const cx=150,cy=150,r=118;const pt=a=>[(cx+r*Math.cos(a)).toFixed(1),(cy-r*Math.sin(a)).toFixed(1)];const full='M'+pt(Math.PI).join(',')+' A'+r+','+r+' 0 0 1 '+pt(0).join(',');const fg='M'+pt(Math.PI).join(',')+' A'+r+','+r+' 0 0 1 '+pt(Math.PI*(1-p)).join(',');return '<svg viewBox="0 0 300 186" width="100%" style="max-width:320px"><path class="cf-gauge__bg" d="'+full+'"/>'+(p>0?'<path class="cf-gauge__fg" d="'+fg+'"/>':'')+'<text class="cf-gauge__val" x="150" y="136" text-anchor="middle">'+_pct(p)+'</text><text class="cf-gauge__end" x="36" y="172" text-anchor="middle">0%</text><text class="cf-gauge__end" x="264" y="172" text-anchor="middle">100%</text></svg>';}
 
@@ -5115,10 +5123,10 @@ async function renderReporte(){
         '<div class="ch-rows"><div class="ch-row"><span class="ch-rl">Importe flete</span>'+aut(m.transportadora.flete)+'</div></div>'+
         '<div class="ch-foot"><div class="ch-total"><span>Gasto total</span><b>'+nn(m.transportadora.flete)+' Gs.</b></div><div class="ch-inc"><span>Incidencia</span><b>'+_pct(m.transportadora.incidencia)+'</b></div></div></div>'+
     '</div>'+
-      (function(){var MT='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h11v9H3zM14 9h4l3 3v3h-7z"/><circle cx="7" cy="17.5" r="1.6"/><circle cx="17.5" cy="17.5" r="1.6"/></svg>';return '<div class="panel" style="margin-top:14px"><div class="mini-bar">'+
-        '<div class="mini-seg mini-seg--int"><span class="mini-ic">'+MT+'</span><div class="mini-txt"><span class="ml">Camiones interior</span><span class="mv">'+nn(m.camiones.interior)+'</span></div></div>'+
-        '<div class="mini-seg mini-seg--per"><span class="mini-ic">'+MT+'</span><div class="mini-txt"><span class="ml">Camiones periferia</span><span class="mv">'+nn(m.camiones.periferia)+'</span></div></div>'+
-        '<div class="mini-seg total"><span class="mini-ic">'+MT+'</span><div class="mini-txt"><span class="ml">Camiones transportadora</span><span class="mv">'+nn(m.camiones.transportadora)+'</span></div></div>'+
+      (function(){var MT='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h11v9H3zM14 9h4l3 3v3h-7z"/><circle cx="7" cy="17.5" r="1.6"/><circle cx="17.5" cy="17.5" r="1.6"/></svg>';return '<div class="panel mini-panel" style="margin-top:14px"><div class="mini-bar">'+
+        '<div class="mini-seg mini-seg--int"><span class="mini-ic">'+MT+'</span><div class="mini-txt"><span class="mv">'+nn(m.salidas.interior)+'</span><span class="ml">Salidas · Interior</span></div></div>'+
+        '<div class="mini-seg mini-seg--per"><span class="mini-ic">'+MT+'</span><div class="mini-txt"><span class="mv">'+nn(m.salidas.periferia)+'</span><span class="ml">Salidas · Periferia</span></div></div>'+
+        '<div class="mini-seg total"><span class="mini-ic">'+MT+'</span><div class="mini-txt"><span class="mv">'+nn(m.salidas.transportadora)+'</span><span class="ml">Salidas · Transportadora</span></div></div>'+
       '</div></div>';})()+'</div>'+
       '<div class="main-col-right"><div class="section-label">Resumen y facturación</div>'+
         '<div class="panel"><div class="panel-title"><h3>Resumen del reparto</h3></div><table class="ledger">'+
