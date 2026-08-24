@@ -3278,6 +3278,7 @@ function renderCalDay(anim){
   }
   if(anim==='segtab'){
     const at=body.querySelectorAll('.cal-rep--pro .rrd-tab.on');if(at.length)g.fromTo(at,{scale:.88},{scale:1,duration:.44,ease:'back.out(2.6)',clearProps:'transform'});
+    g.fromTo(body.querySelectorAll('.cal-rep--pro .crd-kpis .rrd-ktile'),{scale:.98,opacity:.55},{scale:1,opacity:1,duration:.34,stagger:.03,ease:'power2.out',clearProps:'all'});
     g.from(body.querySelectorAll('.cal-rep--pro .rrd-tbl tbody tr'),{opacity:0,y:8,duration:.32,stagger:.02,ease:'power2.out',clearProps:'all'});
     return;
   }
@@ -3429,13 +3430,6 @@ var _calRepSeg={};
 // KPIs PRO (Monto / Flete / Incidencia), pestañas de segmento como filtro y tabla rrd.
 function renderCalReparto(r){
   const cl=r.clientes||[];
-  const incVal=(r.incTotal!==null&&r.incTotal!==undefined)?r.incTotal:null;
-  const incOk=incVal!==null&&incVal<3;
-  const incTxt=incVal!==null?incVal.toFixed(2)+'%':'—';
-  // Objetivo (3%) SIEMPRE coherente con la incidencia (no dependemos de r.diferencia guardada,
-  // que puede quedar desactualizada). La diferencia se recalcula de los totales.
-  const _difObj=Math.round((r.totalFlete||0)-0.03*(r.totalMonto||0));
-  const over=incVal!==null?!incOk:(_difObj>0);
   const SEGN={local:'Local',interior:'Interior',servicios:'Servicios',transportadora:'Transportadora'};
   const SEGDOT={local:'#38BDF8',interior:'#F97316',servicios:'#10B981',transportadora:'#7c3aed'};
   const SEGORD=['local','interior','servicios','transportadora'];
@@ -3450,20 +3444,29 @@ function renderCalReparto(r){
   // Segmentos presentes + filtro activo del bloque
   const present=SEGORD.filter(sk=>cl.some(c=>(c.seg||'local')===sk));
   let seg=_calRepSeg[r.id]||'todos';if(seg!=='todos'&&!present.includes(seg))seg='todos';
-  const showKm=cl.some(c=>(c.seg||'local')==='interior')&&(seg==='todos'||seg==='interior');
-  // KPIs PRO
+  // Conjunto filtrado por el segmento activo — los KPIs se calculan de ESTE conjunto
+  const vis=cl.filter(c=>seg==='todos'||(c.seg||'local')===seg);
+  const showKm=vis.some(c=>(c.seg||'local')==='interior');
+  const kMonto=vis.reduce((s,c)=>s+(+c.monto||0),0);
+  const kFlete=vis.reduce((s,c)=>s+((c.precio||c.gasto)||0),0);
+  const kCam=vis.length;
+  const incVal=(kMonto>0&&kFlete>0)?(kFlete/kMonto*100):null;
+  const incOk=incVal!==null&&incVal<3;
+  const incTxt=incVal!==null?incVal.toFixed(2)+'%':'—';
+  // Objetivo (3%) coherente con la incidencia del segmento; diferencia recalculada de los totales del segmento
+  const _difObj=Math.round(kFlete-0.03*kMonto);
+  const over=incVal!==null?!incOk:(_difObj>0);
+  // KPIs PRO (reflejan el segmento filtrado)
   const tile=(cls,ic,lbl,val)=>'<div class="rrd-ktile '+cls+'"><span class="rrd-ktile__ic">'+ic+'</span><div class="rrd-ktile__tx"><small>'+lbl+'</small><b>'+val+'</b></div></div>';
   const kpis='<div class="rrd-resumen-bar crd-kpis">'+
-    tile('rrd-ktile--cam',TRUCK,'Camiones',_nnum(cl.length))+
-    tile('rrd-ktile--k-fac',CLIP,'Monto repartido',fmtGs(r.totalMonto))+
-    tile('rrd-ktile--k-total',COINS,'Flete',fmtGs(r.totalFlete))+
+    tile('rrd-ktile--cam',TRUCK,'Camiones',_nnum(kCam))+
+    tile('rrd-ktile--k-fac',CLIP,'Monto repartido',fmtGs(kMonto))+
+    tile('rrd-ktile--k-total',COINS,'Flete',fmtGs(kFlete))+
     tile('rrd-ktile--inc'+(incVal===null?'':(incOk?' ok':' over')),PCT,'Incidencia',incTxt)+
     '<div class="rrd-ktile rrd-ktile--obj crd-obj '+(over?'over':'ok')+'"><span class="rrd-ktile__ic">'+STATS+'</span><div class="rrd-ktile__tx"><b class="crd-obj__t">'+(over?'Sobre el objetivo (3%)':'Dentro del objetivo (3%)')+'</b>'+(over?'<small class="crd-obj__d">+'+fmtGs(_difObj)+'</small>':'')+'</div></div>'+
     '</div>';
   // Pestañas de segmento (Todos + presentes)
   const tabs='<div class="rrd-tabs crd-tabs"><button class="rrd-tab'+(seg==='todos'?' on':'')+'" data-calseg="'+r.id+':todos"><span class="rrd-tab__dot rrd-tab__dot--all"></span>Todos<span class="rrd-tab__n">'+cl.length+'</span></button>'+present.map(sk=>{const n=cl.filter(c=>(c.seg||'local')===sk).length;return '<button class="rrd-tab'+(seg===sk?' on':'')+'" data-calseg="'+r.id+':'+sk+'"><span class="rrd-tab__dot" style="background:'+SEGDOT[sk]+'"></span>'+SEGN[sk]+'<span class="rrd-tab__n">'+n+'</span></button>';}).join('')+'</div>';
-  // Filas (filtradas por segmento activo)
-  const vis=cl.filter(c=>seg==='todos'||(c.seg||'local')===seg);
   const nCols=showKm?8:7;
   const rows=vis.map(c=>{const sk=c.seg||'local';const fl=(c.precio||c.gasto)||0;const hasInc=c.inc!==null&&c.inc!==undefined;const clOk=hasInc&&c.inc<3;
     const km=(sk==='interior'&&+c.km>0)?(_nnum(+c.km)+' km × '+fmtGs(+c.precioKm||0)):'<span class="rrd-mut">—</span>';
