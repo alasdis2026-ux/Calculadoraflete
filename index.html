@@ -4088,6 +4088,12 @@ function showSaveAnim(text){
   .ghero-st span{display:block;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:rgba(255,255,255,.72);margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .gstat-hero-row{display:flex;align-items:center;justify-content:flex-start;gap:9px;margin-top:9px;flex-wrap:wrap}
   .gstat-hero-sub{font-size:11.5px;color:rgba(255,255,255,.82);font-weight:600}
+  /* Barra horizontal apilada (reparto por segmento) */
+  .ghero-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:15px}
+  .ghero-bar{display:flex;gap:2px;height:26px;border-radius:9px;overflow:hidden;background:rgba(255,255,255,.10);box-shadow:inset 0 1px 3px rgba(0,0,0,.14)}
+  .ghero-seg{min-width:5px;display:flex;align-items:center;justify-content:center;transition:flex .55s cubic-bezier(.4,1.3,.5,1)}
+  .ghero-seg__p{font-size:11px;font-weight:800;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.28);font-variant-numeric:tabular-nums}
+  .ghero-st__dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle;flex-shrink:0}
   .gchip{display:inline-flex;align-items:center;gap:3px;font-size:12.5px;font-weight:800;padding:4px 11px;border-radius:20px;white-space:nowrap}
   .gchip.up{background:#fff;color:#127a4b}
   .gchip.down{background:#fff;color:#C0392B}
@@ -5311,14 +5317,19 @@ function _cfOpenStats(){
   const SEGKS=['local','interior','servicios','transportadora'];
   const salItems=SEGKS.map(k=>({label:SEGN[k],value:s.seg[k]?s.seg[k].n:0,lc:SEGCL[k]})).filter(i=>i.value>0);
   const totalSal=SEGKS.reduce((a,k)=>a+(s.seg[k]?s.seg[k].n:0),0);
+  // Barra horizontal apilada por segmento (parte-del-todo) + leyenda con puntos de color
+  const heroStack=items=>{const total=items.reduce((a,i)=>a+i.value,0)||1;return '<div class="ghero-bar">'+items.map(it=>{const p=it.value/total*100;return '<div class="ghero-seg" style="flex:'+it.value+' 1 0;background:'+it.lc+'" title="'+esc(it.label)+' · '+_pct(it.value/total)+'">'+(p>=9?'<span class="ghero-seg__p">'+Math.round(p)+'%</span>':'')+'</div>';}).join('')+'</div>';};
+  const stc=(v,l,c)=>'<div class="ghero-st"><b>'+v+'</b><span>'+(c?'<i class="ghero-st__dot" style="background:'+c+'"></i>':'')+l+'</span></div>';
   const kpis='<div class="gstat-topgrid">'+
     '<div class="card gstat-hero"><h3>Gasto total del mes</h3>'+
-      '<div class="ghero-top">'+heroRing(segItems)+'<div class="ghero-info"><div class="ghero-big"><span class="u">Gs.</span>'+_nnum(s.total)+'</div><div class="gstat-hero-row">'+gchip+'<span class="gstat-hero-sub">vs '+_mesLbl(_prevMk)+'</span></div></div></div>'+
-      '<div class="ghero-stats">'+segItems.map(it=>st(_gs(it.value),esc(it.label)+' · '+_pct(it.value/(s.total||1)))).join('')+'</div>'+
+      '<div class="ghero-head"><div class="ghero-big"><span class="u">Gs.</span>'+_nnum(s.total)+'</div><div class="gstat-hero-row">'+gchip+'<span class="gstat-hero-sub">vs '+_mesLbl(_prevMk)+'</span></div></div>'+
+      heroStack(segItems)+
+      '<div class="ghero-stats">'+segItems.map(it=>stc(_gs(it.value),esc(it.label)+' · '+_pct(it.value/(s.total||1)),it.lc)).join('')+'</div>'+
     '</div>'+
     '<div class="card gstat-hero"><h3>Salidas del mes</h3>'+
-      '<div class="ghero-top">'+heroRing(salItems)+'<div class="ghero-info"><div class="ghero-big">'+_nnum(totalSal)+'<small> salidas</small></div><div class="gstat-hero-row"><span class="gchip flat">'+_nnum(s.tsList.length)+' transportadoras</span></div></div></div>'+
-      '<div class="ghero-stats">'+SEGKS.map(k=>st(_nnum(s.seg[k]?s.seg[k].n:0),SEGN[k])).join('')+'</div>'+
+      '<div class="ghero-head"><div class="ghero-big">'+_nnum(totalSal)+'<small> salidas</small></div><div class="gstat-hero-row"><span class="gchip flat">'+_nnum(s.tsList.length)+' transportadoras</span></div></div>'+
+      heroStack(salItems)+
+      '<div class="ghero-stats">'+SEGKS.map(k=>stc(_nnum(s.seg[k]?s.seg[k].n:0),SEGN[k],SEGCL[k])).join('')+'</div>'+
     '</div>'+
   '</div>';
   const nav='<div class="rr-mnav"><button data-statm="-1" aria-label="Mes anterior">‹</button><span>'+_mesLbl(mk)+'</span><button data-statm="1" aria-label="Mes siguiente">›</button><button class="rr-mnav__today" data-stattoday type="button">Hoy</button></div>';
@@ -5341,8 +5352,10 @@ function _cfOpenStats(){
   const tsSearch=document.getElementById('gstatTsSearch');if(tsSearch)tsSearch.addEventListener('input',()=>{const q=tsSearch.value.trim().toLowerCase();host.querySelectorAll('#gstatTsBar .gstat-tschip').forEach(b=>{const nm=b.dataset.nm||'';b.style.display=(!q||nm==='todos'||nm.indexOf(q)>=0)?'':'none';});});
   if(window.gsap){const g=window.gsap;
     g.from('#statsHost .gstat-topgrid .card',{opacity:0,y:14,duration:.44,stagger:.09,ease:'back.out(1.4)',clearProps:'all'});
-    g.from('#statsHost .ghd-chart',{scale:.55,opacity:0,rotate:-40,transformOrigin:'center center',duration:.85,ease:'back.out(1.5)',delay:.22});
-    g.from('#statsHost .ghd-leg',{opacity:0,x:-8,duration:.4,stagger:.07,delay:.5,ease:'power2.out',clearProps:'all'});
+    g.from('#statsHost .ghero-big',{opacity:0,y:10,duration:.5,stagger:.1,delay:.18,ease:'power3.out',clearProps:'all'});
+    g.fromTo('#statsHost .ghero-bar',{scaleX:0,transformOrigin:'left center'},{scaleX:1,duration:.7,stagger:.1,delay:.28,ease:'power3.out'});
+    g.from('#statsHost .ghero-seg',{opacity:0,duration:.4,stagger:.04,delay:.6,ease:'power2.out',clearProps:'opacity'});
+    g.from('#statsHost .ghero-st',{opacity:0,y:8,duration:.4,stagger:.05,delay:.55,ease:'power2.out',clearProps:'all'});
     g.fromTo('#statsHost .gstat-hbar>span',{scaleX:0,transformOrigin:'left center'},{scaleX:1,duration:.7,stagger:.06,delay:.35,ease:'power3.out'});
     g.from('#statsHost .gstat-card',{opacity:0,y:16,duration:.44,stagger:.06,delay:.06,ease:'back.out(1.4)',clearProps:'all'});
     g.fromTo('#statsHost .gstat-bar__fill',{scaleX:0,transformOrigin:'left center'},{scaleX:1,duration:.7,stagger:.02,delay:.2,ease:'power3.out'});
