@@ -3295,44 +3295,63 @@ function calBuildWork(r){return (r.clientes||[]).map(c=>({uid:_calUid++,cId:c.id
 
 // Tarjeta de reparto en modo edición inline
 function calRepEditHTML(r){
-  const ts=(transportistas||[]).find(t=>t.id===r.tsId)||{};
-  const trucks=ts.trucks||[];
   const CHEV='<svg class="cal-e-pick__arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="13" height="13"><path d="M6 9l6 6 6-6"/></svg>';
   const SEGLBL={local:'Local',interior:'Interior',servicios:'Servicios',transportadora:'Transportadora'};
+  const SEGDOT={local:'#38BDF8',interior:'#F97316',servicios:'#10B981',transportadora:'#7c3aed'};
+  const SEGORD=['local','interior','servicios','transportadora'];
+  const TRUCK='<svg viewBox="0 0 24 24"><rect x="2.5" y="7" width="11" height="8" rx="1"/><path d="M13.5 9.5H17l3.5 3.5V15h-7z"/><circle cx="7" cy="17.5" r="1.6"/><circle cx="17.5" cy="17.5" r="1.6"/></svg>';
+  const CLIP='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>';
+  const COINS='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.66 3.58 3 8 3s8-1.34 8-3V6M4 12v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/></svg>';
+  const PCT='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M19 5L5 19"/><circle cx="7.5" cy="7.5" r="2.4"/><circle cx="16.5" cy="16.5" r="2.4"/></svg>';
+  const STATS='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16"/><path d="M6.5 20v-6M12 20V8M17.5 20v-9.5"/></svg>';
   const _difTxt=d=>d===null?'—':((d>0?'+':'')+'Gs. '+_nnum(Math.round(d)));
   const _difCls=(d,m)=>(m>0&&d!==null)?(d<=0?'good':'bad'):'na';
-  const rows=calWork.filter(w=>!w.del).map(function(w,ix){const sg=w.seg||'local';const isInt=sg==='interior';
+  const alive=calWork.filter(w=>!w.del);
+  const present=SEGORD.filter(sk=>alive.some(w=>(w.seg||'local')===sk));
+  let seg=_calEditSeg[r.id]||'todos';if(seg!=='todos'&&!present.includes(seg))seg='todos';
+  const visW=alive.filter(w=>seg==='todos'||(w.seg||'local')===seg);
+  const showKm=visW.some(w=>(w.seg||'local')==='interior');
+  // KPIs del segmento filtrado (con clases para actualización en vivo)
+  const kMonto=visW.reduce((s,w)=>s+(+w.monto||0),0),kFlete=visW.reduce((s,w)=>s+(+w.precio||0),0),kCam=visW.length;
+  const incVal=(kMonto>0&&kFlete>0)?(kFlete/kMonto*100):null,incOk=incVal!==null&&incVal<3,incTxt=incVal!==null?incVal.toFixed(2)+'%':'—';
+  const _difObj=Math.round(kFlete-0.03*kMonto),over=incVal!==null?!incOk:(_difObj>0);
+  const kb=(cls,ic,lbl,vcls,val)=>'<div class="rrd-ktile '+cls+'"><span class="rrd-ktile__ic">'+ic+'</span><div class="rrd-ktile__tx"><small>'+lbl+'</small><b class="'+vcls+'">'+val+'</b></div></div>';
+  const kpis='<div class="rrd-resumen-bar crd-kpis">'+
+    kb('rrd-ktile--cam',TRUCK,'Camiones','cal-ek-cam',_nnum(kCam))+
+    kb('rrd-ktile--k-fac',CLIP,'Monto repartido','cal-ek-monto',fmtGs(kMonto))+
+    kb('rrd-ktile--k-total',COINS,'Flete','cal-ek-flete',fmtGs(kFlete))+
+    '<div class="rrd-ktile rrd-ktile--inc cal-ek-inctile'+(incVal===null?'':(incOk?' ok':' over'))+'"><span class="rrd-ktile__ic">'+PCT+'</span><div class="rrd-ktile__tx"><small>Incidencia</small><b class="cal-ek-inc">'+incTxt+'</b></div></div>'+
+    '<div class="rrd-ktile rrd-ktile--obj cal-ek-objtile '+(over?'over':'ok')+'"><span class="rrd-ktile__ic">'+STATS+'</span><div class="rrd-ktile__tx"><b class="crd-obj__t cal-ek-obj">'+(over?'Sobre el objetivo (3%)':'Dentro del objetivo (3%)')+'</b></div></div>'+
+    '</div>';
+  // Pestañas de segmento (filtro de la edición)
+  const tabs='<div class="rrd-tabs crd-tabs"><button type="button" class="rrd-tab'+(seg==='todos'?' on':'')+'" data-caleditseg="'+r.id+':todos"><span class="rrd-tab__dot rrd-tab__dot--all"></span>Todos<span class="rrd-tab__n">'+alive.length+'</span></button>'+present.map(sk=>{const n=alive.filter(w=>(w.seg||'local')===sk).length;return '<button type="button" class="rrd-tab'+(seg===sk?' on':'')+'" data-caleditseg="'+r.id+':'+sk+'"><span class="rrd-tab__dot" style="background:'+SEGDOT[sk]+'"></span>'+SEGLBL[sk]+'<span class="rrd-tab__n">'+n+'</span></button>';}).join('')+'</div>';
+  const acts='<div class="cal-rep-actions crd-barrow__acts">'+
+      '<button class="cal-rep-btn" type="button" data-cal-add><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="14" height="14"><path d="M12 5v14M5 12h14"/></svg>Añadir</button>'+
+      '<button class="cal-rep-btn" type="button" data-cal-cancel>Cancelar</button>'+
+      '<button class="cal-rep-btn edit cal-save-btn" type="button" data-cal-save><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="15" height="15"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>Guardar</button>'+
+    '</div>';
+  const bar='<div class="crd-barrow"><span class="crd-barrow__sp"></span>'+tabs+acts+'</div>';
+  const nCols=showKm?9:8;
+  const rows=visW.map(function(w){const sg=w.seg||'local';const isInt=sg==='interior';
     const dif=(+w.monto>0&&+w.precio>0)?(+w.precio-(+w.monto*0.03)):null;
     const segCell='<div class="cal-e-segwrap"><button type="button" class="cal-e-pick cal-e-pick--seg cal-e-seg-'+sg+'" data-uid="'+w.uid+'" data-pick="seg"><span class="cal-e-pick__dot"></span><span class="cal-e-pick__t">'+SEGLBL[sg]+'</span>'+CHEV+'</button>'+(isInt?('<div class="cal-e-modo"><button type="button" class="cal-e-modo__b'+(!w.fijo?' on':'')+'" data-uid="'+w.uid+'" data-calmodo="km">Km</button><button type="button" class="cal-e-modo__b'+(w.fijo?' on':'')+'" data-uid="'+w.uid+'" data-calmodo="fijo">Fijo</button></div>'):'')+'</div>';
     return '<tr data-caluid="'+w.uid+'">'+
-      '<td class="cal-e-num">'+(ix+1)+'</td>'+
       '<td>'+segCell+'</td>'+
       '<td><button type="button" class="cal-e-pick cal-e-pick--tr'+(w.trId?'':' ph')+'" data-uid="'+w.uid+'" data-pick="tr"><span class="cal-e-pick__t">'+(w.trId?esc(w.trDesc||'—'):'Elegir camión')+'</span>'+CHEV+'</button></td>'+
       '<td><button type="button" class="cal-e-pick'+(w.rep?'':' ph')+'" data-uid="'+w.uid+'" data-pick="rep"><span class="cal-e-pick__t">'+(w.rep?esc(w.rep):'Tercerizado')+'</span>'+CHEV+'</button></td>'+
       '<td><button type="button" class="cal-e-pick'+(w.zona?'':' ph')+'" data-uid="'+w.uid+'" data-pick="zona"><span class="cal-e-pick__t">'+(w.zona?esc(w.zona):'Elegir zona')+'</span>'+CHEV+'</button></td>'+
       '<td class="r"><input class="cal-e-in cal-e-peso" data-uid="'+w.uid+'" inputmode="numeric" placeholder="0" value="'+(w.peso?_nnum(w.peso):'')+'"></td>'+
-      '<td class="r">'+((isInt&&!w.fijo)?('<input class="cal-e-in cal-e-km" data-uid="'+w.uid+'" inputmode="numeric" placeholder="0" value="'+(w.km?_nnum(w.km):'')+'">'):'<span class="cal-e-dash">—</span>')+'</td>'+
+      (showKm?'<td class="r">'+((isInt&&!w.fijo)?('<input class="cal-e-in cal-e-km" data-uid="'+w.uid+'" inputmode="numeric" placeholder="0" value="'+(w.km?_nnum(w.km):'')+'">'):'<span class="cal-e-dash">—</span>')+'</td>':'')+
       '<td class="r"><input class="cal-e-in cal-e-monto" data-uid="'+w.uid+'" inputmode="numeric" placeholder="0" value="'+(w.monto?_nnum(w.monto):'')+'"></td>'+
       '<td class="r"><input class="cal-e-in cal-e-flete" data-uid="'+w.uid+'" inputmode="numeric" placeholder="0" value="'+(w.precio?_nnum(w.precio):'')+'"></td>'+
       '<td class="r"><span class="cal-e-dif '+_difCls(dif,+w.monto)+'" data-uid="'+w.uid+'">'+_difTxt(dif)+'</span></td>'+
       '<td class="r"><button class="cal-e-del" type="button" data-cal-deluid="'+w.uid+'" title="Quitar camión">'+CAL_TRASH+'</button></td>'+
     '</tr>';
-  }).join('')||'<tr><td colspan="11" style="text-align:center;color:var(--gray-400);padding:18px">Sin camiones — usá “+ Añadir camión”.</td></tr>';
-  const alive=calWork.filter(w=>!w.del);
-  const tM=alive.reduce((s,w)=>s+(+w.monto||0),0),tF=alive.reduce((s,w)=>s+(+w.precio||0),0),tP=alive.reduce((s,w)=>s+(+w.peso||0),0);
-  const tDif=tM>0?(tF-tM*0.03):null;
-  const SL={local:'LOCAL',interior:'INTERIOR',servicios:'SERVICIOS',transportadora:'TRANSPORTADORA'};
-  const segs=[...new Set(alive.map(w=>w.seg||'local'))];
-  const segChips=segs.length?segs.map(s=>'<span class="crs crs--'+s+'">'+(SL[s]||s.toUpperCase())+'</span>').join(''):'<span class="crs crs--local">REPARTO</span>';
-  return '<div class="cal-rep cal-rep--edit" data-editing="'+r.id+'">'+
-    '<div class="cal-rep-hd">'+
-      '<div class="cal-rep-hd-left"><span class="cal-rep-editbadge"><i></i>Editando</span><span class="cal-rep-seg">'+segChips+'</span><span class="cal-rep-count" style="font-size:13px;color:var(--gray-400)">'+alive.length+' <small>camión'+(alive.length===1?'':'es')+'</small></span></div>'+
-      '<div class="cal-rep-actions"><button class="cal-rep-btn" type="button" data-cal-add><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="14" height="14"><path d="M12 5v14M5 12h14"/></svg>Añadir camión</button><button class="cal-rep-btn" type="button" data-cal-cancel>Cancelar</button><button class="cal-rep-btn edit cal-save-btn" type="button" data-cal-save><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="15" height="15"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>Guardar</button></div>'+
-    '</div>'+
-    '<div class="cal-rep-table-wrap"><table class="cal-rep-table cal-rep-table--edit">'+
-      '<thead><tr><th class="r">#</th><th>Segmento</th><th>Camión</th><th>Repartidor</th><th>Zona</th><th class="r">Peso (kg)</th><th class="r">Km</th><th class="r">Monto</th><th class="r">Flete</th><th class="r">Diferencia</th><th class="r"></th></tr></thead>'+
-      '<tbody>'+rows+'</tbody>'+
-      '<tfoot><tr class="crt-total"><td colspan="5">TOTAL</td><td class="crt-num cal-e-totp">'+(tP>0?_nnum(tP):'—')+'</td><td class="crt-num"></td><td class="crt-num cal-e-totm">'+fmtGs(tM)+'</td><td class="crt-num cal-e-totf">'+fmtGs(tF)+'</td><td class="crt-num cal-e-totdif '+_difCls(tDif,tM)+'">'+_difTxt(tDif)+'</td><td></td></tr></tfoot>'+
+  }).join('')||'<tr><td colspan="'+nCols+'" style="text-align:center;color:var(--gray-400);padding:18px">Sin camiones en este segmento — usá “+ Añadir”.</td></tr>';
+  const thead='<tr><th>Segmento</th><th>Camión</th><th>Repartidor</th><th>Zona</th><th class="r">Peso (kg)</th>'+(showKm?'<th class="r">Km</th>':'')+'<th class="r">Monto</th><th class="r">Flete</th><th class="r">Dif.</th><th class="r"></th></tr>';
+  return '<div class="cal-rep cal-rep--pro cal-rep--edit" data-editing="'+r.id+'">'+kpis+bar+
+    '<div class="rrd-tablewrap crd-tablewrap"><table class="cal-rep-table cal-rep-table--edit cal-rep-table--compact">'+
+      '<thead>'+thead+'</thead><tbody>'+rows+'</tbody>'+
     '</table></div>'+
   '</div>';
 }
@@ -3392,6 +3411,20 @@ function calLiveTotals(){
   calDayRepartos().forEach(r=>{if(r.id===calEditRepId){dM+=tM;dF+=tF;}else{dM+=r.totalMonto||0;dF+=r.totalFlete||0;}});
   const km=document.querySelector('.k-daymonto');if(km)km.textContent=fmtGs(dM);
   const kf=document.querySelector('.k-dayflete');if(kf)kf.textContent=fmtGs(dF);
+  // KPIs del bloque en edición (segmento filtrado) — actualización en vivo
+  if(calEditRepId!=null){
+    const seg=_calEditSeg[calEditRepId]||'todos';
+    const vw=calWork.filter(w=>!w.del&&(seg==='todos'||(w.seg||'local')===seg));
+    const m=vw.reduce((s,w)=>s+(+w.monto||0),0),f=vw.reduce((s,w)=>s+(+w.precio||0),0),n=vw.length;
+    const inc=(m>0&&f>0)?f/m*100:null,iok=inc!==null&&inc<3;
+    const difO=Math.round(f-0.03*m),ov=inc!==null?!iok:(difO>0);
+    const set=(sel,txt)=>{const el=document.querySelector(sel);if(el)el.textContent=txt;};
+    set('.cal-ek-cam',_nnum(n));set('.cal-ek-monto',fmtGs(m));set('.cal-ek-flete',fmtGs(f));
+    set('.cal-ek-inc',inc!==null?inc.toFixed(2)+'%':'—');
+    const it=document.querySelector('.cal-ek-inctile');if(it)it.className='rrd-ktile rrd-ktile--inc cal-ek-inctile'+(inc===null?'':(iok?' ok':' over'));
+    const ot=document.querySelector('.cal-ek-objtile');if(ot)ot.className='rrd-ktile rrd-ktile--obj cal-ek-objtile '+(ov?'over':'ok');
+    set('.cal-ek-obj',ov?'Sobre el objetivo (3%)':'Dentro del objetivo (3%)');
+  }
 }
 
 async function calSaveEdit(){
@@ -3426,6 +3459,8 @@ async function calSaveEdit(){
 // Tarjeta de reparto para el modal del día (sin repetir los KPIs del día)
 // Filtro de segmento por bloque (repId -> segmento activo) en el detalle del día
 var _calRepSeg={};
+// Filtro de segmento en modo edición (repId -> segmento activo)
+var _calEditSeg={};
 // Vista de reparto (lectura) con el MISMO estilo del detalle de Reporte de Repartos:
 // KPIs PRO (Monto / Flete / Incidencia), pestañas de segmento como filtro y tabla rrd.
 function renderCalReparto(r){
@@ -3522,10 +3557,12 @@ document.getElementById('calModalBody').addEventListener('click',async e=>{
   const modoBtn=e.target.closest('[data-calmodo]');
   const segTab=e.target.closest('[data-calseg]');
   if(segTab){e.stopPropagation();const parts=segTab.dataset.calseg.split(':');const rid=+parts[0],sk=parts[1];if(_calRepSeg[rid]===sk)return;_calRepSeg[rid]=sk;renderCalDay('segtab');return;}
+  const segTabE=e.target.closest('[data-caleditseg]');
+  if(segTabE){e.stopPropagation();const parts=segTabE.dataset.caleditseg.split(':');const rid=+parts[0],sk=parts[1];if((_calEditSeg[rid]||'todos')===sk)return;_calEditSeg[rid]=sk;renderCalDay('rows');return;}
   if(modoBtn){e.stopPropagation();if(!calWork)return;const w=calWork.find(x=>x.uid===+modoBtn.dataset.uid);if(!w)return;const fijo=modoBtn.dataset.calmodo==='fijo';if(!!w.fijo===fijo)return;w.fijo=fijo;if(fijo){w.km=0;w.precioKm=0;}renderCalDay('rows');return;}
   if(pickBtn){e.stopPropagation();calOpenPick(pickBtn);return;}
   if(editBtn){const id=+editBtn.dataset.editr;const r=calDayRepartos().find(x=>x.id===id);if(!r)return;calEditRepId=id;calWork=calBuildWork(r);renderCalDay('edit');return;}
-  if(addBtn){if(!calWork)return;calWork.unshift({uid:_calUid++,cId:null,trId:null,trDesc:'',tsId:null,tsNombre:'',seg:'local',rep:'',zona:'',monto:0,precio:0,peso:0,km:0,precioKm:0,obs:null,cant:null,del:false,isNew:true});renderCalDay('add');return;}
+  if(addBtn){if(!calWork)return;const _es=_calEditSeg[calEditRepId]||'todos';const _sk=_es==='todos'?'local':_es;calWork.unshift({uid:_calUid++,cId:null,trId:null,trDesc:'',tsId:null,tsNombre:'',seg:_sk,rep:'',zona:'',monto:0,precio:0,peso:0,km:0,precioKm:0,obs:null,cant:null,del:false,isNew:true});renderCalDay('add');return;}
   if(cancelBtn){calEditRepId=null;calWork=null;renderCalDay('toggle');return;}
   if(saveBtn){await calSaveEdit();return;}
   if(delUid){if(!calWork)return;const w=calWork.find(x=>x.uid===+delUid.dataset.calDeluid);if(!w)return;
@@ -4557,6 +4594,20 @@ function showSaveAnim(text){
   .crd-barrow__acts{grid-column:3;justify-self:end;display:flex;gap:8px}
   @media(max-width:760px){.crd-barrow{grid-template-columns:1fr;justify-items:center}.crd-barrow__sp{display:none}.crd-barrow__acts{grid-column:1;justify-self:center}}
   .cal-rep--pro .crd-tablewrap{overflow-x:auto}
+  /* Tabla de edición compacta (detalle del día) — que entre sin scroll horizontal */
+  .cal-rep-table--compact{width:100%;table-layout:auto}
+  .cal-rep-table--compact th{padding:8px 9px;font-size:9.5px}
+  .cal-rep-table--compact td{padding:7px 9px;vertical-align:middle}
+  .cal-rep-table--compact .cal-e-pick{min-width:0;padding:6px 8px;font-size:12px;gap:5px;border-radius:8px}
+  .cal-rep-table--compact .cal-e-in{width:92px;padding:6px 8px;font-size:12px;border-radius:8px}
+  .cal-rep-table--compact .cal-e-peso,.cal-rep-table--compact .cal-e-km{width:62px}
+  .cal-rep-table--compact .cal-e-monto,.cal-rep-table--compact .cal-e-flete{width:106px}
+  .cal-rep-table--compact .cal-e-segwrap{gap:5px;flex-wrap:wrap}
+  .cal-rep-table--compact .cal-e-segwrap .cal-e-pick{min-width:94px}
+  .cal-rep-table--compact .cal-e-modo__b{padding:3px 7px;font-size:10px}
+  .cal-rep-table--compact .cal-e-dif{font-size:11.5px}
+  .cal-rep--edit.cal-rep--pro .crd-kpis{margin-bottom:12px}
+  .cal-rep--edit.cal-rep--pro{border-color:var(--accent,#3B82F6);box-shadow:0 10px 28px rgba(37,120,184,.16)}
   .crd-ts{display:inline-flex;align-items:center;gap:8px;font-family:Sora,Inter,sans-serif;font-size:16px;font-weight:800;color:#0f172a;letter-spacing:-.2px}
   .crd-ts__ic{width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,#eef6fc,#dbeafe);color:#0B5F8D;display:flex;align-items:center;justify-content:center;flex-shrink:0}
   .crd-ts__ic svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.9}
