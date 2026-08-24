@@ -3988,6 +3988,10 @@ function showSaveAnim(text){
   .rep2 .ch-rows{flex:1;padding:4px 0}
   .rep2 .ch-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 18px;transition:background var(--fast)}
   .rep2 .ch-row:hover{background:var(--gray-50)}
+  .rep2 .ch-row--sal{background:var(--ch-soft);border-bottom:1px solid var(--soft-line)}
+  .rep2 .ch-row--sal:hover{background:var(--ch-soft)}
+  .rep2 .ch-row--sal .ch-rl{color:var(--ch-color);font-weight:800}
+  .rep2 .ch-sv{font-family:Sora,Inter,sans-serif;font-weight:800;font-size:18px;color:var(--ch-color);line-height:1;font-variant-numeric:tabular-nums}
   .rep2 .ch-rl{font-size:12px;font-weight:600;color:var(--gray-500)}
   .rep2 .ch-rv{display:flex;align-items:baseline;justify-content:flex-end;gap:3px;flex-shrink:0;font-size:13.5px;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums}
   .rep2 .ch-rv.man{color:var(--accent,#3B82F6)}
@@ -5110,7 +5114,7 @@ async function renderReporte(){
     '<div class="main-grid"><div class="main-col-left"><div class="section-label">Reparto por canal</div><div class="channel-grid">'+
       '<div class="ch-card" data-ch="int"><div class="ch-top"></div><div class="ch-head"><span class="ch-dot"></span><span class="ch-name">Interior</span><span class="ch-cams">'+nn(m.interior.cam)+'<small>cam.</small></span></div>'+
         '<div class="ch-hero"><span class="ch-hero-l">Monto repartido</span><div class="ch-hero-v"><span class="ch-val">'+nn(m.interior.monto)+'</span><span class="ch-u">Gs.</span></div></div>'+
-        '<div class="ch-rows"><div class="ch-row"><span class="ch-rl">Peso</span>'+man(m.interior.peso,'Kg','seg.interior.peso','Peso · Interior')+'</div>'+
+        '<div class="ch-rows"><div class="ch-row ch-row--sal"><span class="ch-rl">Salidas del mes</span><span class="ch-sv">'+nn(m.salidas.interior)+'</span></div><div class="ch-row"><span class="ch-rl">Peso</span>'+man(m.interior.peso,'Kg','seg.interior.peso','Peso · Interior')+'</div>'+
           '<div class="ch-row"><span class="ch-rl">Km recorridos</span>'+aut(intKm,'Km')+'</div>'+
           '<div class="ch-row"><span class="ch-rl">Pago a transportadoras</span>'+aut(m.interior.flete)+'</div>'+
           '<div class="ch-row"><span class="ch-rl">Gratificaciones</span>'+man(m.interior.gratificaciones,'','seg.interior.gratificaciones','Gratificaciones · Interior')+'</div>'+
@@ -5118,20 +5122,16 @@ async function renderReporte(){
         '<div class="ch-foot"><div class="ch-total"><span>Gasto total</span><b>'+nn(m.interior.gastoTotal)+' Gs.</b></div><div class="ch-inc"><span>Incidencia</span><b>'+_pct(m.interior.incidencia)+'</b></div></div></div>'+
       '<div class="ch-card" data-ch="loc"><div class="ch-top"></div><div class="ch-head"><span class="ch-dot"></span><span class="ch-name">Local</span><span class="ch-cams">'+nn(m.local.cam)+'<small>cam.</small></span></div>'+
         '<div class="ch-hero"><span class="ch-hero-l">Monto repartido</span><div class="ch-hero-v"><span class="ch-val">'+nn(m.local.monto)+'</span><span class="ch-u">Gs.</span></div></div>'+
-        '<div class="ch-rows"><div class="ch-row"><span class="ch-rl">Peso</span>'+man(m.local.peso,'Kg','seg.local.peso','Peso · Local')+'</div>'+
+        '<div class="ch-rows"><div class="ch-row ch-row--sal"><span class="ch-rl">Salidas del mes</span><span class="ch-sv">'+nn(m.salidas.periferia)+'</span></div><div class="ch-row"><span class="ch-rl">Peso</span>'+man(m.local.peso,'Kg','seg.local.peso','Peso · Local')+'</div>'+
           '<div class="ch-row"><span class="ch-rl">Pago a transportadoras</span>'+aut(m.local.flete)+'</div>'+
           '<div class="ch-row"><span class="ch-rl">Gasto viático</span>'+man(m.local.viatico,'','seg.local.viatico','Gasto viático · Local')+'</div></div>'+
         '<div class="ch-foot"><div class="ch-total"><span>Gasto total</span><b>'+nn(m.local.gastoTotal)+' Gs.</b></div><div class="ch-inc"><span>Incidencia</span><b>'+_pct(m.local.incidencia)+'</b></div></div></div>'+
       '<div class="ch-card" data-ch="trans"><div class="ch-top"></div><div class="ch-head"><span class="ch-dot"></span><span class="ch-name">Transportadora</span><span class="ch-cams">'+nn(m.transportadora.cam)+'<small>cam.</small></span></div>'+
         '<div class="ch-hero"><span class="ch-hero-l">Monto de factura</span><div class="ch-hero-v"><span class="ch-val">'+nn(m.transportadora.monto)+'</span><span class="ch-u">Gs.</span></div></div>'+
-        '<div class="ch-rows"><div class="ch-row"><span class="ch-rl">Importe flete</span>'+aut(m.transportadora.flete)+'</div></div>'+
+        '<div class="ch-rows"><div class="ch-row ch-row--sal"><span class="ch-rl">Salidas del mes</span><span class="ch-sv">'+nn(m.salidas.transportadora)+'</span></div><div class="ch-row"><span class="ch-rl">Importe flete</span>'+aut(m.transportadora.flete)+'</div></div>'+
         '<div class="ch-foot"><div class="ch-total"><span>Gasto total</span><b>'+nn(m.transportadora.flete)+' Gs.</b></div><div class="ch-inc"><span>Incidencia</span><b>'+_pct(m.transportadora.incidencia)+'</b></div></div></div>'+
     '</div>'+
-      (function(){var MT='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h11v9H3zM14 9h4l3 3v3h-7z"/><circle cx="7" cy="17.5" r="1.6"/><circle cx="17.5" cy="17.5" r="1.6"/></svg>';return '<div class="panel mini-panel" style="margin-top:14px"><div class="mini-bar">'+
-        '<div class="mini-seg mini-seg--int"><span class="mini-ic">'+MT+'</span><div class="mini-txt"><span class="mv">'+nn(m.salidas.interior)+'</span><span class="ml">Salidas · Interior</span></div></div>'+
-        '<div class="mini-seg mini-seg--per"><span class="mini-ic">'+MT+'</span><div class="mini-txt"><span class="mv">'+nn(m.salidas.periferia)+'</span><span class="ml">Salidas · Periferia</span></div></div>'+
-        '<div class="mini-seg total"><span class="mini-ic">'+MT+'</span><div class="mini-txt"><span class="mv">'+nn(m.salidas.transportadora)+'</span><span class="ml">Salidas · Transportadora</span></div></div>'+
-      '</div></div>';})()+'</div>'+
+      '</div>'+
       '<div class="main-col-right"><div class="section-label">Resumen y facturación</div>'+
         '<div class="panel"><div class="panel-title"><h3>Resumen del reparto</h3></div><table class="ledger">'+
           '<tr class="row-calc"><td>Peso total</td><td>'+nn(m.gen.peso)+'</td></tr>'+
@@ -5158,7 +5158,7 @@ async function renderReporte(){
     g.from('#repHost .hero-seg',{opacity:0,y:14,duration:.42,stagger:.07,ease:'power3.out',clearProps:'opacity,transform'});
     g.from('#repHost .ch-card',{opacity:0,y:16,duration:.45,stagger:.1,delay:.1,ease:'back.out(1.5)',clearProps:'opacity,transform'});
     g.from('#repHost .main-col-right .panel',{opacity:0,y:16,duration:.42,stagger:.08,delay:.2,ease:'power3.out',clearProps:'opacity,transform'});
-    g.from('#repHost .mini-seg',{opacity:0,y:8,duration:.32,stagger:.05,delay:.28,ease:'power2.out',clearProps:'opacity,transform'});
+    g.from('#repHost .ch-row--sal',{opacity:0,x:-8,duration:.34,stagger:.08,delay:.3,ease:'power2.out',clearProps:'opacity,transform'});
     g.from('#repHost .zbar-row',{opacity:0,x:-14,duration:.4,stagger:.04,delay:.32,ease:'power3.out',clearProps:'opacity,transform'});
     g.fromTo('#repHost .zbar-fill',{scaleX:0,transformOrigin:'left center'},{scaleX:1,duration:.7,stagger:.04,delay:.4,ease:'power3.out'});
     g.from('#repHost .zt-tbl tbody tr',{opacity:0,y:6,duration:.3,stagger:.02,delay:.4,ease:'power2.out',clearProps:'all'});
