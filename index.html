@@ -3988,6 +3988,17 @@ function showSaveAnim(text){
   .rep2 .ch-rl{font-size:12px;font-weight:600;color:var(--gray-500)}
   .rep2 .ch-rv{display:flex;align-items:baseline;justify-content:flex-end;gap:3px;flex-shrink:0;font-size:13.5px;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums}
   .rep2 .ch-rv.man{color:var(--accent,#3B82F6)}
+  /* Edición inline de valores manuales */
+  .rep2 .man-ed{cursor:pointer;border-radius:6px;padding:0 5px;transition:background .14s,box-shadow .14s}
+  .rep2 .ch-rv.man-ed:hover,.rep2 td.man-ed:hover{background:rgba(59,130,246,.12);box-shadow:inset 0 0 0 1px rgba(59,130,246,.35)}
+  .rep2 .man-editing{background:#fff!important;box-shadow:inset 0 0 0 1.5px var(--accent,#3B82F6)!important}
+  .man-inp{width:100px;max-width:38vw;border:none;background:transparent;font:inherit;font-weight:800;color:var(--accent,#3B82F6);text-align:right;outline:none;font-variant-numeric:tabular-nums;padding:0}
+  .man-confirm{text-align:center;padding:4px 0 2px}
+  .man-confirm__f{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-500,#64748b);margin-bottom:13px}
+  .man-confirm__row{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap}
+  .man-confirm__old{font-size:16px;font-weight:700;color:var(--gray-400,#94a3b8);text-decoration:line-through;font-variant-numeric:tabular-nums}
+  .man-confirm__new{font-size:23px;font-weight:800;color:var(--accent,#3B82F6);font-variant-numeric:tabular-nums}
+  .man-confirm__arr{width:22px;height:22px;color:var(--gray-400,#94a3b8);flex-shrink:0}
   .rep2 .ch-rv .unit{font-size:9.5px;font-weight:700;color:var(--gray-400);font-style:normal}
   .rep2 .ch-foot{margin-top:auto}
   .rep2 .ch-total{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 16px;background:var(--ch-soft);border-top:1px solid var(--soft-line)}
@@ -5033,7 +5044,11 @@ async function renderReporte(){
   const curStep=_cfRepMes||months[0]||(new Date().getFullYear()+'-'+String(new Date().getMonth()+1).padStart(2,'0'));
   const segBtns='<div class="rr-mnav"><button data-repm="-1" aria-label="Mes anterior">‹</button><span>'+_mesLbl(curStep)+'</span><button data-repm="1" aria-label="Mes siguiente">›</button><button class="rr-mnav__today'+(!_cfRepMes?' on':'')+'" data-reptotal type="button">Total</button></div>';
   const editBtn=_cfRepMes?'<button class="cf-btn" id="cfRepEdit"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><path d="M11 4H4a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-7M18.5 2.5a2.1 2.1 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Cargar valores manuales</button>':'';
-  const man=(v,u)=>'<span class="ch-rv man">'+nn(v)+(u?'<i class="unit">'+u+'</i>':'')+'</span>';
+  // Valores manuales: editables inline solo cuando hay un mes puntual seleccionado (_cfRepMes)
+  const _repEdit=!!_cfRepMes;
+  const _manAttr=(v,u,path,lbl)=>(_repEdit&&path)?(' data-manf="'+path+'" data-manlbl="'+esc(lbl)+'" data-manunit="'+(u||'')+'" data-manv="'+(v||0)+'" title="Clic para editar"'):'';
+  const man=(v,u,path,lbl)=>'<span class="ch-rv man'+((_repEdit&&path)?' man-ed':'')+'"'+_manAttr(v,u,path,lbl)+'>'+nn(v)+(u?'<i class="unit">'+u+'</i>':'')+'</span>';
+  const manTd=(v,u,path,lbl)=>'<td class="man'+((_repEdit&&path)?' man-ed':'')+'"'+_manAttr(v,u,path,lbl)+'>'+nn(v)+(u?'<span class="unit">'+u+'</span>':'')+'</td>';
   const aut=(v,u)=>'<span class="ch-rv">'+nn(v)+(u?'<i class="unit">'+u+'</i>':'')+'</span>';
   // Monto e incidencia por zona (gráfico de barras + tabla, uno al lado del otro)
   const zonas=_cfZonas(_cfRepMes);
@@ -5066,17 +5081,17 @@ async function renderReporte(){
     '<div class="main-grid"><div class="main-col-left"><div class="section-label">Reparto por canal</div><div class="channel-grid">'+
       '<div class="ch-card" data-ch="int"><div class="ch-top"></div><div class="ch-head"><span class="ch-dot"></span><span class="ch-name">Interior</span></div>'+
         '<div class="ch-hero"><span class="ch-hero-l">Monto repartido</span><div class="ch-hero-v"><span class="ch-val">'+nn(m.interior.monto)+'</span><span class="ch-u">Gs.</span></div></div>'+
-        '<div class="ch-rows"><div class="ch-row"><span class="ch-rl">Peso</span>'+man(m.interior.peso,'Kg')+'</div>'+
+        '<div class="ch-rows"><div class="ch-row"><span class="ch-rl">Peso</span>'+man(m.interior.peso,'Kg','seg.interior.peso','Peso · Interior')+'</div>'+
           '<div class="ch-row"><span class="ch-rl">Km recorridos</span>'+aut(intKm,'Km')+'</div>'+
           '<div class="ch-row"><span class="ch-rl">Pago a transportadoras</span>'+aut(m.interior.flete)+'</div>'+
-          '<div class="ch-row"><span class="ch-rl">Gratificaciones</span>'+man(m.interior.gratificaciones)+'</div>'+
-          '<div class="ch-row"><span class="ch-rl">Gasto viático</span>'+man(m.interior.viatico)+'</div></div>'+
+          '<div class="ch-row"><span class="ch-rl">Gratificaciones</span>'+man(m.interior.gratificaciones,'','seg.interior.gratificaciones','Gratificaciones · Interior')+'</div>'+
+          '<div class="ch-row"><span class="ch-rl">Gasto viático</span>'+man(m.interior.viatico,'','seg.interior.viatico','Gasto viático · Interior')+'</div></div>'+
         '<div class="ch-foot"><div class="ch-total"><span>Gasto total</span><b>'+nn(m.interior.gastoTotal)+' Gs.</b></div><div class="ch-inc"><span>Incidencia</span><b>'+_pct(m.interior.incidencia)+'</b></div></div></div>'+
       '<div class="ch-card" data-ch="loc"><div class="ch-top"></div><div class="ch-head"><span class="ch-dot"></span><span class="ch-name">Local</span></div>'+
         '<div class="ch-hero"><span class="ch-hero-l">Monto repartido</span><div class="ch-hero-v"><span class="ch-val">'+nn(m.local.monto)+'</span><span class="ch-u">Gs.</span></div></div>'+
-        '<div class="ch-rows"><div class="ch-row"><span class="ch-rl">Peso</span>'+man(m.local.peso,'Kg')+'</div>'+
+        '<div class="ch-rows"><div class="ch-row"><span class="ch-rl">Peso</span>'+man(m.local.peso,'Kg','seg.local.peso','Peso · Local')+'</div>'+
           '<div class="ch-row"><span class="ch-rl">Pago a transportadoras</span>'+aut(m.local.flete)+'</div>'+
-          '<div class="ch-row"><span class="ch-rl">Gasto viático</span>'+man(m.local.viatico)+'</div></div>'+
+          '<div class="ch-row"><span class="ch-rl">Gasto viático</span>'+man(m.local.viatico,'','seg.local.viatico','Gasto viático · Local')+'</div></div>'+
         '<div class="ch-foot"><div class="ch-total"><span>Gasto total</span><b>'+nn(m.local.gastoTotal)+' Gs.</b></div><div class="ch-inc"><span>Incidencia</span><b>'+_pct(m.local.incidencia)+'</b></div></div></div>'+
       '<div class="ch-card" data-ch="trans"><div class="ch-top"></div><div class="ch-head"><span class="ch-dot"></span><span class="ch-name">Transportadora</span></div>'+
         '<div class="ch-hero"><span class="ch-hero-l">Monto de factura</span><div class="ch-hero-v"><span class="ch-val">'+nn(m.transportadora.monto)+'</span><span class="ch-u">Gs.</span></div></div>'+
@@ -5091,14 +5106,14 @@ async function renderReporte(){
       '<div class="main-col-right"><div class="section-label">Resumen y facturación</div>'+
         '<div class="panel"><div class="panel-title"><h3>Resumen del reparto</h3></div><table class="ledger">'+
           '<tr class="row-calc"><td>Peso total</td><td>'+nn(m.gen.peso)+'</td></tr>'+
-          '<tr><td>Peso en hierros</td><td class="man">'+nn(m.gen.pesoEnHierros)+'<span class="unit">Kg</span></td></tr>'+
+          '<tr><td>Peso en hierros</td>'+manTd(m.gen.pesoEnHierros,'Kg','pesoEnHierros','Peso en hierros')+'</tr>'+
           '<tr class="row-highlight"><td>Disponible p/reparto</td><td>'+nn(m.gen.disponible)+'</td></tr>'+
         '</table></div>'+
         '<div class="panel"><div class="panel-title"><h3>Facturación</h3></div><table class="ledger">'+
-          '<tr><td>Fac. mes pasado</td><td class="man">'+nn(m.fac.factUltimoDiaMesPasado)+'</td></tr>'+
-          '<tr><td>Retira</td><td class="man">'+nn(m.fac.retira)+'</td></tr>'+
-          '<tr><td>Nota de crédito</td><td class="man">'+nn(m.fac.notaCredito)+'</td></tr>'+
-          '<tr><td>Facturación mes</td><td class="man">'+nn(m.fac.facturacionMes)+'</td></tr>'+
+          '<tr><td>Fac. mes pasado</td>'+manTd(m.fac.factUltimoDiaMesPasado,'','factUltimoDiaMesPasado','Fac. mes pasado')+'</tr>'+
+          '<tr><td>Retira</td>'+manTd(m.fac.retira,'','retira','Retira')+'</tr>'+
+          '<tr><td>Nota de crédito</td>'+manTd(m.fac.notaCredito,'','notaCredito','Nota de crédito')+'</tr>'+
+          '<tr><td>Facturación mes</td>'+manTd(m.fac.facturacionMes,'','facturacionMes','Facturación mes')+'</tr>'+
           '<tr class="row-highlight"><td>Facturación total</td><td>'+nn(m.gen.facturacionTotal)+' Gs.</td></tr>'+
         '</table></div>'+
       '</div></div>'+
@@ -5107,6 +5122,8 @@ async function renderReporte(){
   host.querySelectorAll('[data-repm]').forEach(b=>b.addEventListener('click',()=>{const base=_cfRepMes||curStep;const a=base.split('-').map(Number);const d=new Date(a[0],a[1]-1+(+b.dataset.repm),1);_cfRepMes=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');renderReporte();}));
   const rtt=host.querySelector('[data-reptotal]');if(rtt)rtt.addEventListener('click',()=>{_cfRepMes=null;renderReporte();});
   const eb=document.getElementById('cfRepEdit');if(eb)eb.addEventListener('click',()=>_cfOpenReporteEdit(_cfRepMes));
+  // Edición inline de valores manuales (solo con un mes puntual) → modal PRO de confirmación
+  if(!host.dataset.manwired){host.dataset.manwired='1';host.addEventListener('click',_cfManualClick);}
   if(window.gsap){
     const g=window.gsap;
     g.from('#repHost .hero-seg',{opacity:0,y:14,duration:.42,stagger:.07,ease:'power3.out',clearProps:'opacity,transform'});
@@ -5122,6 +5139,41 @@ async function renderReporte(){
   }
 }
 
+// Edición inline de un valor manual → al confirmar, guarda ese campo en fact_reporte
+function _cfManualClick(e){
+  const cell=e.target.closest('[data-manf]');
+  if(!cell||!_cfRepMes||cell.querySelector('input'))return;
+  const path=cell.dataset.manf,lbl=cell.dataset.manlbl||'',unit=cell.dataset.manunit||'';
+  const oldV=parseInt(cell.dataset.manv,10)||0,orig=cell.innerHTML;
+  cell.classList.add('man-editing');
+  cell.innerHTML='<input class="man-inp" inputmode="numeric" value="'+(oldV?_nnum(oldV):'')+'">'+(unit?'<span class="unit">'+unit+'</span>':'');
+  const inp=cell.querySelector('input');try{inp.focus();inp.select();}catch(_){}
+  let done=false;
+  inp.addEventListener('input',()=>{const raw=inp.value.trim(),neg=raw.charAt(0)==='-',n=parseInt(raw.replace(/[^\d]/g,''),10)||0;inp.value=n?((neg?'-':'')+_nnum(n)):(neg?'-':'');});
+  const finish=commit=>{if(done)return;done=true;const raw=inp.value.trim(),neg=raw.charAt(0)==='-',n=parseInt(raw.replace(/[^\d]/g,''),10)||0,newV=neg?-n:n;cell.classList.remove('man-editing');cell.innerHTML=orig;if(commit&&newV!==oldV)_cfConfirmManual(_cfRepMes,path,lbl,unit,oldV,newV);};
+  inp.addEventListener('keydown',ev=>{if(ev.key==='Enter'){ev.preventDefault();finish(true);}else if(ev.key==='Escape'){ev.preventDefault();done=true;cell.classList.remove('man-editing');cell.innerHTML=orig;}});
+  inp.addEventListener('blur',()=>finish(true));
+}
+function _cfConfirmManual(mk,path,lbl,unit,oldV,newV){
+  const fmt=v=>(v<0?'-':'')+_nnum(Math.abs(v))+(unit?' '+unit:'');
+  const m=_cfModalOpen('<div class="cf-mbox" style="max-width:440px"><h3>¿Guardar el cambio?</h3>'+
+    '<div class="man-confirm"><div class="man-confirm__f">'+esc(lbl)+' · '+_mesLbl(mk)+'</div>'+
+    '<div class="man-confirm__row"><span class="man-confirm__old">'+fmt(oldV)+'</span>'+
+    '<svg class="man-confirm__arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg>'+
+    '<span class="man-confirm__new">'+fmt(newV)+'</span></div></div>'+
+    '<div class="cf-mfoot"><button class="cancel">Cancelar</button><button class="ok">Guardar cambio</button></div></div>');
+  m.$('.cancel').addEventListener('click',m.close);
+  m.$('.ok').addEventListener('click',async()=>{const b=m.$('.ok');if(b.disabled)return;b.disabled=true;b.innerHTML='<span class="cf-spin"></span>Guardando…';try{await _cfSaveManualField(mk,path,newV);m.close();showToast('Valor actualizado');renderReporte();}catch(e){b.disabled=false;b.textContent='Guardar cambio';showToast('No pude guardar el valor');}});
+}
+async function _cfSaveManualField(mk,path,val){
+  const cur=JSON.parse(JSON.stringify(_cfReporte[mk]||{}));
+  const parts=path.split('.');let o=cur;
+  for(let i=0;i<parts.length-1;i++){if(typeof o[parts[i]]!=='object'||o[parts[i]]===null)o[parts[i]]={};o=o[parts[i]];}
+  o[parts[parts.length-1]]=val;
+  const{error}=await sb.from('fact_reporte').upsert({mes:mk,data:cur},{onConflict:'mes'});
+  if(error)throw error;
+  _cfReporte[mk]=cur;
+}
 function _cfOpenReporteEdit(mk){
   const cur=_cfReporte[mk]||{},sg=cur.seg||{},i=sg.interior||{},l=sg.local||{};
   const f=(id,lbl,val)=>'<div class="cf-fld"><label>'+lbl+'</label><input id="'+id+'" inputmode="numeric" value="'+(val?_nnum(val):'')+'"></div>';
