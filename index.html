@@ -5002,7 +5002,8 @@ async function _cfLoadFac(){try{const res=await sb.from('fact_facturas').select(
 
 /* ════════ Datos (de los repartos de Flete) ════════ */
 let _cfReporte={};      // {mes:{...manual...}} desde fact_reporte
-let _cfRepMes=null;     // mes seleccionado; null = Total
+// Arranca en el mes actual (editable directo); "Total" (null) es una opción aparte para ver el acumulado
+let _cfRepMes=(function(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');})();
 function _cfMonthKeys(){const s=new Set();(repartos||[]).forEach(r=>{const k=(r.fechaISO||'').slice(0,7);if(k)s.add(k);});return[...s].sort().reverse();}
 // ¿La planilla (transportadora dueña del camión + semana) de esta línea tiene factura registrada?
 function _cfFacturada(cl,fechaISO){if(!fechaISO)return false;const wk=(typeof isoWeekRange==='function')?isoWeekRange(fechaISO):null;if(!wk)return false;const own=cl.trId?tsOfTruck(cl.trId):null;const ts=(own&&own.n)||cl.tsNombre||'—';return !!(window.__cfFac||[]).find(x=>(x.transportadora_nombre||'')===ts&&(x.semana_desde||'')===wk.desde);}
@@ -5142,7 +5143,7 @@ async function renderReporte(){
 function _cfManualClick(e){
   const cell=e.target.closest('[data-manf]');
   if(!cell||cell.querySelector('input'))return;
-  if(!_cfRepMes){showToast('Estás en «Total». Tocá ‹ o › para elegir un mes y editar el valor.');return;}
+  if(!_cfRepMes){showToast('En «Total» ves la suma de varios meses. Elegí un mes con ‹ › para editar.');return;}
   const path=cell.dataset.manf,lbl=cell.dataset.manlbl||'',unit=cell.dataset.manunit||'';
   const oldV=parseInt(cell.dataset.manv,10)||0,orig=cell.innerHTML;
   cell.classList.add('man-editing');
