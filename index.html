@@ -3156,11 +3156,18 @@ function repByDate(){
   return map;
 }
 
+// Sobre el objetivo (3%) coherente con la incidencia (no dependemos de r.diferencia
+// guardada, que puede quedar desactualizada). Si no hay incidencia, cae al cálculo por totales.
+function _calRepOver(r){
+  const inc=(r.incTotal!==null&&r.incTotal!==undefined)?r.incTotal:null;
+  if(inc!==null)return inc>=3;
+  return ((r.totalFlete||0)-0.03*(r.totalMonto||0))>0;
+}
 function calDayStatus(list){
-  // Returns 'ok' | 'over' | 'mix' based on diferencia of repartos
+  // Returns 'ok' | 'over' | 'mix' según la incidencia de cada reparto
   if(!list.length)return null;
-  const hasOk=list.some(r=>r.diferencia<=0);
-  const hasOver=list.some(r=>r.diferencia>0);
+  const hasOver=list.some(_calRepOver);
+  const hasOk=list.some(r=>!_calRepOver(r));
   if(hasOk&&hasOver)return'mix';
   if(hasOver)return'over';
   return'ok';
