@@ -3934,8 +3934,9 @@ function showSaveAnim(text){
   .rep2 .section-label{display:flex;align-items:center;gap:10px;margin:20px 0 12px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--accent,#3B82F6)}
   .rep2 .section-label:after{content:"";flex:1;height:1px;background:linear-gradient(90deg,rgba(59,130,246,.25),transparent)}
   /* Hero */
-  .rep2 .hero-bar{display:flex;flex-wrap:wrap;background:#fff;border-radius:var(--radius);box-shadow:0 1px 3px rgba(15,23,42,.06),0 10px 26px rgba(15,23,42,.06);border:1px solid var(--line);overflow:hidden}
-  .rep2 .hero-seg{flex:1 1 180px;padding:20px 26px;border-right:1px solid var(--soft-line);display:flex;flex-direction:column;justify-content:center}
+  .rep2 .hero-bar{display:flex;flex-wrap:wrap;background:linear-gradient(#fff,#fff) padding-box,linear-gradient(120deg,#2b7fc4,#0B5F8D 52%,#7db8e0) border-box;border:1.5px solid transparent;border-radius:var(--radius);box-shadow:0 1px 3px rgba(15,23,42,.05),0 14px 34px rgba(11,95,141,.12);overflow:hidden}
+  .rep2 .hero-seg{flex:1 1 180px;padding:20px 26px;border-right:1px solid var(--soft-line);display:flex;flex-direction:column;justify-content:center;transition:background .18s}
+  .rep2 .hero-seg:not(.ring):hover{background:rgba(37,120,184,.05)}
   .rep2 .hero-seg:last-child{border-right:none}
   .rep2 .hero-seg .hl{font-size:11.5px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--muted)}
   .rep2 .hv-row{display:flex;align-items:baseline;gap:6px;margin-top:10px;min-width:0}
@@ -3977,6 +3978,8 @@ function showSaveAnim(text){
   .rep2 .ch-head{display:flex;align-items:center;gap:8px;padding:13px 16px 0}
   .rep2 .ch-dot{width:9px;height:9px;border-radius:50%;background:var(--ch-color);flex-shrink:0}
   .rep2 .ch-name{font-size:12.5px;font-weight:800;color:var(--text)}
+  .rep2 .ch-cams{margin-left:auto;display:inline-flex;align-items:baseline;gap:5px;padding:5px 11px;border-radius:999px;background:var(--ch-soft);color:var(--ch-color);font-family:Sora,Inter,sans-serif;font-weight:800;font-size:15px;line-height:1;font-variant-numeric:tabular-nums;box-shadow:inset 0 0 0 1px rgba(15,23,42,.05)}
+  .rep2 .ch-cams small{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;opacity:.85}
   .rep2 .ch-hero{padding:8px 16px 14px;border-bottom:1px solid var(--soft-line)}
   .rep2 .ch-hero-l{display:block;font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--muted)}
   .rep2 .ch-hero-v{display:flex;align-items:baseline;gap:4px;margin-top:5px}
@@ -4023,7 +4026,8 @@ function showSaveAnim(text){
   .rep2 .ch-total b{font-size:13px;font-weight:800;color:var(--primary-dark);white-space:nowrap;font-variant-numeric:tabular-nums}
   .rep2 .ch-inc{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:11px 16px;background:var(--ch-color)}
   .rep2 .ch-inc span{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:rgba(255,255,255,.72)}
-  .rep2 .ch-inc b{font-size:16px;font-weight:800;color:#fff;white-space:nowrap;font-variant-numeric:tabular-nums}
+  .rep2 .ch-inc{padding-top:13px;padding-bottom:13px}
+  .rep2 .ch-inc b{font-size:21px;font-weight:800;color:#fff;white-space:nowrap;font-variant-numeric:tabular-nums;letter-spacing:-.3px}
   /* Camiones */
   /* Salidas por canal: tarjetas minimalistas con número destacado */
   .rep2 .mini-panel{background:transparent!important;border:none!important;box-shadow:none!important;padding:0!important}
@@ -5104,7 +5108,7 @@ async function renderReporte(){
         '</div></div>'+
     '</div>'+
     '<div class="main-grid"><div class="main-col-left"><div class="section-label">Reparto por canal</div><div class="channel-grid">'+
-      '<div class="ch-card" data-ch="int"><div class="ch-top"></div><div class="ch-head"><span class="ch-dot"></span><span class="ch-name">Interior</span></div>'+
+      '<div class="ch-card" data-ch="int"><div class="ch-top"></div><div class="ch-head"><span class="ch-dot"></span><span class="ch-name">Interior</span><span class="ch-cams">'+nn(m.interior.cam)+'<small>cam.</small></span></div>'+
         '<div class="ch-hero"><span class="ch-hero-l">Monto repartido</span><div class="ch-hero-v"><span class="ch-val">'+nn(m.interior.monto)+'</span><span class="ch-u">Gs.</span></div></div>'+
         '<div class="ch-rows"><div class="ch-row"><span class="ch-rl">Peso</span>'+man(m.interior.peso,'Kg','seg.interior.peso','Peso · Interior')+'</div>'+
           '<div class="ch-row"><span class="ch-rl">Km recorridos</span>'+aut(intKm,'Km')+'</div>'+
@@ -5112,13 +5116,13 @@ async function renderReporte(){
           '<div class="ch-row"><span class="ch-rl">Gratificaciones</span>'+man(m.interior.gratificaciones,'','seg.interior.gratificaciones','Gratificaciones · Interior')+'</div>'+
           '<div class="ch-row"><span class="ch-rl">Gasto viático</span>'+man(m.interior.viatico,'','seg.interior.viatico','Gasto viático · Interior')+'</div></div>'+
         '<div class="ch-foot"><div class="ch-total"><span>Gasto total</span><b>'+nn(m.interior.gastoTotal)+' Gs.</b></div><div class="ch-inc"><span>Incidencia</span><b>'+_pct(m.interior.incidencia)+'</b></div></div></div>'+
-      '<div class="ch-card" data-ch="loc"><div class="ch-top"></div><div class="ch-head"><span class="ch-dot"></span><span class="ch-name">Local</span></div>'+
+      '<div class="ch-card" data-ch="loc"><div class="ch-top"></div><div class="ch-head"><span class="ch-dot"></span><span class="ch-name">Local</span><span class="ch-cams">'+nn(m.local.cam)+'<small>cam.</small></span></div>'+
         '<div class="ch-hero"><span class="ch-hero-l">Monto repartido</span><div class="ch-hero-v"><span class="ch-val">'+nn(m.local.monto)+'</span><span class="ch-u">Gs.</span></div></div>'+
         '<div class="ch-rows"><div class="ch-row"><span class="ch-rl">Peso</span>'+man(m.local.peso,'Kg','seg.local.peso','Peso · Local')+'</div>'+
           '<div class="ch-row"><span class="ch-rl">Pago a transportadoras</span>'+aut(m.local.flete)+'</div>'+
           '<div class="ch-row"><span class="ch-rl">Gasto viático</span>'+man(m.local.viatico,'','seg.local.viatico','Gasto viático · Local')+'</div></div>'+
         '<div class="ch-foot"><div class="ch-total"><span>Gasto total</span><b>'+nn(m.local.gastoTotal)+' Gs.</b></div><div class="ch-inc"><span>Incidencia</span><b>'+_pct(m.local.incidencia)+'</b></div></div></div>'+
-      '<div class="ch-card" data-ch="trans"><div class="ch-top"></div><div class="ch-head"><span class="ch-dot"></span><span class="ch-name">Transportadora</span></div>'+
+      '<div class="ch-card" data-ch="trans"><div class="ch-top"></div><div class="ch-head"><span class="ch-dot"></span><span class="ch-name">Transportadora</span><span class="ch-cams">'+nn(m.transportadora.cam)+'<small>cam.</small></span></div>'+
         '<div class="ch-hero"><span class="ch-hero-l">Monto de factura</span><div class="ch-hero-v"><span class="ch-val">'+nn(m.transportadora.monto)+'</span><span class="ch-u">Gs.</span></div></div>'+
         '<div class="ch-rows"><div class="ch-row"><span class="ch-rl">Importe flete</span>'+aut(m.transportadora.flete)+'</div></div>'+
         '<div class="ch-foot"><div class="ch-total"><span>Gasto total</span><b>'+nn(m.transportadora.flete)+' Gs.</b></div><div class="ch-inc"><span>Incidencia</span><b>'+_pct(m.transportadora.incidencia)+'</b></div></div></div>'+
