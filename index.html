@@ -5711,6 +5711,7 @@ let _rrQ='';           // buscador general (transportista o camión)
 function _isoD(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function _dispD(iso){return iso?iso.split('-').reverse().join('/'):'—';}
 function _shD(iso){const p=iso.split('-');return p[2]+'/'+p[1];}
+function _dmy(iso){const p=String(iso||'').slice(0,10).split('-');return p.length<3?String(iso||''):(p[2]+'/'+p[1]+'/'+p[0].slice(-2));} // DD/MM/AA
 function _weeksOfMonth(mk){const a=mk.split('-').map(Number),y=a[0],mo=a[1];const first=new Date(y,mo-1,1),last=new Date(y,mo,0);let d=new Date(first);d.setDate(d.getDate()-((d.getDay()+6)%7));const w=[];while(d<=last){const mon=new Date(d),sun=new Date(d);sun.setDate(sun.getDate()+6);w.push({desde:_isoD(mon),hasta:_isoD(sun)});d.setDate(d.getDate()+7);}return w;}
 function _rrShiftMonth(delta){const a=_rrMes.split('-').map(Number);const d=new Date(a[0],a[1]-1+delta,1);_rrMes=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');_rrWeek=undefined;renderReporteRepartos();}
 // Buscador general: filtra las tarjetas por transportista o camión (sin re-render, mantiene el foco)
@@ -5916,7 +5917,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
   // Fila de lectura (con botón para editar solo esa)
   function rowHTML(w,idx){const isTr=w.seg==='transportadora';const fl=+w.precio||0;
     const kmStr=(w.seg==='interior'&&+w.km>0)?(_kmFmt(+w.km)+' km × '+_gs(+w.precioKm||0)):'';
-    const fday=w.fecha?String(w.fecha).slice(0,10).split('-').reverse().slice(0,2).join('/'):'';
+    const fday=w.fecha?_dmy(w.fecha):'';
     const IC={cal:'<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>',user:'<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0112 0v1"/></svg>',pin:'<svg viewBox="0 0 24 24"><path d="M12 21s7-5.6 7-11a7 7 0 10-14 0c0 5.4 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>',peso:'<svg viewBox="0 0 24 24"><path d="M5 8h14l1.5 12H3.5z"/><circle cx="12" cy="5" r="2.2"/></svg>',road:'<svg viewBox="0 0 24 24"><path d="M6 21L9 3M18 21L15 3M12 6v3M12 12v3M12 18v2"/></svg>',obs:'<svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>'};
     const chip=(ic,txt)=>txt?'<span class="rrv-chip">'+ic+'<span>'+_escp(txt)+'</span></span>':'';
     let meta;
@@ -6042,7 +6043,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     if(!_dashEdit&&(!_dashSeg||(_dashSeg!=='todos'&&!segsPresent.includes(_dashSeg))))_dashSeg=segsPresent[0];
     const SEGDOT={local:'#38BDF8',interior:'#F97316',servicios:'#10B981',transportadora:'#7c3aed'};
     const CAL='<span class="rrd-calic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4.5" width="18" height="17" rx="2.5"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/></svg></span>';
-    const dfec=w=>'<td class="rrd-fec">'+CAL+(w.fecha?String(w.fecha).slice(0,10).split('-').reverse().slice(0,2).join('/'):'—')+'</td>';
+    const dfec=w=>'<td class="rrd-fec">'+CAL+(w.fecha?_dmy(w.fecha):'—')+'</td>';
     const dchip=t=>'<span class="rrd-chip">'+_escp(t)+'</span>';
     // Acciones de factura (aprobada / selección / borrar): SOLO en la vista "Todos"
     const facReg2=!!_facDeGrupo(g);
@@ -6312,8 +6313,8 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     const _updDashFlete=d=>{const fi=bd.querySelector('.rrd-fflete[data-dk="'+d.k+'"]');if(!fi)return;if(_dfKm(d)){fi.value=_nnum(Math.round(d.km*d.precioKm));fi.readOnly=true;fi.classList.add('is-auto');}else{fi.readOnly=false;fi.classList.remove('is-auto');fi.value=d.precio?_nnum(d.precio):'';}};
     bd.querySelectorAll('.rrd-fdate').forEach(i=>i.addEventListener('change',()=>{const d=_DD(i.dataset.dk);if(d)d.fecha=i.value||null;}));
     bd.querySelectorAll('.rrd-fkm').forEach(i=>i.addEventListener('input',()=>{const d=_DD(i.dataset.dk);if(d){d.km=_kmParse(i.value);_updDashFlete(d);}}));
-    bd.querySelectorAll('.rrd-fpkm').forEach(i=>i.addEventListener('input',()=>{const d=_DD(i.dataset.dk);if(d){d.precioKm=parseInt(i.value.replace(/\D/g,''),10)||0;_updDashFlete(d);}}));
-    bd.querySelectorAll('.rrd-fflete').forEach(i=>i.addEventListener('input',()=>{const d=_DD(i.dataset.dk);if(d&&!i.readOnly)d.precio=parseInt(i.value.replace(/\D/g,''),10)||0;}));
+    bd.querySelectorAll('.rrd-fpkm').forEach(i=>i.addEventListener('input',()=>{const d=_DD(i.dataset.dk);if(d){d.precioKm=parseInt(i.value.replace(/\D/g,''),10)||0;i.value=d.precioKm?_nnum(d.precioKm):'';_updDashFlete(d);}}));
+    bd.querySelectorAll('.rrd-fflete').forEach(i=>i.addEventListener('input',()=>{const d=_DD(i.dataset.dk);if(d&&!i.readOnly){d.precio=parseInt(i.value.replace(/\D/g,''),10)||0;i.value=d.precio?_nnum(d.precio):'';}}));
     bd.querySelectorAll('.rrd-fcant').forEach(i=>i.addEventListener('input',()=>{const d=_DD(i.dataset.dk);if(d)d.cant=parseInt(i.value.replace(/\D/g,''),10)||0;}));
     bd.querySelectorAll('.rrd-fobs').forEach(i=>i.addEventListener('input',()=>{const d=_DD(i.dataset.dk);if(d)d.obs=i.value;}));
     bd.querySelectorAll('.rrd-erowdel').forEach(b=>b.addEventListener('click',()=>{const d=_DD(b.dataset.dk);if(!d)return;const tr=b.closest('tr'),gs=window.gsap;const go=()=>{d.del=true;render('filter');};if(gs&&tr)gs.to(tr,{opacity:0,x:22,duration:.2,ease:'power2.in',onComplete:go});else go();}));
