@@ -4002,11 +4002,15 @@ function showSaveAnim(text){
   .sal-x svg{width:17px;height:17px}
   .sal-x:hover{background:#0f172a;color:#fff;border-color:#0f172a}
   .sal-x:active{transform:scale(.92)}
-  .sal-hd{padding:22px 26px 16px;border-bottom:1px solid #f1f5f9;position:relative;flex-shrink:0}
+  .sal-hd{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:22px 64px 16px 26px;border-bottom:1px solid #f1f5f9;position:relative;flex-shrink:0}
   .sal-hd::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--sal-c,#0B5F8D)}
+  .sal-hd__l{min-width:0}
   .sal-hd__tag{display:inline-block;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--sal-c,#0B5F8D);margin-bottom:6px}
   .sal-hd h3{margin:0;font-size:21px;line-height:1.1}
   .sal-hd .cf-msub{margin-top:5px}
+  .sal-hd__k{text-align:right;flex-shrink:0}
+  .sal-hd__k b{display:block;font-family:Sora,Inter,sans-serif;font-size:23px;font-weight:800;color:var(--sal-c,#0B5F8D);font-variant-numeric:tabular-nums;line-height:1}
+  .sal-hd__k span{display:block;font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#94a3b8;margin-top:5px}
   .sal-scroll{flex:1;overflow:auto;padding:16px 22px 8px}
   .sal-day{margin-bottom:18px}
   .sal-day:last-child{margin-bottom:4px}
@@ -4026,7 +4030,7 @@ function showSaveAnim(text){
   .sal-tbl th{text-align:left;font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:#94a3b8;padding:9px 11px;border-bottom:1px solid #f1f5f9;white-space:nowrap;background:#f8fafc}
   .sal-tbl th.r{text-align:right}
   .sal-tbl td{padding:9px 11px;border-bottom:1px solid #f4f7fa;font-size:11.5px;color:#334155;white-space:nowrap;vertical-align:top}
-  .sal-tbl td:nth-child(1),.sal-tbl td:nth-child(2){white-space:normal;overflow-wrap:anywhere}
+  .sal-tbl td:nth-child(1),.sal-tbl td:nth-child(2){white-space:normal;overflow-wrap:break-word}
   .sal-tbl td.r{text-align:right;font-variant-numeric:tabular-nums}
   .sal-tbl tbody tr:hover{background:#f7fbfe}
   .sal-tbl tfoot td{padding:9px 11px;font-weight:800;font-size:10.5px;color:#475569;background:#f8fafc;border-top:1.5px solid #eef2f7;text-transform:uppercase;letter-spacing:.3px}
@@ -4034,7 +4038,7 @@ function showSaveAnim(text){
   .sal-cam{display:flex;align-items:flex-start;gap:8px;min-width:0}
   .sal-cam__ic{width:26px;height:26px;border-radius:8px;background:#eef6fc;color:var(--sal-c,#0B5F8D);display:flex;align-items:center;justify-content:center;flex-shrink:0}
   .sal-cam__ic svg{width:15px;height:15px}
-  .sal-cam__t{min-width:0;font-weight:700;color:#0f172a;line-height:1.25}
+  .sal-cam__t{flex:1;min-width:0;font-weight:700;color:#0f172a;line-height:1.25;overflow-wrap:break-word}
   .sal-chip{display:inline-block;padding:2px 9px;border-radius:999px;background:#f1f5f9;font-size:10.5px;font-weight:800;color:#475569}
   .sal-flete{color:#15803d;font-weight:800}
   .sal-mut{color:#cbd5e1}
@@ -5287,17 +5291,16 @@ function _cfSalidasModal(mk,chan){
   }).join('')||'<div class="sal-empty">No hay salidas en este período.</div>';
   const mesTxt=mk?_mesLbl(mk):'Todos los meses';
   const m=_cfModalOpen('<div class="cf-mbox sal-modal" style="--sal-c:'+color+'"><button class="sal-x" aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>'+
-    '<div class="sal-hd"><span class="sal-hd__tag">Salidas · '+CHN[chan]+'</span><h3>'+mesTxt+'</h3><p class="cf-msub">'+rows.length+' salida'+(rows.length===1?'':'s')+' · '+dates.length+' día'+(dates.length===1?'':'s')+'</p></div>'+
+    '<div class="sal-hd"><div class="sal-hd__l"><span class="sal-hd__tag">Salidas · '+CHN[chan]+'</span><h3>'+mesTxt+'</h3><p class="cf-msub">'+rows.length+' salida'+(rows.length===1?'':'s')+' · '+dates.length+' día'+(dates.length===1?'':'s')+'</p></div><div class="sal-hd__k"><b>'+_gs(totFlete)+'</b><span>Flete total del mes</span></div></div>'+
     '<div class="sal-scroll">'+dayHtml+'</div>'+
-    '<div class="sal-foot"><div><span class="sal-foot__lbl">Flete total del mes</span><span class="sal-foot__sub">'+rows.length+' salida'+(rows.length===1?'':'s')+' · '+dates.length+' día'+(dates.length===1?'':'s')+'</span></div><b class="sal-foot__v">'+_gs(totFlete)+'</b></div>'+
     '</div>');
   m.$('.sal-x').addEventListener('click',m.close);
   const g=window.gsap;if(g&&m.box){
     g.from(m.box.querySelectorAll('.sal-hd__tag,.sal-hd h3,.sal-hd .cf-msub'),{opacity:0,y:8,duration:.4,stagger:.06,delay:.06,ease:'power2.out',clearProps:'all'});
-    g.from(m.box.querySelectorAll('.sal-day'),{opacity:0,y:22,duration:.5,stagger:.08,delay:.14,ease:'power3.out',clearProps:'all'});
-    g.from(m.box.querySelectorAll('.sal-tbl tbody tr'),{opacity:0,x:-12,duration:.34,stagger:.012,delay:.24,ease:'power2.out',clearProps:'all'});
-    g.from(m.box.querySelectorAll('.sal-tbl tfoot'),{opacity:0,duration:.4,delay:.34,ease:'power2.out',clearProps:'all'});
-    g.from(m.box.querySelector('.sal-foot'),{opacity:0,y:16,duration:.45,delay:.3,ease:'back.out(1.6)',clearProps:'all'});
+    g.from(m.box.querySelectorAll('.sal-hd__k'),{opacity:0,scale:.9,duration:.42,delay:.14,ease:'back.out(2)',clearProps:'all'});
+    g.from(m.box.querySelectorAll('.sal-day'),{opacity:0,y:22,duration:.5,stagger:.08,delay:.16,ease:'power3.out',clearProps:'all'});
+    g.from(m.box.querySelectorAll('.sal-tbl tbody tr'),{opacity:0,x:-12,duration:.34,stagger:.012,delay:.26,ease:'power2.out',clearProps:'all'});
+    g.from(m.box.querySelectorAll('.sal-tbl tfoot'),{opacity:0,duration:.4,delay:.36,ease:'power2.out',clearProps:'all'});
   }
 }
 function _cfManualClick(e){
