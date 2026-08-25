@@ -4003,15 +4003,32 @@ function showSaveAnim(text){
   .sal-x svg{width:17px;height:17px}
   .sal-x:hover{background:#0f172a;color:#fff;border-color:#0f172a}
   .sal-x:active{transform:scale(.92)}
-  .sal-hd{padding:22px 48px 18px 26px;border-bottom:1px solid #f1f5f9;position:relative;flex-shrink:0}
-  .sal-hd::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--sal-c,#0B5F8D)}
-  .sal-hd__l{min-width:0}
-  .sal-hd__tag{display:inline-block;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--sal-c,#0B5F8D);margin-bottom:6px}
-  .sal-hd h3{margin:0;font-size:21px;line-height:1.1}
-  .sal-hd .cf-msub{margin-top:5px}
-  .sal-hd__k{text-align:left;margin-top:13px}
-  .sal-hd__k b{display:block;font-family:Sora,Inter,sans-serif;font-size:23px;font-weight:800;color:var(--sal-c,#0B5F8D);font-variant-numeric:tabular-nums;line-height:1}
-  .sal-hd__k span{display:block;font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#94a3b8;margin-top:5px}
+  /* Header lineal (todo en una fila, centrado) */
+  .sal-hd--row{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:10px;padding:14px 48px 14px 26px;border-bottom:1px solid #f1f5f9;position:relative;flex-shrink:0}
+  .sal-hd--row::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--sal-c,#0B5F8D)}
+  .sal-hd__tag{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--sal-c,#0B5F8D)}
+  .sal-hd__d{color:#cbd5e1;font-weight:800}
+  .sal-hd__mes{font-family:Sora,Inter,sans-serif;font-size:17px;font-weight:800;color:#0f172a}
+  .sal-hd__sub{font-size:12.5px;font-weight:700;color:#64748b}
+  .sal-hd__k{display:inline-flex;align-items:baseline;gap:6px}
+  .sal-hd__k b{font-family:Sora,Inter,sans-serif;font-size:17px;font-weight:800;color:var(--sal-c,#0B5F8D);font-variant-numeric:tabular-nums}
+  .sal-hd__k small{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:#94a3b8}
+  /* Aviso de faltantes de monto */
+  .sal-warn{display:flex;align-items:center;gap:11px;margin:12px 22px 2px;padding:11px 14px;border-radius:12px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412}
+  .sal-warn.on{background:#eff6ff;border-color:#bfdbfe;color:#1e40af}
+  .sal-warn__ic{width:26px;height:26px;flex-shrink:0;color:#ea580c}
+  .sal-warn.on .sal-warn__ic{color:#2563eb}
+  .sal-warn__ic svg{width:22px;height:22px}
+  .sal-warn__t{flex:1;font-size:13px;font-weight:600}
+  .sal-warn__btn{flex-shrink:0;border:none;background:#ea580c;color:#fff;font:inherit;font-size:12px;font-weight:800;padding:7px 14px;border-radius:9px;cursor:pointer;transition:filter .15s,transform .12s}
+  .sal-warn.on .sal-warn__btn{background:#2563eb}
+  .sal-warn__btn:hover{filter:brightness(1.08)}
+  .sal-warn__btn:active{transform:scale(.95)}
+  /* Monto editable por línea */
+  .sal-monto{cursor:pointer;transition:background .14s,box-shadow .14s}
+  .sal-monto:hover{background:rgba(37,120,184,.08);box-shadow:inset 0 0 0 1px rgba(37,120,184,.28)}
+  .sal-addmonto{display:inline-flex;align-items:center;font-weight:800;font-size:11px;color:var(--sal-c,#0B5F8D);background:rgba(37,120,184,.1);padding:3px 9px;border-radius:999px}
+  .sal-montoinp{width:100%;border:1.5px solid var(--sal-c,#0B5F8D);border-radius:7px;padding:4px 7px;font:inherit;font-size:11.5px;font-weight:800;color:var(--sal-c,#0B5F8D);text-align:right;outline:none;background:#fff;font-variant-numeric:tabular-nums}
   .sal-scroll{flex:1;overflow:auto;padding:16px 22px 8px}
   .sal-day{margin-bottom:18px}
   .sal-day:last-child{margin-bottom:4px}
@@ -5299,39 +5316,74 @@ function _cfSalidasDe(mk,chan){
   });
   return rows;
 }
-// Modal PRO: salidas del mes por fecha, con animación GSAP
+// Guarda el monto repartido de una línea (cliente) y persiste el reparto
+function _cfSetLineMonto(repId,clId,val){
+  const r=(repartos||[]).find(x=>x.id===repId);if(!r)return Promise.reject(new Error('reparto'));
+  const c=(r.clientes||[]).find(x=>x.id===clId);if(!c)return Promise.reject(new Error('linea'));
+  c.monto=val;
+  return dbUpdateClientes(repId,r.clientes);
+}
+// Modal PRO: salidas del mes por fecha (header lineal, monto editable, aviso de faltantes)
 function _cfSalidasModal(mk,chan){
   const CHN={interior:'Interior',periferia:'Local',servicios:'Servicios',transportadora:'Transportadora'};
   const CHC={interior:'#0B5F8D',periferia:'#3B82F6',servicios:'#F97316',transportadora:'#7C6BF0'};
-  const rows=_cfSalidasDe(mk,chan),color=CHC[chan]||'#0B5F8D';
-  const byDate={};rows.forEach(r=>{const d=(r.fecha||'').slice(0,10);(byDate[d]=byDate[d]||[]).push(r);});
-  const dates=Object.keys(byDate).filter(Boolean).sort();
-  const totFlete=rows.reduce((s,r)=>s+r.flete,0);
+  const color=CHC[chan]||'#0B5F8D';
+  const montoMatters=(chan==='interior'||chan==='periferia'); // el monto por línea aplica al reparto en estos canales
+  let onlyMissing=false;
   const DOW=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
   const dispD=iso=>{const p=iso.split('-').map(Number);if(p.length<3)return iso;const dt=new Date(p[0],p[1]-1,p[2]);return DOW[dt.getDay()]+' '+String(p[2]).padStart(2,'0')+'/'+String(p[1]).padStart(2,'0');};
   const TRUCK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="2.5" y="7" width="11" height="8" rx="1"/><path d="M13.5 9.5H17l3.5 3.5V15h-7z"/><circle cx="7" cy="17.5" r="1.6"/><circle cx="17.5" cy="17.5" r="1.6"/></svg>';
-  const dayHtml=dates.map(d=>{
-    const ls=byDate[d],dF=ls.reduce((s,r)=>s+r.flete,0);
-    const rws=ls.map(r=>{
-      const km=(r.seg==='interior'&&r.km>0)?(_kmFmt(r.km)+' km × '+_gs(r.precioKm)):'<span class="sal-mut">—</span>';
-      const incTxt=r.inc!==null?r.inc.toFixed(2)+'%':'—',incCls=r.inc!==null?(r.inc<3?'ok':'over'):'';
-      return '<tr><td class="sal-cam"><div class="sal-caminner"><span class="sal-cam__ic">'+TRUCK+'</span><span class="sal-cam__t">'+_escp(r.cam)+'</span></div></td><td>'+_escp(r.rep)+'</td><td>'+(r.zona&&r.zona!=='—'?'<span class="sal-chip">'+_escp(r.zona)+'</span>':'<span class="sal-mut">—</span>')+'</td><td class="r sal-det">'+km+'</td><td class="r">'+_gs(r.monto)+'</td><td class="r sal-flete">'+(r.flete?_gs(r.flete):'—')+'</td><td class="r sal-inc '+incCls+'">'+incTxt+'</td></tr>';
-    }).join('');
-    return '<div class="sal-day"><div class="sal-day__h"><span class="sal-day__dot"></span><span class="sal-day__d">'+dispD(d)+'</span><span class="sal-day__n">'+ls.length+' salida'+(ls.length===1?'':'s')+'</span></div><div class="sal-day__tblwrap"><table class="sal-tbl"><thead><tr><th>Camión</th><th>Repartidor</th><th>Zona</th><th class="r">Km · Precio/km</th><th class="r">Monto</th><th class="r">Flete</th><th class="r">Incid.</th></tr></thead><tbody>'+rws+'</tbody><tfoot><tr><td colspan="5">Total del día</td><td class="r">'+_gs(dF)+'</td><td></td></tr></tfoot></table></div></div>';
-  }).join('')||'<div class="sal-empty">No hay salidas en este período.</div>';
-  const mesTxt=mk?_mesLbl(mk):'Todos los meses';
   const m=_cfModalOpen('<div class="cf-mbox sal-modal" style="--sal-c:'+color+'"><button class="sal-x" aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>'+
-    '<div class="sal-hd"><div class="sal-hd__l"><span class="sal-hd__tag">Salidas · '+CHN[chan]+'</span><h3>'+mesTxt+'</h3><p class="cf-msub">'+rows.length+' salida'+(rows.length===1?'':'s')+' · '+dates.length+' día'+(dates.length===1?'':'s')+'</p><div class="sal-hd__k"><b>'+_gs(totFlete)+'</b><span>Flete total del mes</span></div></div></div>'+
-    '<div class="sal-scroll">'+dayHtml+'</div>'+
-    '</div>');
+    '<div class="sal-hd sal-hd--row" id="salHd"></div><div id="salWarnHost"></div><div class="sal-scroll" id="salBody"></div></div>');
   m.$('.sal-x').addEventListener('click',m.close);
-  const g=window.gsap;if(g&&m.box){
-    g.from(m.box.querySelectorAll('.sal-hd__tag,.sal-hd h3,.sal-hd .cf-msub'),{opacity:0,y:8,duration:.4,stagger:.06,delay:.06,ease:'power2.out',clearProps:'all'});
-    g.from(m.box.querySelectorAll('.sal-hd__k'),{opacity:0,scale:.9,duration:.42,delay:.14,ease:'back.out(2)',clearProps:'all'});
-    g.from(m.box.querySelectorAll('.sal-day'),{opacity:0,y:22,duration:.5,stagger:.08,delay:.16,ease:'power3.out',clearProps:'all'});
-    g.from(m.box.querySelectorAll('.sal-tbl tbody tr'),{opacity:0,x:-12,duration:.34,stagger:.012,delay:.26,ease:'power2.out',clearProps:'all'});
-    g.from(m.box.querySelectorAll('.sal-tbl tfoot'),{opacity:0,duration:.4,delay:.36,ease:'power2.out',clearProps:'all'});
+  function editMonto(cell){
+    if(cell.querySelector('input'))return;
+    const repId=+cell.dataset.rep,clId=(cell.dataset.cl===''?null:+cell.dataset.cl),oldV=+cell.dataset.mv||0;
+    if(clId==null){showToast('No puedo editar esta línea (sin identificador)');return;}
+    const orig=cell.innerHTML;cell.classList.add('sal-monto--editing');
+    cell.innerHTML='<input class="sal-montoinp" inputmode="numeric" placeholder="0" value="'+(oldV?_nnum(oldV):'')+'">';
+    const inp=cell.querySelector('input');try{inp.focus();inp.select();}catch(_){}
+    let done=false;
+    inp.addEventListener('input',()=>{const n=parseInt(inp.value.replace(/\D/g,''),10)||0;inp.value=n?_nnum(n):'';});
+    const finish=commit=>{if(done)return;done=true;const nv=parseInt(inp.value.replace(/\D/g,''),10)||0;cell.classList.remove('sal-monto--editing');if(!commit||nv===oldV){cell.innerHTML=orig;return;}
+      cell.innerHTML='<span class="sal-mut">Guardando…</span>';
+      _cfSetLineMonto(repId,clId,nv).then(()=>{showToast('Monto repartido guardado');if(typeof renderReporte==='function'&&document.getElementById('repHost'))renderReporte();render(false);}).catch(()=>{cell.innerHTML=orig;showToast('No pude guardar el monto');});};
+    inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();finish(true);}else if(e.key==='Escape'){e.preventDefault();done=true;cell.classList.remove('sal-monto--editing');cell.innerHTML=orig;}});
+    inp.addEventListener('blur',()=>finish(true));
   }
+  function render(anim){
+    const rows=_cfSalidasDe(mk,chan);
+    const missing=montoMatters?rows.filter(r=>(+r.monto||0)<=0):[];
+    const view=onlyMissing?missing:rows;
+    const byDate={};view.forEach(r=>{const d=(r.fecha||'').slice(0,10);(byDate[d]=byDate[d]||[]).push(r);});
+    const dates=Object.keys(byDate).filter(Boolean).sort();
+    const nDias=new Set(rows.map(r=>(r.fecha||'').slice(0,10)).filter(Boolean)).size;
+    const totFlete=rows.reduce((s,r)=>s+r.flete,0);
+    m.$('#salHd').innerHTML='<span class="sal-hd__tag">Salidas · '+CHN[chan]+'</span><span class="sal-hd__d">·</span><span class="sal-hd__mes">'+(mk?_mesLbl(mk):'Todos los meses')+'</span><span class="sal-hd__d">·</span><span class="sal-hd__sub">'+rows.length+' salida'+(rows.length===1?'':'s')+' · '+nDias+' día'+(nDias===1?'':'s')+'</span><span class="sal-hd__d">·</span><span class="sal-hd__k"><b>'+_gs(totFlete)+'</b> <small>flete total del mes</small></span>';
+    const wh=m.$('#salWarnHost');
+    if(montoMatters&&missing.length)wh.innerHTML='<div class="sal-warn'+(onlyMissing?' on':'')+'"><span class="sal-warn__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L14.4 3.9a2 2 0 00-3.4 0z"/></svg></span><span class="sal-warn__t">Falta registrar el <b>monto repartido</b> de <b>'+missing.length+'</b> salida'+(missing.length===1?'':'s')+'.</span><button class="sal-warn__btn" data-salfilter="1">'+(onlyMissing?'Ver todas':'Ver')+'</button></div>';
+    else wh.innerHTML='';
+    const dayHtml=dates.map(d=>{
+      const ls=byDate[d],dF=ls.reduce((s,r)=>s+r.flete,0);
+      const rws=ls.map(r=>{
+        const km=(r.seg==='interior'&&r.km>0)?(_kmFmt(r.km)+' km × '+_gs(r.precioKm)):'<span class="sal-mut">—</span>';
+        const incTxt=r.inc!==null?r.inc.toFixed(2)+'%':'—',incCls=r.inc!==null?(r.inc<3?'ok':'over'):'';
+        const montoCell=montoMatters?('<td class="r sal-monto" data-montoedit="1" data-rep="'+r.repId+'" data-cl="'+(r.clId==null?'':r.clId)+'" data-mv="'+(+r.monto||0)+'" title="Clic para editar">'+((+r.monto||0)>0?_gs(r.monto):'<span class="sal-addmonto">+ Añadir</span>')+'</td>'):('<td class="r">'+_gs(r.monto)+'</td>');
+        return '<tr><td class="sal-cam"><div class="sal-caminner"><span class="sal-cam__ic">'+TRUCK+'</span><span class="sal-cam__t">'+_escp(r.cam)+'</span></div></td><td>'+_escp(r.rep)+'</td><td>'+(r.zona&&r.zona!=='—'?'<span class="sal-chip">'+_escp(r.zona)+'</span>':'<span class="sal-mut">—</span>')+'</td><td class="r sal-det">'+km+'</td>'+montoCell+'<td class="r sal-flete">'+(r.flete?_gs(r.flete):'—')+'</td><td class="r sal-inc '+incCls+'">'+incTxt+'</td></tr>';
+      }).join('');
+      return '<div class="sal-day"><div class="sal-day__h"><span class="sal-day__dot"></span><span class="sal-day__d">'+dispD(d)+'</span><span class="sal-day__n">'+ls.length+' salida'+(ls.length===1?'':'s')+'</span></div><div class="sal-day__tblwrap"><table class="sal-tbl"><thead><tr><th>Camión</th><th>Repartidor</th><th>Zona</th><th class="r">Km · Precio/km</th><th class="r">Monto</th><th class="r">Flete</th><th class="r">Incid.</th></tr></thead><tbody>'+rws+'</tbody><tfoot><tr><td colspan="5">Total del día</td><td class="r">'+_gs(dF)+'</td><td></td></tr></tfoot></table></div></div>';
+    }).join('')||'<div class="sal-empty">'+(onlyMissing?'¡No hay salidas sin monto! ✔':'No hay salidas en este período.')+'</div>';
+    m.$('#salBody').innerHTML=dayHtml;
+    m.box.querySelectorAll('[data-salfilter]').forEach(b=>b.addEventListener('click',()=>{onlyMissing=!onlyMissing;render(true);}));
+    if(montoMatters)m.box.querySelectorAll('.sal-monto[data-montoedit]').forEach(c=>c.addEventListener('click',()=>editMonto(c)));
+    const g=window.gsap;if(g&&anim){
+      g.from(m.box.querySelectorAll('.sal-day'),{opacity:0,y:20,duration:.46,stagger:.07,delay:.06,ease:'power3.out',clearProps:'all'});
+      g.from(m.box.querySelectorAll('.sal-tbl tbody tr'),{opacity:0,x:-10,duration:.32,stagger:.01,delay:.14,ease:'power2.out',clearProps:'all'});
+      const w=m.box.querySelector('.sal-warn');if(w)g.from(w,{opacity:0,y:-8,duration:.4,ease:'back.out(1.8)',clearProps:'all'});
+    }
+  }
+  render(true);
+  const g=window.gsap;if(g&&m.box)g.from(m.box.querySelectorAll('#salHd > *'),{opacity:0,y:8,duration:.4,stagger:.05,delay:.05,ease:'power2.out',clearProps:'all'});
 }
 function _cfManualClick(e){
   const cell=e.target.closest('[data-manf]');
