@@ -5966,7 +5966,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
   function _dashSort(arr,sk){return arr.slice().sort((a,b)=>{if(a.isNew!==b.isNew)return a.isNew?-1:1;const fa=a.fecha||'',fb=b.fecha||'';if(sk==='interior'){const pa=+a.precioKm||0,pb=+b.precioKm||0;if(pa!==pb)return pa-pb;return fa<fb?-1:(fa>fb?1:0);}const ca=camLbl(a)||'',cb=camLbl(b)||'';if(ca!==cb)return ca.localeCompare(cb,'es');return fa<fb?-1:(fa>fb?1:0);});}
   // Vista tipo dashboard (reemplaza el tablero Trello): pestañas por segmento + tabla + resumen + gráfico de zonas.
   // Edición inline del dashboard
-  const _dfKm=d=>_dashSeg==='interior'&&(+d.km>0)&&(+d.precioKm>0);
+  const _dfKm=d=>(d.seg||_dashSeg)==='interior'&&(+d.km>0)&&(+d.precioKm>0);
   const _dfFlete=d=>_dfKm(d)?Math.round(d.km*d.precioKm):(+d.precio||0);
   function _dashBlank(){const isTr=_dashSeg==='transportadora',tr=(trucks||[])[0]||null;return {k:_dashDK++,uid:null,isNew:true,seg:_dashSeg,trId:isTr?null:(tr?tr.id:null),trDesc:isTr?'':(tr?tr.d:''),tsId:tsObj?tsObj.id:g.tsId,tsNombre:g.ts,rep:'',zona:'',fecha:(wkObj?wkObj.desde:null),km:0,precioKm:0,precio:0,obs:'',cant:1,del:false};}
   function _dashEnterEdit(sk,autoAdd){if(_facDeGrupo(g)){showToast('Esta planilla ya está facturada · no se puede modificar');return;}_dashSeg=sk;_dashDK=1;_dashDraft=work.filter(w=>!w.del&&w.seg===sk).map(w=>({k:_dashDK++,uid:w.uid,isNew:!!w.isNew,seg:w.seg||sk,trId:w.trId,trDesc:w.trDesc,tsId:w.tsId,tsNombre:w.tsNombre,rep:w.rep||'',zona:w.zona||'',fecha:w.fecha||null,km:+w.km||0,precioKm:+w.precioKm||0,precio:+w.precio||0,obs:w.obs||'',cant:+w.cant||1,del:false}));_dashEdit=true;if(autoAdd)_dashDraft.push(_dashBlank());render('filter');}
@@ -6065,13 +6065,16 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     }
     const sk=_dashSeg,isInt=sk==='interior',isServ=sk==='servicios',isTr=sk==='transportadora';
     const editing=_dashEdit&&!!_dashDraft;
+    // La columna Km·Precio/km aparece si la pestaña es Interior o si (editando) alguna fila cambió a Interior
+    const anyInt=editing&&(_dashDraft||[]).some(d=>!d.del&&(d.seg||sk)==='interior');
+    const showKmCol=isInt||anyInt;
     const items=_dashSort(work.filter(w=>!w.del&&w.seg===sk&&(!_camFilter||camLbl(w)===_camFilter)),sk);
     let thead;
     const facReadReg=_dashSeg!=='todos'&&!!_facDeGrupo(g);
     const actTh=editing?'<th class="rrd-actth"></th>':(facReadReg?'':'<th class="rrd-facth rrd-facc--slim r"></th>');
     const segTh=(editing&&!isTr)?'<th class="rrd-segth">Segmento</th>':'';
     if(isTr)thead='<tr><th>Fecha</th><th class="rrd-grow">Detalle</th><th class="r">Cantidad</th><th class="r">Flete</th>'+actTh+'</tr>';
-    else thead='<tr><th>Fecha</th>'+segTh+'<th>Camión</th><th>Repartidor</th><th class="rrd-grow">'+(isServ?'Servicio':'Zona')+'</th>'+(isInt?'<th class="r">Km · Precio/km</th>':'')+'<th class="r">Flete</th>'+actTh+'</tr>';
+    else thead='<tr><th>Fecha</th>'+segTh+'<th>Camión</th><th>Repartidor</th><th class="rrd-grow">'+(isServ?'Servicio':'Zona')+'</th>'+(showKmCol?'<th class="r">Km · Precio/km</th>':'')+'<th class="r">Flete</th>'+actTh+'</tr>';
     let rowsHtml;
     if(editing){
       const CHV='<svg class="xls-chv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>';
@@ -6083,7 +6086,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
         const segCell='<td><button type="button" class="xls-pick rrd-segpick'+((d.seg&&d.seg!==sk)?' moved':'')+'" data-segpick="'+d.k+'"><span>'+SEGN[d.seg||sk]+'</span>'+CHV+'</button></td>';
         let c;
         if(isTr)c=fecCell+'<td><span class="rrd-mut">Transportadora (total)</span></td><td class="r"><input class="xls-in r rrd-fin rrd-fcant" data-dk="'+d.k+'" inputmode="numeric" placeholder="0" value="'+(d.cant||'')+'"></td>'+fleteCell+'<td class="rrd-actc"></td>';
-        else{const zcell=isServ?('<td><input class="xls-in rrd-fin rrd-fobs" data-dk="'+d.k+'" placeholder="—" value="'+_escp(d.obs||'')+'"></td>'):('<td>'+pk('zona')+'</td>');const kmcell=isInt?('<td class="r"><div class="rrd-kmedit"><input class="xls-in r rrd-fin rrd-fkm" data-dk="'+d.k+'" inputmode="decimal" placeholder="Km" value="'+(d.km?_kmFmt(d.km):'')+'"><span>×</span><input class="xls-in r rrd-fin rrd-fpkm" data-dk="'+d.k+'" inputmode="numeric" placeholder="Precio por km" value="'+(d.precioKm?_nnum(d.precioKm):'')+'"></div></td>'):'';c=fecCell+segCell+'<td>'+pk('tr')+'</td><td>'+pk('rep')+'</td>'+zcell+kmcell+fleteCell+'<td class="rrd-actc"></td>';}
+        else{const _rInt=(d.seg||sk)==='interior';const zcell=((d.seg||sk)==='servicios')?('<td><input class="xls-in rrd-fin rrd-fobs" data-dk="'+d.k+'" placeholder="—" value="'+_escp(d.obs||'')+'"></td>'):('<td>'+pk('zona')+'</td>');const kmcell=showKmCol?(_rInt?('<td class="r"><div class="rrd-kmedit"><input class="xls-in r rrd-fin rrd-fkm" data-dk="'+d.k+'" inputmode="decimal" placeholder="Km" value="'+(d.km?_kmFmt(d.km):'')+'"><span>×</span><input class="xls-in r rrd-fin rrd-fpkm" data-dk="'+d.k+'" inputmode="numeric" placeholder="Precio por km" value="'+(d.precioKm?_nnum(d.precioKm):'')+'"></div></td>'):'<td class="r"><span class="rrd-mut">—</span></td>'):'';c=fecCell+segCell+'<td>'+pk('tr')+'</td><td>'+pk('rep')+'</td>'+zcell+kmcell+fleteCell+'<td class="rrd-actc"></td>';}
         return '<tr data-dk="'+d.k+'">'+c+'</tr>';}).join('')||'<tr><td colspan="8" class="rrd-empty">Sin líneas — agregá una.</td></tr>';
     }else{
       // La selección/factura vive solo en "Todos". En los segmentos queda solo el tacho (borrar),
