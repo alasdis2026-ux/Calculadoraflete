@@ -3992,6 +3992,50 @@ function showSaveAnim(text){
   .rep2 .ch-row--sal:hover{background:var(--ch-soft)}
   .rep2 .ch-row--sal .ch-rl{color:var(--ch-color);font-weight:800}
   .rep2 .ch-sv{font-family:Sora,Inter,sans-serif;font-weight:800;font-size:18px;color:var(--ch-color);line-height:1;font-variant-numeric:tabular-nums}
+  .rep2 .ch-sal-right{display:inline-flex;align-items:center;gap:10px}
+  .rep2 .ch-sal-btn{border:1px solid rgba(15,23,42,.1);background:#fff;color:var(--ch-color);font:inherit;font-size:11px;font-weight:800;padding:4px 11px;border-radius:8px;cursor:pointer;transition:background .15s,color .15s,border-color .15s,transform .12s}
+  .rep2 .ch-sal-btn:hover{background:var(--ch-color);color:#fff;border-color:var(--ch-color)}
+  .rep2 .ch-sal-btn:active{transform:scale(.95)}
+  /* Modal PRO: salidas del mes por fecha */
+  .sal-modal{max-width:860px!important;width:calc(100vw - 40px);padding:0!important;overflow:hidden;display:flex;flex-direction:column;max-height:88vh}
+  .sal-x{position:absolute;top:15px;right:15px;width:34px;height:34px;border:none;background:var(--gray-100,#f1f5f9);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--gray-500,#64748b);z-index:3}
+  .sal-x svg{width:17px;height:17px}
+  .sal-x:hover{background:var(--gray-200,#e2e8f0)}
+  .sal-hd{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:22px 26px 18px;border-bottom:1px solid var(--gray-100,#f1f5f9);position:relative}
+  .sal-hd::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--sal-c,#0B5F8D)}
+  .sal-hd__tag{display:inline-block;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--sal-c,#0B5F8D);margin-bottom:5px}
+  .sal-hd__t h3{margin:0;font-size:20px;line-height:1.1}
+  .sal-hd__t .cf-msub{margin-top:4px}
+  .sal-hd__k{text-align:right;flex-shrink:0}
+  .sal-hd__k b{display:block;font-family:Sora,Inter,sans-serif;font-size:21px;font-weight:800;color:var(--sal-c,#0B5F8D);font-variant-numeric:tabular-nums;line-height:1}
+  .sal-hd__k span{font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--gray-400,#94a3b8);margin-top:4px;display:block}
+  .sal-scroll{flex:1;overflow:auto;padding:16px 22px 22px}
+  .sal-day{margin-bottom:16px}
+  .sal-day:last-child{margin-bottom:0}
+  .sal-day__h{display:flex;align-items:center;gap:10px;padding:7px 4px;position:sticky;top:0;background:#fff;z-index:1}
+  .sal-day__dot{width:8px;height:8px;border-radius:50%;background:var(--sal-c,#0B5F8D);flex-shrink:0}
+  .sal-day__d{font-weight:800;font-size:13.5px;color:#0f172a}
+  .sal-day__n{font-size:11px;font-weight:700;color:#94a3b8}
+  .sal-day__f{margin-left:auto;font-weight:800;font-size:13px;color:#15803d;font-variant-numeric:tabular-nums}
+  .sal-day__tblwrap{overflow-x:auto;border:1px solid #eef2f7;border-radius:12px}
+  .sal-tbl{width:100%;border-collapse:collapse}
+  .sal-tbl th{text-align:left;font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:#94a3b8;padding:9px 12px;border-bottom:1px solid #f1f5f9;white-space:nowrap;background:#f8fafc}
+  .sal-tbl th.r{text-align:right}
+  .sal-tbl td{padding:9px 12px;border-bottom:1px solid #f4f7fa;font-size:12px;color:#334155;white-space:nowrap}
+  .sal-tbl td.r{text-align:right;font-variant-numeric:tabular-nums}
+  .sal-tbl tbody tr:last-child td{border-bottom:none}
+  .sal-tbl tbody tr:hover{background:#f7fbfe}
+  .sal-cam{font-weight:700;color:#0f172a}
+  .sal-cam{display:flex;align-items:center;gap:8px}
+  .sal-cam__ic{width:26px;height:26px;border-radius:8px;background:#eef6fc;color:var(--sal-c,#0B5F8D);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .sal-cam__ic svg{width:15px;height:15px}
+  .sal-chip{display:inline-block;padding:2px 9px;border-radius:999px;background:#f1f5f9;font-size:10.5px;font-weight:800;color:#475569}
+  .sal-flete{color:#15803d;font-weight:800}
+  .sal-mut{color:#cbd5e1}
+  .sal-inc.ok{color:#15803d;font-weight:800}
+  .sal-inc.over{color:#dc2626;font-weight:800}
+  .sal-empty{text-align:center;color:#94a3b8;padding:46px 10px;font-weight:600}
+  @media(max-width:640px){.sal-modal{width:calc(100vw - 20px)}}
   .rep2 .ch-rl{font-size:12px;font-weight:600;color:var(--gray-500)}
   .rep2 .ch-rv{display:flex;align-items:baseline;justify-content:flex-end;gap:3px;flex-shrink:0;font-size:13.5px;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums}
   .rep2 .ch-rv.man{color:var(--accent,#3B82F6)}
@@ -5114,7 +5158,7 @@ async function renderReporte(){
     '<div class="main-grid"><div class="main-col-left"><div class="section-label">Reparto por canal</div><div class="channel-grid">'+
       '<div class="ch-card" data-ch="int"><div class="ch-top"></div><div class="ch-head"><span class="ch-dot"></span><span class="ch-name">Interior</span><span class="ch-cams">'+nn(m.interior.cam)+'<small>camiones</small></span></div>'+
         '<div class="ch-hero"><span class="ch-hero-l">Monto repartido</span><div class="ch-hero-v"><span class="ch-val">'+nn(m.interior.monto)+'</span><span class="ch-u">Gs.</span></div></div>'+
-        '<div class="ch-rows"><div class="ch-row ch-row--sal"><span class="ch-rl">Salidas del mes</span><span class="ch-sv">'+nn(m.salidas.interior)+'</span></div><div class="ch-row"><span class="ch-rl">Peso</span>'+man(m.interior.peso,'Kg','seg.interior.peso','Peso · Interior')+'</div>'+
+        '<div class="ch-rows"><div class="ch-row ch-row--sal"><span class="ch-rl">Salidas del mes</span><span class="ch-sal-right">'+(m.salidas.interior>0?'<button class="ch-sal-btn" data-saldet="interior" type="button">Ver detalles</button>':'')+'<span class="ch-sv">'+nn(m.salidas.interior)+'</span></span></div><div class="ch-row"><span class="ch-rl">Peso</span>'+man(m.interior.peso,'Kg','seg.interior.peso','Peso · Interior')+'</div>'+
           '<div class="ch-row"><span class="ch-rl">Km recorridos</span>'+aut(intKm,'Km')+'</div>'+
           '<div class="ch-row"><span class="ch-rl">Pago a transportadoras</span>'+aut(m.interior.flete)+'</div>'+
           '<div class="ch-row"><span class="ch-rl">Gratificaciones</span>'+man(m.interior.gratificaciones,'','seg.interior.gratificaciones','Gratificaciones · Interior')+'</div>'+
@@ -5122,13 +5166,13 @@ async function renderReporte(){
         '<div class="ch-foot"><div class="ch-total"><span>Gasto total</span><b>'+nn(m.interior.gastoTotal)+' Gs.</b></div><div class="ch-inc"><span>Incidencia</span><b>'+_pct(m.interior.incidencia)+'</b></div></div></div>'+
       '<div class="ch-card" data-ch="loc"><div class="ch-top"></div><div class="ch-head"><span class="ch-dot"></span><span class="ch-name">Local</span><span class="ch-cams">'+nn(m.local.cam)+'<small>camiones</small></span></div>'+
         '<div class="ch-hero"><span class="ch-hero-l">Monto repartido</span><div class="ch-hero-v"><span class="ch-val">'+nn(m.local.monto)+'</span><span class="ch-u">Gs.</span></div></div>'+
-        '<div class="ch-rows"><div class="ch-row ch-row--sal"><span class="ch-rl">Salidas del mes</span><span class="ch-sv">'+nn(m.salidas.periferia)+'</span></div><div class="ch-row"><span class="ch-rl">Peso</span>'+man(m.local.peso,'Kg','seg.local.peso','Peso · Local')+'</div>'+
+        '<div class="ch-rows"><div class="ch-row ch-row--sal"><span class="ch-rl">Salidas del mes</span><span class="ch-sal-right">'+(m.salidas.periferia>0?'<button class="ch-sal-btn" data-saldet="periferia" type="button">Ver detalles</button>':'')+'<span class="ch-sv">'+nn(m.salidas.periferia)+'</span></span></div><div class="ch-row"><span class="ch-rl">Peso</span>'+man(m.local.peso,'Kg','seg.local.peso','Peso · Local')+'</div>'+
           '<div class="ch-row"><span class="ch-rl">Pago a transportadoras</span>'+aut(m.local.flete)+'</div>'+
           '<div class="ch-row"><span class="ch-rl">Gasto viático</span>'+man(m.local.viatico,'','seg.local.viatico','Gasto viático · Local')+'</div></div>'+
         '<div class="ch-foot"><div class="ch-total"><span>Gasto total</span><b>'+nn(m.local.gastoTotal)+' Gs.</b></div><div class="ch-inc"><span>Incidencia</span><b>'+_pct(m.local.incidencia)+'</b></div></div></div>'+
       '<div class="ch-card" data-ch="trans"><div class="ch-top"></div><div class="ch-head"><span class="ch-dot"></span><span class="ch-name">Transportadora</span><span class="ch-cams">'+nn(m.transportadora.cam)+'<small>camiones</small></span></div>'+
         '<div class="ch-hero"><span class="ch-hero-l">Monto de factura</span><div class="ch-hero-v"><span class="ch-val">'+nn(m.transportadora.monto)+'</span><span class="ch-u">Gs.</span></div></div>'+
-        '<div class="ch-rows"><div class="ch-row ch-row--sal"><span class="ch-rl">Salidas del mes</span><span class="ch-sv">'+nn(m.salidas.transportadora)+'</span></div><div class="ch-row"><span class="ch-rl">Importe flete</span>'+aut(m.transportadora.flete)+'</div></div>'+
+        '<div class="ch-rows"><div class="ch-row ch-row--sal"><span class="ch-rl">Salidas del mes</span><span class="ch-sal-right">'+(m.salidas.transportadora>0?'<button class="ch-sal-btn" data-saldet="transportadora" type="button">Ver detalles</button>':'')+'<span class="ch-sv">'+nn(m.salidas.transportadora)+'</span></span></div><div class="ch-row"><span class="ch-rl">Importe flete</span>'+aut(m.transportadora.flete)+'</div></div>'+
         '<div class="ch-foot"><div class="ch-total"><span>Gasto total</span><b>'+nn(m.transportadora.flete)+' Gs.</b></div><div class="ch-inc"><span>Incidencia</span><b>'+_pct(m.transportadora.incidencia)+'</b></div></div></div>'+
     '</div>'+
       '</div>'+
@@ -5153,6 +5197,8 @@ async function renderReporte(){
   const eb=document.getElementById('cfRepEdit');if(eb)eb.addEventListener('click',()=>_cfOpenReporteEdit(_cfRepMes));
   // Edición inline de valores manuales (solo con un mes puntual) → modal PRO de confirmación
   if(!host.dataset.manwired){host.dataset.manwired='1';host.addEventListener('click',_cfManualClick);}
+  // "Ver detalles" de salidas → modal PRO por fecha
+  host.querySelectorAll('[data-saldet]').forEach(b=>b.addEventListener('click',()=>_cfSalidasModal(_cfRepMes,b.dataset.saldet)));
   if(window.gsap){
     const g=window.gsap;
     g.from('#repHost .hero-seg',{opacity:0,y:14,duration:.42,stagger:.07,ease:'power3.out',clearProps:'opacity,transform'});
@@ -5169,6 +5215,49 @@ async function renderReporte(){
 }
 
 // Edición inline de un valor manual → al confirmar, guarda ese campo en fact_reporte
+// Salidas facturadas del mes por canal (interior / periferia=local / transportadora=transp+servicios)
+function _cfSalidasDe(mk,chan){
+  const rows=[];
+  (repartos||[]).forEach(r=>{
+    if(mk&&(r.fechaISO||'').slice(0,7)!==mk)return;
+    (r.clientes||[]).forEach(c=>{
+      if(!_clFacturado(c,r))return;
+      const sk=c.seg||'local';
+      const k=sk==='interior'?'interior':(sk==='servicios'||sk==='transportadora')?'transportadora':'periferia';
+      if(k!==chan)return;
+      const fl=(+c.precio|| +c.gasto||0),mo=+c.monto||0;
+      rows.push({fecha:(r.fechaISO||r.fecha||''),cam:c.trDesc||'—',rep:(c.rep||'Tercerizado'),zona:(c.zona||'—'),km:+c.km||0,precioKm:+c.precioKm||0,monto:mo,flete:fl,inc:(mo>0&&fl>0?fl/mo*100:null),seg:sk});
+    });
+  });
+  return rows;
+}
+// Modal PRO: salidas del mes por fecha, con animación GSAP
+function _cfSalidasModal(mk,chan){
+  const CHN={interior:'Interior',periferia:'Local',transportadora:'Transportadora'};
+  const CHC={interior:'#0B5F8D',periferia:'#3B82F6',transportadora:'#7C6BF0'};
+  const rows=_cfSalidasDe(mk,chan),color=CHC[chan]||'#0B5F8D';
+  const byDate={};rows.forEach(r=>{const d=(r.fecha||'').slice(0,10);(byDate[d]=byDate[d]||[]).push(r);});
+  const dates=Object.keys(byDate).filter(Boolean).sort();
+  const totFlete=rows.reduce((s,r)=>s+r.flete,0);
+  const DOW=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  const dispD=iso=>{const p=iso.split('-').map(Number);if(p.length<3)return iso;const dt=new Date(p[0],p[1]-1,p[2]);return DOW[dt.getDay()]+' '+String(p[2]).padStart(2,'0')+'/'+String(p[1]).padStart(2,'0');};
+  const TRUCK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="2.5" y="7" width="11" height="8" rx="1"/><path d="M13.5 9.5H17l3.5 3.5V15h-7z"/><circle cx="7" cy="17.5" r="1.6"/><circle cx="17.5" cy="17.5" r="1.6"/></svg>';
+  const dayHtml=dates.map(d=>{
+    const ls=byDate[d],dF=ls.reduce((s,r)=>s+r.flete,0);
+    const rws=ls.map(r=>{
+      const km=(r.seg==='interior'&&r.km>0)?(_kmFmt(r.km)+' km × '+_gs(r.precioKm)):'<span class="sal-mut">—</span>';
+      const incTxt=r.inc!==null?r.inc.toFixed(2)+'%':'—',incCls=r.inc!==null?(r.inc<3?'ok':'over'):'';
+      return '<tr><td class="sal-cam"><span class="sal-cam__ic">'+TRUCK+'</span><span class="sal-cam__t">'+_escp(r.cam)+'</span></td><td>'+_escp(r.rep)+'</td><td>'+(r.zona&&r.zona!=='—'?'<span class="sal-chip">'+_escp(r.zona)+'</span>':'<span class="sal-mut">—</span>')+'</td><td class="r sal-det">'+km+'</td><td class="r">'+_gs(r.monto)+'</td><td class="r sal-flete">'+(r.flete?_gs(r.flete):'—')+'</td><td class="r sal-inc '+incCls+'">'+incTxt+'</td></tr>';
+    }).join('');
+    return '<div class="sal-day"><div class="sal-day__h"><span class="sal-day__dot"></span><span class="sal-day__d">'+dispD(d)+'</span><span class="sal-day__n">'+ls.length+' salida'+(ls.length===1?'':'s')+'</span><span class="sal-day__f">'+_gs(dF)+'</span></div><div class="sal-day__tblwrap"><table class="sal-tbl"><thead><tr><th>Camión</th><th>Repartidor</th><th>Zona</th><th class="r">Km · Precio/km</th><th class="r">Monto</th><th class="r">Flete</th><th class="r">Incid.</th></tr></thead><tbody>'+rws+'</tbody></table></div></div>';
+  }).join('')||'<div class="sal-empty">No hay salidas en este período.</div>';
+  const mesTxt=mk?_mesLbl(mk):'Todos los meses';
+  const m=_cfModalOpen('<div class="cf-mbox sal-modal" style="--sal-c:'+color+'"><button class="sal-x" aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>'+
+    '<div class="sal-hd"><div class="sal-hd__t"><span class="sal-hd__tag">Salidas · '+CHN[chan]+'</span><h3>'+mesTxt+'</h3><p class="cf-msub">'+rows.length+' salida'+(rows.length===1?'':'s')+' · '+dates.length+' día'+(dates.length===1?'':'s')+'</p></div><div class="sal-hd__k"><b>'+_gs(totFlete)+'</b><span>Flete total</span></div></div>'+
+    '<div class="sal-scroll">'+dayHtml+'</div></div>');
+  m.$('.sal-x').addEventListener('click',m.close);
+  const g=window.gsap;if(g&&m.box){g.from(m.box.querySelectorAll('.sal-day'),{opacity:0,y:20,duration:.46,stagger:.07,delay:.12,ease:'power3.out',clearProps:'all'});g.from(m.box.querySelectorAll('.sal-tbl tbody tr'),{opacity:0,x:-10,duration:.3,stagger:.012,delay:.22,ease:'power2.out',clearProps:'all'});g.from(m.box.querySelectorAll('.sal-hd__k'),{opacity:0,scale:.9,duration:.4,delay:.14,ease:'back.out(2)',clearProps:'all'});}
+}
 function _cfManualClick(e){
   const cell=e.target.closest('[data-manf]');
   if(!cell||cell.querySelector('input'))return;
