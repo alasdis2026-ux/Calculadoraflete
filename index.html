@@ -4098,6 +4098,10 @@ function showSaveAnim(text){
   .rep2 .mini-seg .ml{display:block;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#94a3b8;margin-top:5px}
   /* Monto e incidencia por zona */
   /* Monto e incidencia por zona: gráfico + tabla lado a lado */
+  .rep2 .rep-zhead{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin:2px 0 12px}
+  .rep2 .rep-ztabs{padding:4px;gap:5px}
+  .rep2 .rep-ztabs .rrd-tab{padding:6px 12px;font-size:12px}
+  .rep2 .zt-empty{text-align:center;color:#94a3b8;padding:42px 10px;font-weight:600;font-size:13px}
   .rep2 .rep2-zt-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
   .rep2 .zbar-wrap{padding:15px 18px 16px;display:flex;flex-direction:column;gap:11px;max-height:460px;overflow-y:auto}
   .rep2 .zbar-row{display:flex;align-items:center;gap:10px}
@@ -5090,7 +5094,33 @@ function _repFacturado(r){if(!r)return false;if(r.factura_id!=null)return !!(win
 function _clFacturado(cl,r){const _repHasCl=r&&(r.clientes||[]).some(c=>c.factura_id!=null);const fid=(cl&&cl.factura_id!=null)?cl.factura_id:(_repHasCl?null:(r&&r.factura_id));if(fid!=null)return !!(window.__cfFac||[]).find(x=>x.id===fid);if(!r||!r.fechaISO)return false;const wk=(typeof isoWeekRange==='function')?isoWeekRange(r.fechaISO):null;if(!wk)return false;const own=cl.trId?tsOfTruck(cl.trId):null;const ts=(own&&own.n)||cl.tsNombre||'—';return !!_facLegacy(ts,wk.desde);}
 function _cfLines(mk){const out=[];(repartos||[]).forEach(r=>{if(mk&&(r.fechaISO||'').slice(0,7)!==mk)return;(r.clientes||[]).forEach(cl=>{if(!_clFacturado(cl,r))return;out.push({seg:cl.seg||'local',monto:+cl.monto||0,flete:+cl.precio||0,cam:(cl.trDesc||'').toUpperCase(),km:+cl.km||0});});});return out;}
 // Monto e incidencia agrupados por zona (para el Reporte General)
-function _cfZonas(mk){const map={};(repartos||[]).forEach(r=>{if(mk&&(r.fechaISO||'').slice(0,7)!==mk)return;(r.clientes||[]).forEach(c=>{if(!_clFacturado(c,r))return;const z=((c.zona||'').trim())||'Sin zona';const o=map[z]||(map[z]={zona:z,monto:0,flete:0,peso:0});o.monto+=+c.monto||0;o.flete+=+c.precio||0;o.peso+=+c.peso||0;});});return Object.values(map).map(z=>({zona:z.zona,monto:z.monto,flete:z.flete,peso:z.peso,incidencia:z.monto>0?z.flete/z.monto:0})).sort((a,b)=>b.monto-a.monto);}
+function _cfZonas(mk,seg){const map={};(repartos||[]).forEach(r=>{if(mk&&(r.fechaISO||'').slice(0,7)!==mk)return;(r.clientes||[]).forEach(c=>{if(!_clFacturado(c,r))return;if(seg&&seg!=='todos'&&(c.seg||'local')!==seg)return;const z=((c.zona||'').trim())||'Sin zona';const o=map[z]||(map[z]={zona:z,monto:0,flete:0,peso:0});o.monto+=+c.monto||0;o.flete+=+c.precio||0;o.peso+=+c.peso||0;});});return Object.values(map).map(z=>({zona:z.zona,monto:z.monto,flete:z.flete,peso:z.peso,incidencia:z.monto>0?z.flete/z.monto:0})).sort((a,b)=>b.monto-a.monto);}
+let _cfZonaSeg='todos';
+// HTML de la sección de zonas (con filtro de segmento). Se re-renderiza in-place al cambiar de tab.
+function _repZonaHTML(mk){
+  const allZonas=_cfZonas(mk,'todos');
+  if(!allZonas.length)return '';
+  const SEG=[['todos','Todos'],['local','Local'],['interior','Interior'],['servicios','Servicios'],['transportadora','Transportadora']];
+  const SEGDOT={local:'#38BDF8',interior:'#F97316',servicios:'#10B981',transportadora:'#7c3aed'};
+  const seg=_cfZonaSeg||'todos';
+  const zonas=(seg==='todos')?allZonas:_cfZonas(mk,seg);
+  const tabs='<div class="rrd-tabs rep-ztabs">'+SEG.map(function(s){const dot=s[0]==='todos'?'<span class="rrd-tab__dot rrd-tab__dot--all"></span>':'<span class="rrd-tab__dot" style="background:'+SEGDOT[s[0]]+'"></span>';return '<button class="rrd-tab'+(seg===s[0]?' on':'')+'" data-zseg="'+s[0]+'" type="button">'+dot+s[1]+'</button>';}).join('')+'</div>';
+  const head='<div class="rep-zhead"><div class="section-label" style="margin:0">Monto e incidencia por zona</div>'+tabs+'</div>';
+  if(!zonas.length)return head+'<div class="rep2-zt-grid"><div class="panel"><div class="zt-empty">Sin zonas en este segmento</div></div><div class="panel"><div class="zt-empty">Sin zonas en este segmento</div></div></div>';
+  const zMax=Math.max(1,...zonas.map(z=>z.monto));
+  const zonasByInc=zonas.filter(z=>z.monto>0||z.peso>0).sort((a,b)=>a.incidencia-b.incidencia);
+  const barChart='<div class="panel"><div class="panel-title"><h3>Monto por zona</h3></div><div class="zbar-wrap">'+zonas.map(function(z,i){const pct=Math.max(3,z.monto/zMax*100);return '<div class="zbar-row"><span class="zbar-rank">'+(i+1)+'</span><span class="zbar-name">'+esc(z.zona)+'</span><div class="zbar-track"><div class="zbar-fill" style="width:'+pct.toFixed(1)+'%"></div></div><span class="zbar-pill">'+_gs(z.monto)+'</span></div>';}).join('')+'</div></div>';
+  const zTable='<div class="panel"><div class="panel-title"><h3>Zona · Monto · Peso · Incidencia</h3></div><div class="zt-tblwrap"><table class="zt-tbl"><thead><tr><th>Zona</th><th class="r">Monto</th><th class="r">Peso</th><th class="r">Incidencia ▲</th></tr></thead><tbody>'+zonasByInc.map(function(z){return '<tr><td class="zt-nm">'+esc(z.zona)+'</td><td class="r zt-monto">'+_gs(z.monto)+'</td><td class="r">'+_nnum(z.peso)+'</td><td class="r zt-inc">'+_pct(z.incidencia)+'</td></tr>';}).join('')+'</tbody></table></div></div>';
+  return head+'<div class="rep2-zt-grid">'+barChart+zTable+'</div>';
+}
+function _repWireZona(){
+  const zh=document.getElementById('repZonaHost');if(!zh)return;
+  zh.querySelectorAll('[data-zseg]').forEach(function(b){b.addEventListener('click',function(){
+    if(_cfZonaSeg===b.dataset.zseg)return;_cfZonaSeg=b.dataset.zseg;
+    zh.innerHTML=_repZonaHTML(_cfRepMes);_repWireZona();
+    const g=window.gsap;if(g){const at=zh.querySelector('.rep-ztabs .rrd-tab.on');if(at)g.fromTo(at,{scale:.88},{scale:1,duration:.44,ease:'back.out(2.6)',clearProps:'transform'});g.fromTo(zh.querySelectorAll('.zbar-fill'),{scaleX:0,transformOrigin:'left center'},{scaleX:1,duration:.6,stagger:.04,ease:'power3.out'});g.from(zh.querySelectorAll('.zt-tbl tbody tr'),{opacity:0,y:6,duration:.3,stagger:.02,ease:'power2.out',clearProps:'all'});g.from(zh.querySelectorAll('.zbar-row'),{opacity:0,x:-8,duration:.32,stagger:.03,ease:'power2.out',clearProps:'all'});}
+  });});
+}
 
 function _cfReporteModel(mk){
   const auto={interior:{monto:0,flete:0,cam:{}},local:{monto:0,flete:0,cam:{}},transportadora:{monto:0,flete:0,cam:{}}};
@@ -5127,17 +5157,8 @@ async function renderReporte(){
   const man=(v,u,path,lbl)=>'<span class="ch-rv man'+(path?' man-ed':'')+'"'+_manAttr(v,u,path,lbl)+'>'+nn(v)+(u?'<i class="unit">'+u+'</i>':'')+'</span>';
   const manTd=(v,u,path,lbl)=>'<td class="man'+(path?' man-ed':'')+'"'+_manAttr(v,u,path,lbl)+'>'+nn(v)+(u?'<span class="unit">'+u+'</span>':'')+'</td>';
   const aut=(v,u)=>'<span class="ch-rv">'+nn(v)+(u?'<i class="unit">'+u+'</i>':'')+'</span>';
-  // Monto e incidencia por zona (gráfico de barras + tabla, uno al lado del otro)
-  const zonas=_cfZonas(_cfRepMes);
-  const zMax=Math.max(1,...zonas.map(z=>z.monto));
-  const zonasByInc=zonas.filter(z=>z.monto>0||z.peso>0).sort((a,b)=>a.incidencia-b.incidencia);
-  const barChart='<div class="panel"><div class="panel-title"><h3>Monto por zona</h3></div><div class="zbar-wrap">'+
-    zonas.map(function(z,i){const pct=Math.max(3,z.monto/zMax*100);return '<div class="zbar-row"><span class="zbar-rank">'+(i+1)+'</span><span class="zbar-name">'+esc(z.zona)+'</span><div class="zbar-track"><div class="zbar-fill" style="width:'+pct.toFixed(1)+'%"></div></div><span class="zbar-pill">'+_gs(z.monto)+'</span></div>';}).join('')+
-  '</div></div>';
-  const zTable='<div class="panel"><div class="panel-title"><h3>Zona · Monto · Peso · Incidencia</h3></div><div class="zt-tblwrap"><table class="zt-tbl"><thead><tr><th>Zona</th><th class="r">Monto</th><th class="r">Peso</th><th class="r">Incidencia ▲</th></tr></thead><tbody>'+
-    zonasByInc.map(z=>'<tr><td class="zt-nm">'+esc(z.zona)+'</td><td class="r zt-monto">'+_gs(z.monto)+'</td><td class="r">'+_nnum(z.peso)+'</td><td class="r zt-inc">'+_pct(z.incidencia)+'</td></tr>').join('')+
-  '</tbody></table></div></div>';
-  const zonaSection=zonas.length?('<div class="section-label">Monto e incidencia por zona</div><div class="rep2-zt-grid">'+barChart+zTable+'</div>'):'';
+  // Monto e incidencia por zona con filtro de segmento (se re-renderiza in-place)
+  const zonaSection='<div id="repZonaHost">'+_repZonaHTML(_cfRepMes)+'</div>';
   host.innerHTML='<div class="rep2">'+
     '<div class="rep2-hd"><h2><img src="logo-alas-s.a.png">Reporte General</h2>'+segBtns+'<div class="rep2-spacer"></div>'+editBtn+'</div>'+
     '<div class="hero-bar">'+
@@ -5199,6 +5220,7 @@ async function renderReporte(){
   if(!host.dataset.manwired){host.dataset.manwired='1';host.addEventListener('click',_cfManualClick);}
   // "Ver detalles" de salidas → modal PRO por fecha
   host.querySelectorAll('[data-saldet]').forEach(b=>b.addEventListener('click',()=>_cfSalidasModal(_cfRepMes,b.dataset.saldet)));
+  _repWireZona();
   if(window.gsap){
     const g=window.gsap;
     g.from('#repHost .hero-seg',{opacity:0,y:14,duration:.42,stagger:.07,ease:'power3.out',clearProps:'opacity,transform'});
