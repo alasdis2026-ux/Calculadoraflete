@@ -4105,6 +4105,7 @@ function showSaveAnim(text){
   .rep2 .mini-seg .ml{display:block;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#94a3b8;margin-top:5px}
   /* Monto e incidencia por zona */
   /* Monto e incidencia por zona: gráfico + tabla lado a lado */
+  .rep2 .rep-divider{height:2px;border:none;margin:24px 0 20px;border-radius:2px;background:linear-gradient(90deg,transparent,rgba(43,127,196,.30) 14%,#0B5F8D 50%,rgba(43,127,196,.30) 86%,transparent)}
   .rep2 .rep-zhead{display:flex;align-items:center;justify-content:flex-start;gap:16px;flex-wrap:wrap;margin:2px 0 12px}
   .rep2 .rep-ztabs{padding:4px;gap:5px}
   .rep2 .rep-ztabs .rrd-tab{padding:6px 12px;font-size:12px}
@@ -5112,7 +5113,7 @@ function _repZonaHTML(mk){
   let seg=_cfZonaSeg||'todos';if(!SEG.some(function(s){return s[0]===seg;}))seg=_cfZonaSeg='todos';
   const zonas=(seg==='todos')?allZonas:_cfZonas(mk,seg);
   const tabs='<div class="rrd-tabs rep-ztabs">'+SEG.map(function(s){const dot=s[0]==='todos'?'<span class="rrd-tab__dot rrd-tab__dot--all"></span>':'<span class="rrd-tab__dot" style="background:'+SEGDOT[s[0]]+'"></span>';return '<button class="rrd-tab'+(seg===s[0]?' on':'')+'" data-zseg="'+s[0]+'" type="button">'+dot+s[1]+'</button>';}).join('')+'</div>';
-  const head='<div class="rep-zhead"><div class="section-label" style="margin:0">Monto e incidencia por zona</div>'+tabs+'</div>';
+  const head='<div class="rep-divider"></div><div class="rep-zhead"><div class="section-label" style="margin:0">Monto e incidencia por zona</div>'+tabs+'</div>';
   if(!zonas.length)return head+'<div class="rep2-zt-grid"><div class="panel"><div class="zt-empty">Sin zonas en este segmento</div></div><div class="panel"><div class="zt-empty">Sin zonas en este segmento</div></div></div>';
   const zMax=Math.max(1,...zonas.map(z=>z.monto));
   const zonasByInc=zonas.filter(z=>z.monto>0||z.peso>0).sort((a,b)=>a.incidencia-b.incidencia);
