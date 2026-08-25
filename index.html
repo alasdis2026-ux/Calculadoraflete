@@ -5107,9 +5107,9 @@ let _cfZonaSeg='todos';
 function _repZonaHTML(mk){
   const allZonas=_cfZonas(mk,'todos');
   if(!allZonas.length)return '';
-  const SEG=[['todos','Todos'],['local','Local'],['interior','Interior'],['servicios','Servicios'],['transportadora','Transportadora']];
-  const SEGDOT={local:'#38BDF8',interior:'#F97316',servicios:'#10B981',transportadora:'#7c3aed'};
-  const seg=_cfZonaSeg||'todos';
+  const SEG=[['todos','Todos'],['local','Local'],['interior','Interior']];
+  const SEGDOT={local:'#38BDF8',interior:'#F97316'};
+  let seg=_cfZonaSeg||'todos';if(!SEG.some(function(s){return s[0]===seg;}))seg=_cfZonaSeg='todos';
   const zonas=(seg==='todos')?allZonas:_cfZonas(mk,seg);
   const tabs='<div class="rrd-tabs rep-ztabs">'+SEG.map(function(s){const dot=s[0]==='todos'?'<span class="rrd-tab__dot rrd-tab__dot--all"></span>':'<span class="rrd-tab__dot" style="background:'+SEGDOT[s[0]]+'"></span>';return '<button class="rrd-tab'+(seg===s[0]?' on':'')+'" data-zseg="'+s[0]+'" type="button">'+dot+s[1]+'</button>';}).join('')+'</div>';
   const head='<div class="rep-zhead"><div class="section-label" style="margin:0">Monto e incidencia por zona</div>'+tabs+'</div>';
