@@ -4598,6 +4598,12 @@ function showSaveAnim(text){
   .rrd-bar .rrm-filterbar{margin:0}
   .rrd-bar .rrd-tabs{justify-self:center}
   @media(max-width:980px){.rrd-bar{grid-template-columns:1fr;justify-items:center}.rrd-bar .rrm-filterbar{justify-content:center}.rrd-bar__sp{display:none}}
+  /* Sello grande "Conciliada" a la derecha de la fila de filtros (planilla facturada) */
+  .rrd-seal{justify-self:end;display:inline-flex;align-items:center;gap:9px;padding:9px 16px 9px 11px;border:2.5px solid #16a34a;border-radius:13px;color:#15803d;background:linear-gradient(135deg,#f0fdf4,#dcfce7);transform:rotate(-4deg);box-shadow:0 7px 18px rgba(22,163,74,.2),inset 0 1px 0 rgba(255,255,255,.5)}
+  .rrd-seal__ic{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#22c55e,#15803d);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 3px 8px rgba(22,163,74,.4)}
+  .rrd-seal__ic svg{width:17px;height:17px}
+  .rrd-seal__tx{font-family:Sora,Inter,sans-serif;font-weight:800;font-size:15.5px;letter-spacing:.6px;text-transform:uppercase}
+  @media(max-width:980px){.rrd-seal{justify-self:center}}
   .rrd-tabs{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;background:var(--gray-50,#f8fafc);border:1px solid var(--gray-200,#e2e8f0);border-radius:14px;padding:5px}
   .rrd-tab{display:inline-flex;align-items:center;gap:8px;border:1.5px solid transparent;background:transparent;border-radius:10px;padding:8px 15px;font:inherit;font-size:13px;font-weight:800;color:var(--gray-600,#475569);cursor:pointer;transition:background .16s,color .16s,box-shadow .18s,transform .12s}
   .rrd-tab:active{transform:scale(.96)}
@@ -6387,7 +6393,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
         '<div class="rrd-topresumen">'+_dashResumen('General',0,_kpiCam,_kpiSub)+'</div>'+
         '<div class="rrd-acts">'+acts+'</div>'+
       '</div>'+
-      '<div class="rrd-bar">'+camFilterBar()+(_facMode?_selActs:dashTabs())+'<div class="rrd-bar__sp"></div></div>'+
+      '<div class="rrd-bar">'+camFilterBar()+(_facMode?_selActs:dashTabs())+((facReg&&!editing&&!_facMode)?'<div class="rrd-seal" title="Factura conciliada"><span class="rrd-seal__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span><span class="rrd-seal__tx">Conciliada</span></div>':'<div class="rrd-bar__sp"></div>')+'</div>'+
       '<div class="rrm-body">'+dashBody()+'</div>';
     wire();
     const gs=window.gsap;
@@ -6395,6 +6401,8 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     const kf=bd.querySelector('.k-flete');
     if(kf){if(firstDraw)countTo(kf,0,t.f,.28);else if(_lastTotal!=null&&_lastTotal!==t.f)countTo(kf,_lastTotal,t.f,0);}
     _lastTotal=t.f;
+    const _seal=bd.querySelector('.rrd-seal');
+    if(_seal)gs.fromTo(_seal,{scale:1.7,opacity:0,rotate:-16},{scale:1,opacity:1,rotate:-4,duration:.55,ease:'back.out(2.2)',delay:firstDraw?.34:.05});
     const _dash=bd.querySelector('.rrd-dash');
     if(!firstDraw){gs.from(bd.querySelectorAll('.rrd-ktile'),{opacity:0,y:14,scale:.96,duration:.48,stagger:.08,ease:'back.out(1.6)',clearProps:'all'});}
     if(_dash&&!firstDraw){const _tb=bd.querySelectorAll('.rrd-tab');if(_tb.length){gs.from(_tb,{opacity:0,y:-6,duration:.28,stagger:.03,ease:'power2.out',clearProps:'all'});const _at=bd.querySelector('.rrd-tab.on');if(_at)gs.fromTo(_at,{scale:.88},{scale:1,duration:.44,ease:'back.out(2.6)',clearProps:'transform'});}gs.from(_dash.querySelectorAll('.rrd-tbl tbody tr'),{opacity:0,y:8,duration:.32,stagger:.02,ease:'power2.out',clearProps:'all'});gs.from(_dash.querySelectorAll('.rrd-card'),{opacity:0,x:14,duration:.4,stagger:.08,delay:.05,ease:'power3.out',clearProps:'all'});gs.from(_dash.querySelectorAll('.rrd-zfill'),{scaleX:0,transformOrigin:'left center',duration:.55,stagger:.05,delay:.16,ease:'power3.out'});}
