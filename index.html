@@ -4002,13 +4002,13 @@ function showSaveAnim(text){
   .sal-x svg{width:17px;height:17px}
   .sal-x:hover{background:#0f172a;color:#fff;border-color:#0f172a}
   .sal-x:active{transform:scale(.92)}
-  .sal-hd{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:22px 64px 16px 26px;border-bottom:1px solid #f1f5f9;position:relative;flex-shrink:0}
+  .sal-hd{padding:22px 48px 18px 26px;border-bottom:1px solid #f1f5f9;position:relative;flex-shrink:0}
   .sal-hd::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--sal-c,#0B5F8D)}
   .sal-hd__l{min-width:0}
   .sal-hd__tag{display:inline-block;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--sal-c,#0B5F8D);margin-bottom:6px}
   .sal-hd h3{margin:0;font-size:21px;line-height:1.1}
   .sal-hd .cf-msub{margin-top:5px}
-  .sal-hd__k{text-align:right;flex-shrink:0}
+  .sal-hd__k{text-align:left;margin-top:13px}
   .sal-hd__k b{display:block;font-family:Sora,Inter,sans-serif;font-size:23px;font-weight:800;color:var(--sal-c,#0B5F8D);font-variant-numeric:tabular-nums;line-height:1}
   .sal-hd__k span{display:block;font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#94a3b8;margin-top:5px}
   .sal-scroll{flex:1;overflow:auto;padding:16px 22px 8px}
@@ -5291,7 +5291,7 @@ function _cfSalidasModal(mk,chan){
   }).join('')||'<div class="sal-empty">No hay salidas en este período.</div>';
   const mesTxt=mk?_mesLbl(mk):'Todos los meses';
   const m=_cfModalOpen('<div class="cf-mbox sal-modal" style="--sal-c:'+color+'"><button class="sal-x" aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>'+
-    '<div class="sal-hd"><div class="sal-hd__l"><span class="sal-hd__tag">Salidas · '+CHN[chan]+'</span><h3>'+mesTxt+'</h3><p class="cf-msub">'+rows.length+' salida'+(rows.length===1?'':'s')+' · '+dates.length+' día'+(dates.length===1?'':'s')+'</p></div><div class="sal-hd__k"><b>'+_gs(totFlete)+'</b><span>Flete total del mes</span></div></div>'+
+    '<div class="sal-hd"><div class="sal-hd__l"><span class="sal-hd__tag">Salidas · '+CHN[chan]+'</span><h3>'+mesTxt+'</h3><p class="cf-msub">'+rows.length+' salida'+(rows.length===1?'':'s')+' · '+dates.length+' día'+(dates.length===1?'':'s')+'</p><div class="sal-hd__k"><b>'+_gs(totFlete)+'</b><span>Flete total del mes</span></div></div></div>'+
     '<div class="sal-scroll">'+dayHtml+'</div>'+
     '</div>');
   m.$('.sal-x').addEventListener('click',m.close);
