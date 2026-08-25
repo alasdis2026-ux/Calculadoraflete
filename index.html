@@ -3968,12 +3968,13 @@ function showSaveAnim(text){
   .rep2 .panel-title{display:flex;align-items:center;justify-content:space-between;padding:13px 20px;border-bottom:1px solid var(--soft-line)}
   .rep2 .panel-title h3{margin:0;font-size:13.5px;font-weight:800;color:var(--text)}
   /* Tarjetas por canal */
-  .rep2 .channel-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;align-items:stretch}
+  .rep2 .channel-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(216px,1fr));gap:14px;align-items:stretch}
   .rep2 .ch-card{display:flex;flex-direction:column;background:#fff;border-radius:var(--radius);border:1px solid var(--line);box-shadow:0 1px 3px rgba(15,23,42,.05);overflow:hidden;transition:box-shadow var(--base),transform var(--base)}
   .rep2 .ch-card:hover{box-shadow:0 8px 22px rgba(15,23,42,.09);transform:translateY(-2px)}
   .rep2 .ch-top{height:4px;background:var(--ch-color)}
   .rep2 .ch-card[data-ch="int"]{--ch-color:#0B5F8D;--ch-soft:#E0EDF6}
   .rep2 .ch-card[data-ch="loc"]{--ch-color:#3B82F6;--ch-soft:#DBEAFE}
+  .rep2 .ch-card[data-ch="serv"]{--ch-color:#10B981;--ch-soft:#D1FAE5}
   .rep2 .ch-card[data-ch="trans"]{--ch-color:#7C6BF0;--ch-soft:#E9E6FD}
   .rep2 .ch-head{display:flex;align-items:center;gap:8px;padding:13px 16px 0}
   .rep2 .ch-dot{width:9px;height:9px;border-radius:50%;background:var(--ch-color);flex-shrink:0}
@@ -4055,17 +4056,20 @@ function showSaveAnim(text){
   .rep2 .ch-rv{display:flex;align-items:baseline;justify-content:flex-end;gap:3px;flex-shrink:0;font-size:13.5px;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums}
   .rep2 .ch-rv.man{color:var(--accent,#3B82F6)}
   /* Modal 'Cargar valores' en tablero tipo Trello */
-  .rep-edit-box{max-width:980px!important;width:calc(100vw - 40px)}
+  .rep-edit-box{max-width:1160px!important;width:calc(100vw - 40px)}
+  .rep-edit-board{flex-wrap:wrap}
   .rep-edit-board{display:flex;gap:16px;margin:18px 0 8px;align-items:flex-start}
   .rep-edit-col{flex:1 1 0;min-width:0;background:var(--gray-50,#f8fafc);border:1px solid #e8eef5;border-radius:15px;overflow:hidden;box-shadow:0 4px 14px rgba(15,23,42,.05)}
   .rep-edit-col__top{height:4px;background:linear-gradient(90deg,#2b7fc4,#0B5F8D)}
   .rep-edit-col--int .rep-edit-col__top{background:linear-gradient(90deg,#fb923c,#F97316)}
   .rep-edit-col--loc .rep-edit-col__top{background:linear-gradient(90deg,#60a5fa,#0B5F8D)}
+  .rep-edit-col--serv .rep-edit-col__top{background:linear-gradient(90deg,#34d399,#10B981)}
   .rep-edit-col--trans .rep-edit-col__top{background:linear-gradient(90deg,#a78bfa,#7c3aed)}
   .rep-edit-col__h{display:flex;align-items:center;gap:10px;padding:14px 15px 11px}
   .rep-edit-col__ic{width:32px;height:32px;border-radius:9px;background:#fff;border:1px solid #e2e8f0;display:flex;align-items:center;justify-content:center;color:var(--primary,#0B5F8D);flex-shrink:0;box-shadow:0 2px 6px rgba(15,23,42,.06)}
   .rep-edit-col--int .rep-edit-col__ic{color:#F97316}
   .rep-edit-col--loc .rep-edit-col__ic{color:#0B5F8D}
+  .rep-edit-col--serv .rep-edit-col__ic{color:#10B981}
   .rep-edit-col--trans .rep-edit-col__ic{color:#7c3aed}
   .rep-edit-col__ic svg{width:18px;height:18px}
   .rep-edit-col__t{font-weight:800;font-size:14px;color:#1e293b;line-height:1.15}
@@ -5154,17 +5158,17 @@ function _repWireZona(){
 }
 
 function _cfReporteModel(mk){
-  const auto={interior:{monto:0,flete:0,cam:{}},local:{monto:0,flete:0,cam:{}},transportadora:{monto:0,flete:0,cam:{}}};
-  _cfLines(mk).forEach(l=>{const k=l.seg==='interior'?'interior':l.seg==='servicios'?'transportadora':'local';const o=auto[k];o.monto+=l.monto;o.flete+=l.flete;o.n=(o.n||0)+1;if(l.cam)o.cam[l.cam]=1;});
+  const auto={interior:{monto:0,flete:0,cam:{}},local:{monto:0,flete:0,cam:{}},servicios:{monto:0,flete:0,cam:{}},transportadora:{monto:0,flete:0,cam:{}}};
+  _cfLines(mk).forEach(l=>{const s=l.seg||'local';const k=(s==='interior'||s==='servicios'||s==='transportadora')?s:'local';const o=auto[k];o.monto+=l.monto;o.flete+=l.flete;o.n=(o.n||0)+1;if(l.cam)o.cam[l.cam]=1;});
   const mkList=mk?[mk]:Object.keys(_cfReporte);
   function man(key){const r={peso:0,gratificaciones:0,viatico:0,monto:0};mkList.forEach(mm=>{const s=(_cfReporte[mm]&&_cfReporte[mm].seg&&_cfReporte[mm].seg[key])||{};r.peso+=+s.peso||0;r.gratificaciones+=+s.gratificaciones||0;r.viatico+=+s.viatico||0;r.monto+=+s.monto||0;});return r;}
   const fac={facturacionMes:0,retira:0,notaCredito:0,factUltimoDiaMesPasado:0,pesoEnHierros:0};
   mkList.forEach(mm=>{const r=_cfReporte[mm]||{};fac.facturacionMes+=+r.facturacionMes||0;fac.retira+=+r.retira||0;fac.notaCredito+=+r.notaCredito||0;fac.factUltimoDiaMesPasado+=+r.factUltimoDiaMesPasado||0;fac.pesoEnHierros+=+r.pesoEnHierros||0;});
-  function seg(key){const a=auto[key],mm=man(key),cam=Object.keys(a.cam).length;var mo=key==='transportadora'?(mm.monto||0):a.monto;let gt,inc;if(key==='transportadora'){gt=a.flete;inc=mo>0?a.flete/mo:0;}else{gt=a.flete+mm.gratificaciones+mm.viatico;inc=a.monto>0?gt/a.monto:0;}return{monto:mo,flete:a.flete,cam:cam,salidas:a.n||0,peso:mm.peso,gratificaciones:mm.gratificaciones,viatico:mm.viatico,gastoTotal:gt,incidencia:inc};}
-  const I=seg('interior'),L=seg('local'),T=seg('transportadora');
-  const monto=I.monto+L.monto+T.monto,gasto=I.gastoTotal+L.gastoTotal+T.gastoTotal;
+  function seg(key){const a=auto[key],mm=man(key),cam=Object.keys(a.cam).length;const terc=(key==='transportadora'||key==='servicios');var mo=terc?(mm.monto||0):a.monto;let gt,inc;if(terc){gt=a.flete;inc=mo>0?a.flete/mo:0;}else{gt=a.flete+mm.gratificaciones+mm.viatico;inc=a.monto>0?gt/a.monto:0;}return{monto:mo,flete:a.flete,cam:cam,salidas:a.n||0,peso:mm.peso,gratificaciones:mm.gratificaciones,viatico:mm.viatico,gastoTotal:gt,incidencia:inc};}
+  const I=seg('interior'),L=seg('local'),S=seg('servicios'),T=seg('transportadora');
+  const monto=I.monto+L.monto+S.monto+T.monto,gasto=I.gastoTotal+L.gastoTotal+S.gastoTotal+T.gastoTotal;
   const facTotal=fac.facturacionMes+fac.factUltimoDiaMesPasado,disp=facTotal-fac.retira;
-  return{interior:I,local:L,transportadora:T,fac:fac,gen:{monto:monto,gasto:gasto,incidencia:monto>0?gasto/monto:0,peso:I.peso+L.peso+T.peso,pesoEnHierros:fac.pesoEnHierros,facturacionTotal:facTotal,disponible:disp,nivel:(monto>0&&disp>0)?monto/disp:0},camiones:{interior:I.cam,periferia:L.cam,transportadora:T.cam,total:I.cam+L.cam+T.cam},salidas:{interior:I.salidas,periferia:L.salidas,transportadora:T.salidas,total:I.salidas+L.salidas+T.salidas}};
+  return{interior:I,local:L,servicios:S,transportadora:T,fac:fac,gen:{monto:monto,gasto:gasto,incidencia:monto>0?gasto/monto:0,peso:I.peso+L.peso+S.peso+T.peso,pesoEnHierros:fac.pesoEnHierros,facturacionTotal:facTotal,disponible:disp,nivel:(monto>0&&disp>0)?monto/disp:0},camiones:{interior:I.cam,periferia:L.cam,servicios:S.cam,transportadora:T.cam,total:I.cam+L.cam+S.cam+T.cam},salidas:{interior:I.salidas,periferia:L.salidas,servicios:S.salidas,transportadora:T.salidas,total:I.salidas+L.salidas+S.salidas+T.salidas}};
 }
 function _cfGauge(p){p=Math.max(0,Math.min(1,p||0));const cx=150,cy=150,r=118;const pt=a=>[(cx+r*Math.cos(a)).toFixed(1),(cy-r*Math.sin(a)).toFixed(1)];const full='M'+pt(Math.PI).join(',')+' A'+r+','+r+' 0 0 1 '+pt(0).join(',');const fg='M'+pt(Math.PI).join(',')+' A'+r+','+r+' 0 0 1 '+pt(Math.PI*(1-p)).join(',');return '<svg viewBox="0 0 300 186" width="100%" style="max-width:320px"><path class="cf-gauge__bg" d="'+full+'"/>'+(p>0?'<path class="cf-gauge__fg" d="'+fg+'"/>':'')+'<text class="cf-gauge__val" x="150" y="136" text-anchor="middle">'+_pct(p)+'</text><text class="cf-gauge__end" x="36" y="172" text-anchor="middle">0%</text><text class="cf-gauge__end" x="264" y="172" text-anchor="middle">100%</text></svg>';}
 
@@ -5222,6 +5226,10 @@ async function renderReporte(){
           '<div class="ch-row"><span class="ch-rl">Pago a transportadoras</span>'+aut(m.local.flete)+'</div>'+
           '<div class="ch-row"><span class="ch-rl">Gasto viático</span>'+man(m.local.viatico,'','seg.local.viatico','Gasto viático · Local')+'</div></div>'+
         '<div class="ch-foot"><div class="ch-total"><span>Gasto total</span><b>'+nn(m.local.gastoTotal)+' Gs.</b></div><div class="ch-inc"><span>Incidencia</span><b>'+_pct(m.local.incidencia)+'</b></div></div></div>'+
+      '<div class="ch-card" data-ch="serv"><div class="ch-top"></div><div class="ch-head"><span class="ch-dot"></span><span class="ch-name">Servicios</span><span class="ch-cams">'+nn(m.servicios.cam)+'<small>camiones</small></span></div>'+
+        '<div class="ch-hero"><span class="ch-hero-l">Monto repartido</span><div class="ch-hero-v"><span class="ch-val man-ed"'+_manAttr(m.servicios.monto,'','seg.servicios.monto','Monto repartido · Servicios')+'>'+nn(m.servicios.monto)+'</span><span class="ch-u">Gs.</span></div></div>'+
+        '<div class="ch-rows"><div class="ch-row ch-row--sal"><span class="ch-rl">Salidas del mes</span><span class="ch-sal-right">'+(m.salidas.servicios>0?'<button class="ch-sal-btn" data-saldet="servicios" type="button">Ver detalles</button>':'')+'<span class="ch-sv">'+nn(m.salidas.servicios)+'</span></span></div><div class="ch-row"><span class="ch-rl">Importe flete</span>'+aut(m.servicios.flete)+'</div></div>'+
+        '<div class="ch-foot"><div class="ch-total"><span>Gasto total</span><b>'+nn(m.servicios.flete)+' Gs.</b></div><div class="ch-inc"><span>Incidencia</span><b>'+_pct(m.servicios.incidencia)+'</b></div></div></div>'+
       '<div class="ch-card" data-ch="trans"><div class="ch-top"></div><div class="ch-head"><span class="ch-dot"></span><span class="ch-name">Transportadora</span><span class="ch-cams">'+nn(m.transportadora.cam)+'<small>camiones</small></span></div>'+
         '<div class="ch-hero"><span class="ch-hero-l">Monto repartido</span><div class="ch-hero-v"><span class="ch-val man-ed"'+_manAttr(m.transportadora.monto,'','seg.transportadora.monto','Monto repartido · Transportadora')+'>'+nn(m.transportadora.monto)+'</span><span class="ch-u">Gs.</span></div></div>'+
         '<div class="ch-rows"><div class="ch-row ch-row--sal"><span class="ch-rl">Salidas del mes</span><span class="ch-sal-right">'+(m.salidas.transportadora>0?'<button class="ch-sal-btn" data-saldet="transportadora" type="button">Ver detalles</button>':'')+'<span class="ch-sv">'+nn(m.salidas.transportadora)+'</span></span></div><div class="ch-row"><span class="ch-rl">Importe flete</span>'+aut(m.transportadora.flete)+'</div></div>'+
@@ -5276,7 +5284,7 @@ function _cfSalidasDe(mk,chan){
     (r.clientes||[]).forEach(c=>{
       if(!_clFacturado(c,r))return;
       const sk=c.seg||'local';
-      const k=sk==='interior'?'interior':(sk==='servicios'||sk==='transportadora')?'transportadora':'periferia';
+      const k=sk==='interior'?'interior':sk==='servicios'?'servicios':sk==='transportadora'?'transportadora':'periferia';
       if(k!==chan)return;
       const fl=(+c.precio|| +c.gasto||0),mo=+c.monto||0;
       rows.push({fecha:(r.fechaISO||r.fecha||''),cam:c.trDesc||'—',rep:(c.rep||'Tercerizado'),zona:(c.zona||'—'),km:+c.km||0,precioKm:+c.precioKm||0,monto:mo,flete:fl,inc:(mo>0&&fl>0?fl/mo*100:null),seg:sk});
@@ -5286,8 +5294,8 @@ function _cfSalidasDe(mk,chan){
 }
 // Modal PRO: salidas del mes por fecha, con animación GSAP
 function _cfSalidasModal(mk,chan){
-  const CHN={interior:'Interior',periferia:'Local',transportadora:'Transportadora'};
-  const CHC={interior:'#0B5F8D',periferia:'#3B82F6',transportadora:'#7C6BF0'};
+  const CHN={interior:'Interior',periferia:'Local',servicios:'Servicios',transportadora:'Transportadora'};
+  const CHC={interior:'#0B5F8D',periferia:'#3B82F6',servicios:'#10B981',transportadora:'#7C6BF0'};
   const rows=_cfSalidasDe(mk,chan),color=CHC[chan]||'#0B5F8D';
   const byDate={};rows.forEach(r=>{const d=(r.fecha||'').slice(0,10);(byDate[d]=byDate[d]||[]).push(r);});
   const dates=Object.keys(byDate).filter(Boolean).sort();
@@ -5354,7 +5362,8 @@ async function _cfSaveManualField(mk,path,val){
   _cfReporte[mk]=cur;
 }
 function _cfOpenReporteEdit(mk){
-  const cur=_cfReporte[mk]||{},sg=cur.seg||{},i=sg.interior||{},l=sg.local||{},t=sg.transportadora||{};
+  const cur=_cfReporte[mk]||{},sg=cur.seg||{},i=sg.interior||{},l=sg.local||{},t=sg.transportadora||{},sv=sg.servicios||{};
+  const ICserv='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 01-5.4 5.4L4 17v3h3l5.3-5.3a4 4 0 015.4-5.4l-2.5 2.5-2-2 2.5-2.5z"/></svg>';
   const f=(id,lbl,val)=>'<div class="cf-fld"><label>'+lbl+'</label><input id="'+id+'" inputmode="numeric" value="'+(val?_nnum(val):'')+'"></div>';
   const ICtr='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M6 21V5a1 1 0 011-1h6a1 1 0 011 1v16"/><path d="M14 21V9h4a1 1 0 011 1v11"/><path d="M9 8h1M9 12h1M9 16h1"/></svg>';
   const ICfac='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h14a1 1 0 011 1v17l-3-2-3 2-3-2-3 2-3-2V4a1 1 0 011-1z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>';
@@ -5367,6 +5376,7 @@ function _cfOpenReporteEdit(mk){
       col('fac',ICfac,'Facturación general','',f('cf_facMes','Facturación mes',cur.facturacionMes)+f('cf_facPrev','Fac. mes pasado',cur.factUltimoDiaMesPasado)+f('cf_retira','Retira',cur.retira)+f('cf_nota','Nota de crédito',cur.notaCredito)+f('cf_hierros','Peso en hierros',cur.pesoEnHierros))+
       col('int',ICint,'Reparto Interior','monto y flete salen solos',f('cf_i_peso','Peso',i.peso)+f('cf_i_grat','Gratificaciones',i.gratificaciones)+f('cf_i_via','Gasto viático',i.viatico))+
       col('loc',ICloc,'Reparto Local','monto y flete salen solos',f('cf_l_peso','Peso',l.peso)+f('cf_l_via','Gasto viático',l.viatico))+
+      col('serv',ICserv,'Servicios','monto repartido manual',f('cf_s_monto','Monto repartido',sv.monto))+
       col('trans',ICtr,'Transportadora','monto repartido manual',f('cf_t_monto','Monto repartido',t.monto))+
     '</div>'+
     '<div class="cf-mfoot"><button class="cancel">Cancelar</button><button class="ok">Guardar valores</button></div></div>';
@@ -5380,7 +5390,7 @@ function _cfOpenReporteEdit(mk){
   bd.addEventListener('click',e=>{if(e.target===bd)_close();});
   bd.querySelector('.ok').addEventListener('click',async()=>{
     const okB=bd.querySelector('.ok');if(okB.disabled)return;okB.disabled=true;okB.innerHTML='<span class="cf-spin"></span>Guardando…';
-    const data={facturacionMes:rd('cf_facMes'),factUltimoDiaMesPasado:rd('cf_facPrev'),retira:rd('cf_retira'),notaCredito:rd('cf_nota'),pesoEnHierros:rd('cf_hierros'),seg:{interior:{peso:rd('cf_i_peso'),gratificaciones:rd('cf_i_grat'),viatico:rd('cf_i_via')},local:{peso:rd('cf_l_peso'),viatico:rd('cf_l_via')},transportadora:{monto:rd('cf_t_monto')}}};
+    const data={facturacionMes:rd('cf_facMes'),factUltimoDiaMesPasado:rd('cf_facPrev'),retira:rd('cf_retira'),notaCredito:rd('cf_nota'),pesoEnHierros:rd('cf_hierros'),seg:{interior:{peso:rd('cf_i_peso'),gratificaciones:rd('cf_i_grat'),viatico:rd('cf_i_via')},local:{peso:rd('cf_l_peso'),viatico:rd('cf_l_via')},servicios:{monto:rd('cf_s_monto')},transportadora:{monto:rd('cf_t_monto')}}};
     try{const{error}=await sb.from('fact_reporte').upsert({mes:mk,data:data},{onConflict:'mes'});if(error)throw error;_cfReporte[mk]=data;_close();showToast('Valores guardados');renderReporte();}catch(e){okB.disabled=false;okB.textContent='Guardar valores';showToast('Error al guardar');}
   });
 }
