@@ -4625,7 +4625,7 @@ function showSaveAnim(text){
   .rrd-bar .rrd-tabs{justify-self:center}
   @media(max-width:980px){.rrd-bar{grid-template-columns:1fr;justify-items:center}.rrd-bar .rrm-filterbar{justify-content:center}.rrd-bar__sp{display:none}}
   /* Sello grande "Conciliada" a la derecha de la fila de filtros (planilla facturada) */
-  .rrd-seal{justify-self:end;display:inline-flex;align-items:center;gap:9px;padding:9px 16px 9px 11px;border:2.5px solid #16a34a;border-radius:13px;color:#15803d;background:linear-gradient(135deg,#f0fdf4,#dcfce7);transform:rotate(-4deg);box-shadow:0 7px 18px rgba(22,163,74,.2),inset 0 1px 0 rgba(255,255,255,.5)}
+  .rrd-seal{justify-self:start;display:inline-flex;align-items:center;gap:9px;padding:9px 16px 9px 11px;border:2.5px solid #16a34a;border-radius:13px;color:#15803d;background:linear-gradient(135deg,#f0fdf4,#dcfce7);transform:rotate(-4deg);box-shadow:0 7px 18px rgba(22,163,74,.2),inset 0 1px 0 rgba(255,255,255,.5)}
   .rrd-seal__ic{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#22c55e,#15803d);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 3px 8px rgba(22,163,74,.4)}
   .rrd-seal__ic svg{width:17px;height:17px}
   .rrd-seal__tx{font-family:Sora,Inter,sans-serif;font-weight:800;font-size:15.5px;letter-spacing:.6px;text-transform:uppercase}
@@ -5038,6 +5038,14 @@ function showSaveAnim(text){
   .cf-sec__t svg{width:15px;height:15px}
   .cf-grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
   @media(max-width:520px){.cf-grid2{grid-template-columns:1fr}}
+  /* Header del modal factura: título + subtítulo a la izquierda, Fecha a la derecha */
+  .cf-fhead{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:18px}
+  .cf-fhead__l{min-width:0}
+  .cf-fhead__l h3{margin:0}
+  .cf-fhead__l .cf-msub{margin:6px 0 0}
+  .cf-fhead__date{flex-shrink:0;width:180px;margin-bottom:0}
+  .cf-fhead__date label{text-align:right}
+  @media(max-width:520px){.cf-fhead{flex-direction:column}.cf-fhead__date{width:100%}.cf-fhead__date label{text-align:left}}
   .cf-fld{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
   .cf-sec .cf-fld:last-child{margin-bottom:0}
   .cf-fld label{font-size:12.5px;font-weight:700;color:var(--gray-600,#475569)}
@@ -5095,8 +5103,11 @@ function showSaveAnim(text){
   .cf-plbtn{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;padding:12px 14px;border:1.5px dashed var(--gray-300,#cbd5e1);border-radius:11px;background:#fff;font:inherit;cursor:pointer;text-align:left;transition:border-color .15s,background .15s}
   .cf-plbtn:hover{border-color:var(--accent,#3B82F6);background:var(--gray-50,#f8fafc)}
   .cf-plbtn.set{border-style:solid;border-color:var(--gray-200,#e2e8f0)}
-  .cf-plbtn__main{display:flex;flex-direction:column;gap:2px;min-width:0}
-  .cf-plbtn__ts{font-family:Sora,Inter,sans-serif;font-weight:800;font-size:15px;color:var(--primary)}
+  .cf-plbtn.set{border-style:solid;border-color:rgba(37,120,184,.22);background:linear-gradient(135deg,#f8fbff,#eef6fc);box-shadow:0 5px 14px rgba(37,120,184,.09)}
+  .cf-plbtn__ic{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#2578b8,#0B5F8D);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 10px rgba(11,95,141,.28)}
+  .cf-plbtn__ic svg{width:21px;height:21px}
+  .cf-plbtn__main{flex:1;display:flex;flex-direction:column;gap:3px;min-width:0}
+  .cf-plbtn__ts{font-family:Sora,Inter,sans-serif;font-weight:800;font-size:15.5px;color:var(--primary)}
   .cf-plbtn__sub{font-size:12px;font-weight:600;color:var(--gray-500,#64748b)}
   .cf-plbtn__ph{font-size:13.5px;font-weight:700;color:var(--gray-400,#94a3b8)}
   .cf-plbtn__act{font-size:12.5px;font-weight:800;color:var(--primary);white-space:nowrap;flex-shrink:0}
@@ -5698,14 +5709,14 @@ function _cfOpenFacturaModal(existing,preset){
   const repFlete=()=>repsList?repsList.filter(r=>repSel.has(r.id)).reduce((s,r)=>s+(+r.flete||0),0):(sel?sel.flete:0);
   const subTxt=locked?'Cargá los datos de la factura para esta planilla.':'Cargá los datos y elegí la planilla (transportista + semana) que corresponde.';
   const m=_cfModalOpen('<div class="cf-mbox cf-mbox--form">'+
-    '<h3>'+(editing?'Editar factura':'Registrar factura')+'</h3><p class="cf-msub">'+subTxt+'</p>'+
+    '<div class="cf-fhead"><div class="cf-fhead__l"><h3>'+(editing?'Editar factura':'Registrar factura')+'</h3><p class="cf-msub">'+subTxt+'</p></div>'+
+      '<div class="cf-fld cf-fhead__date"><label for="cf_ffecha">Fecha</label><input id="cf_ffecha" type="date"></div></div>'+
     '<div class="cf-sec"><div class="cf-sec__t">'+_ic('doc')+'Datos de la factura</div>'+
-      '<div class="cf-fld" data-fld><label for="cf_fnro">Nº de factura</label><input id="cf_fnro" placeholder="001-001-0000000" autocomplete="off"><span class="cf-fld__err"></span></div>'+
       '<div class="cf-grid2">'+
-        '<div class="cf-fld"><label for="cf_ffecha">Fecha</label><input id="cf_ffecha" type="date"></div>'+
+        '<div class="cf-fld" data-fld><label for="cf_fnro">Nº de factura</label><input id="cf_fnro" placeholder="001-001-0000000" autocomplete="off"><span class="cf-fld__err"></span></div>'+
         '<div class="cf-fld" data-fld><label for="cf_fmonto">Monto (Gs.)</label><input id="cf_fmonto" inputmode="numeric" placeholder="0"><span class="cf-fld__err"></span></div>'+
       '</div></div>'+
-    '<div class="cf-sec"><div class="cf-sec__t">'+_ic('truck')+'Planilla vinculada</div>'+
+    '<div class="cf-sec cf-sec--pl"><div class="cf-sec__t">'+_ic('truck')+'Planilla vinculada</div>'+
       '<div class="cf-fld" data-fld><button type="button" class="cf-plbtn" id="cf_plbtn"></button><span class="cf-fld__err"></span></div>'+
       '<div class="cf-live neutral" id="cf_flive">Elegí la planilla y el monto para compararlo con el flete.</div>'+
     '</div>'+
@@ -5716,7 +5727,7 @@ function _cfOpenFacturaModal(existing,preset){
   feI.value=(editing&&existing.fecha)?existing.fecha:(typeof todayISO==='function'?todayISO():new Date().toISOString().slice(0,10));
   if(editing){nroI.value=existing.nro||'';mo.value=existing.monto?_nnum(existing.monto):'';}
   function renderPlBtn(){
-    if(sel){plBtn.classList.add('set');plBtn.innerHTML='<span class="cf-plbtn__main"><span class="cf-plbtn__ts">'+_escp(sel.ts)+'</span><span class="cf-plbtn__sub">'+_dispD(sel.semDesde)+' al '+_dispD(sel.semHasta)+' · flete '+_gs(repFlete())+'</span></span>'+(locked?'':'<span class="cf-plbtn__act">Cambiar</span>');}
+    if(sel){plBtn.classList.add('set');plBtn.innerHTML='<span class="cf-plbtn__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6.5" width="12" height="9" rx="1"/><path d="M13.5 9h4.2l3.3 3.3V15.5h-7.5z"/><circle cx="6" cy="17.5" r="1.8"/><circle cx="17.5" cy="17.5" r="1.8"/></svg></span><span class="cf-plbtn__main"><span class="cf-plbtn__ts">'+_escp(sel.ts)+'</span><span class="cf-plbtn__sub">'+_dispD(sel.semDesde)+' al '+_dispD(sel.semHasta)+' · flete '+_gs(repFlete())+'</span></span>'+(locked?'':'<span class="cf-plbtn__act">Cambiar</span>');}
     else{plBtn.classList.remove('set');plBtn.innerHTML='<span class="cf-plbtn__ph">— Elegir planilla —</span><span class="cf-plbtn__act">Elegir</span>';}
   }
   if(locked){plBtn.disabled=true;plBtn.classList.add('cf-plbtn--locked');}
