@@ -4049,6 +4049,12 @@ function showSaveAnim(text){
   .sal-tbl th.r{text-align:right}
   .sal-tbl td{padding:9px 11px;border-bottom:1px solid #f4f7fa;font-size:11.5px;color:#334155;white-space:nowrap;vertical-align:top}
   .sal-tbl td:nth-child(1),.sal-tbl td:nth-child(2){white-space:normal;overflow-wrap:break-word}
+  /* Tabla de Servicios: Camión · Repartidor · Servicio · Flete */
+  .sal-tbl--serv th:nth-child(1),.sal-tbl--serv td:nth-child(1){width:32%}
+  .sal-tbl--serv th:nth-child(2),.sal-tbl--serv td:nth-child(2){width:22%}
+  .sal-tbl--serv th:nth-child(3),.sal-tbl--serv td:nth-child(3){width:32%;white-space:normal;overflow-wrap:break-word}
+  .sal-tbl--serv th:nth-child(4),.sal-tbl--serv td:nth-child(4){width:14%}
+  .sal-servtxt{font-weight:600;color:#334155}
   .sal-tbl td.r{text-align:right;font-variant-numeric:tabular-nums}
   .sal-tbl tbody tr:hover{background:#f7fbfe}
   .sal-tbl tfoot td{padding:9px 11px;font-weight:800;font-size:10.5px;color:#475569;background:#f8fafc;border-top:1.5px solid #eef2f7;text-transform:uppercase;letter-spacing:.3px}
@@ -5322,7 +5328,7 @@ function _cfSalidasDe(mk,chan){
       const k=sk==='interior'?'interior':sk==='servicios'?'servicios':sk==='transportadora'?'transportadora':'periferia';
       if(k!==chan)return;
       const fl=(+c.precio|| +c.gasto||0),mo=+c.monto||0;
-      rows.push({fecha:(r.fechaISO||r.fecha||''),cam:c.trDesc||'—',rep:(c.rep||'Tercerizado'),zona:(c.zona||'—'),km:+c.km||0,precioKm:+c.precioKm||0,monto:mo,flete:fl,inc:(mo>0&&fl>0?fl/mo*100:null),seg:sk,repId:r.id,clId:(c.id!=null?c.id:null)});
+      rows.push({fecha:(r.fechaISO||r.fecha||''),cam:c.trDesc||'—',rep:(c.rep||'Tercerizado'),zona:(c.zona||'—'),obs:(c.obs||''),km:+c.km||0,precioKm:+c.precioKm||0,monto:mo,flete:fl,inc:(mo>0&&fl>0?fl/mo*100:null),seg:sk,repId:r.id,clId:(c.id!=null?c.id:null)});
     });
   });
   return rows;
@@ -5340,6 +5346,7 @@ function _cfSalidasModal(mk,chan){
   const CHC={interior:'#0B5F8D',periferia:'#3B82F6',servicios:'#F97316',transportadora:'#7C6BF0'};
   const color=CHC[chan]||'#0B5F8D';
   const montoMatters=(chan==='interior'||chan==='periferia'); // el monto por línea aplica al reparto en estos canales
+  const isServ=(chan==='servicios'); // en servicios mostramos el servicio (obs) en vez de km/monto/incidencia
   let onlyMissing=false;
   const DOW=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
   const dispD=iso=>{const p=iso.split('-').map(Number);if(p.length<3)return iso;const dt=new Date(p[0],p[1]-1,p[2]);return DOW[dt.getDay()]+' '+String(p[2]).padStart(2,'0')+'/'+String(p[1]).padStart(2,'0');};
@@ -5374,15 +5381,24 @@ function _cfSalidasModal(mk,chan){
     const wh=m.$('#salWarnHost');
     if(montoMatters&&missing.length)wh.innerHTML='<div class="sal-warn'+(onlyMissing?' on':'')+'"><span class="sal-warn__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L14.4 3.9a2 2 0 00-3.4 0z"/></svg></span><span class="sal-warn__t">Falta registrar el <b>monto repartido</b> de <b>'+missing.length+'</b> salida'+(missing.length===1?'':'s')+'.</span><button class="sal-warn__btn" data-salfilter="1">'+(onlyMissing?'Ver todas':'Ver')+'</button></div>';
     else wh.innerHTML='';
+    const theadHtml=isServ
+      ? '<thead><tr><th>Camión</th><th>Repartidor</th><th class="sal-grow">Servicio</th><th class="r">Flete</th></tr></thead>'
+      : '<thead><tr><th>Camión</th><th>Repartidor</th><th>Zona</th><th class="r">Km · Precio/km</th><th class="r">Monto</th><th class="r">Flete</th><th class="r">Incid.</th></tr></thead>';
     const dayHtml=dates.map(d=>{
       const ls=byDate[d],dF=ls.reduce((s,r)=>s+r.flete,0);
       const rws=ls.map(r=>{
+        const camCell='<td class="sal-cam"><div class="sal-caminner"><span class="sal-cam__ic">'+TRUCK+'</span><span class="sal-cam__t">'+_escp(r.cam)+'</span></div></td><td>'+_escp(r.rep)+'</td>';
+        const fleteCell='<td class="r sal-flete">'+(r.flete?_gs(r.flete):'—')+'</td>';
+        if(isServ){const serv=(r.obs&&r.obs.trim())||(r.zona&&r.zona!=='—'?r.zona:'');return '<tr>'+camCell+'<td class="sal-grow">'+(serv?'<span class="sal-servtxt">'+_escp(serv)+'</span>':'<span class="sal-mut">—</span>')+'</td>'+fleteCell+'</tr>';}
         const km=(r.seg==='interior'&&r.km>0)?(_kmFmt(r.km)+' km × '+_gs(r.precioKm)):'<span class="sal-mut">—</span>';
         const incTxt=r.inc!==null?r.inc.toFixed(2)+'%':'—',incCls=r.inc!==null?(r.inc<3?'ok':'over'):'';
         const montoCell=montoMatters?('<td class="r sal-monto" data-montoedit="1" data-rep="'+r.repId+'" data-cl="'+(r.clId==null?'':r.clId)+'" data-mv="'+(+r.monto||0)+'" title="Clic para editar">'+((+r.monto||0)>0?_gs(r.monto):'<span class="sal-addmonto">+ Añadir</span>')+'</td>'):('<td class="r">'+_gs(r.monto)+'</td>');
-        return '<tr><td class="sal-cam"><div class="sal-caminner"><span class="sal-cam__ic">'+TRUCK+'</span><span class="sal-cam__t">'+_escp(r.cam)+'</span></div></td><td>'+_escp(r.rep)+'</td><td>'+(r.zona&&r.zona!=='—'?'<span class="sal-chip">'+_escp(r.zona)+'</span>':'<span class="sal-mut">—</span>')+'</td><td class="r sal-det">'+km+'</td>'+montoCell+'<td class="r sal-flete">'+(r.flete?_gs(r.flete):'—')+'</td><td class="r sal-inc '+incCls+'">'+incTxt+'</td></tr>';
+        return '<tr>'+camCell+'<td>'+(r.zona&&r.zona!=='—'?'<span class="sal-chip">'+_escp(r.zona)+'</span>':'<span class="sal-mut">—</span>')+'</td><td class="r sal-det">'+km+'</td>'+montoCell+fleteCell+'<td class="r sal-inc '+incCls+'">'+incTxt+'</td></tr>';
       }).join('');
-      return '<div class="sal-day"><div class="sal-day__h"><span class="sal-day__dot"></span><span class="sal-day__d">'+dispD(d)+'</span><span class="sal-day__n">'+ls.length+' salida'+(ls.length===1?'':'s')+'</span></div><div class="sal-day__tblwrap"><table class="sal-tbl"><thead><tr><th>Camión</th><th>Repartidor</th><th>Zona</th><th class="r">Km · Precio/km</th><th class="r">Monto</th><th class="r">Flete</th><th class="r">Incid.</th></tr></thead><tbody>'+rws+'</tbody><tfoot><tr><td colspan="5">Total del día</td><td class="r">'+_gs(dF)+'</td><td></td></tr></tfoot></table></div></div>';
+      const tfootHtml=isServ
+        ? '<tfoot><tr><td colspan="3">Total del día</td><td class="r">'+_gs(dF)+'</td></tr></tfoot>'
+        : '<tfoot><tr><td colspan="5">Total del día</td><td class="r">'+_gs(dF)+'</td><td></td></tr></tfoot>';
+      return '<div class="sal-day"><div class="sal-day__h"><span class="sal-day__dot"></span><span class="sal-day__d">'+dispD(d)+'</span><span class="sal-day__n">'+ls.length+' salida'+(ls.length===1?'':'s')+'</span></div><div class="sal-day__tblwrap"><table class="sal-tbl'+(isServ?' sal-tbl--serv':'')+'">'+theadHtml+'<tbody>'+rws+'</tbody>'+tfootHtml+'</table></div></div>';
     }).join('')||'<div class="sal-empty">'+(onlyMissing?'¡No hay salidas sin monto! ✔':'No hay salidas en este período.')+'</div>';
     m.$('#salBody').innerHTML=dayHtml;
     m.box.querySelectorAll('[data-salfilter]').forEach(b=>b.addEventListener('click',()=>{onlyMissing=!onlyMissing;render(true);}));
