@@ -3969,6 +3969,23 @@ function showSaveAnim(text){
   .rep2 .panel-title h3{margin:0;font-size:13.5px;font-weight:800;color:var(--text)}
   /* Tarjetas por canal */
   .rep2 .channel-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(216px,1fr));gap:14px;align-items:stretch}
+  .rep2 .rep-sl2{margin-top:20px}
+  /* KPIs de Resumen y facturación (arriba de los paneles) */
+  .rep2 .rep-kpistrip{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:12px;margin-bottom:6px}
+  .rep2 .rep-kpi{position:relative;background:#fff;border:1px solid #eef2f7;border-radius:14px;padding:14px 16px;box-shadow:0 4px 14px rgba(15,23,42,.05);overflow:hidden;transition:transform .2s,box-shadow .2s}
+  .rep2 .rep-kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#2b7fc4,#0B5F8D)}
+  .rep2 .rep-kpi:hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(15,23,42,.1)}
+  .rep2 .rep-kpi__l{display:block;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#94a3b8;line-height:1.25}
+  .rep2 .rep-kpi__v{display:block;margin-top:9px;font-family:Sora,Inter,sans-serif;font-size:19px;font-weight:800;color:#0f172a;line-height:1.05;font-variant-numeric:tabular-nums}
+  .rep2 .rep-kpi__v i{font-style:normal;font-size:11px;font-weight:700;color:#94a3b8;margin-left:4px}
+  .rep2 .rep-kpi--hi{background:linear-gradient(135deg,#0B4F8A,#1466B0);border-color:transparent;box-shadow:0 10px 26px rgba(11,95,141,.28)}
+  .rep2 .rep-kpi--hi::before{display:none}
+  .rep2 .rep-kpi--hi .rep-kpi__l{color:rgba(255,255,255,.72)}
+  .rep2 .rep-kpi--hi .rep-kpi__v{color:#fff}
+  .rep2 .rep-kpi--hi .rep-kpi__v i{color:rgba(255,255,255,.7)}
+  .rep2 .rep-kpi__v.man-ed{padding:0 4px;border-radius:6px}
+  .rep2 .rep-kpi__v.man-ed:hover{background:rgba(59,130,246,.1);box-shadow:inset 0 0 0 1px rgba(59,130,246,.3)}
+  .rep2 .rep-kpi__v .man-inp{width:100%;text-align:left}
   .rep2 .ch-card{display:flex;flex-direction:column;background:#fff;border-radius:var(--radius);border:1px solid var(--line);box-shadow:0 1px 3px rgba(15,23,42,.05);overflow:hidden;transition:box-shadow var(--base),transform var(--base)}
   .rep2 .ch-card:hover{box-shadow:0 8px 22px rgba(15,23,42,.09);transform:translateY(-2px)}
   .rep2 .ch-top{height:4px;background:var(--ch-color)}
@@ -5254,7 +5271,18 @@ async function renderReporte(){
             '<div class="rf-item"><span class="rf-l">Facturación total</span><span class="rf-v">'+nn(m.gen.facturacionTotal)+'</span></div></div>'+
         '</div></div>'+
     '</div>'+
-    '<div class="main-grid"><div class="main-col-left"><div class="section-label">Reparto por tipo</div><div class="channel-grid">'+
+    '<div class="section-label">Resumen y facturación</div>'+
+    '<div class="rep-kpistrip">'+
+      '<div class="rep-kpi rep-kpi--hi"><span class="rep-kpi__l">Disponible p/reparto</span><b class="rep-kpi__v">'+nn(m.gen.disponible)+'<i>Gs.</i></b></div>'+
+      '<div class="rep-kpi rep-kpi--hi"><span class="rep-kpi__l">Facturación total</span><b class="rep-kpi__v">'+nn(m.gen.facturacionTotal)+'<i>Gs.</i></b></div>'+
+      '<div class="rep-kpi"><span class="rep-kpi__l">Facturación mes</span><b class="rep-kpi__v man-ed"'+_manAttr(m.fac.facturacionMes,'','facturacionMes','Facturación mes')+'>'+nn(m.fac.facturacionMes)+'</b></div>'+
+      '<div class="rep-kpi"><span class="rep-kpi__l">Fac. mes pasado</span><b class="rep-kpi__v man-ed"'+_manAttr(m.fac.factUltimoDiaMesPasado,'','factUltimoDiaMesPasado','Fac. mes pasado')+'>'+nn(m.fac.factUltimoDiaMesPasado)+'</b></div>'+
+      '<div class="rep-kpi"><span class="rep-kpi__l">Retira</span><b class="rep-kpi__v man-ed"'+_manAttr(m.fac.retira,'','retira','Retira')+'>'+nn(m.fac.retira)+'</b></div>'+
+      '<div class="rep-kpi"><span class="rep-kpi__l">Nota de crédito</span><b class="rep-kpi__v man-ed"'+_manAttr(m.fac.notaCredito,'','notaCredito','Nota de crédito')+'>'+nn(m.fac.notaCredito)+'</b></div>'+
+      '<div class="rep-kpi"><span class="rep-kpi__l">Peso total</span><b class="rep-kpi__v">'+nn(m.gen.peso)+'<i>Kg</i></b></div>'+
+      '<div class="rep-kpi"><span class="rep-kpi__l">Peso en hierros</span><b class="rep-kpi__v man-ed"'+_manAttr(m.gen.pesoEnHierros,'Kg','pesoEnHierros','Peso en hierros')+'>'+nn(m.gen.pesoEnHierros)+'<i>Kg</i></b></div>'+
+    '</div>'+
+    '<div class="section-label rep-sl2">Reparto por tipo</div><div class="channel-grid">'+
       '<div class="ch-card" data-ch="int"><div class="ch-top"></div><div class="ch-head"><span class="ch-dot"></span><span class="ch-name">Interior</span><span class="ch-cams">'+nn(m.interior.cam)+'<small>camiones</small></span></div>'+
         '<div class="ch-hero"><span class="ch-hero-l">Monto repartido</span><div class="ch-hero-v"><span class="ch-val">'+nn(m.interior.monto)+'</span><span class="ch-u">Gs.</span></div></div>'+
         '<div class="ch-rows"><div class="ch-row ch-row--sal"><span class="ch-rl">Salidas del mes</span><span class="ch-sal-right">'+(m.salidas.interior>0?'<button class="ch-sal-btn" data-saldet="interior" type="button">Ver detalles</button>':'')+'<span class="ch-sv">'+nn(m.salidas.interior)+'</span></span></div><div class="ch-row"><span class="ch-rl">Peso</span>'+man(m.interior.peso,'Kg','seg.interior.peso','Peso · Interior')+'</div>'+
@@ -5278,21 +5306,6 @@ async function renderReporte(){
         '<div class="ch-rows"><div class="ch-row ch-row--sal"><span class="ch-rl">Salidas del mes</span><span class="ch-sal-right">'+(m.salidas.servicios>0?'<button class="ch-sal-btn" data-saldet="servicios" type="button">Ver detalles</button>':'')+'<span class="ch-sv">'+nn(m.salidas.servicios)+'</span></span></div><div class="ch-row"><span class="ch-rl">Importe flete</span>'+aut(m.servicios.flete)+'</div></div>'+
         '<div class="ch-foot"><div class="ch-total"><span>Gasto total</span><b>'+nn(m.servicios.flete)+' Gs.</b></div><div class="ch-inc"><span>Incidencia</span><b>'+_pct(m.servicios.incidencia)+'</b></div></div></div>'+
     '</div>'+
-      '</div>'+
-      '<div class="main-col-right"><div class="section-label">Resumen y facturación</div>'+
-        '<div class="panel"><div class="panel-title"><h3>Resumen del reparto</h3></div><table class="ledger">'+
-          '<tr class="row-calc"><td>Peso total</td><td>'+nn(m.gen.peso)+'</td></tr>'+
-          '<tr><td>Peso en hierros</td>'+manTd(m.gen.pesoEnHierros,'Kg','pesoEnHierros','Peso en hierros')+'</tr>'+
-          '<tr class="row-highlight"><td>Disponible p/reparto</td><td>'+nn(m.gen.disponible)+'</td></tr>'+
-        '</table></div>'+
-        '<div class="panel"><div class="panel-title"><h3>Facturación</h3></div><table class="ledger">'+
-          '<tr><td>Fac. mes pasado</td>'+manTd(m.fac.factUltimoDiaMesPasado,'','factUltimoDiaMesPasado','Fac. mes pasado')+'</tr>'+
-          '<tr><td>Retira</td>'+manTd(m.fac.retira,'','retira','Retira')+'</tr>'+
-          '<tr><td>Nota de crédito</td>'+manTd(m.fac.notaCredito,'','notaCredito','Nota de crédito')+'</tr>'+
-          '<tr><td>Facturación mes</td>'+manTd(m.fac.facturacionMes,'','facturacionMes','Facturación mes')+'</tr>'+
-          '<tr class="row-highlight"><td>Facturación total</td><td>'+nn(m.gen.facturacionTotal)+' Gs.</td></tr>'+
-        '</table></div>'+
-      '</div></div>'+
       zonaSection+
   '</div>';
   host.querySelectorAll('[data-repm]').forEach(b=>b.addEventListener('click',()=>{const base=_cfRepMes||curStep;const a=base.split('-').map(Number);const d=new Date(a[0],a[1]-1+(+b.dataset.repm),1);_cfRepMes=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');renderReporte();}));
@@ -5306,7 +5319,8 @@ async function renderReporte(){
   if(window.gsap){
     const g=window.gsap;
     g.from('#repHost .hero-seg',{opacity:0,y:14,duration:.42,stagger:.07,ease:'power3.out',clearProps:'opacity,transform'});
-    g.from('#repHost .ch-card',{opacity:0,y:16,duration:.45,stagger:.1,delay:.1,ease:'back.out(1.5)',clearProps:'opacity,transform'});
+    g.from('#repHost .rep-kpi',{opacity:0,y:14,scale:.97,duration:.5,stagger:.05,delay:.08,ease:'back.out(1.5)',clearProps:'all'});
+    g.from('#repHost .ch-card',{opacity:0,y:16,duration:.45,stagger:.1,delay:.22,ease:'back.out(1.5)',clearProps:'opacity,transform'});
     g.from('#repHost .main-col-right .panel',{opacity:0,y:16,duration:.42,stagger:.08,delay:.2,ease:'power3.out',clearProps:'opacity,transform'});
     g.from('#repHost .ch-row--sal',{opacity:0,x:-8,duration:.34,stagger:.08,delay:.3,ease:'power2.out',clearProps:'opacity,transform'});
     g.from('#repHost .zbar-row',{opacity:0,x:-14,duration:.4,stagger:.04,delay:.32,ease:'power3.out',clearProps:'opacity,transform'});
