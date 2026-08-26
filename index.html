@@ -5240,7 +5240,7 @@ async function renderReporte(){
   const m=_cfReporteModel(_cfRepMes);
   const months=_cfMonthKeys();
   const intKm=_cfLines(_cfRepMes).filter(l=>l.seg==='interior').reduce((s,l)=>s+(+l.km||0),0);
-  const nivel=m.gen.facturacionTotal>0?(m.gen.disponible/m.gen.facturacionTotal):0; // Nivel de entrega = disponible ÷ facturación
+  const nivel=m.gen.disponible>0?(m.gen.monto/m.gen.disponible):0; // Nivel de entrega = monto repartido ÷ disponible p/reparto
   const nn=v=>_nnum(v), pn=r=>_pct(r).replace('%','').trim();
   const pctCap=Math.max(0,Math.min(nivel*100,100)),totalLen=Math.PI*64,off=totalLen-(totalLen*pctCap/100),ang=Math.PI*(pctCap/100);
   const dotX=(80-64*Math.cos(ang)).toFixed(1),dotY=(84-64*Math.sin(ang)).toFixed(1),excede=nivel*100>100;
@@ -5261,12 +5261,12 @@ async function renderReporte(){
       '<div class="hero-seg"><span class="hl">Gasto total</span><div class="hv-row"><span class="hv">'+nn(m.gen.gasto)+'</span><span class="hu">Gs.</span></div></div>'+
       '<div class="hero-seg"><span class="hl">Incidencia general</span><div class="hv-row"><span class="hv">'+pn(m.gen.incidencia)+'</span><span class="hu">%</span></div></div>'+
       '<div class="hero-seg"><span class="hl">Total de salidas de camiones</span><div class="hv-row"><span class="hv">'+nn(m.salidas.total)+'</span></div></div>'+
-      '<div class="hero-seg ring" title="Nivel de entrega = Disponible ÷ Facturación total"><span class="hl">Nivel de entrega</span>'+
+      '<div class="hero-seg ring" title="Nivel de entrega = Monto repartido ÷ Disponible p/reparto"><span class="hl">Nivel de entrega</span>'+
         '<div class="ring-body"><div class="ring-gauge"><svg viewBox="0 0 160 100"><defs><linearGradient id="repGaugeGrad" x1="0" y1="1" x2="1" y2="0"><stop offset="0%" stop-color="#22D3EE"/><stop offset="45%" stop-color="#7DD3FC"/><stop offset="100%" stop-color="#FFFFFF"/></linearGradient></defs>'+
           '<path class="g-track" d="M 16 84 A 64 64 0 0 1 144 84" fill="none" stroke-width="13" stroke-linecap="round"/>'+
           '<path id="repGaugeArc" class="g-arc" d="M 16 84 A 64 64 0 0 1 144 84" fill="none" stroke="'+(excede?'#FBBF24':'url(#repGaugeGrad)')+'" stroke-width="13" stroke-linecap="round" stroke-dasharray="'+totalLen.toFixed(1)+'" stroke-dashoffset="'+off.toFixed(1)+'"/>'+
           '<circle id="repGaugeDot" class="g-dot" cx="'+dotX+'" cy="'+dotY+'" r="4" fill="#fff"/></svg>'+
-          '<div class="ring-value"><span>'+pn(nivel)+'</span><i>%</i></div><div class="ring-sub">de lo facturado</div></div>'+
+          '<div class="ring-value"><span>'+pn(nivel)+'</span><i>%</i></div><div class="ring-sub">del disponible</div></div>'+
         '</div></div>'+
     '</div>'+
     '<div class="section-label">Resumen y facturación</div>'+
