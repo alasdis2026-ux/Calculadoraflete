@@ -3946,13 +3946,14 @@ function showSaveAnim(text){
   .rep2 .hero-seg.ring:before{content:"";position:absolute;right:-22px;top:-18px;width:210px;height:210px;background:url('logo-icon.png') no-repeat center/contain;filter:brightness(0) invert(1);opacity:.08;pointer-events:none;z-index:0}
   .rep2 .hero-seg.ring .hl{color:rgba(255,255,255,.62);position:relative}
   .rep2 .ring-body{display:flex;align-items:center;justify-content:center;gap:20px;margin-top:6px;position:relative;flex-wrap:wrap}
-  .rep2 .ring-chips{display:flex;flex-direction:column;gap:11px;flex:1 1 210px;min-width:190px}
-  .rep2 .ring-chip{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.13);border-radius:13px;padding:11px 14px}
-  .rep2 .ring-chip.is-key{background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.24)}
-  .rep2 .ring-chip__l{display:block;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;color:rgba(255,255,255,.58)}
-  .rep2 .ring-chip__v{display:block;margin-top:5px;font-family:Sora,Inter,sans-serif;font-size:16px;font-weight:800;color:#fff;line-height:1.05;font-variant-numeric:tabular-nums;white-space:nowrap}
-  .rep2 .ring-chip__v i{font-style:normal;font-size:10px;font-weight:700;color:rgba(255,255,255,.6);margin-left:4px}
-  .rep2 .ring-chip__p{display:inline-block;margin-top:7px;font-size:10px;font-weight:800;color:#e0f2fe;background:rgba(255,255,255,.16);padding:3px 9px;border-radius:999px}
+  /* Barra Repartido → Disponible (estilo progreso) */
+  .rep2 .ring-bar{flex:1 1 260px;min-width:230px;display:flex;flex-direction:column;gap:11px}
+  .rep2 .ring-bar__track{height:24px;border-radius:999px;background:rgba(255,255,255,.15);overflow:hidden;box-shadow:inset 0 1px 4px rgba(0,0,0,.18)}
+  .rep2 .ring-bar__fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#7dd3fc,#e0f2fe);box-shadow:0 0 12px rgba(224,242,254,.45)}
+  .rep2 .ring-bar__lbls{display:flex;justify-content:space-between;gap:12px}
+  .rep2 .ring-bar__side{font-family:Sora,Inter,sans-serif;font-size:13.5px;font-weight:800;color:#fff;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .rep2 .ring-bar__side--r{text-align:right}
+  .rep2 .ring-bar__side i{display:block;font-style:normal;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:rgba(255,255,255,.58);margin-bottom:3px}
   .rep2 .ring-gauge{position:relative;width:290px;height:181px;flex-shrink:0}
   .rep2 .ring-gauge svg{display:block;width:290px;height:181px}
   .rep2 .g-track{stroke:rgba(255,255,255,.15)}
@@ -5275,9 +5276,9 @@ async function renderReporte(){
           '<path id="repGaugeArc" class="g-arc" d="M 16 84 A 64 64 0 0 1 144 84" fill="none" stroke="'+(excede?'#FBBF24':'url(#repGaugeGrad)')+'" stroke-width="13" stroke-linecap="round" stroke-dasharray="'+totalLen.toFixed(1)+'" stroke-dashoffset="'+off.toFixed(1)+'"/>'+
           '<circle id="repGaugeDot" class="g-dot" cx="'+dotX+'" cy="'+dotY+'" r="4" fill="#fff"/></svg>'+
           '<div class="ring-value"><span>'+pn(nivel)+'</span><i>%</i></div><div class="ring-sub">del disponible</div></div>'+
-          '<div class="ring-chips">'+
-            '<div class="ring-chip"><span class="ring-chip__l">Monto repartido</span><b class="ring-chip__v">'+nn(m.gen.monto)+'<i>Gs</i></b><span class="ring-chip__p">'+_pct(nivel)+' del disponible</span></div>'+
-            '<div class="ring-chip is-key"><span class="ring-chip__l">Disponible p/reparto</span><b class="ring-chip__v">'+nn(m.gen.disponible)+'<i>Gs</i></b><span class="ring-chip__p">'+_pct(dispPct)+' de lo facturado</span></div>'+
+          '<div class="ring-bar">'+
+            '<div class="ring-bar__track"><div class="ring-bar__fill" style="width:'+pctCap.toFixed(1)+'%"></div></div>'+
+            '<div class="ring-bar__lbls"><span class="ring-bar__side"><i>Repartido</i>Gs. '+nn(m.gen.monto)+'</span><span class="ring-bar__side ring-bar__side--r"><i>Disponible</i>Gs. '+nn(m.gen.disponible)+'</span></div>'+
           '</div>'+
         '</div></div>'+
     '</div>'+
@@ -5342,8 +5343,8 @@ async function renderReporte(){
     if(dot)g.fromTo(dot,{attr:{cx:16,cy:84}},{attr:{cx:dotX,cy:dotY},duration:1,delay:.15,ease:'power3.out'});
     const rv=document.querySelector('#repHost .ring-value span');
     if(rv){const o={v:0};g.to(o,{v:nivel*100,duration:1.05,delay:.18,ease:'power2.out',onUpdate:function(){rv.textContent=o.v.toLocaleString('es-PY',{minimumFractionDigits:2,maximumFractionDigits:2});}});}
-    g.from('#repHost .ring-chip',{opacity:0,x:20,duration:.5,stagger:.1,delay:.32,ease:'back.out(1.6)',clearProps:'all'});
-    g.from('#repHost .ring-chip__p',{opacity:0,scale:.6,duration:.4,stagger:.1,delay:.55,ease:'back.out(2.6)',clearProps:'transform,opacity'});
+    g.fromTo('#repHost .ring-bar__fill',{scaleX:0,transformOrigin:'left center'},{scaleX:1,duration:.9,delay:.35,ease:'power3.out'});
+    g.from('#repHost .ring-bar__side',{opacity:0,y:8,duration:.45,stagger:.1,delay:.5,ease:'power2.out',clearProps:'all'});
   }
 }
 
