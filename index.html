@@ -4013,17 +4013,19 @@ function showSaveAnim(text){
   .sal-hd__k{display:inline-flex;align-items:baseline;gap:6px}
   .sal-hd__k b{font-family:Sora,Inter,sans-serif;font-size:17px;font-weight:800;color:var(--sal-c,#0B5F8D);font-variant-numeric:tabular-nums}
   .sal-hd__k small{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:#94a3b8}
-  /* Aviso de faltantes de monto */
-  .sal-warn{display:flex;align-items:center;gap:11px;margin:12px 22px 2px;padding:11px 14px;border-radius:12px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412}
-  .sal-warn.on{background:#eff6ff;border-color:#bfdbfe;color:#1e40af}
-  .sal-warn__ic{width:26px;height:26px;flex-shrink:0;color:#ea580c}
-  .sal-warn.on .sal-warn__ic{color:#2563eb}
-  .sal-warn__ic svg{width:22px;height:22px}
-  .sal-warn__t{flex:1;font-size:13px;font-weight:600}
-  .sal-warn__btn{flex-shrink:0;border:none;background:#ea580c;color:#fff;font:inherit;font-size:12px;font-weight:800;padding:7px 14px;border-radius:9px;cursor:pointer;transition:filter .15s,transform .12s}
-  .sal-warn.on .sal-warn__btn{background:#2563eb}
-  .sal-warn__btn:hover{filter:brightness(1.08)}
-  .sal-warn__btn:active{transform:scale(.95)}
+  /* Aviso de faltantes de monto (mensaje centrado + badge PRO) */
+  .sal-warn{position:relative;display:flex;align-items:center;justify-content:center;gap:12px;margin:14px 22px 4px;padding:15px 122px;border-radius:14px;background:linear-gradient(135deg,#fff7ed,#ffedd5);border:1px solid #fed7aa;color:#9a3412;overflow:hidden}
+  .sal-warn::before{content:'';position:absolute;top:0;left:0;bottom:0;width:4px;background:#ea580c}
+  .sal-warn.on{background:linear-gradient(135deg,#eff6ff,#dbeafe);border-color:#bfdbfe;color:#1e40af}
+  .sal-warn.on::before{background:#2563eb}
+  .sal-warn__badge{width:36px;height:36px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#fb923c,#ea580c);color:#fff;box-shadow:0 6px 14px rgba(234,88,12,.35),inset 0 1px 0 rgba(255,255,255,.35)}
+  .sal-warn.on .sal-warn__badge{background:linear-gradient(135deg,#60a5fa,#2563eb);box-shadow:0 6px 14px rgba(37,99,235,.32),inset 0 1px 0 rgba(255,255,255,.35)}
+  .sal-warn__badge svg{width:21px;height:21px}
+  .sal-warn__t{font-size:14px;font-weight:700;text-align:center}
+  .sal-warn__btn{position:absolute;right:16px;top:50%;transform:translateY(-50%);border:none;background:#ea580c;color:#fff;font:inherit;font-size:12.5px;font-weight:800;padding:8px 18px;border-radius:10px;cursor:pointer;box-shadow:0 4px 10px rgba(234,88,12,.3);transition:filter .15s}
+  .sal-warn.on .sal-warn__btn{background:#2563eb;box-shadow:0 4px 10px rgba(37,99,235,.3)}
+  .sal-warn__btn:hover{filter:brightness(1.09)}
+  @media(max-width:640px){.sal-warn{flex-direction:column;padding:14px 16px;gap:10px}.sal-warn__btn{position:static;transform:none}}
   /* Monto editable por línea */
   .sal-monto{cursor:pointer;transition:background .14s,box-shadow .14s}
   .sal-monto:hover{background:rgba(37,120,184,.08);box-shadow:inset 0 0 0 1px rgba(37,120,184,.28)}
@@ -5379,7 +5381,7 @@ function _cfSalidasModal(mk,chan){
     const totFlete=rows.reduce((s,r)=>s+r.flete,0);
     m.$('#salHd').innerHTML='<span class="sal-hd__tag">Salidas · '+CHN[chan]+'</span><span class="sal-hd__d">·</span><span class="sal-hd__mes">'+(mk?_mesLbl(mk):'Todos los meses')+'</span><span class="sal-hd__d">·</span><span class="sal-hd__sub">'+rows.length+' salida'+(rows.length===1?'':'s')+' · '+nDias+' día'+(nDias===1?'':'s')+'</span><span class="sal-hd__d">·</span><span class="sal-hd__k"><b>'+_gs(totFlete)+'</b> <small>flete total del mes</small></span>';
     const wh=m.$('#salWarnHost');
-    if(montoMatters&&missing.length)wh.innerHTML='<div class="sal-warn'+(onlyMissing?' on':'')+'"><span class="sal-warn__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L14.4 3.9a2 2 0 00-3.4 0z"/></svg></span><span class="sal-warn__t">Falta registrar el <b>monto repartido</b> de <b>'+missing.length+'</b> salida'+(missing.length===1?'':'s')+'.</span><button class="sal-warn__btn" data-salfilter="1">'+(onlyMissing?'Ver todas':'Ver')+'</button></div>';
+    if(montoMatters&&missing.length)wh.innerHTML='<div class="sal-warn'+(onlyMissing?' on':'')+'"><span class="sal-warn__badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M12 7.5v5.5M12 16.5h.01"/></svg></span><span class="sal-warn__t">'+(onlyMissing?'Mostrando solo las salidas sin <b>monto repartido</b> · <b>'+missing.length+'</b>':'Falta registrar el <b>monto repartido</b> de <b>'+missing.length+'</b> salida'+(missing.length===1?'':'s')+'.')+'</span><button class="sal-warn__btn" data-salfilter="1">'+(onlyMissing?'Ver todas':'Ver')+'</button></div>';
     else wh.innerHTML='';
     const theadHtml=isServ
       ? '<thead><tr><th>Camión</th><th>Repartidor</th><th class="sal-grow">Servicio</th><th class="r">Flete</th></tr></thead>'
@@ -5406,7 +5408,8 @@ function _cfSalidasModal(mk,chan){
     const g=window.gsap;if(g&&anim){
       g.from(m.box.querySelectorAll('.sal-day'),{opacity:0,y:20,duration:.46,stagger:.07,delay:.06,ease:'power3.out',clearProps:'all'});
       g.from(m.box.querySelectorAll('.sal-tbl tbody tr'),{opacity:0,x:-10,duration:.32,stagger:.01,delay:.14,ease:'power2.out',clearProps:'all'});
-      const w=m.box.querySelector('.sal-warn');if(w)g.from(w,{opacity:0,y:-8,duration:.4,ease:'back.out(1.8)',clearProps:'all'});
+      const w=m.box.querySelector('.sal-warn');
+      if(w){g.fromTo(w,{opacity:0,y:-10,scale:.98},{opacity:1,y:0,scale:1,duration:.46,ease:'back.out(1.7)',clearProps:'all'});const wb=w.querySelector('.sal-warn__badge');if(wb)g.fromTo(wb,{scale:0,rotate:-28},{scale:1,rotate:0,duration:.55,delay:.1,ease:'back.out(3)',clearProps:'transform'});const wt=w.querySelector('.sal-warn__t');if(wt)g.from(wt,{opacity:0,x:-6,duration:.4,delay:.15,ease:'power2.out',clearProps:'all'});const wbt=w.querySelector('.sal-warn__btn');if(wbt)g.from(wbt,{opacity:0,duration:.4,delay:.22,ease:'power2.out',clearProps:'opacity'});}
     }
   }
   render(true);
