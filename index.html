@@ -3945,14 +3945,14 @@ function showSaveAnim(text){
   .rep2 .hero-seg.ring{flex:1.6 1 340px;position:relative;overflow:hidden;background:radial-gradient(130% 140% at 12% 0%,#14739F 0%,var(--primary) 48%,var(--primary-dark) 100%);padding:16px 24px}
   .rep2 .hero-seg.ring:before{content:"";position:absolute;right:-70px;top:-80px;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,.045);pointer-events:none}
   .rep2 .hero-seg.ring .hl{color:rgba(255,255,255,.62);position:relative}
-  .rep2 .ring-body{display:flex;align-items:center;gap:24px;margin-top:8px;position:relative;flex-wrap:wrap}
-  .rep2 .ring-gauge{position:relative;width:200px;height:125px;flex-shrink:0}
-  .rep2 .ring-gauge svg{display:block;width:200px;height:125px}
+  .rep2 .ring-body{display:flex;align-items:center;justify-content:center;gap:0;margin-top:6px;position:relative;flex-wrap:wrap}
+  .rep2 .ring-gauge{position:relative;width:290px;height:181px;flex-shrink:0}
+  .rep2 .ring-gauge svg{display:block;width:290px;height:181px}
   .rep2 .g-track{stroke:rgba(255,255,255,.15)}
   .rep2 .g-arc{filter:drop-shadow(0 2px 5px rgba(2,32,54,.35))}
-  .rep2 .ring-value{position:absolute;left:0;right:0;top:60px;text-align:center;font-family:Sora,Inter,sans-serif;font-size:28px;font-weight:800;color:#fff;line-height:1;letter-spacing:-.035em;font-variant-numeric:tabular-nums}
-  .rep2 .ring-value i{font-size:15px;font-style:normal;font-weight:800;color:rgba(255,255,255,.62);margin-left:2px}
-  .rep2 .ring-sub{position:absolute;left:0;right:0;top:96px;text-align:center;font-size:8.5px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:rgba(255,255,255,.42)}
+  .rep2 .ring-value{position:absolute;left:0;right:0;top:86px;text-align:center;font-family:Sora,Inter,sans-serif;font-size:40px;font-weight:800;color:#fff;line-height:1;letter-spacing:-.035em;font-variant-numeric:tabular-nums}
+  .rep2 .ring-value i{font-size:21px;font-style:normal;font-weight:800;color:rgba(255,255,255,.62);margin-left:2px}
+  .rep2 .ring-sub{position:absolute;left:0;right:0;top:140px;text-align:center;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.5)}
   .rep2 .ring-foot{display:flex;flex-direction:column;justify-content:center;gap:11px;min-width:0;flex:1}
   .rep2 .rf-item{display:flex;flex-direction:column;gap:3px;min-width:0;padding:10px 14px;border-radius:11px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.09)}
   .rep2 .rf-item.is-key{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.2)}
@@ -5267,8 +5267,6 @@ async function renderReporte(){
           '<path id="repGaugeArc" class="g-arc" d="M 16 84 A 64 64 0 0 1 144 84" fill="none" stroke="'+(excede?'#FBBF24':'url(#repGaugeGrad)')+'" stroke-width="13" stroke-linecap="round" stroke-dasharray="'+totalLen.toFixed(1)+'" stroke-dashoffset="'+off.toFixed(1)+'"/>'+
           '<circle id="repGaugeDot" class="g-dot" cx="'+dotX+'" cy="'+dotY+'" r="4" fill="#fff"/></svg>'+
           '<div class="ring-value"><span>'+pn(nivel)+'</span><i>%</i></div><div class="ring-sub">de lo facturado</div></div>'+
-          '<div class="ring-foot"><div class="rf-item is-key"><span class="rf-l">Disponible p/reparto</span><span class="rf-v">'+nn(m.gen.disponible)+'</span></div>'+
-            '<div class="rf-item"><span class="rf-l">Facturación total</span><span class="rf-v">'+nn(m.gen.facturacionTotal)+'</span></div></div>'+
         '</div></div>'+
     '</div>'+
     '<div class="section-label">Resumen y facturación</div>'+
@@ -5327,8 +5325,11 @@ async function renderReporte(){
     g.fromTo('#repHost .zbar-fill',{scaleX:0,transformOrigin:'left center'},{scaleX:1,duration:.7,stagger:.04,delay:.4,ease:'power3.out'});
     g.from('#repHost .zt-tbl tbody tr',{opacity:0,y:6,duration:.3,stagger:.02,delay:.4,ease:'power2.out',clearProps:'all'});
     const arc=document.getElementById('repGaugeArc'),dot=document.getElementById('repGaugeDot');
-    if(arc)g.fromTo(arc,{strokeDashoffset:totalLen},{strokeDashoffset:off,duration:.9,ease:'power3.out'});
-    if(dot)g.fromTo(dot,{attr:{cx:16,cy:84}},{attr:{cx:dotX,cy:dotY},duration:.9,ease:'power3.out'});
+    g.from('#repHost .ring-gauge',{scale:.9,opacity:0,duration:.6,delay:.1,ease:'back.out(1.5)',clearProps:'all'});
+    if(arc)g.fromTo(arc,{strokeDashoffset:totalLen},{strokeDashoffset:off,duration:1,delay:.15,ease:'power3.out'});
+    if(dot)g.fromTo(dot,{attr:{cx:16,cy:84}},{attr:{cx:dotX,cy:dotY},duration:1,delay:.15,ease:'power3.out'});
+    const rv=document.querySelector('#repHost .ring-value span');
+    if(rv){const o={v:0};g.to(o,{v:nivel*100,duration:1.05,delay:.18,ease:'power2.out',onUpdate:function(){rv.textContent=o.v.toLocaleString('es-PY',{minimumFractionDigits:2,maximumFractionDigits:2});}});}
   }
 }
 
