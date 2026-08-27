@@ -4220,21 +4220,21 @@ function showSaveAnim(text){
   .rep2 .ch3d-wrap{position:relative;display:flex;align-items:stretch;justify-content:center;gap:16px;margin-top:8px}
   .rep2 .ch3d-wrap::before{content:"";position:absolute;left:0;top:0;bottom:0;width:26%;background:url('logo-icon.png') no-repeat center center;background-size:auto 60%;opacity:.1;filter:grayscale(1) brightness(.55);pointer-events:none;z-index:0}
   .rep2 .ch3d-aside{position:relative;z-index:2;flex:0 0 auto;display:flex;align-items:center;min-width:0}
-  .rep2 .ch3d-left{width:184px;justify-content:center}
+  .rep2 .ch3d-left{width:240px;justify-content:center}
   .rep2 .ch3d-filters{display:flex;flex-direction:column;gap:7px;width:100%;max-width:176px}
   .rep2 .ch3d-fbtn{position:relative;display:flex;align-items:center;gap:10px;padding:10px 14px;border:1.5px solid #0A4F75;background:#fff;border-radius:11px;cursor:pointer;font-family:inherit;font-size:12.5px;font-weight:800;color:#0B5F8D;transition:all var(--fast);text-align:left;white-space:nowrap;letter-spacing:-.1px}
   .rep2 .ch3d-fbtn:hover{background:#EAF3F9;transform:translateX(3px)}
   .rep2 .ch3d-fdot{width:8px;height:8px;border-radius:50%;background:currentColor;flex-shrink:0;opacity:.75;transition:transform var(--fast)}
   .rep2 .ch3d-fbtn.on{background:#0B5F8D;border-color:#0A4F75;color:#fff;box-shadow:0 9px 20px -7px rgba(11,95,141,.6)}
   .rep2 .ch3d-fbtn.on .ch3d-fdot{background:#fff;opacity:1;transform:scale(1.15)}
-  .rep2 .ch3d-stats{width:184px;flex-direction:column;justify-content:center;gap:7px;align-items:stretch}
-  .rep2 .ch3d-kpi{position:relative;display:flex;align-items:center;gap:8px;padding:7px 9px;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 2px 9px rgba(15,23,42,.05);overflow:hidden}
+  .rep2 .ch3d-stats{width:240px;flex-direction:column;justify-content:center;gap:9px;align-items:stretch}
+  .rep2 .ch3d-kpi{position:relative;display:flex;align-items:center;gap:11px;padding:11px 14px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 3px 12px rgba(15,23,42,.06);overflow:hidden}
   .rep2 .ch3d-kpi::before{content:"";position:absolute;left:0;top:0;right:0;height:3px;background:var(--k,#0B5F8D)}
-  .rep2 .ch3d-kpi__ic{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;background:var(--k-soft,#E0EDF6);color:var(--k,#0B5F8D);flex-shrink:0}
-  .rep2 .ch3d-kpi__ic svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
+  .rep2 .ch3d-kpi__ic{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;background:var(--k-soft,#E0EDF6);color:var(--k,#0B5F8D);flex-shrink:0}
+  .rep2 .ch3d-kpi__ic svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:2}
   .rep2 .ch3d-kpi__meta{min-width:0;flex:1}
-  .rep2 .ch3d-kpi__l{font-size:8.5px;font-weight:800;letter-spacing:.3px;text-transform:uppercase;color:#94a3b8;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .rep2 .ch3d-kpi__v{font-family:Sora,Inter,sans-serif;font-size:14.5px;font-weight:800;color:var(--k,#0B5F8D);line-height:1.15;margin-top:1px;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rep2 .ch3d-kpi__l{font-size:9.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:#94a3b8;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rep2 .ch3d-kpi__v{font-family:Sora,Inter,sans-serif;font-size:18px;font-weight:800;color:var(--k,#0B5F8D);line-height:1.15;margin-top:2px;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .rep2 .ch3d-kpi__v small{font-size:9.5px;font-weight:800;color:#94a3b8;margin-left:2px}
   .rep2 .ch3d-kpi__sub{font-size:9.5px;font-weight:700;color:#94a3b8;margin-top:1px}
   @media(max-width:1240px){.rep2 .ch3d-logo{display:none}}
@@ -4261,7 +4261,9 @@ function showSaveAnim(text){
   .rep2 .ch-card[data-ch="trans"]{--ch-color:#7C6BF0;--ch-soft:#E9E6FD}
   .rep2 .ch-head{display:flex;align-items:center;gap:8px;padding:13px 16px 0}
   .rep2 .ch-dot{width:9px;height:9px;border-radius:50%;background:var(--ch-color);flex-shrink:0}
-  .rep2 .ch-name{font-size:12.5px;font-weight:800;color:var(--text)}
+  .rep2 .ch-ico{display:inline-flex;align-items:center;justify-content:center;color:var(--ch-color);flex-shrink:0}
+  .rep2 .ch-ico svg{width:22px;height:22px}
+  .rep2 .ch-name{font-size:17px;font-weight:800;color:var(--text);letter-spacing:-.3px}
   .rep2 .ch-card--nohero .ch-head{padding-bottom:13px;border-bottom:1px solid var(--soft-line)}
   .rep2 .ch-cams{margin-left:auto;display:inline-flex;align-items:baseline;gap:5px;padding:5px 11px;border-radius:999px;background:var(--ch-soft);color:var(--ch-color);font-family:Sora,Inter,sans-serif;font-weight:800;font-size:15px;line-height:1;font-variant-numeric:tabular-nums;box-shadow:inset 0 0 0 1px rgba(15,23,42,.05)}
   .rep2 .ch-cams small{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;opacity:.85}
@@ -5630,7 +5632,7 @@ async function renderReporte(){
     '<div class="ch3d-wrap">'+
     '<div class="ch3d-aside ch3d-left"><div class="ch3d-filters" id="ch3dFilters"></div></div>'+
     '<div class="channel-grid ch3d" id="ch3dGrid">'+
-      '<div class="ch-card" data-ch="int" data-cam="'+(m.interior.cam||0)+'" data-monto="'+(m.interior.monto||0)+'" data-flete="'+(m.interior.gastoTotal||0)+'"><div class="ch-top"></div><div class="ch-head"><span class="ch-dot"></span><span class="ch-name">Interior</span><span class="ch-cams">'+nn(m.interior.cam)+'<small>camiones</small></span></div>'+
+      '<div class="ch-card" data-ch="int" data-cam="'+(m.interior.cam||0)+'" data-monto="'+(m.interior.monto||0)+'" data-flete="'+(m.interior.gastoTotal||0)+'"><div class="ch-top"></div><div class="ch-head"><span class="ch-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5h9v7H3zM12 10h4l3 3v1.5h-7z"/><circle cx="7" cy="16.5" r="1.5"/><circle cx="16.5" cy="16.5" r="1.5"/></svg></span><span class="ch-name">Interior</span><span class="ch-cams">'+nn(m.interior.cam)+'<small>camiones</small></span></div>'+
         '<div class="ch-hero"><span class="ch-hero-l">Monto repartido</span><div class="ch-hero-v"><span class="ch-val">'+nn(m.interior.monto)+'</span><span class="ch-u">Gs.</span></div></div>'+
         '<div class="ch-rows"><div class="ch-row ch-row--sal"><span class="ch-rl">Salidas del mes</span><span class="ch-sal-right">'+(m.salidas.interior>0?'<button class="ch-sal-btn" data-saldet="interior" type="button">Ver detalles</button>':'')+'<span class="ch-sv">'+nn(m.salidas.interior)+'</span></span></div><div class="ch-row"><span class="ch-rl">Peso</span>'+man(m.interior.peso,'Kg','seg.interior.peso','Peso · Interior')+'</div>'+
           '<div class="ch-row"><span class="ch-rl">Km recorridos</span>'+aut(intKm,'Km')+'</div>'+
@@ -5638,17 +5640,17 @@ async function renderReporte(){
           '<div class="ch-row"><span class="ch-rl">Gratificaciones</span>'+man(m.interior.gratificaciones,'','seg.interior.gratificaciones','Gratificaciones · Interior')+'</div>'+
           '<div class="ch-row"><span class="ch-rl">Gasto viático</span>'+man(m.interior.viatico,'','seg.interior.viatico','Gasto viático · Interior')+'</div></div>'+
         '</div>'+
-      '<div class="ch-card" data-ch="loc" data-cam="'+(m.local.cam||0)+'" data-monto="'+(m.local.monto||0)+'" data-flete="'+(m.local.gastoTotal||0)+'"><div class="ch-top"></div><div class="ch-head"><span class="ch-dot"></span><span class="ch-name">Local</span><span class="ch-cams">'+nn(m.local.cam)+'<small>camiones</small></span></div>'+
+      '<div class="ch-card" data-ch="loc" data-cam="'+(m.local.cam||0)+'" data-monto="'+(m.local.monto||0)+'" data-flete="'+(m.local.gastoTotal||0)+'"><div class="ch-top"></div><div class="ch-head"><span class="ch-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5h9v7H3zM12 10h4l3 3v1.5h-7z"/><circle cx="7" cy="16.5" r="1.5"/><circle cx="16.5" cy="16.5" r="1.5"/></svg></span><span class="ch-name">Local</span><span class="ch-cams">'+nn(m.local.cam)+'<small>camiones</small></span></div>'+
         '<div class="ch-hero"><span class="ch-hero-l">Monto repartido</span><div class="ch-hero-v"><span class="ch-val">'+nn(m.local.monto)+'</span><span class="ch-u">Gs.</span></div></div>'+
         '<div class="ch-rows"><div class="ch-row ch-row--sal"><span class="ch-rl">Salidas del mes</span><span class="ch-sal-right">'+(m.salidas.periferia>0?'<button class="ch-sal-btn" data-saldet="periferia" type="button">Ver detalles</button>':'')+'<span class="ch-sv">'+nn(m.salidas.periferia)+'</span></span></div><div class="ch-row"><span class="ch-rl">Peso</span>'+man(m.local.peso,'Kg','seg.local.peso','Peso · Local')+'</div>'+
           '<div class="ch-row"><span class="ch-rl">Pago a transportadoras</span>'+aut(m.local.flete)+'</div>'+
           '<div class="ch-row"><span class="ch-rl">Gasto viático</span>'+man(m.local.viatico,'','seg.local.viatico','Gasto viático · Local')+'</div></div>'+
         '</div>'+
-      '<div class="ch-card" data-ch="trans" data-cam="'+(m.transportadora.cam||0)+'" data-monto="'+(m.transportadora.monto||0)+'" data-flete="'+(m.transportadora.flete||0)+'"><div class="ch-top"></div><div class="ch-head"><span class="ch-dot"></span><span class="ch-name">Transportadora</span><span class="ch-cams">'+nn(m.transportadora.cam)+'<small>camiones</small></span></div>'+
+      '<div class="ch-card" data-ch="trans" data-cam="'+(m.transportadora.cam||0)+'" data-monto="'+(m.transportadora.monto||0)+'" data-flete="'+(m.transportadora.flete||0)+'"><div class="ch-top"></div><div class="ch-head"><span class="ch-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5h9v7H3zM12 10h4l3 3v1.5h-7z"/><circle cx="7" cy="16.5" r="1.5"/><circle cx="16.5" cy="16.5" r="1.5"/></svg></span><span class="ch-name">Transportadora</span><span class="ch-cams">'+nn(m.transportadora.cam)+'<small>camiones</small></span></div>'+
         '<div class="ch-hero"><span class="ch-hero-l">Monto repartido</span><div class="ch-hero-v"><span class="ch-val man-ed"'+_manAttr(m.transportadora.monto,'','seg.transportadora.monto','Monto repartido · Transportadora')+'>'+nn(m.transportadora.monto)+'</span><span class="ch-u">Gs.</span></div></div>'+
         '<div class="ch-rows"><div class="ch-row ch-row--sal"><span class="ch-rl">Salidas del mes</span><span class="ch-sal-right">'+(m.salidas.transportadora>0?'<button class="ch-sal-btn" data-saldet="transportadora" type="button">Ver detalles</button>':'')+'<span class="ch-sv">'+nn(m.salidas.transportadora)+'</span></span></div><div class="ch-row"><span class="ch-rl">Importe flete</span>'+aut(m.transportadora.flete)+'</div></div>'+
         '</div>'+
-      '<div class="ch-card ch-card--nohero" data-ch="serv" data-cam="'+(m.servicios.cam||0)+'" data-monto="'+(m.servicios.monto||0)+'" data-flete="'+(m.servicios.flete||0)+'"><div class="ch-top"></div><div class="ch-head"><span class="ch-dot"></span><span class="ch-name">Servicios</span><span class="ch-cams">'+nn(m.servicios.cam)+'<small>camiones</small></span></div>'+
+      '<div class="ch-card ch-card--nohero" data-ch="serv" data-cam="'+(m.servicios.cam||0)+'" data-monto="'+(m.servicios.monto||0)+'" data-flete="'+(m.servicios.flete||0)+'"><div class="ch-top"></div><div class="ch-head"><span class="ch-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5h9v7H3zM12 10h4l3 3v1.5h-7z"/><circle cx="7" cy="16.5" r="1.5"/><circle cx="16.5" cy="16.5" r="1.5"/></svg></span><span class="ch-name">Servicios</span><span class="ch-cams">'+nn(m.servicios.cam)+'<small>camiones</small></span></div>'+
         '<div class="ch-rows"><div class="ch-row ch-row--sal"><span class="ch-rl">Salidas del mes</span><span class="ch-sal-right">'+(m.salidas.servicios>0?'<button class="ch-sal-btn" data-saldet="servicios" type="button">Ver detalles</button>':'')+'<span class="ch-sv">'+nn(m.salidas.servicios)+'</span></span></div><div class="ch-row"><span class="ch-rl">Importe flete</span>'+aut(m.servicios.flete)+'</div></div>'+
         '</div>'+
     '</div>'+
