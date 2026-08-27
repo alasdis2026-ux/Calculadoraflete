@@ -4222,11 +4222,11 @@ function showSaveAnim(text){
   .rep2 .ch3d-aside{position:relative;z-index:2;flex:0 0 auto;display:flex;align-items:center;min-width:0}
   .rep2 .ch3d-left{width:23%;min-width:150px;justify-content:flex-start;padding-left:4px}
   .rep2 .ch3d-filters{display:flex;flex-direction:column;gap:7px;width:100%;max-width:172px}
-  .rep2 .ch3d-fbtn{position:relative;display:flex;align-items:center;gap:10px;padding:10px 13px;border:1.5px solid #E7EEF5;background:#fff;border-radius:12px;cursor:pointer;font-family:inherit;font-size:12.5px;font-weight:800;color:#5b6b7f;transition:all var(--fast);text-align:left;white-space:nowrap;box-shadow:0 1px 3px rgba(15,23,42,.04)}
-  .rep2 .ch3d-fbtn:hover{border-color:var(--fc);color:#0f172a;transform:translateX(3px);box-shadow:0 6px 15px -6px var(--fc)}
-  .rep2 .ch3d-fdot{width:10px;height:10px;border-radius:50%;background:var(--fc);flex-shrink:0;box-shadow:0 0 0 3px color-mix(in srgb,var(--fc) 18%,transparent);transition:transform var(--fast)}
-  .rep2 .ch3d-fbtn.on{background:var(--fc);border-color:var(--fc);color:#fff;box-shadow:0 9px 20px -6px var(--fc)}
-  .rep2 .ch3d-fbtn.on .ch3d-fdot{background:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.35);transform:scale(1.1)}
+  .rep2 .ch3d-fbtn{position:relative;display:flex;align-items:center;gap:10px;padding:10px 14px;border:1.5px solid #0A4F75;background:#fff;border-radius:11px;cursor:pointer;font-family:inherit;font-size:12.5px;font-weight:800;color:#0B5F8D;transition:all var(--fast);text-align:left;white-space:nowrap;letter-spacing:-.1px}
+  .rep2 .ch3d-fbtn:hover{background:#EAF3F9;transform:translateX(3px)}
+  .rep2 .ch3d-fdot{width:8px;height:8px;border-radius:50%;background:currentColor;flex-shrink:0;opacity:.75;transition:transform var(--fast)}
+  .rep2 .ch3d-fbtn.on{background:#0B5F8D;border-color:#0A4F75;color:#fff;box-shadow:0 9px 20px -7px rgba(11,95,141,.6)}
+  .rep2 .ch3d-fbtn.on .ch3d-fdot{background:#fff;opacity:1;transform:scale(1.15)}
   .rep2 .ch3d-stats{width:21%;min-width:186px;flex-direction:column;justify-content:center;gap:8px;align-items:stretch}
   .rep2 .ch3d-kpi{position:relative;display:flex;align-items:center;gap:9px;padding:8px 11px;background:#fff;border:1px solid var(--line);border-radius:13px;box-shadow:0 2px 9px rgba(15,23,42,.05);overflow:hidden}
   .rep2 .ch3d-kpi::before{content:"";position:absolute;left:0;top:0;right:0;height:3px;background:var(--k,#0B5F8D)}
@@ -5529,11 +5529,7 @@ function _ch3dInit(){
   const cards=[...grid.querySelectorAll('.ch-card')],n=cards.length;if(!n)return;
   const li=cards.findIndex(c=>c.dataset.ch==='loc');_ch3dIdx=li>=0?li:0; // siempre arranca en Local
   grid.insertAdjacentHTML('beforeend',
-    '<button class="ch3d-nav ch3d-nav--prev" type="button" aria-label="Anterior"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 18l-6-6 6-6"/></svg></button>'+
-    '<button class="ch3d-nav ch3d-nav--next" type="button" aria-label="Siguiente"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 18l6-6-6-6"/></svg></button>'+
     '<div class="ch3d-dots">'+cards.map((_,i)=>'<span data-i="'+i+'"></span>').join('')+'</div>');
-  grid.querySelector('.ch3d-nav--prev').addEventListener('click',()=>_ch3dGo(_ch3dIdx-1));
-  grid.querySelector('.ch3d-nav--next').addEventListener('click',()=>_ch3dGo(_ch3dIdx+1));
   grid.querySelectorAll('.ch3d-dots span').forEach(d=>d.addEventListener('click',()=>_ch3dGo(+d.dataset.i)));
   cards.forEach((el,i)=>el.addEventListener('click',e=>{
     if(i===_ch3dIdx)return; // el del frente: dejar pasar clicks (editar / ver detalles)
