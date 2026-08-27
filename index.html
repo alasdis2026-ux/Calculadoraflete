@@ -553,16 +553,16 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .ts-tprow__v{font-size:11.5px;font-weight:800;color:var(--gray-700);font-variant-numeric:tabular-nums;text-align:right;min-width:0;overflow:hidden;text-overflow:ellipsis}
 .ts-tprow--none{font-size:11px;font-weight:700;color:var(--gray-300)}
 .ts-col__empty{padding:16px 8px;text-align:center;font-size:11.5px;color:var(--gray-400)}
-/* ===== Toggle Grilla / Carrusel 3D ===== */
-.ts-viewtoggle{display:inline-flex;gap:3px;padding:4px;background:var(--gray-100);border:1.5px solid var(--gray-200);border-radius:12px;flex-shrink:0}
-.ts-viewtoggle button{display:inline-flex;align-items:center;gap:7px;border:none;background:transparent;color:var(--gray-500);font-family:inherit;font-size:12.5px;font-weight:800;padding:7px 14px;border-radius:9px;cursor:pointer;transition:all var(--fast);letter-spacing:-.1px}
-.ts-viewtoggle button svg{width:16px;height:16px;stroke-width:2}
-.ts-viewtoggle button:hover{color:var(--gray-700)}
-.ts-viewtoggle button.on{background:#fff;color:var(--primary);box-shadow:0 3px 10px rgba(15,23,42,.10)}
+/* ===== Buscador centrado (vista 3D) ===== */
+.ts-3d-search{position:relative;display:flex;align-items:center;width:100%;max-width:440px}
+.ts-3d-search .md-search-icon{position:absolute;left:15px;width:18px;height:18px;color:var(--gray-400);pointer-events:none}
+.ts-3d-search .md-search{width:100%;padding:12px 16px 12px 44px;border:1.5px solid var(--gray-200);border-radius:999px;background:#fff;font-family:inherit;font-size:14px;font-weight:600;color:var(--gray-800);box-shadow:0 6px 18px rgba(15,23,42,.06);transition:border-color var(--fast),box-shadow var(--fast)}
+.ts-3d-search .md-search:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft),0 6px 18px rgba(15,23,42,.08)}
+.ts-3d-search .md-search::placeholder{color:var(--gray-400);font-weight:600}
 /* ===== Carrusel 3D (coverflow) ===== */
 .ts-3d{position:relative;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;perspective:2000px;perspective-origin:50% 42%;overflow:hidden;background:radial-gradient(120% 90% at 50% 8%,var(--accent-soft) 0%,transparent 55%)}
 .ts-3d__stage{position:relative;width:100%;height:100%;transform-style:preserve-3d}
-.ts-3d__card{position:absolute;top:50%;left:50%;width:340px;height:82%;max-height:560px;margin:-1px 0 0 -170px;transform-style:preserve-3d;background:#fff;border:1.5px solid var(--gray-200);border-radius:18px;box-shadow:0 30px 70px -24px rgba(15,23,42,.42);display:flex;flex-direction:column;overflow:hidden;cursor:pointer;will-change:transform,opacity;-webkit-backface-visibility:hidden;backface-visibility:hidden}
+.ts-3d__card{position:absolute;top:50%;left:50%;width:460px;max-width:86vw;height:86%;max-height:620px;transform-style:preserve-3d;background:#fff;border:1.5px solid var(--gray-200);border-radius:18px;box-shadow:0 30px 70px -24px rgba(15,23,42,.42);display:flex;flex-direction:column;overflow:hidden;cursor:pointer;will-change:transform,opacity;-webkit-backface-visibility:hidden;backface-visibility:hidden}
 .ts-3d__card.is-active{cursor:default;border-color:var(--accent)}
 .ts-3d__card.is-active .ts-3d__hd{background:linear-gradient(135deg,var(--primary),#1769a3)}
 .ts-3d__hd{display:flex;align-items:center;gap:11px;padding:16px 17px;background:linear-gradient(135deg,var(--gray-700),var(--gray-800));color:#fff;flex-shrink:0}
@@ -1319,18 +1319,14 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
   <div class="ts-wrap">
     <!-- Estado GRILLA -->
     <div class="ts-grid-state" id="tsGridState">
-      <div class="ts-grid-search" style="display:flex;align-items:center;gap:12px">
-        <div style="position:relative;flex:1;display:flex;align-items:center">
+      <div class="ts-grid-search" style="display:flex;justify-content:center">
+        <div class="ts-3d-search">
           <svg class="md-search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-          <input class="md-search" type="search" id="tsSearch" placeholder="Buscar transportista..." style="width:100%">
-        </div>
-        <div class="ts-viewtoggle" id="tsViewToggle">
-          <button type="button" data-tsview="grid" class="on"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Grilla</button>
-          <button type="button" data-tsview="3d"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z"/><path d="M12 3v18M4 7.5l8 4.5 8-4.5"/></svg>Carrusel 3D</button>
+          <input class="md-search" type="search" id="tsSearch" placeholder="Buscar transportista...">
         </div>
       </div>
-      <div class="ts-board" id="tsList"></div>
-      <div class="ts-3d" id="ts3d" style="display:none">
+      <div class="ts-board" id="tsList" style="display:none"></div>
+      <div class="ts-3d" id="ts3d" style="display:flex">
         <div class="ts-3d__hint"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 6l-6 6 6 6M15 6l6 6-6 6"/></svg>Girá con las flechas, la rueda o arrastrando · click al centro para abrir</div>
         <button class="ts-3d__nav ts-3d__nav--prev" type="button" id="ts3dPrev" aria-label="Anterior"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 18l-6-6 6-6"/></svg></button>
         <div class="ts-3d__stage" id="ts3dStage"></div>
@@ -1852,7 +1848,7 @@ function showView(v){
     if(st){const kids=Array.from(st.children).filter(k=>k.style.display!=='none').slice(0,8);if(kids.length){gsap.killTweensOf(kids);gsap.from(kids,{opacity:0,y:14,duration:.4,stagger:.05,ease:'power3.out',clearProps:'opacity,transform'});}}
   }
   _lastView=v;
-  if(v==='trans'){ selectedTsId=null; const gs=document.getElementById('tsGridState'),ds=document.getElementById('tsDetailState'); if(gs)gs.style.display=''; if(ds)ds.style.display='none'; renderTsList(); }
+  if(v==='trans'){ selectedTsId=null; const gs=document.getElementById('tsGridState'),ds=document.getElementById('tsDetailState'); if(gs)gs.style.display=''; if(ds)ds.style.display='none'; renderTsList(); renderTs3D(true); }
   if(v==='hist'){setHistView(histViewMode);_cfLoadFac();}
   if(v==='dash')renderReporte();
   if(v==='fact')renderFacturas();
@@ -2858,15 +2854,8 @@ function renderTsList(){
 tsListEl.addEventListener('click',e=>{const item=e.target.closest('[data-tsid]');if(item)selectTs(+item.dataset.tsid);});
 tsSearchEl.addEventListener('input',e=>{search=e.target.value;ts3dIndex=0;renderTsList();});
 
-/* ===== Carrusel 3D (coverflow) ===== */
-let tsView='grid',ts3dIndex=0,ts3dList=[],_ts3dDragged=false;
-function setTsView(v){
-  tsView=v;
-  document.querySelectorAll('#tsViewToggle button').forEach(b=>b.classList.toggle('on',b.dataset.tsview===v));
-  const board=document.getElementById('tsList'),d3=document.getElementById('ts3d');
-  if(v==='3d'){board.style.display='none';d3.style.display='flex';renderTs3D(true);}
-  else{d3.style.display='none';board.style.display='flex';renderTsList();if(window.gsap)gsap.from('#tsList .ts-col',{opacity:0,y:14,duration:.34,stagger:.03,ease:'power3.out',clearProps:'all'});}
-}
+/* ===== Carrusel 3D (coverflow) — única vista ===== */
+let tsView='3d',ts3dIndex=0,ts3dList=[],_ts3dDragged=false,_ts3dDown=false,_ts3dHoverTmr=0;
 function layout3D(animate){
   const stage=document.getElementById('ts3dStage');if(!stage)return;
   const cards=[...stage.querySelectorAll('.ts-3d__card')];
@@ -2874,7 +2863,7 @@ function layout3D(animate){
     const off=i-ts3dIndex,a=Math.abs(off),sign=off<0?-1:1;
     let x,rotY,z,scale,opacity,zi,pe;
     if(off===0){x=0;rotY=0;z=40;scale=1;opacity=1;zi=200;pe='auto';}
-    else{x=sign*(160+(a-1)*44+30);rotY=sign*-46;z=-140-(a-1)*80;scale=Math.max(.62,.85-(a-1)*.05);opacity=a>4?0:1;zi=200-a;pe=a>4?'none':'auto';}
+    else{x=sign*(230+(a-1)*54+40);rotY=sign*-44;z=-150-(a-1)*90;scale=Math.max(.6,.84-(a-1)*.055);opacity=a>4?0:1;zi=200-a;pe=a>4?'none':'auto';}
     el.style.zIndex=zi;el.style.pointerEvents=pe;
     el.classList.toggle('is-active',off===0);
     const props={xPercent:-50,yPercent:-50,x,z,rotationY:rotY,scale,opacity};
@@ -2926,7 +2915,6 @@ function go3D(idx,animate=true){
   ts3dIndex=Math.max(0,Math.min(n-1,idx));
   layout3D(animate!==false);renderTs3DDots();
 }
-document.getElementById('tsViewToggle').addEventListener('click',e=>{const b=e.target.closest('[data-tsview]');if(b&&b.dataset.tsview!==tsView)setTsView(b.dataset.tsview);});
 document.getElementById('ts3dPrev').addEventListener('click',()=>go3D(ts3dIndex-1));
 document.getElementById('ts3dNext').addEventListener('click',()=>go3D(ts3dIndex+1));
 document.getElementById('ts3dDots').addEventListener('click',e=>{const dt=e.target.closest('[data-idx]');if(dt)go3D(+dt.dataset.idx);});
@@ -2936,6 +2924,17 @@ document.getElementById('ts3dStage').addEventListener('click',e=>{
   const idx=+card.dataset.idx;
   if(idx===ts3dIndex)selectTs(+card.dataset.tsid);else go3D(idx);
 });
+/* Hover: al mantener el cursor sobre un panel lateral, gira y lo trae al frente */
+document.getElementById('ts3dStage').addEventListener('pointerover',e=>{
+  if(_ts3dDown)return;
+  const card=e.target.closest('.ts-3d__card');if(!card)return;
+  const idx=+card.dataset.idx;if(idx===ts3dIndex)return;
+  clearTimeout(_ts3dHoverTmr);
+  _ts3dHoverTmr=setTimeout(()=>{ if(!_ts3dDown)go3D(idx); },110);
+});
+document.getElementById('ts3dStage').addEventListener('pointerout',e=>{
+  if(!e.relatedTarget||!e.relatedTarget.closest||!e.relatedTarget.closest('.ts-3d__card'))clearTimeout(_ts3dHoverTmr);
+});
 let _ts3dWheelLock=0;
 document.getElementById('ts3d').addEventListener('wheel',e=>{
   e.preventDefault();const now=Date.now();if(now<_ts3dWheelLock)return;
@@ -2944,9 +2943,9 @@ document.getElementById('ts3d').addEventListener('wheel',e=>{
 },{passive:false});
 (function(){
   const el=document.getElementById('ts3d');let down=false,sx=0,startIdx=0;
-  el.addEventListener('pointerdown',e=>{if(e.target.closest('.ts-3d__nav')||e.target.closest('.ts-3d__dot'))return;down=true;_ts3dDragged=false;sx=e.clientX;startIdx=ts3dIndex;try{el.setPointerCapture(e.pointerId);}catch(_){}});
+  el.addEventListener('pointerdown',e=>{if(e.target.closest('.ts-3d__nav')||e.target.closest('.ts-3d__dot'))return;down=true;_ts3dDown=true;_ts3dDragged=false;clearTimeout(_ts3dHoverTmr);sx=e.clientX;startIdx=ts3dIndex;try{el.setPointerCapture(e.pointerId);}catch(_){}});
   el.addEventListener('pointermove',e=>{if(!down)return;const dx=e.clientX-sx;if(Math.abs(dx)>8)_ts3dDragged=true;go3D(startIdx+Math.round(-dx/130),false);});
-  const end=()=>{if(!down)return;down=false;go3D(ts3dIndex,true);};
+  const end=()=>{if(!down)return;down=false;_ts3dDown=false;go3D(ts3dIndex,true);};
   el.addEventListener('pointerup',end);el.addEventListener('pointercancel',end);
 })();
 document.addEventListener('keydown',e=>{
