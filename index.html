@@ -5463,7 +5463,7 @@ function _ch3dLayout(animate){
     const off=i-_ch3dIdx,a=Math.abs(off),sign=off<0?-1:1;
     let x,rotY,z,scale,zi;
     if(off===0){x=0;rotY=0;z=0;scale=1;zi=100;}
-    else{x=sign*(200+(a-1)*104);rotY=sign*-30;z=-130-(a-1)*90;scale=Math.max(.68,.86-(a-1)*.08);zi=100-a;}
+    else{x=sign*(300+(a-1)*150);rotY=sign*-27;z=-140-(a-1)*95;scale=Math.max(.66,.84-(a-1)*.085);zi=100-a;}
     el.classList.toggle('is-front',off===0);
     el.style.zIndex=zi;
     const props={xPercent:-50,x,z,rotationY:rotY,scale,force3D:off!==0};
