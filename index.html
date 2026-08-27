@@ -2936,35 +2936,60 @@ const modalTs=document.getElementById('modalTs'),mTsName=document.getElementById
 // Exporta todos los camiones por transportadora con su último precio (fijo o por km) a Excel (.xls con formato).
 function _tsExportExcel(){
   const dmy=iso=>{if(!iso)return '';const p=String(iso).slice(0,10).split('-');return p.length<3?String(iso):(p[2]+'/'+p[1]+'/'+p[0].slice(-2));};
-  const SEGN={local:'Local',interior:'Interior',servicios:'Servicios',transportadora:'Transportadora'};
-  let rows='',count=0,z=0;
-  (transportistas||[]).slice().sort((a,b)=>(a.n||'').localeCompare(b.n||'','es')).forEach(t=>{
-    const trucks=(t.trucks||[]).slice().sort((a,b)=>(a.d||'').localeCompare(b.d||'','es'));
-    trucks.forEach(tr=>{
+  // Segmentos como bloques separados, cada uno con su color y subtotal.
+  const SEGS=[
+    {k:'local',       n:'LOCAL',          c:'#0B5F8D'},
+    {k:'interior',    n:'INTERIOR',       c:'#15803D'},
+    {k:'servicios',   n:'SERVICIOS',      c:'#C2410C'},
+    {k:'transportadora',n:'TRANSPORTADORA',c:'#6D28D9'}
+  ];
+  const NCOL=5;
+  const th=c=>'background:'+c+';color:#fff;font-weight:bold;padding:8px 10px;border:1px solid rgba(0,0,0,.15);text-align:center;white-space:nowrap;font-size:10pt';
+  let body='',count=0;
+  SEGS.forEach(sg=>{
+    // camiones de este segmento, ordenados por transportadora y luego por camión
+    const items=[];
+    (transportistas||[]).forEach(t=>{
+      (t.trucks||[]).forEach(tr=>{ if((tr.seg||'local')===sg.k) items.push({t:t.n||'',tr}); });
+    });
+    if(!items.length) return;
+    items.sort((a,b)=>(a.t||'').localeCompare(b.t||'','es')||((a.tr.d||'').localeCompare(b.tr.d||'','es')));
+    count+=items.length;
+    // banda de título del segmento
+    body+='<tr><td colspan="'+NCOL+'" style="background:'+sg.c+';color:#fff;font-weight:bold;font-size:12pt;padding:10px 12px;border:1px solid rgba(0,0,0,.15)">'+sg.n+'  ·  '+items.length+' camión'+(items.length===1?'':'es')+'</td></tr>';
+    // encabezado de columnas del bloque
+    body+='<tr>'
+      +'<th style="'+th(sg.c)+'">Transportadora</th>'
+      +'<th style="'+th(sg.c)+'">Camión</th>'
+      +'<th style="'+th(sg.c)+'">¿Cómo se cobra?</th>'
+      +'<th style="'+th(sg.c)+'">Último precio (Gs.)</th>'
+      +'<th style="'+th(sg.c)+'">Último uso</th>'
+      +'</tr>';
+    let z=0;
+    items.forEach(({t,tr})=>{
       const u=truckUsage(tr.id);
-      const tipo=u?(u.tipo==='km'?'Por km':'Fijo'):'Sin uso';
+      const tipo=u?(u.tipo==='km'?'Por kilómetro':'Precio fijo'):'Sin uso registrado';
+      const tcol=u?(u.tipo==='km'?'#C2410C':'#0B5F8D'):'#94a3b8';
       const precio=u?u.precio:'';
       const bg=(z++%2)?'#F4F8FB':'#FFFFFF';
-      count++;
-      rows+='<tr>'
-        +'<td style="border:1px solid #d8e2ec;padding:6px 10px;background:'+bg+'">'+esc(t.n||'')+'</td>'
+      body+='<tr>'
+        +'<td style="border:1px solid #d8e2ec;padding:6px 10px;background:'+bg+'">'+esc(t)+'</td>'
         +'<td style="border:1px solid #d8e2ec;padding:6px 10px;background:'+bg+';font-weight:bold">'+esc(tr.d||'')+'</td>'
-        +'<td style="border:1px solid #d8e2ec;padding:6px 10px;background:'+bg+';text-align:center">'+(SEGN[tr.seg||'local']||'Local')+'</td>'
-        +'<td style="border:1px solid #d8e2ec;padding:6px 10px;background:'+bg+';text-align:center;color:'+(u?(u.tipo==='km'?'#C2410C':'#0B5F8D'):'#94a3b8')+';font-weight:bold">'+tipo+'</td>'
+        +'<td style="border:1px solid #d8e2ec;padding:6px 10px;background:'+bg+';text-align:center;color:'+tcol+';font-weight:bold">'+tipo+'</td>'
         +'<td style="border:1px solid #d8e2ec;padding:6px 10px;background:'+bg+';text-align:right;mso-number-format:\\#\\,\\#\\#0">'+(precio!==''?precio:'')+'</td>'
-        +'<td style="border:1px solid #d8e2ec;padding:6px 10px;background:'+bg+';text-align:center">'+(u?dmy(u.fecha):'')+'</td>'
+        +'<td style="border:1px solid #d8e2ec;padding:6px 10px;background:'+bg+';text-align:center">'+(u?dmy(u.fecha):'—')+'</td>'
         +'</tr>';
     });
+    body+='<tr><td colspan="'+NCOL+'" style="height:8px;border:none"></td></tr>'; // espacio entre bloques
   });
   if(!count){showToast&&showToast('No hay camiones para exportar');return;}
   const d=new Date(),fnDate=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-  const th='background:#0B5F8D;color:#fff;font-weight:bold;padding:9px 10px;border:1px solid #0a4f75;text-align:center;white-space:nowrap';
-  const html='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="utf-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Camiones por transportadora</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body>'
+  const html='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="utf-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Camiones por segmento</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body>'
     +'<table cellspacing="0" cellpadding="0" style="border-collapse:collapse;font-family:Calibri,Arial;font-size:11pt">'
-    +'<tr><td colspan="6" style="background:#0B5F8D;color:#fff;font-weight:bold;font-size:15pt;padding:12px 10px;text-align:center">ALAS · Camiones por transportadora — último precio</td></tr>'
-    +'<tr><td colspan="6" style="padding:6px 10px;color:#64748b;font-size:9pt">Generado el '+dmy(fnDate)+' · '+count+' camiones · '+(transportistas||[]).length+' transportadoras · (Por km = precio por kilómetro; Fijo = precio total)</td></tr>'
-    +'<tr><th style="'+th+'">Transportadora</th><th style="'+th+'">Camión</th><th style="'+th+'">Segmento</th><th style="'+th+'">Tipo de precio</th><th style="'+th+'">Último precio (Gs.)</th><th style="'+th+'">Último uso</th></tr>'
-    +rows+'</table></body></html>';
+    +'<tr><td colspan="'+NCOL+'" style="background:#0B5F8D;color:#fff;font-weight:bold;font-size:15pt;padding:12px 10px;text-align:center">ALAS · Camiones por segmento — último precio</td></tr>'
+    +'<tr><td colspan="'+NCOL+'" style="padding:8px 12px;color:#334155;font-size:9pt;background:#EEF4F9;border:1px solid #d8e2ec">Generado el '+dmy(fnDate)+' · '+count+' camiones en total.  <b>¿Cómo se cobra?</b> → <b>Por kilómetro</b>: el precio se multiplica por los km del reparto.  <b>Precio fijo</b>: es el monto total pactado.  Se muestra el <b>último precio usado</b> de cada camión.</td></tr>'
+    +'<tr><td colspan="'+NCOL+'" style="height:6px;border:none"></td></tr>'
+    +body+'</table></body></html>';
   const blob=new Blob(['﻿'+html],{type:'application/vnd.ms-excel'});
   const url=URL.createObjectURL(blob),a=document.createElement('a');
   a.href=url;a.download='Transportistas_Camiones_'+fnDate+'.xls';document.body.appendChild(a);a.click();
