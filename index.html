@@ -4214,12 +4214,8 @@ function showSaveAnim(text){
   .rep2 .rep-kpi__v.man-ed{padding:0 4px;border-radius:6px}
   .rep2 .rep-kpi__v.man-ed:hover{background:rgba(59,130,246,.1);box-shadow:inset 0 0 0 1px rgba(59,130,246,.3)}
   .rep2 .rep-kpi__v .man-inp{width:100%;text-align:left}
-  .rep2 .ch-card{position:relative;display:flex;flex-direction:column;background:#fff;border-radius:var(--radius);border:1px solid var(--line);box-shadow:0 1px 3px rgba(15,23,42,.05);overflow:hidden;transform-style:preserve-3d;will-change:transform;-webkit-font-smoothing:antialiased;transition:box-shadow var(--base),transform var(--base),border-color var(--base)}
-  .rep2 .ch-card:hover{box-shadow:0 8px 22px rgba(15,23,42,.09)}
-  .rep2 .ch-card::after{content:"";position:absolute;inset:0;border-radius:inherit;background:radial-gradient(260px circle at var(--gx,50%) var(--gy,50%),rgba(255,255,255,.45),rgba(255,255,255,0) 60%);opacity:0;transition:opacity .25s ease;pointer-events:none;z-index:4}
-  .rep2 .ch-card.is-tilt{transition:box-shadow var(--base),border-color var(--base);border-color:var(--ch-color);box-shadow:0 28px 52px -18px rgba(15,23,42,.34)}
-  .rep2 .ch-card.is-tilt::after{opacity:1}
-  .rep2 .ch-card>*{position:relative;z-index:1}
+  .rep2 .ch-card{display:flex;flex-direction:column;background:#fff;border-radius:var(--radius);border:1px solid var(--line);box-shadow:0 1px 3px rgba(15,23,42,.05);overflow:hidden;transition:box-shadow var(--base),transform var(--base)}
+  .rep2 .ch-card:hover{box-shadow:0 8px 22px rgba(15,23,42,.09);transform:translateY(-2px)}
   .rep2 .ch-top{height:4px;background:var(--ch-color)}
   .rep2 .ch-card[data-ch="int"]{--ch-color:#0B5F8D;--ch-soft:#E0EDF6}
   .rep2 .ch-card[data-ch="loc"]{--ch-color:#3B82F6;--ch-soft:#DBEAFE}
@@ -5551,22 +5547,6 @@ async function renderReporte(){
   // "Ver detalles" de salidas → modal PRO por fecha
   host.querySelectorAll('[data-saldet]').forEach(b=>b.addEventListener('click',()=>_cfSalidasModal(_cfRepMes,b.dataset.saldet)));
   _repWireZona();
-  // 3D hover-tilt de los paneles "Reparto por tipo" (se inclinan siguiendo el cursor)
-  host.querySelectorAll('.ch-card').forEach(card=>{
-    let raf=0;
-    card.addEventListener('pointermove',e=>{
-      if(e.pointerType==='touch')return;
-      const r=card.getBoundingClientRect();
-      const px=(e.clientX-r.left)/r.width, py=(e.clientY-r.top)/r.height;
-      const rx=(.5-py)*7, ry=(px-.5)*7;
-      card.style.setProperty('--gx',(px*100).toFixed(1)+'%');
-      card.style.setProperty('--gy',(py*100).toFixed(1)+'%');
-      if(raf)cancelAnimationFrame(raf);
-      raf=requestAnimationFrame(()=>{card.style.transform='perspective(950px) rotateX('+rx.toFixed(2)+'deg) rotateY('+ry.toFixed(2)+'deg) translateY(-5px) scale(1.015)';});
-    });
-    card.addEventListener('pointerenter',e=>{if(e.pointerType!=='touch')card.classList.add('is-tilt');});
-    card.addEventListener('pointerleave',()=>{card.classList.remove('is-tilt');if(raf)cancelAnimationFrame(raf);card.style.transform='';});
-  });
   if(window.gsap){
     const g=window.gsap;
     g.from('#repHost .hero-seg',{opacity:0,y:14,duration:.42,stagger:.07,ease:'power3.out',clearProps:'opacity,transform'});
