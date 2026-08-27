@@ -4217,17 +4217,16 @@ function showSaveAnim(text){
   .rep2 .ch-card{display:flex;flex-direction:column;background:#fff;border-radius:var(--radius);border:1px solid var(--line);box-shadow:0 1px 3px rgba(15,23,42,.05);overflow:hidden;transition:box-shadow var(--base),transform var(--base)}
   .rep2 .ch-card:hover{box-shadow:0 8px 22px rgba(15,23,42,.09);transform:translateY(-2px)}
   /* ===== Coverflow 3D "Reparto por tipo" (los 4 visibles) ===== */
-  .rep2 .ch3d-wrap{display:flex;align-items:stretch;gap:6px;margin-top:8px}
-  .rep2 .ch3d-aside{flex:0 0 auto;display:flex;align-items:center;min-width:0}
-  .rep2 .ch3d-left{width:27%;gap:12px}
-  .rep2 .ch3d-filters{display:flex;flex-direction:column;gap:8px;flex-shrink:0}
-  .rep2 .ch3d-fbtn{display:flex;align-items:center;gap:9px;padding:9px 13px 9px 11px;border:1.5px solid var(--line);background:#fff;border-radius:11px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:800;color:#64748b;transition:all var(--fast);text-align:left;white-space:nowrap}
-  .rep2 .ch3d-fbtn:hover{border-color:var(--fc);color:#0f172a;transform:translateX(3px)}
-  .rep2 .ch3d-fdot{width:9px;height:9px;border-radius:50%;background:var(--fc);flex-shrink:0;transition:transform var(--fast)}
-  .rep2 .ch3d-fbtn.on{background:var(--fc);border-color:var(--fc);color:#fff;box-shadow:0 7px 18px -5px var(--fc)}
-  .rep2 .ch3d-fbtn.on .ch3d-fdot{background:#fff;transform:scale(1.15)}
-  .rep2 .ch3d-logo{flex:1;min-width:0;justify-content:center}
-  .rep2 .ch3d-logo img{width:100%;max-width:170px;height:auto;opacity:.13;filter:grayscale(1) brightness(.6);pointer-events:none;user-select:none}
+  .rep2 .ch3d-wrap{position:relative;display:flex;align-items:stretch;gap:6px;margin-top:8px}
+  .rep2 .ch3d-wrap::before{content:"";position:absolute;left:0;top:0;bottom:0;width:46%;background:url('logo-icon.png') no-repeat 46% center;background-size:auto 58%;opacity:.08;filter:grayscale(1) brightness(.5);pointer-events:none;z-index:0}
+  .rep2 .ch3d-aside{position:relative;z-index:2;flex:0 0 auto;display:flex;align-items:center;min-width:0}
+  .rep2 .ch3d-left{width:23%;min-width:150px;justify-content:flex-start;padding-left:4px}
+  .rep2 .ch3d-filters{display:flex;flex-direction:column;gap:7px;width:100%;max-width:172px}
+  .rep2 .ch3d-fbtn{position:relative;display:flex;align-items:center;gap:10px;padding:10px 13px;border:1.5px solid #E7EEF5;background:#fff;border-radius:12px;cursor:pointer;font-family:inherit;font-size:12.5px;font-weight:800;color:#5b6b7f;transition:all var(--fast);text-align:left;white-space:nowrap;box-shadow:0 1px 3px rgba(15,23,42,.04)}
+  .rep2 .ch3d-fbtn:hover{border-color:var(--fc);color:#0f172a;transform:translateX(3px);box-shadow:0 6px 15px -6px var(--fc)}
+  .rep2 .ch3d-fdot{width:10px;height:10px;border-radius:50%;background:var(--fc);flex-shrink:0;box-shadow:0 0 0 3px color-mix(in srgb,var(--fc) 18%,transparent);transition:transform var(--fast)}
+  .rep2 .ch3d-fbtn.on{background:var(--fc);border-color:var(--fc);color:#fff;box-shadow:0 9px 20px -6px var(--fc)}
+  .rep2 .ch3d-fbtn.on .ch3d-fdot{background:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.35);transform:scale(1.1)}
   .rep2 .ch3d-stats{width:21%;min-width:186px;flex-direction:column;justify-content:center;gap:8px;align-items:stretch}
   .rep2 .ch3d-kpi{position:relative;display:flex;align-items:center;gap:9px;padding:8px 11px;background:#fff;border:1px solid var(--line);border-radius:13px;box-shadow:0 2px 9px rgba(15,23,42,.05);overflow:hidden}
   .rep2 .ch3d-kpi::before{content:"";position:absolute;left:0;top:0;right:0;height:3px;background:var(--k,#0B5F8D)}
@@ -4240,7 +4239,7 @@ function showSaveAnim(text){
   .rep2 .ch3d-kpi__sub{font-size:9.5px;font-weight:700;color:#94a3b8;margin-top:1px}
   @media(max-width:1240px){.rep2 .ch3d-logo{display:none}}
   @media(max-width:1040px){.rep2 .ch3d-stats{display:none}}
-  .rep2 .channel-grid.ch3d{flex:1 1 auto;min-width:0;display:block;position:relative;height:460px;perspective:1700px;perspective-origin:50% 48%;overflow:hidden}
+  .rep2 .channel-grid.ch3d{flex:1 1 auto;min-width:0;display:block;position:relative;z-index:1;height:460px;perspective:1700px;perspective-origin:50% 48%;overflow:hidden}
   .rep2 .channel-grid.ch3d .ch-card{position:absolute;top:0;left:50%;width:370px;max-width:80%;height:460px;transform-style:preserve-3d;will-change:transform;cursor:pointer;box-shadow:0 26px 62px -22px rgba(15,23,42,.42);-webkit-font-smoothing:antialiased;-webkit-backface-visibility:hidden;backface-visibility:hidden}
   .rep2 .channel-grid.ch3d .ch-card:hover{transform:none}
   .rep2 .channel-grid.ch3d .ch-card.is-front{cursor:default;border-color:var(--ch-color)}
@@ -5522,7 +5521,7 @@ function _ch3dStats(){
     h+=kpi(objC,icStat,over?'Sobre el objetivo (3%)':'Dentro del objetivo (3%)',(over?'+':'−')+'<small>Gs.</small> '+_nnum(Math.abs(delta)));
   }
   host.innerHTML=h;
-  if(window.gsap)window.gsap.from(host.children,{opacity:0,x:10,duration:.34,stagger:.05,ease:'power2.out',clearProps:'all'});
+  if(window.gsap)window.gsap.from(host.children,{opacity:0,x:10,duration:.34,stagger:.05,ease:'power2.out',clearProps:'transform,opacity'});
 }
 function _ch3dGo(i){const grid=document.getElementById('ch3dGrid');if(!grid)return;const n=grid.querySelectorAll('.ch-card').length;_ch3dIdx=Math.max(0,Math.min(n-1,i));_ch3dLayout(true);}
 function _ch3dInit(){
@@ -5546,7 +5545,7 @@ function _ch3dInit(){
   if(fh){
     fh.innerHTML=cards.map((el,i)=>{const meta=CHN[el.dataset.ch]||{n:el.dataset.ch,c:'#0B5F8D'};return '<button class="ch3d-fbtn" type="button" data-i="'+i+'" style="--fc:'+meta.c+'"><span class="ch3d-fdot"></span><span class="ch3d-fl">'+meta.n+'</span></button>';}).join('');
     fh.querySelectorAll('.ch3d-fbtn').forEach(b=>b.addEventListener('click',()=>_ch3dGo(+b.dataset.i)));
-    if(window.gsap)window.gsap.from(fh.children,{opacity:0,x:-14,duration:.42,stagger:.06,delay:.1,ease:'power3.out',clearProps:'all'});
+    if(window.gsap)window.gsap.from(fh.children,{opacity:0,x:-14,duration:.42,stagger:.06,delay:.1,ease:'power3.out',clearProps:'transform,opacity'});
   }
   _ch3dLayout(false);
   if(window.gsap){
@@ -5633,7 +5632,7 @@ async function renderReporte(){
     '</div>'+
     '<div class="section-label rep-sl2">Reparto por tipo</div>'+
     '<div class="ch3d-wrap">'+
-    '<div class="ch3d-aside ch3d-left"><div class="ch3d-filters" id="ch3dFilters"></div><div class="ch3d-logo"><img src="logo-icon.png" alt="ALAS"></div></div>'+
+    '<div class="ch3d-aside ch3d-left"><div class="ch3d-filters" id="ch3dFilters"></div></div>'+
     '<div class="channel-grid ch3d" id="ch3dGrid">'+
       '<div class="ch-card" data-ch="int" data-cam="'+(m.interior.cam||0)+'" data-monto="'+(m.interior.monto||0)+'" data-flete="'+(m.interior.gastoTotal||0)+'"><div class="ch-top"></div><div class="ch-head"><span class="ch-dot"></span><span class="ch-name">Interior</span><span class="ch-cams">'+nn(m.interior.cam)+'<small>camiones</small></span></div>'+
         '<div class="ch-hero"><span class="ch-hero-l">Monto repartido</span><div class="ch-hero-v"><span class="ch-val">'+nn(m.interior.monto)+'</span><span class="ch-u">Gs.</span></div></div>'+
