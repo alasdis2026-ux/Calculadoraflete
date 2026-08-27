@@ -4004,6 +4004,7 @@ function showSaveAnim(text){
   .rep2 .ch-head{display:flex;align-items:center;gap:8px;padding:13px 16px 0}
   .rep2 .ch-dot{width:9px;height:9px;border-radius:50%;background:var(--ch-color);flex-shrink:0}
   .rep2 .ch-name{font-size:12.5px;font-weight:800;color:var(--text)}
+  .rep2 .ch-card--nohero .ch-head{padding-bottom:13px;border-bottom:1px solid var(--soft-line)}
   .rep2 .ch-cams{margin-left:auto;display:inline-flex;align-items:baseline;gap:5px;padding:5px 11px;border-radius:999px;background:var(--ch-soft);color:var(--ch-color);font-family:Sora,Inter,sans-serif;font-weight:800;font-size:15px;line-height:1;font-variant-numeric:tabular-nums;box-shadow:inset 0 0 0 1px rgba(15,23,42,.05)}
   .rep2 .ch-cams small{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;opacity:.85}
   .rep2 .ch-hero{padding:8px 16px 14px;border-bottom:1px solid var(--soft-line)}
@@ -5312,8 +5313,7 @@ async function renderReporte(){
         '<div class="ch-hero"><span class="ch-hero-l">Monto repartido</span><div class="ch-hero-v"><span class="ch-val man-ed"'+_manAttr(m.transportadora.monto,'','seg.transportadora.monto','Monto repartido · Transportadora')+'>'+nn(m.transportadora.monto)+'</span><span class="ch-u">Gs.</span></div></div>'+
         '<div class="ch-rows"><div class="ch-row ch-row--sal"><span class="ch-rl">Salidas del mes</span><span class="ch-sal-right">'+(m.salidas.transportadora>0?'<button class="ch-sal-btn" data-saldet="transportadora" type="button">Ver detalles</button>':'')+'<span class="ch-sv">'+nn(m.salidas.transportadora)+'</span></span></div><div class="ch-row"><span class="ch-rl">Importe flete</span>'+aut(m.transportadora.flete)+'</div></div>'+
         '<div class="ch-foot"><div class="ch-total"><span>Gasto total</span><b>'+nn(m.transportadora.flete)+' Gs.</b></div><div class="ch-inc"><span>Incidencia</span><b>'+_pct(m.transportadora.incidencia)+'</b></div></div></div>'+
-      '<div class="ch-card" data-ch="serv"><div class="ch-top"></div><div class="ch-head"><span class="ch-dot"></span><span class="ch-name">Servicios</span><span class="ch-cams">'+nn(m.servicios.cam)+'<small>camiones</small></span></div>'+
-        '<div class="ch-hero"><span class="ch-hero-l">Monto repartido</span><div class="ch-hero-v"><span class="ch-val man-ed"'+_manAttr(m.servicios.monto,'','seg.servicios.monto','Monto repartido · Servicios')+'>'+nn(m.servicios.monto)+'</span><span class="ch-u">Gs.</span></div></div>'+
+      '<div class="ch-card ch-card--nohero" data-ch="serv"><div class="ch-top"></div><div class="ch-head"><span class="ch-dot"></span><span class="ch-name">Servicios</span><span class="ch-cams">'+nn(m.servicios.cam)+'<small>camiones</small></span></div>'+
         '<div class="ch-rows"><div class="ch-row ch-row--sal"><span class="ch-rl">Salidas del mes</span><span class="ch-sal-right">'+(m.salidas.servicios>0?'<button class="ch-sal-btn" data-saldet="servicios" type="button">Ver detalles</button>':'')+'<span class="ch-sv">'+nn(m.salidas.servicios)+'</span></span></div><div class="ch-row"><span class="ch-rl">Importe flete</span>'+aut(m.servicios.flete)+'</div></div>'+
         '<div class="ch-foot"><div class="ch-total"><span>Gasto total</span><b>'+nn(m.servicios.flete)+' Gs.</b></div><div class="ch-inc"><span>Incidencia</span><b>'+_pct(m.servicios.incidencia)+'</b></div></div></div>'+
     '</div>'+
