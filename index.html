@@ -5478,6 +5478,7 @@ function _ch3dGo(i){const grid=document.getElementById('ch3dGrid');if(!grid)retu
 function _ch3dInit(){
   const grid=document.getElementById('ch3dGrid');if(!grid)return;
   const cards=[...grid.querySelectorAll('.ch-card')],n=cards.length;if(!n)return;
+  const li=cards.findIndex(c=>c.dataset.ch==='loc');_ch3dIdx=li>=0?li:0; // siempre arranca en Local
   grid.insertAdjacentHTML('beforeend',
     '<button class="ch3d-nav ch3d-nav--prev" type="button" aria-label="Anterior"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 18l-6-6 6-6"/></svg></button>'+
     '<button class="ch3d-nav ch3d-nav--next" type="button" aria-label="Siguiente"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 18l6-6-6-6"/></svg></button>'+
