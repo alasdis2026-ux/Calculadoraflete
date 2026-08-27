@@ -4216,6 +4216,22 @@ function showSaveAnim(text){
   .rep2 .rep-kpi__v .man-inp{width:100%;text-align:left}
   .rep2 .ch-card{display:flex;flex-direction:column;background:#fff;border-radius:var(--radius);border:1px solid var(--line);box-shadow:0 1px 3px rgba(15,23,42,.05);overflow:hidden;transition:box-shadow var(--base),transform var(--base)}
   .rep2 .ch-card:hover{box-shadow:0 8px 22px rgba(15,23,42,.09);transform:translateY(-2px)}
+  /* ===== Coverflow 3D "Reparto por tipo" (los 4 visibles) ===== */
+  .rep2 .channel-grid.ch3d{display:block;position:relative;height:460px;perspective:1700px;perspective-origin:50% 48%;overflow:hidden;margin-top:8px}
+  .rep2 .channel-grid.ch3d .ch-card{position:absolute;top:0;left:50%;width:370px;max-width:80%;height:460px;transform-style:preserve-3d;will-change:transform;cursor:pointer;box-shadow:0 26px 62px -22px rgba(15,23,42,.42);-webkit-font-smoothing:antialiased;-webkit-backface-visibility:hidden;backface-visibility:hidden}
+  .rep2 .channel-grid.ch3d .ch-card:hover{transform:none}
+  .rep2 .channel-grid.ch3d .ch-card.is-front{cursor:default;border-color:var(--ch-color)}
+  .rep2 .channel-grid.ch3d .ch-card .ch-rows{flex:1 1 auto;overflow-y:auto}
+  .rep2 .channel-grid.ch3d .ch-card .ch-rows::-webkit-scrollbar{width:5px}
+  .rep2 .channel-grid.ch3d .ch-card .ch-rows::-webkit-scrollbar-thumb{background:var(--soft-line);border-radius:99px}
+  .rep2 .ch3d-nav{position:absolute;top:50%;transform:translateY(-50%);z-index:60;width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:rgba(255,255,255,.94);color:var(--ch-color,#0B5F8D);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 10px 24px rgba(15,23,42,.16);transition:transform var(--fast),box-shadow var(--fast)}
+  .rep2 .ch3d-nav:hover{transform:translateY(-50%) scale(1.08);box-shadow:0 14px 30px rgba(15,23,42,.22)}
+  .rep2 .ch3d-nav:active{transform:translateY(-50%) scale(.95)}
+  .rep2 .ch3d-nav svg{width:22px;height:22px;stroke:currentColor;stroke-width:2.4;fill:none}
+  .rep2 .ch3d-nav--prev{left:8px}.rep2 .ch3d-nav--next{right:8px}
+  .rep2 .ch3d-dots{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);z-index:60;display:flex;gap:8px;padding:8px 14px;border-radius:999px;background:rgba(255,255,255,.72);border:1px solid var(--line);backdrop-filter:blur(6px)}
+  .rep2 .ch3d-dots span{width:9px;height:9px;border-radius:50%;background:#cbd5e1;cursor:pointer;transition:all var(--fast)}
+  .rep2 .ch3d-dots span.on{background:#0B5F8D;width:24px;border-radius:99px}
   .rep2 .ch-top{height:4px;background:var(--ch-color)}
   .rep2 .ch-card[data-ch="int"]{--ch-color:#0B5F8D;--ch-soft:#E0EDF6}
   .rep2 .ch-card[data-ch="loc"]{--ch-color:#3B82F6;--ch-soft:#DBEAFE}
@@ -5437,6 +5453,50 @@ function _repZonaHTML(mk){
   const zTable='<div class="panel"><div class="panel-title"><h3>Zona · Monto · Peso · Incidencia</h3></div><div class="zt-tblwrap"><table class="zt-tbl"><thead><tr><th>Zona</th><th class="r">Monto</th><th class="r">Peso</th><th class="r">Incidencia ▲</th></tr></thead><tbody>'+zonasByInc.map(function(z){return '<tr><td class="zt-nm">'+esc(z.zona)+'</td><td class="r zt-monto">'+_gs(z.monto)+'</td><td class="r">'+_nnum(z.peso)+'</td><td class="r zt-inc">'+_pct(z.incidencia)+'</td></tr>';}).join('')+'</tbody></table></div></div>';
   return head+'<div class="rep2-zt-grid">'+barChart+zTable+'</div>';
 }
+/* ===== Coverflow 3D de "Reparto por tipo" ===== */
+let _ch3dIdx=0;
+function _ch3dLayout(animate){
+  const grid=document.getElementById('ch3dGrid');if(!grid)return;
+  const cards=[...grid.querySelectorAll('.ch-card')],n=cards.length;if(!n)return;
+  if(_ch3dIdx<0)_ch3dIdx=0;if(_ch3dIdx>n-1)_ch3dIdx=n-1;
+  cards.forEach((el,i)=>{
+    const off=i-_ch3dIdx,a=Math.abs(off),sign=off<0?-1:1;
+    let x,rotY,z,scale,zi;
+    if(off===0){x=0;rotY=0;z=0;scale=1;zi=100;}
+    else{x=sign*(200+(a-1)*104);rotY=sign*-30;z=-130-(a-1)*90;scale=Math.max(.68,.86-(a-1)*.08);zi=100-a;}
+    el.classList.toggle('is-front',off===0);
+    el.style.zIndex=zi;
+    const props={xPercent:-50,x,z,rotationY:rotY,scale,force3D:off!==0};
+    if(animate&&window.gsap)window.gsap.to(el,{...props,duration:.5,ease:'power3.out'});
+    else if(window.gsap)window.gsap.set(el,props);
+    else el.style.transform=`translateX(-50%) translateX(${x}px) translateZ(${z}px) rotateY(${rotY}deg) scale(${scale})`;
+  });
+  const dots=grid.querySelector('.ch3d-dots');
+  if(dots)[...dots.children].forEach((d,i)=>d.classList.toggle('on',i===_ch3dIdx));
+}
+function _ch3dGo(i){const grid=document.getElementById('ch3dGrid');if(!grid)return;const n=grid.querySelectorAll('.ch-card').length;_ch3dIdx=Math.max(0,Math.min(n-1,i));_ch3dLayout(true);}
+function _ch3dInit(){
+  const grid=document.getElementById('ch3dGrid');if(!grid)return;
+  const cards=[...grid.querySelectorAll('.ch-card')],n=cards.length;if(!n)return;
+  grid.insertAdjacentHTML('beforeend',
+    '<button class="ch3d-nav ch3d-nav--prev" type="button" aria-label="Anterior"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 18l-6-6 6-6"/></svg></button>'+
+    '<button class="ch3d-nav ch3d-nav--next" type="button" aria-label="Siguiente"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 18l6-6-6-6"/></svg></button>'+
+    '<div class="ch3d-dots">'+cards.map((_,i)=>'<span data-i="'+i+'"></span>').join('')+'</div>');
+  grid.querySelector('.ch3d-nav--prev').addEventListener('click',()=>_ch3dGo(_ch3dIdx-1));
+  grid.querySelector('.ch3d-nav--next').addEventListener('click',()=>_ch3dGo(_ch3dIdx+1));
+  grid.querySelectorAll('.ch3d-dots span').forEach(d=>d.addEventListener('click',()=>_ch3dGo(+d.dataset.i)));
+  cards.forEach((el,i)=>el.addEventListener('click',e=>{
+    if(i===_ch3dIdx)return; // el del frente: dejar pasar clicks (editar / ver detalles)
+    e.stopPropagation();_ch3dGo(i);
+  }));
+  let wl=0;
+  grid.addEventListener('wheel',e=>{e.preventDefault();const t=Date.now();if(t<wl)return;wl=t+360;_ch3dGo(_ch3dIdx+((Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY)>0?1:-1));},{passive:false});
+  _ch3dLayout(false);
+  if(window.gsap){
+    window.gsap.from(cards,{opacity:0,duration:.4,stagger:.05,ease:'power2.out'});
+    const front=cards[_ch3dIdx];if(front)window.gsap.from(front,{scale:.85,duration:.5,ease:'back.out(1.5)'});
+  }
+}
 function _repWireZona(){
   const zh=document.getElementById('repZonaHost');if(!zh)return;
   zh.querySelectorAll('[data-zseg]').forEach(function(b){b.addEventListener('click',function(){
@@ -5514,7 +5574,7 @@ async function renderReporte(){
       '<div class="rep-kpi"><span class="rep-kpi__l">Peso total</span><b class="rep-kpi__v">'+nn(m.gen.peso)+'<i>Kg</i></b></div>'+
       '<div class="rep-kpi"><span class="rep-kpi__l">Peso en hierros</span><b class="rep-kpi__v man-ed"'+_manAttr(m.gen.pesoEnHierros,'Kg','pesoEnHierros','Peso en hierros')+'>'+nn(m.gen.pesoEnHierros)+'<i>Kg</i></b></div>'+
     '</div>'+
-    '<div class="section-label rep-sl2">Reparto por tipo</div><div class="channel-grid">'+
+    '<div class="section-label rep-sl2">Reparto por tipo</div><div class="channel-grid ch3d" id="ch3dGrid">'+
       '<div class="ch-card" data-ch="int"><div class="ch-top"></div><div class="ch-head"><span class="ch-dot"></span><span class="ch-name">Interior</span><span class="ch-cams">'+nn(m.interior.cam)+'<small>camiones</small></span></div>'+
         '<div class="ch-hero"><span class="ch-hero-l">Monto repartido</span><div class="ch-hero-v"><span class="ch-val">'+nn(m.interior.monto)+'</span><span class="ch-u">Gs.</span></div></div>'+
         '<div class="ch-rows"><div class="ch-row ch-row--sal"><span class="ch-rl">Salidas del mes</span><span class="ch-sal-right">'+(m.salidas.interior>0?'<button class="ch-sal-btn" data-saldet="interior" type="button">Ver detalles</button>':'')+'<span class="ch-sv">'+nn(m.salidas.interior)+'</span></span></div><div class="ch-row"><span class="ch-rl">Peso</span>'+man(m.interior.peso,'Kg','seg.interior.peso','Peso · Interior')+'</div>'+
@@ -5547,11 +5607,11 @@ async function renderReporte(){
   // "Ver detalles" de salidas → modal PRO por fecha
   host.querySelectorAll('[data-saldet]').forEach(b=>b.addEventListener('click',()=>_cfSalidasModal(_cfRepMes,b.dataset.saldet)));
   _repWireZona();
+  _ch3dInit();
   if(window.gsap){
     const g=window.gsap;
     g.from('#repHost .hero-seg',{opacity:0,y:14,duration:.42,stagger:.07,ease:'power3.out',clearProps:'opacity,transform'});
     g.from('#repHost .rep-kpi',{opacity:0,y:14,scale:.97,duration:.5,stagger:.05,delay:.08,ease:'back.out(1.5)',clearProps:'all'});
-    g.from('#repHost .ch-card',{opacity:0,y:16,duration:.45,stagger:.1,delay:.22,ease:'back.out(1.5)',clearProps:'opacity,transform'});
     g.from('#repHost .main-col-right .panel',{opacity:0,y:16,duration:.42,stagger:.08,delay:.2,ease:'power3.out',clearProps:'opacity,transform'});
     g.from('#repHost .ch-row--sal',{opacity:0,x:-8,duration:.34,stagger:.08,delay:.3,ease:'power2.out',clearProps:'opacity,transform'});
     g.from('#repHost .zbar-row',{opacity:0,x:-14,duration:.4,stagger:.04,delay:.32,ease:'power3.out',clearProps:'opacity,transform'});
