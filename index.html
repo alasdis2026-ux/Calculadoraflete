@@ -5637,20 +5637,20 @@ async function renderReporte(){
           '<div class="ch-row"><span class="ch-rl">Pago a transportadoras</span>'+aut(m.interior.flete)+'</div>'+
           '<div class="ch-row"><span class="ch-rl">Gratificaciones</span>'+man(m.interior.gratificaciones,'','seg.interior.gratificaciones','Gratificaciones · Interior')+'</div>'+
           '<div class="ch-row"><span class="ch-rl">Gasto viático</span>'+man(m.interior.viatico,'','seg.interior.viatico','Gasto viático · Interior')+'</div></div>'+
-        '<div class="ch-foot"><div class="ch-total"><span>Gasto total</span><b>'+nn(m.interior.gastoTotal)+' Gs.</b></div></div></div>'+
+        '</div>'+
       '<div class="ch-card" data-ch="loc" data-cam="'+(m.local.cam||0)+'" data-monto="'+(m.local.monto||0)+'" data-flete="'+(m.local.gastoTotal||0)+'"><div class="ch-top"></div><div class="ch-head"><span class="ch-dot"></span><span class="ch-name">Local</span><span class="ch-cams">'+nn(m.local.cam)+'<small>camiones</small></span></div>'+
         '<div class="ch-hero"><span class="ch-hero-l">Monto repartido</span><div class="ch-hero-v"><span class="ch-val">'+nn(m.local.monto)+'</span><span class="ch-u">Gs.</span></div></div>'+
         '<div class="ch-rows"><div class="ch-row ch-row--sal"><span class="ch-rl">Salidas del mes</span><span class="ch-sal-right">'+(m.salidas.periferia>0?'<button class="ch-sal-btn" data-saldet="periferia" type="button">Ver detalles</button>':'')+'<span class="ch-sv">'+nn(m.salidas.periferia)+'</span></span></div><div class="ch-row"><span class="ch-rl">Peso</span>'+man(m.local.peso,'Kg','seg.local.peso','Peso · Local')+'</div>'+
           '<div class="ch-row"><span class="ch-rl">Pago a transportadoras</span>'+aut(m.local.flete)+'</div>'+
           '<div class="ch-row"><span class="ch-rl">Gasto viático</span>'+man(m.local.viatico,'','seg.local.viatico','Gasto viático · Local')+'</div></div>'+
-        '<div class="ch-foot"><div class="ch-total"><span>Gasto total</span><b>'+nn(m.local.gastoTotal)+' Gs.</b></div></div></div>'+
+        '</div>'+
       '<div class="ch-card" data-ch="trans" data-cam="'+(m.transportadora.cam||0)+'" data-monto="'+(m.transportadora.monto||0)+'" data-flete="'+(m.transportadora.flete||0)+'"><div class="ch-top"></div><div class="ch-head"><span class="ch-dot"></span><span class="ch-name">Transportadora</span><span class="ch-cams">'+nn(m.transportadora.cam)+'<small>camiones</small></span></div>'+
         '<div class="ch-hero"><span class="ch-hero-l">Monto repartido</span><div class="ch-hero-v"><span class="ch-val man-ed"'+_manAttr(m.transportadora.monto,'','seg.transportadora.monto','Monto repartido · Transportadora')+'>'+nn(m.transportadora.monto)+'</span><span class="ch-u">Gs.</span></div></div>'+
         '<div class="ch-rows"><div class="ch-row ch-row--sal"><span class="ch-rl">Salidas del mes</span><span class="ch-sal-right">'+(m.salidas.transportadora>0?'<button class="ch-sal-btn" data-saldet="transportadora" type="button">Ver detalles</button>':'')+'<span class="ch-sv">'+nn(m.salidas.transportadora)+'</span></span></div><div class="ch-row"><span class="ch-rl">Importe flete</span>'+aut(m.transportadora.flete)+'</div></div>'+
-        '<div class="ch-foot"><div class="ch-total"><span>Gasto total</span><b>'+nn(m.transportadora.flete)+' Gs.</b></div></div></div>'+
+        '</div>'+
       '<div class="ch-card ch-card--nohero" data-ch="serv" data-cam="'+(m.servicios.cam||0)+'" data-monto="'+(m.servicios.monto||0)+'" data-flete="'+(m.servicios.flete||0)+'"><div class="ch-top"></div><div class="ch-head"><span class="ch-dot"></span><span class="ch-name">Servicios</span><span class="ch-cams">'+nn(m.servicios.cam)+'<small>camiones</small></span></div>'+
         '<div class="ch-rows"><div class="ch-row ch-row--sal"><span class="ch-rl">Salidas del mes</span><span class="ch-sal-right">'+(m.salidas.servicios>0?'<button class="ch-sal-btn" data-saldet="servicios" type="button">Ver detalles</button>':'')+'<span class="ch-sv">'+nn(m.salidas.servicios)+'</span></span></div><div class="ch-row"><span class="ch-rl">Importe flete</span>'+aut(m.servicios.flete)+'</div></div>'+
-        '<div class="ch-foot"><div class="ch-total"><span>Gasto total</span><b>'+nn(m.servicios.flete)+' Gs.</b></div></div></div>'+
+        '</div>'+
     '</div>'+
     '<div class="ch3d-aside ch3d-stats" id="ch3dStats"></div>'+
     '</div>'+
