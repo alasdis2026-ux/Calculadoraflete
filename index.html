@@ -553,6 +553,42 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .ts-tprow__v{font-size:11.5px;font-weight:800;color:var(--gray-700);font-variant-numeric:tabular-nums;text-align:right;min-width:0;overflow:hidden;text-overflow:ellipsis}
 .ts-tprow--none{font-size:11px;font-weight:700;color:var(--gray-300)}
 .ts-col__empty{padding:16px 8px;text-align:center;font-size:11.5px;color:var(--gray-400)}
+/* ===== Toggle Grilla / Carrusel 3D ===== */
+.ts-viewtoggle{display:inline-flex;gap:3px;padding:4px;background:var(--gray-100);border:1.5px solid var(--gray-200);border-radius:12px;flex-shrink:0}
+.ts-viewtoggle button{display:inline-flex;align-items:center;gap:7px;border:none;background:transparent;color:var(--gray-500);font-family:inherit;font-size:12.5px;font-weight:800;padding:7px 14px;border-radius:9px;cursor:pointer;transition:all var(--fast);letter-spacing:-.1px}
+.ts-viewtoggle button svg{width:16px;height:16px;stroke-width:2}
+.ts-viewtoggle button:hover{color:var(--gray-700)}
+.ts-viewtoggle button.on{background:#fff;color:var(--primary);box-shadow:0 3px 10px rgba(15,23,42,.10)}
+/* ===== Carrusel 3D (coverflow) ===== */
+.ts-3d{position:relative;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;perspective:2000px;perspective-origin:50% 42%;overflow:hidden;background:radial-gradient(120% 90% at 50% 8%,var(--accent-soft) 0%,transparent 55%)}
+.ts-3d__stage{position:relative;width:100%;height:100%;transform-style:preserve-3d}
+.ts-3d__card{position:absolute;top:50%;left:50%;width:340px;height:82%;max-height:560px;margin:-1px 0 0 -170px;transform-style:preserve-3d;background:#fff;border:1.5px solid var(--gray-200);border-radius:18px;box-shadow:0 30px 70px -24px rgba(15,23,42,.42);display:flex;flex-direction:column;overflow:hidden;cursor:pointer;will-change:transform,opacity;-webkit-backface-visibility:hidden;backface-visibility:hidden}
+.ts-3d__card.is-active{cursor:default;border-color:var(--accent)}
+.ts-3d__card.is-active .ts-3d__hd{background:linear-gradient(135deg,var(--primary),#1769a3)}
+.ts-3d__hd{display:flex;align-items:center;gap:11px;padding:16px 17px;background:linear-gradient(135deg,var(--gray-700),var(--gray-800));color:#fff;flex-shrink:0}
+.ts-3d__hdico{width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,.16);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ts-3d__hdico svg{width:24px;height:24px;stroke:#fff}
+.ts-3d__hdmeta{flex:1;min-width:0}
+.ts-3d__hdname{font-family:Sora,Inter,sans-serif;font-size:17px;font-weight:800;letter-spacing:-.3px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ts-3d__hdsub{font-size:11px;font-weight:600;color:rgba(255,255,255,.8);margin-top:3px}
+.ts-3d__hdchip{min-width:34px;height:30px;padding:0 11px;display:inline-flex;align-items:center;justify-content:center;border-radius:999px;background:rgba(255,255,255,.9);color:var(--primary);font-size:15px;font-weight:900;flex-shrink:0;font-variant-numeric:tabular-nums}
+.ts-3d__body{flex:1;min-height:0;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;background:var(--gray-50)}
+.ts-3d__body::-webkit-scrollbar{width:6px}.ts-3d__body::-webkit-scrollbar-thumb{background:var(--gray-200);border-radius:99px}
+.ts-3d__foot{flex-shrink:0;padding:11px 14px;border-top:1.5px solid var(--gray-200);background:#fff;display:flex;align-items:center;justify-content:center;gap:7px;font-size:11.5px;font-weight:800;color:var(--accent)}
+.ts-3d__foot svg{width:15px;height:15px;stroke:var(--accent);stroke-width:2.2}
+.ts-3d__card:not(.is-active) .ts-3d__foot{color:var(--gray-400)}
+.ts-3d__card:not(.is-active) .ts-3d__foot svg{stroke:var(--gray-400)}
+.ts-3d__empty{margin:auto;text-align:center;font-size:12px;color:var(--gray-400);padding:20px}
+.ts-3d__nav{position:absolute;top:50%;transform:translateY(-50%);z-index:60;width:48px;height:48px;border-radius:50%;border:1.5px solid var(--gray-200);background:rgba(255,255,255,.92);backdrop-filter:blur(6px);color:var(--primary);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 10px 26px rgba(15,23,42,.16);transition:transform var(--fast),background var(--fast),box-shadow var(--fast)}
+.ts-3d__nav:hover{transform:translateY(-50%) scale(1.08);background:#fff;box-shadow:0 14px 32px rgba(15,23,42,.22)}
+.ts-3d__nav:active{transform:translateY(-50%) scale(.96)}
+.ts-3d__nav svg{width:24px;height:24px;stroke-width:2.4}
+.ts-3d__nav--prev{left:22px}.ts-3d__nav--next{right:22px}
+.ts-3d__dots{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);z-index:60;display:flex;gap:7px;align-items:center;max-width:70%;overflow:hidden;padding:8px 14px;border-radius:999px;background:rgba(255,255,255,.7);backdrop-filter:blur(6px);border:1px solid var(--gray-200)}
+.ts-3d__dot{width:8px;height:8px;border-radius:50%;background:var(--gray-300);cursor:pointer;transition:all var(--fast);flex-shrink:0}
+.ts-3d__dot:hover{background:var(--gray-400)}
+.ts-3d__dot.on{background:var(--accent);width:22px;border-radius:99px}
+.ts-3d__hint{position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:60;font-size:11px;font-weight:700;color:var(--gray-400);display:flex;align-items:center;gap:8px;pointer-events:none;background:rgba(255,255,255,.7);padding:5px 12px;border-radius:999px;border:1px solid var(--gray-200)}
 .ts-card{position:relative;display:flex;flex-direction:column;gap:11px;padding:15px 16px;border:1.5px solid var(--gray-200);border-radius:14px;background:#fff;cursor:pointer;text-align:left;font-family:inherit;overflow:hidden;transition:transform var(--alas-dur-normal) var(--alas-ease-spring),box-shadow var(--alas-dur-normal) var(--alas-ease),border-color var(--fast)}
 .ts-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent);transform:scaleY(0);transform-origin:top;transition:transform var(--fast)}
 .ts-card:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(15,23,42,.11);border-color:var(--accent)}
@@ -1283,11 +1319,24 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
   <div class="ts-wrap">
     <!-- Estado GRILLA -->
     <div class="ts-grid-state" id="tsGridState">
-      <div class="ts-grid-search">
-        <svg class="md-search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-        <input class="md-search" type="search" id="tsSearch" placeholder="Buscar transportista...">
+      <div class="ts-grid-search" style="display:flex;align-items:center;gap:12px">
+        <div style="position:relative;flex:1;display:flex;align-items:center">
+          <svg class="md-search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          <input class="md-search" type="search" id="tsSearch" placeholder="Buscar transportista..." style="width:100%">
+        </div>
+        <div class="ts-viewtoggle" id="tsViewToggle">
+          <button type="button" data-tsview="grid" class="on"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Grilla</button>
+          <button type="button" data-tsview="3d"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z"/><path d="M12 3v18M4 7.5l8 4.5 8-4.5"/></svg>Carrusel 3D</button>
+        </div>
       </div>
       <div class="ts-board" id="tsList"></div>
+      <div class="ts-3d" id="ts3d" style="display:none">
+        <div class="ts-3d__hint"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 6l-6 6 6 6M15 6l6 6-6 6"/></svg>Girá con las flechas, la rueda o arrastrando · click al centro para abrir</div>
+        <button class="ts-3d__nav ts-3d__nav--prev" type="button" id="ts3dPrev" aria-label="Anterior"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 18l-6-6 6-6"/></svg></button>
+        <div class="ts-3d__stage" id="ts3dStage"></div>
+        <button class="ts-3d__nav ts-3d__nav--next" type="button" id="ts3dNext" aria-label="Siguiente"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 18l6-6-6-6"/></svg></button>
+        <div class="ts-3d__dots" id="ts3dDots"></div>
+      </div>
     </div>
     <!-- Estado DETALLE (al entrar a un transportista) -->
     <div class="ts-detail-state" id="tsDetailState" style="display:none">
@@ -2804,9 +2853,109 @@ function renderTsList(){
       <div class="ts-col__body">${cards}</div>
     </div>`;
   }).join('');
+  if(tsView==='3d')renderTs3D();
 }
 tsListEl.addEventListener('click',e=>{const item=e.target.closest('[data-tsid]');if(item)selectTs(+item.dataset.tsid);});
-tsSearchEl.addEventListener('input',e=>{search=e.target.value;renderTsList();});
+tsSearchEl.addEventListener('input',e=>{search=e.target.value;ts3dIndex=0;renderTsList();});
+
+/* ===== Carrusel 3D (coverflow) ===== */
+let tsView='grid',ts3dIndex=0,ts3dList=[],_ts3dDragged=false;
+function setTsView(v){
+  tsView=v;
+  document.querySelectorAll('#tsViewToggle button').forEach(b=>b.classList.toggle('on',b.dataset.tsview===v));
+  const board=document.getElementById('tsList'),d3=document.getElementById('ts3d');
+  if(v==='3d'){board.style.display='none';d3.style.display='flex';renderTs3D(true);}
+  else{d3.style.display='none';board.style.display='flex';renderTsList();if(window.gsap)gsap.from('#tsList .ts-col',{opacity:0,y:14,duration:.34,stagger:.03,ease:'power3.out',clearProps:'all'});}
+}
+function layout3D(animate){
+  const stage=document.getElementById('ts3dStage');if(!stage)return;
+  const cards=[...stage.querySelectorAll('.ts-3d__card')];
+  cards.forEach((el,i)=>{
+    const off=i-ts3dIndex,a=Math.abs(off),sign=off<0?-1:1;
+    let x,rotY,z,scale,opacity,zi,pe;
+    if(off===0){x=0;rotY=0;z=40;scale=1;opacity=1;zi=200;pe='auto';}
+    else{x=sign*(160+(a-1)*44+30);rotY=sign*-46;z=-140-(a-1)*80;scale=Math.max(.62,.85-(a-1)*.05);opacity=a>4?0:1;zi=200-a;pe=a>4?'none':'auto';}
+    el.style.zIndex=zi;el.style.pointerEvents=pe;
+    el.classList.toggle('is-active',off===0);
+    const props={xPercent:-50,yPercent:-50,x,z,rotationY:rotY,scale,opacity};
+    if(animate&&window.gsap)gsap.to(el,{...props,duration:.55,ease:'power3.out'});
+    else if(window.gsap)gsap.set(el,props);
+    else{el.style.opacity=opacity;el.style.transform=`translate(-50%,-50%) translateX(${x}px) translateZ(${z}px) rotateY(${rotY}deg) scale(${scale})`;}
+  });
+}
+function renderTs3DDots(){
+  const d=document.getElementById('ts3dDots');if(!d)return;
+  d.innerHTML=ts3dList.map((_,i)=>`<span class="ts-3d__dot${i===ts3dIndex?' on':''}" data-idx="${i}"></span>`).join('');
+}
+function renderTs3D(intro){
+  const stage=document.getElementById('ts3dStage');if(!stage)return;
+  const q=search.trim().toLowerCase();
+  const list=q?transportistas.filter(t=>t.n.toLowerCase().includes(q)):transportistas;
+  ts3dList=list;
+  document.getElementById('tsCountBadge').textContent=transportistas.length;
+  if(!list.length){stage.innerHTML='<div class="ts-3d__empty">'+(q?'Sin resultados':'Sin transportistas')+'</div>';document.getElementById('ts3dDots').innerHTML='';return;}
+  if(ts3dIndex>list.length-1)ts3dIndex=list.length-1;if(ts3dIndex<0)ts3dIndex=0;
+  stage.innerHTML=list.map((t,i)=>{
+    const last=tsLastUsed(t),trucks=t.trucks||[];
+    const body=trucks.length?trucks.map(tr=>{
+      const p=truckPrices(tr.id);
+      const prow=(cls,lbl,val)=>`<div class="ts-tprow"><span class="ts-tprow__l ${cls}">${lbl}</span><span class="ts-tprow__v">${val}</span></div>`;
+      let pr='';
+      if(p.localFijo)pr+=prow('ts-l--local','Local · fijo','Gs. '+formatMoney(p.localFijo.precio));
+      if(p.interiorFijo)pr+=prow('ts-l--int','Interior · fijo','Gs. '+formatMoney(p.interiorFijo.precio));
+      if(p.interiorKm)pr+=prow('ts-l--int','Interior · km','Gs. '+formatMoney(p.interiorKm.precio)+' /km');
+      if(!pr)pr='<div class="ts-tprow ts-tprow--none">Sin usar</div>';
+      return`<div class="ts-tcard"><div class="ts-tcard__top"><span class="ts-tcard__ico">${getTrIco(tr.d,15)}</span><span class="ts-tcard__name">${esc(tr.d)}</span></div><div class="ts-tcard__prices">${pr}</div></div>`;
+    }).join(''):'<div class="ts-col__empty">Sin camiones</div>';
+    return`<div class="ts-3d__card" data-idx="${i}" data-tsid="${t.id}">
+      <div class="ts-3d__hd"><span class="ts-3d__hdico">${getTrIco('',20)}</span><div class="ts-3d__hdmeta"><div class="ts-3d__hdname">${esc(t.n)}</div><div class="ts-3d__hdsub">${last?'Último '+isoToDisplay(last):'Sin repartos'}</div></div><span class="ts-3d__hdchip">${trucks.length}</span></div>
+      <div class="ts-3d__body">${body}</div>
+      <div class="ts-3d__foot"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5-5 5M6 12h12"/></svg>Ver detalle completo</div>
+    </div>`;
+  }).join('');
+  layout3D(false);
+  renderTs3DDots();
+  if(intro&&window.gsap){
+    gsap.from(stage.children,{opacity:0,duration:.4,stagger:.02,ease:'power2.out'});
+    const active=stage.querySelector('.ts-3d__card.is-active');
+    if(active)gsap.from(active,{scale:.82,duration:.55,ease:'back.out(1.6)'});
+  }
+}
+function go3D(idx,animate=true){
+  const n=ts3dList.length;if(!n)return;
+  ts3dIndex=Math.max(0,Math.min(n-1,idx));
+  layout3D(animate!==false);renderTs3DDots();
+}
+document.getElementById('tsViewToggle').addEventListener('click',e=>{const b=e.target.closest('[data-tsview]');if(b&&b.dataset.tsview!==tsView)setTsView(b.dataset.tsview);});
+document.getElementById('ts3dPrev').addEventListener('click',()=>go3D(ts3dIndex-1));
+document.getElementById('ts3dNext').addEventListener('click',()=>go3D(ts3dIndex+1));
+document.getElementById('ts3dDots').addEventListener('click',e=>{const dt=e.target.closest('[data-idx]');if(dt)go3D(+dt.dataset.idx);});
+document.getElementById('ts3dStage').addEventListener('click',e=>{
+  if(_ts3dDragged){_ts3dDragged=false;return;}
+  const card=e.target.closest('.ts-3d__card');if(!card)return;
+  const idx=+card.dataset.idx;
+  if(idx===ts3dIndex)selectTs(+card.dataset.tsid);else go3D(idx);
+});
+let _ts3dWheelLock=0;
+document.getElementById('ts3d').addEventListener('wheel',e=>{
+  e.preventDefault();const now=Date.now();if(now<_ts3dWheelLock)return;
+  const d=(Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY)>0?1:-1;
+  _ts3dWheelLock=now+360;go3D(ts3dIndex+d);
+},{passive:false});
+(function(){
+  const el=document.getElementById('ts3d');let down=false,sx=0,startIdx=0;
+  el.addEventListener('pointerdown',e=>{if(e.target.closest('.ts-3d__nav')||e.target.closest('.ts-3d__dot'))return;down=true;_ts3dDragged=false;sx=e.clientX;startIdx=ts3dIndex;try{el.setPointerCapture(e.pointerId);}catch(_){}});
+  el.addEventListener('pointermove',e=>{if(!down)return;const dx=e.clientX-sx;if(Math.abs(dx)>8)_ts3dDragged=true;go3D(startIdx+Math.round(-dx/130),false);});
+  const end=()=>{if(!down)return;down=false;go3D(ts3dIndex,true);};
+  el.addEventListener('pointerup',end);el.addEventListener('pointercancel',end);
+})();
+document.addEventListener('keydown',e=>{
+  if(tsView!=='3d')return;
+  const d3=document.getElementById('ts3d');if(!d3||d3.style.display==='none')return;
+  if(/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName||''))return;
+  if(e.key==='ArrowRight'){e.preventDefault();go3D(ts3dIndex+1);}
+  else if(e.key==='ArrowLeft'){e.preventDefault();go3D(ts3dIndex-1);}
+});
 
 function selectTs(tsId){
   selectedTsId=tsId;
