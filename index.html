@@ -560,10 +560,11 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .ts-3d-search .md-search:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft),0 6px 18px rgba(15,23,42,.08)}
 .ts-3d-search .md-search::placeholder{color:var(--gray-400);font-weight:600}
 /* ===== Carrusel 3D (coverflow) ===== */
-.ts-3d{position:relative;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;perspective:2000px;perspective-origin:50% 42%;overflow:hidden;background:radial-gradient(120% 90% at 50% 8%,var(--accent-soft) 0%,transparent 55%)}
+.ts-3d{position:relative;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;perspective:2600px;perspective-origin:50% 46%;overflow:hidden;background:radial-gradient(120% 90% at 50% 8%,var(--accent-soft) 0%,transparent 55%)}
 .ts-3d__stage{position:relative;width:100%;height:100%;transform-style:preserve-3d}
 .ts-3d__card{position:absolute;top:50%;left:50%;width:460px;max-width:86vw;height:86%;max-height:620px;transform-style:preserve-3d;background:#fff;border:1.5px solid var(--gray-200);border-radius:18px;box-shadow:0 30px 70px -24px rgba(15,23,42,.42);display:flex;flex-direction:column;overflow:hidden;cursor:pointer;will-change:transform,opacity;-webkit-backface-visibility:hidden;backface-visibility:hidden}
-.ts-3d__card.is-active{cursor:default;border-color:var(--accent)}
+.ts-3d__card,.ts-3d__card *{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+.ts-3d__card.is-active{cursor:default;border-color:var(--accent);box-shadow:0 34px 80px -26px rgba(11,95,141,.5)}
 .ts-3d__card.is-active .ts-3d__hd{background:linear-gradient(135deg,var(--primary),#1769a3)}
 .ts-3d__hd{display:flex;align-items:center;gap:11px;padding:16px 17px;background:linear-gradient(135deg,var(--gray-700),var(--gray-800));color:#fff;flex-shrink:0}
 .ts-3d__hdico{width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,.16);display:flex;align-items:center;justify-content:center;flex-shrink:0}
@@ -2862,11 +2863,11 @@ function layout3D(animate){
   cards.forEach((el,i)=>{
     const off=i-ts3dIndex,a=Math.abs(off),sign=off<0?-1:1;
     let x,rotY,z,scale,opacity,zi,pe;
-    if(off===0){x=0;rotY=0;z=40;scale=1;opacity=1;zi=200;pe='auto';}
+    if(off===0){x=0;rotY=0;z=0;scale=1;opacity=1;zi=200;pe='auto';}
     else{x=sign*(230+(a-1)*54+40);rotY=sign*-44;z=-150-(a-1)*90;scale=Math.max(.6,.84-(a-1)*.055);opacity=a>4?0:1;zi=200-a;pe=a>4?'none':'auto';}
     el.style.zIndex=zi;el.style.pointerEvents=pe;
     el.classList.toggle('is-active',off===0);
-    const props={xPercent:-50,yPercent:-50,x,z,rotationY:rotY,scale,opacity};
+    const props={xPercent:-50,yPercent:-50,x,z,rotationY:rotY,scale,opacity,force3D:off!==0};
     if(animate&&window.gsap)gsap.to(el,{...props,duration:.55,ease:'power3.out'});
     else if(window.gsap)gsap.set(el,props);
     else{el.style.opacity=opacity;el.style.transform=`translate(-50%,-50%) translateX(${x}px) translateZ(${z}px) rotateY(${rotY}deg) scale(${scale})`;}
@@ -2943,10 +2944,10 @@ document.getElementById('ts3d').addEventListener('wheel',e=>{
 },{passive:false});
 (function(){
   const el=document.getElementById('ts3d');let down=false,sx=0,startIdx=0;
-  el.addEventListener('pointerdown',e=>{if(e.target.closest('.ts-3d__nav')||e.target.closest('.ts-3d__dot'))return;down=true;_ts3dDown=true;_ts3dDragged=false;clearTimeout(_ts3dHoverTmr);sx=e.clientX;startIdx=ts3dIndex;try{el.setPointerCapture(e.pointerId);}catch(_){}});
+  el.addEventListener('pointerdown',e=>{if(e.target.closest('.ts-3d__nav')||e.target.closest('.ts-3d__dot'))return;down=true;_ts3dDown=true;_ts3dDragged=false;clearTimeout(_ts3dHoverTmr);sx=e.clientX;startIdx=ts3dIndex;});
   el.addEventListener('pointermove',e=>{if(!down)return;const dx=e.clientX-sx;if(Math.abs(dx)>8)_ts3dDragged=true;go3D(startIdx+Math.round(-dx/130),false);});
   const end=()=>{if(!down)return;down=false;_ts3dDown=false;go3D(ts3dIndex,true);};
-  el.addEventListener('pointerup',end);el.addEventListener('pointercancel',end);
+  el.addEventListener('pointerup',end);el.addEventListener('pointercancel',end);window.addEventListener('pointerup',end);
 })();
 document.addEventListener('keydown',e=>{
   if(tsView!=='3d')return;
