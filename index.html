@@ -4217,18 +4217,34 @@ function showSaveAnim(text){
   .rep2 .ch-card{display:flex;flex-direction:column;background:#fff;border-radius:var(--radius);border:1px solid var(--line);box-shadow:0 1px 3px rgba(15,23,42,.05);overflow:hidden;transition:box-shadow var(--base),transform var(--base)}
   .rep2 .ch-card:hover{box-shadow:0 8px 22px rgba(15,23,42,.09);transform:translateY(-2px)}
   /* ===== Coverflow 3D "Reparto por tipo" (los 4 visibles) ===== */
-  .rep2 .channel-grid.ch3d{display:block;position:relative;height:460px;perspective:1700px;perspective-origin:50% 48%;overflow:hidden;margin-top:8px}
+  .rep2 .ch3d-wrap{display:flex;align-items:stretch;gap:6px;margin-top:8px}
+  .rep2 .ch3d-aside{flex:0 0 auto;display:flex;align-items:center;min-width:0}
+  .rep2 .ch3d-logo{width:19%;justify-content:center;padding:0 6px}
+  .rep2 .ch3d-logo img{width:100%;max-width:210px;height:auto;opacity:.13;filter:grayscale(1) brightness(.6);pointer-events:none;user-select:none}
+  .rep2 .ch3d-stats{width:25%;min-width:210px;flex-direction:column;justify-content:center;gap:9px;align-items:stretch}
+  .rep2 .ch3d-kpi{position:relative;display:flex;align-items:center;gap:11px;padding:11px 13px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 2px 9px rgba(15,23,42,.05);overflow:hidden}
+  .rep2 .ch3d-kpi::before{content:"";position:absolute;left:0;top:0;right:0;height:3px;background:var(--k,#0B5F8D)}
+  .rep2 .ch3d-kpi__ic{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;background:var(--k-soft,#E0EDF6);color:var(--k,#0B5F8D);flex-shrink:0}
+  .rep2 .ch3d-kpi__ic svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:2}
+  .rep2 .ch3d-kpi__meta{min-width:0;flex:1}
+  .rep2 .ch3d-kpi__l{font-size:9.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:#94a3b8;line-height:1.2}
+  .rep2 .ch3d-kpi__v{font-family:Sora,Inter,sans-serif;font-size:17px;font-weight:800;color:var(--k,#0B5F8D);line-height:1.15;margin-top:2px;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rep2 .ch3d-kpi__v small{font-size:10px;font-weight:800;color:#94a3b8;margin-left:3px}
+  .rep2 .ch3d-kpi__sub{font-size:10px;font-weight:700;color:#94a3b8;margin-top:1px}
+  @media(max-width:1180px){.rep2 .ch3d-logo{display:none}}
+  @media(max-width:980px){.rep2 .ch3d-stats{display:none}}
+  .rep2 .channel-grid.ch3d{flex:1 1 auto;min-width:0;display:block;position:relative;height:460px;perspective:1700px;perspective-origin:50% 48%;overflow:hidden}
   .rep2 .channel-grid.ch3d .ch-card{position:absolute;top:0;left:50%;width:370px;max-width:80%;height:460px;transform-style:preserve-3d;will-change:transform;cursor:pointer;box-shadow:0 26px 62px -22px rgba(15,23,42,.42);-webkit-font-smoothing:antialiased;-webkit-backface-visibility:hidden;backface-visibility:hidden}
   .rep2 .channel-grid.ch3d .ch-card:hover{transform:none}
   .rep2 .channel-grid.ch3d .ch-card.is-front{cursor:default;border-color:var(--ch-color)}
   .rep2 .channel-grid.ch3d .ch-card .ch-rows{flex:1 1 auto;overflow-y:auto}
   .rep2 .channel-grid.ch3d .ch-card .ch-rows::-webkit-scrollbar{width:5px}
   .rep2 .channel-grid.ch3d .ch-card .ch-rows::-webkit-scrollbar-thumb{background:var(--soft-line);border-radius:99px}
-  .rep2 .ch3d-nav{position:absolute;top:50%;transform:translateY(-50%);z-index:60;width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:rgba(255,255,255,.94);color:var(--ch-color,#0B5F8D);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 10px 24px rgba(15,23,42,.16);transition:transform var(--fast),box-shadow var(--fast)}
-  .rep2 .ch3d-nav:hover{transform:translateY(-50%) scale(1.08);box-shadow:0 14px 30px rgba(15,23,42,.22)}
-  .rep2 .ch3d-nav:active{transform:translateY(-50%) scale(.95)}
-  .rep2 .ch3d-nav svg{width:22px;height:22px;stroke:currentColor;stroke-width:2.4;fill:none}
-  .rep2 .ch3d-nav--prev{left:8px}.rep2 .ch3d-nav--next{right:8px}
+  .rep2 .ch3d-nav{position:absolute;top:50%;transform:translateY(-50%);z-index:60;width:40px;height:40px;border-radius:50%;border:1.5px solid #DCE7F1;background:#fff;color:#0B5F8D;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 6px 16px rgba(11,95,141,.12);transition:transform var(--fast),box-shadow var(--fast),background var(--fast),border-color var(--fast)}
+  .rep2 .ch3d-nav:hover{background:#0B5F8D;border-color:#0B5F8D;color:#fff;transform:translateY(-50%) scale(1.06);box-shadow:0 10px 22px rgba(11,95,141,.3)}
+  .rep2 .ch3d-nav:active{transform:translateY(-50%) scale(.94)}
+  .rep2 .ch3d-nav svg{width:20px;height:20px;stroke:currentColor;stroke-width:2.6;fill:none}
+  .rep2 .ch3d-nav--prev{left:6px}.rep2 .ch3d-nav--next{right:6px}
   .rep2 .ch3d-dots{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);z-index:60;display:flex;gap:8px;padding:8px 14px;border-radius:999px;background:rgba(255,255,255,.72);border:1px solid var(--line);backdrop-filter:blur(6px)}
   .rep2 .ch3d-dots span{width:9px;height:9px;border-radius:50%;background:#cbd5e1;cursor:pointer;transition:all var(--fast)}
   .rep2 .ch3d-dots span.on{background:#0B5F8D;width:24px;border-radius:99px}
@@ -5463,7 +5479,7 @@ function _ch3dLayout(animate){
     const off=i-_ch3dIdx,a=Math.abs(off),sign=off<0?-1:1;
     let x,rotY,z,scale,zi;
     if(off===0){x=0;rotY=0;z=0;scale=1;zi=100;}
-    else{x=sign*(300+(a-1)*150);rotY=sign*-27;z=-140-(a-1)*95;scale=Math.max(.66,.84-(a-1)*.085);zi=100-a;}
+    else{x=sign*(150+(a-1)*66);rotY=sign*-32;z=-120-(a-1)*80;scale=Math.max(.66,.82-(a-1)*.08);zi=100-a;}
     el.classList.toggle('is-front',off===0);
     el.style.zIndex=zi;
     const props={xPercent:-50,x,z,rotationY:rotY,scale,force3D:off!==0};
@@ -5473,6 +5489,31 @@ function _ch3dLayout(animate){
   });
   const dots=grid.querySelector('.ch3d-dots');
   if(dots)[...dots.children].forEach((d,i)=>d.classList.toggle('on',i===_ch3dIdx));
+  _ch3dStats();
+}
+function _ch3dStats(){
+  const grid=document.getElementById('ch3dGrid'),host=document.getElementById('ch3dStats');
+  if(!grid||!host)return;
+  const el=grid.querySelectorAll('.ch-card')[_ch3dIdx];if(!el)return;
+  const ch=el.dataset.ch, cam=+el.dataset.cam||0, monto=+el.dataset.monto||0, flete=+el.dataset.flete||0;
+  const inc=monto>0?flete/monto:0, delta=flete-monto*0.03, over=delta>0;
+  const incC=inc>0.03?['#DC2626','#FEE2E2']:['#16A34A','#DCFCE7'];
+  const objC=over?['#DC2626','#FEE2E2']:['#16A34A','#DCFCE7'];
+  const icTruck='<svg viewBox="0 0 24 24"><path stroke-linejoin="round" d="M3 7h11v9H3zM14 10h4l3 3v3h-7z"/><circle cx="7" cy="18" r="1.7"/><circle cx="17.5" cy="18" r="1.7"/></svg>';
+  const icMonto='<svg viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="13" rx="2"/><path d="M4 9.5h16"/></svg>';
+  const icFlete='<svg viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"/></svg>';
+  const icPct='<svg viewBox="0 0 24 24"><path stroke-linecap="round" d="M18 6L6 18"/><circle cx="8" cy="8" r="2.4"/><circle cx="16" cy="16" r="2.4"/></svg>';
+  const icStat='<svg viewBox="0 0 24 24"><path stroke-linecap="round" d="M4 20V11M10 20V4M16 20v-6M22 20H2"/></svg>';
+  const kpi=(c,ic,l,v,sub)=>'<div class="ch3d-kpi" style="--k:'+c[0]+';--k-soft:'+c[1]+'"><div class="ch3d-kpi__ic">'+ic+'</div><div class="ch3d-kpi__meta"><div class="ch3d-kpi__l">'+l+'</div><div class="ch3d-kpi__v">'+v+'</div>'+(sub?'<div class="ch3d-kpi__sub">'+sub+'</div>':'')+'</div></div>';
+  let h=kpi(['#0B5F8D','#E0EDF6'],icTruck,'Camiones',_nnum(cam));
+  if(ch!=='serv')h+=kpi(['#16A34A','#DCFCE7'],icMonto,'Monto repartido','<small>Gs.</small> '+_nnum(monto));
+  h+=kpi(['#0B5F8D','#E0EDF6'],icFlete,'Flete','<small>Gs.</small> '+_nnum(flete));
+  if(ch!=='serv'){
+    h+=kpi(incC,icPct,'Incidencia',_pct(inc));
+    h+=kpi(objC,icStat,over?'Sobre el objetivo (3%)':'Dentro del objetivo (3%)',(over?'+':'−')+'<small>Gs.</small> '+_nnum(Math.abs(delta)));
+  }
+  host.innerHTML=h;
+  if(window.gsap)window.gsap.from(host.children,{opacity:0,x:10,duration:.34,stagger:.05,ease:'power2.out',clearProps:'all'});
 }
 function _ch3dGo(i){const grid=document.getElementById('ch3dGrid');if(!grid)return;const n=grid.querySelectorAll('.ch-card').length;_ch3dIdx=Math.max(0,Math.min(n-1,i));_ch3dLayout(true);}
 function _ch3dInit(){
@@ -5575,28 +5616,33 @@ async function renderReporte(){
       '<div class="rep-kpi"><span class="rep-kpi__l">Peso total</span><b class="rep-kpi__v">'+nn(m.gen.peso)+'<i>Kg</i></b></div>'+
       '<div class="rep-kpi"><span class="rep-kpi__l">Peso en hierros</span><b class="rep-kpi__v man-ed"'+_manAttr(m.gen.pesoEnHierros,'Kg','pesoEnHierros','Peso en hierros')+'>'+nn(m.gen.pesoEnHierros)+'<i>Kg</i></b></div>'+
     '</div>'+
-    '<div class="section-label rep-sl2">Reparto por tipo</div><div class="channel-grid ch3d" id="ch3dGrid">'+
-      '<div class="ch-card" data-ch="int"><div class="ch-top"></div><div class="ch-head"><span class="ch-dot"></span><span class="ch-name">Interior</span><span class="ch-cams">'+nn(m.interior.cam)+'<small>camiones</small></span></div>'+
+    '<div class="section-label rep-sl2">Reparto por tipo</div>'+
+    '<div class="ch3d-wrap">'+
+    '<div class="ch3d-aside ch3d-logo"><img src="logo-icon.png" alt="ALAS"></div>'+
+    '<div class="channel-grid ch3d" id="ch3dGrid">'+
+      '<div class="ch-card" data-ch="int" data-cam="'+(m.interior.cam||0)+'" data-monto="'+(m.interior.monto||0)+'" data-flete="'+(m.interior.gastoTotal||0)+'"><div class="ch-top"></div><div class="ch-head"><span class="ch-dot"></span><span class="ch-name">Interior</span><span class="ch-cams">'+nn(m.interior.cam)+'<small>camiones</small></span></div>'+
         '<div class="ch-hero"><span class="ch-hero-l">Monto repartido</span><div class="ch-hero-v"><span class="ch-val">'+nn(m.interior.monto)+'</span><span class="ch-u">Gs.</span></div></div>'+
         '<div class="ch-rows"><div class="ch-row ch-row--sal"><span class="ch-rl">Salidas del mes</span><span class="ch-sal-right">'+(m.salidas.interior>0?'<button class="ch-sal-btn" data-saldet="interior" type="button">Ver detalles</button>':'')+'<span class="ch-sv">'+nn(m.salidas.interior)+'</span></span></div><div class="ch-row"><span class="ch-rl">Peso</span>'+man(m.interior.peso,'Kg','seg.interior.peso','Peso · Interior')+'</div>'+
           '<div class="ch-row"><span class="ch-rl">Km recorridos</span>'+aut(intKm,'Km')+'</div>'+
           '<div class="ch-row"><span class="ch-rl">Pago a transportadoras</span>'+aut(m.interior.flete)+'</div>'+
           '<div class="ch-row"><span class="ch-rl">Gratificaciones</span>'+man(m.interior.gratificaciones,'','seg.interior.gratificaciones','Gratificaciones · Interior')+'</div>'+
           '<div class="ch-row"><span class="ch-rl">Gasto viático</span>'+man(m.interior.viatico,'','seg.interior.viatico','Gasto viático · Interior')+'</div></div>'+
-        '<div class="ch-foot"><div class="ch-total"><span>Gasto total</span><b>'+nn(m.interior.gastoTotal)+' Gs.</b></div><div class="ch-inc"><span>Incidencia</span><b>'+_pct(m.interior.incidencia)+'</b></div></div></div>'+
-      '<div class="ch-card" data-ch="loc"><div class="ch-top"></div><div class="ch-head"><span class="ch-dot"></span><span class="ch-name">Local</span><span class="ch-cams">'+nn(m.local.cam)+'<small>camiones</small></span></div>'+
+        '<div class="ch-foot"><div class="ch-total"><span>Gasto total</span><b>'+nn(m.interior.gastoTotal)+' Gs.</b></div></div></div>'+
+      '<div class="ch-card" data-ch="loc" data-cam="'+(m.local.cam||0)+'" data-monto="'+(m.local.monto||0)+'" data-flete="'+(m.local.gastoTotal||0)+'"><div class="ch-top"></div><div class="ch-head"><span class="ch-dot"></span><span class="ch-name">Local</span><span class="ch-cams">'+nn(m.local.cam)+'<small>camiones</small></span></div>'+
         '<div class="ch-hero"><span class="ch-hero-l">Monto repartido</span><div class="ch-hero-v"><span class="ch-val">'+nn(m.local.monto)+'</span><span class="ch-u">Gs.</span></div></div>'+
         '<div class="ch-rows"><div class="ch-row ch-row--sal"><span class="ch-rl">Salidas del mes</span><span class="ch-sal-right">'+(m.salidas.periferia>0?'<button class="ch-sal-btn" data-saldet="periferia" type="button">Ver detalles</button>':'')+'<span class="ch-sv">'+nn(m.salidas.periferia)+'</span></span></div><div class="ch-row"><span class="ch-rl">Peso</span>'+man(m.local.peso,'Kg','seg.local.peso','Peso · Local')+'</div>'+
           '<div class="ch-row"><span class="ch-rl">Pago a transportadoras</span>'+aut(m.local.flete)+'</div>'+
           '<div class="ch-row"><span class="ch-rl">Gasto viático</span>'+man(m.local.viatico,'','seg.local.viatico','Gasto viático · Local')+'</div></div>'+
-        '<div class="ch-foot"><div class="ch-total"><span>Gasto total</span><b>'+nn(m.local.gastoTotal)+' Gs.</b></div><div class="ch-inc"><span>Incidencia</span><b>'+_pct(m.local.incidencia)+'</b></div></div></div>'+
-      '<div class="ch-card" data-ch="trans"><div class="ch-top"></div><div class="ch-head"><span class="ch-dot"></span><span class="ch-name">Transportadora</span><span class="ch-cams">'+nn(m.transportadora.cam)+'<small>camiones</small></span></div>'+
+        '<div class="ch-foot"><div class="ch-total"><span>Gasto total</span><b>'+nn(m.local.gastoTotal)+' Gs.</b></div></div></div>'+
+      '<div class="ch-card" data-ch="trans" data-cam="'+(m.transportadora.cam||0)+'" data-monto="'+(m.transportadora.monto||0)+'" data-flete="'+(m.transportadora.flete||0)+'"><div class="ch-top"></div><div class="ch-head"><span class="ch-dot"></span><span class="ch-name">Transportadora</span><span class="ch-cams">'+nn(m.transportadora.cam)+'<small>camiones</small></span></div>'+
         '<div class="ch-hero"><span class="ch-hero-l">Monto repartido</span><div class="ch-hero-v"><span class="ch-val man-ed"'+_manAttr(m.transportadora.monto,'','seg.transportadora.monto','Monto repartido · Transportadora')+'>'+nn(m.transportadora.monto)+'</span><span class="ch-u">Gs.</span></div></div>'+
         '<div class="ch-rows"><div class="ch-row ch-row--sal"><span class="ch-rl">Salidas del mes</span><span class="ch-sal-right">'+(m.salidas.transportadora>0?'<button class="ch-sal-btn" data-saldet="transportadora" type="button">Ver detalles</button>':'')+'<span class="ch-sv">'+nn(m.salidas.transportadora)+'</span></span></div><div class="ch-row"><span class="ch-rl">Importe flete</span>'+aut(m.transportadora.flete)+'</div></div>'+
-        '<div class="ch-foot"><div class="ch-total"><span>Gasto total</span><b>'+nn(m.transportadora.flete)+' Gs.</b></div><div class="ch-inc"><span>Incidencia</span><b>'+_pct(m.transportadora.incidencia)+'</b></div></div></div>'+
-      '<div class="ch-card ch-card--nohero" data-ch="serv"><div class="ch-top"></div><div class="ch-head"><span class="ch-dot"></span><span class="ch-name">Servicios</span><span class="ch-cams">'+nn(m.servicios.cam)+'<small>camiones</small></span></div>'+
+        '<div class="ch-foot"><div class="ch-total"><span>Gasto total</span><b>'+nn(m.transportadora.flete)+' Gs.</b></div></div></div>'+
+      '<div class="ch-card ch-card--nohero" data-ch="serv" data-cam="'+(m.servicios.cam||0)+'" data-monto="'+(m.servicios.monto||0)+'" data-flete="'+(m.servicios.flete||0)+'"><div class="ch-top"></div><div class="ch-head"><span class="ch-dot"></span><span class="ch-name">Servicios</span><span class="ch-cams">'+nn(m.servicios.cam)+'<small>camiones</small></span></div>'+
         '<div class="ch-rows"><div class="ch-row ch-row--sal"><span class="ch-rl">Salidas del mes</span><span class="ch-sal-right">'+(m.salidas.servicios>0?'<button class="ch-sal-btn" data-saldet="servicios" type="button">Ver detalles</button>':'')+'<span class="ch-sv">'+nn(m.salidas.servicios)+'</span></span></div><div class="ch-row"><span class="ch-rl">Importe flete</span>'+aut(m.servicios.flete)+'</div></div>'+
-        '<div class="ch-foot"><div class="ch-total"><span>Gasto total</span><b>'+nn(m.servicios.flete)+' Gs.</b></div><div class="ch-inc"><span>Incidencia</span><b>'+_pct(m.servicios.incidencia)+'</b></div></div></div>'+
+        '<div class="ch-foot"><div class="ch-total"><span>Gasto total</span><b>'+nn(m.servicios.flete)+' Gs.</b></div></div></div>'+
+    '</div>'+
+    '<div class="ch3d-aside ch3d-stats" id="ch3dStats"></div>'+
     '</div>'+
       zonaSection+
   '</div>';
