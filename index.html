@@ -507,6 +507,9 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 ════════════════════════════════════════ */
 .ts-topbar{display:flex;align-items:center;gap:12px;flex-shrink:0;max-width:100%;width:100%}
 .ts-topbar h2{font-family:Sora,Inter,sans-serif;font-size:26px;font-weight:800;color:var(--primary);flex:1;letter-spacing:-.4px}
+.btn-excel{background:linear-gradient(180deg,#22a565,#15803d);color:#fff;border:none;box-shadow:0 6px 16px rgba(21,128,61,.28)}
+.btn-excel:hover{background:linear-gradient(180deg,#26b06d,#167f3d);box-shadow:0 9px 22px rgba(21,128,61,.34);transform:translateY(-1px)}
+.btn-excel svg{stroke:#fff}
 /* ── Vista GRILLA de transportistas ── */
 .ts-wrap{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden}
 .ts-grid-state{flex:1;min-height:0;display:flex;flex-direction:column;gap:14px}
@@ -1267,6 +1270,10 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 <section id="viewTrans" class="stage">
   <div class="ts-topbar">
     <h2 style="display:flex;align-items:center;gap:10px;line-height:1"><img src="logo-alas-s.a.png" style="height:36px;object-fit:contain;flex-shrink:0">Transportistas <span id="tsCountBadge" style="font-size:14px;font-weight:700;color:var(--gray-400);padding:5px 14px;border-radius:999px;background:var(--gray-100)">0</span></h2>
+    <button class="btn btn-excel" type="button" id="btnTsExport" title="Exportar todos los camiones por transportadora con su último precio">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.9"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
+      Exportar Excel
+    </button>
     <button class="btn btn-primary" type="button" id="btnAddTs">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
       Agregar transportista
@@ -2926,6 +2933,45 @@ document.getElementById('detailDelTs').addEventListener('click',async()=>{
 
 /* Modal Transportista */
 const modalTs=document.getElementById('modalTs'),mTsName=document.getElementById('mTsName');
+// Exporta todos los camiones por transportadora con su último precio (fijo o por km) a Excel (.xls con formato).
+function _tsExportExcel(){
+  const dmy=iso=>{if(!iso)return '';const p=String(iso).slice(0,10).split('-');return p.length<3?String(iso):(p[2]+'/'+p[1]+'/'+p[0].slice(-2));};
+  const SEGN={local:'Local',interior:'Interior',servicios:'Servicios',transportadora:'Transportadora'};
+  let rows='',count=0,z=0;
+  (transportistas||[]).slice().sort((a,b)=>(a.n||'').localeCompare(b.n||'','es')).forEach(t=>{
+    const trucks=(t.trucks||[]).slice().sort((a,b)=>(a.d||'').localeCompare(b.d||'','es'));
+    trucks.forEach(tr=>{
+      const u=truckUsage(tr.id);
+      const tipo=u?(u.tipo==='km'?'Por km':'Fijo'):'Sin uso';
+      const precio=u?u.precio:'';
+      const bg=(z++%2)?'#F4F8FB':'#FFFFFF';
+      count++;
+      rows+='<tr>'
+        +'<td style="border:1px solid #d8e2ec;padding:6px 10px;background:'+bg+'">'+esc(t.n||'')+'</td>'
+        +'<td style="border:1px solid #d8e2ec;padding:6px 10px;background:'+bg+';font-weight:bold">'+esc(tr.d||'')+'</td>'
+        +'<td style="border:1px solid #d8e2ec;padding:6px 10px;background:'+bg+';text-align:center">'+(SEGN[tr.seg||'local']||'Local')+'</td>'
+        +'<td style="border:1px solid #d8e2ec;padding:6px 10px;background:'+bg+';text-align:center;color:'+(u?(u.tipo==='km'?'#C2410C':'#0B5F8D'):'#94a3b8')+';font-weight:bold">'+tipo+'</td>'
+        +'<td style="border:1px solid #d8e2ec;padding:6px 10px;background:'+bg+';text-align:right;mso-number-format:\\#\\,\\#\\#0">'+(precio!==''?precio:'')+'</td>'
+        +'<td style="border:1px solid #d8e2ec;padding:6px 10px;background:'+bg+';text-align:center">'+(u?dmy(u.fecha):'')+'</td>'
+        +'</tr>';
+    });
+  });
+  if(!count){showToast&&showToast('No hay camiones para exportar');return;}
+  const d=new Date(),fnDate=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  const th='background:#0B5F8D;color:#fff;font-weight:bold;padding:9px 10px;border:1px solid #0a4f75;text-align:center;white-space:nowrap';
+  const html='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="utf-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Camiones por transportadora</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body>'
+    +'<table cellspacing="0" cellpadding="0" style="border-collapse:collapse;font-family:Calibri,Arial;font-size:11pt">'
+    +'<tr><td colspan="6" style="background:#0B5F8D;color:#fff;font-weight:bold;font-size:15pt;padding:12px 10px;text-align:center">ALAS · Camiones por transportadora — último precio</td></tr>'
+    +'<tr><td colspan="6" style="padding:6px 10px;color:#64748b;font-size:9pt">Generado el '+dmy(fnDate)+' · '+count+' camiones · '+(transportistas||[]).length+' transportadoras · (Por km = precio por kilómetro; Fijo = precio total)</td></tr>'
+    +'<tr><th style="'+th+'">Transportadora</th><th style="'+th+'">Camión</th><th style="'+th+'">Segmento</th><th style="'+th+'">Tipo de precio</th><th style="'+th+'">Último precio (Gs.)</th><th style="'+th+'">Último uso</th></tr>'
+    +rows+'</table></body></html>';
+  const blob=new Blob(['﻿'+html],{type:'application/vnd.ms-excel'});
+  const url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download='Transportistas_Camiones_'+fnDate+'.xls';document.body.appendChild(a);a.click();
+  setTimeout(()=>{a.remove();URL.revokeObjectURL(url);},500);
+  showToast&&showToast('Excel exportado · '+count+' camiones');
+}
+document.getElementById('btnTsExport').addEventListener('click',_tsExportExcel);
 document.getElementById('btnAddTs').addEventListener('click',()=>{mTsName.value='';_mbShow(modalTs);setTimeout(()=>mTsName.focus(),100);});
 document.getElementById('mTsCancel').addEventListener('click',()=>_mbHide(modalTs));
 modalTs.addEventListener('click',e=>{if(e.target===modalTs)_mbHide(modalTs);});
