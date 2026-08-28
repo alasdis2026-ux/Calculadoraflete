@@ -4225,6 +4225,44 @@ function showSaveAnim(text){
   .rep2 .ch3d-fbtn{position:relative;display:flex;align-items:center;justify-content:center;padding:12px 16px;border:1.5px solid #DCE7F1;background:#fff;border-radius:12px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:800;color:#0B5F8D;transition:all .2s ease;text-align:center;white-space:nowrap;letter-spacing:-.1px}
   .rep2 .ch3d-fbtn:hover{border-color:#0B5F8D;background:#F2F8FC}
   .rep2 .ch3d-fbtn.on{background:linear-gradient(180deg,#0F6BA0,#0A4F75);border-color:#0A4F75;color:#fff;box-shadow:0 8px 18px -6px rgba(11,95,141,.55)}
+  /* ===== Panel único ancho "Reparto por tipo" ===== */
+  .rep2 .rp-wrap{display:flex;align-items:flex-start;gap:22px;margin-top:14px}
+  .rep2 .rp-filters{width:186px;flex:0 0 auto;max-width:none}
+  .rep2 .rp-seg-stage{flex:1;min-width:0;position:relative}
+  .rep2 .rp-panel{background:#fff;border:1px solid var(--line);border-radius:18px;box-shadow:0 16px 40px -22px rgba(15,23,42,.32);overflow:hidden}
+  .rep2 .rp-panel__head{display:flex;align-items:center;gap:14px;padding:17px 24px;background:var(--sc);background-image:linear-gradient(120deg,rgba(255,255,255,.1),rgba(0,0,0,.14));color:#fff;position:relative;overflow:hidden}
+  .rep2 .rp-panel__head::after{content:"";position:absolute;right:-24px;top:-38px;width:170px;height:170px;background:url('logo-icon.png') no-repeat center/contain;filter:brightness(0) invert(1);opacity:.1;pointer-events:none}
+  .rep2 .rp-panel__ico{width:48px;height:48px;border-radius:13px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .rep2 .rp-panel__ico svg{width:27px;height:27px;stroke:#fff}
+  .rep2 .rp-panel__title{flex:1;min-width:0}
+  .rep2 .rp-panel__name{font-family:Sora,Inter,sans-serif;font-size:23px;font-weight:800;letter-spacing:-.4px;line-height:1.1}
+  .rep2 .rp-panel__tag{font-size:11.5px;font-weight:600;color:rgba(255,255,255,.82);margin-top:3px}
+  .rep2 .rp-panel__cams{display:inline-flex;align-items:baseline;gap:6px;padding:8px 16px;border-radius:999px;background:rgba(255,255,255,.94);color:var(--sc);font-family:Sora,Inter,sans-serif;font-weight:900;font-size:20px;line-height:1;font-variant-numeric:tabular-nums;flex-shrink:0;position:relative;z-index:1}
+  .rep2 .rp-panel__cams small{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;opacity:.8}
+  .rep2 .rp-panel__kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;padding:20px 24px 10px}
+  .rep2 .rp-kpi{position:relative;display:flex;flex-direction:column;gap:9px;padding:15px 16px 16px;border:1px solid var(--line);border-radius:14px;background:#fff;overflow:hidden;box-shadow:0 2px 8px rgba(15,23,42,.04)}
+  .rep2 .rp-kpi::before{content:"";position:absolute;left:0;top:0;right:0;height:3px;background:var(--kc,#0B5F8D)}
+  .rep2 .rp-kpi__ic{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;background:var(--kcs,#E0EDF6);color:var(--kc,#0B5F8D);flex-shrink:0}
+  .rep2 .rp-kpi__ic svg{width:21px;height:21px}
+  .rep2 .rp-kpi__l{font-size:10px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:#94a3b8;line-height:1.25}
+  .rep2 .rp-kpi__v{font-family:Sora,Inter,sans-serif;font-size:21px;font-weight:800;color:var(--kc,#0B5F8D);line-height:1.1;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rep2 .rp-kpi__v small{font-size:11px;font-weight:800;color:#94a3b8;margin-right:2px}
+  .rep2 .rp-kpi__v.man-ed{cursor:pointer;border-radius:7px;padding:0 5px;margin-left:-5px;transition:background var(--fast)}
+  .rep2 .rp-kpi__v.man-ed:hover{background:rgba(59,130,246,.1);box-shadow:inset 0 0 0 1px rgba(59,130,246,.3)}
+  .rep2 .rp-panel__detail{padding:10px 24px 22px}
+  .rep2 .rp-detail__hd{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#94a3b8;margin:6px 0 2px}
+  .rep2 .rp-drow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 2px;border-bottom:1px dashed var(--soft-line)}
+  .rep2 .rp-drow:last-child{border-bottom:none}
+  .rep2 .rp-drow__l{font-size:13.5px;font-weight:600;color:var(--muted)}
+  .rep2 .rp-drow__r{display:flex;align-items:center;gap:10px;font-size:14.5px;font-weight:800;color:var(--text);font-variant-numeric:tabular-nums}
+  .rep2 .rp-drow--sal{background:var(--sc-soft);margin:0 -24px;padding:13px 24px;border-bottom:none}
+  .rep2 .rp-drow--sal .rp-drow__l{color:var(--sc);font-weight:800;font-size:13.5px}
+  .rep2 .rp-sal-v{font-family:Sora,Inter,sans-serif;font-size:18px;font-weight:900;color:var(--sc)}
+  .rep2 .rp-drow .ch-sal-btn{font-family:inherit;font-size:11px;font-weight:800;color:var(--sc);background:#fff;border:1.5px solid var(--sc);padding:6px 13px;border-radius:999px;cursor:pointer;transition:all var(--fast)}
+  .rep2 .rp-drow .ch-sal-btn:hover{background:var(--sc);color:#fff}
+  .rep2 .rp-drow__r .man-ed{cursor:pointer;border-radius:6px;padding:1px 5px;transition:background var(--fast)}
+  .rep2 .rp-drow__r .man-ed:hover{background:rgba(59,130,246,.1);box-shadow:inset 0 0 0 1px rgba(59,130,246,.3)}
+  @media(max-width:820px){.rep2 .rp-wrap{flex-direction:column}.rep2 .rp-filters{width:100%;flex-direction:row;flex-wrap:wrap}.rep2 .rp-filters .ch3d-fbtn{flex:1 1 auto}}
   .rep2 .ch3d-stats{width:250px;flex-direction:column;justify-content:flex-start;padding-top:0;gap:9px;align-items:stretch}
   .rep2 .ch3d-kpi{position:relative;display:flex;align-items:center;gap:11px;padding:11px 14px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 3px 12px rgba(15,23,42,.06);overflow:hidden}
   .rep2 .ch3d-kpi::before{content:"";position:absolute;left:0;top:0;right:0;height:3px;background:var(--k,#0B5F8D)}
@@ -5476,7 +5514,40 @@ function _repZonaHTML(mk){
   const zTable='<div class="panel"><div class="panel-title"><h3>Zona · Monto · Peso · Incidencia</h3></div><div class="zt-tblwrap"><table class="zt-tbl"><thead><tr><th>Zona</th><th class="r">Monto</th><th class="r">Peso</th><th class="r">Incidencia ▲</th></tr></thead><tbody>'+zonasByInc.map(function(z){return '<tr><td class="zt-nm">'+esc(z.zona)+'</td><td class="r zt-monto">'+_gs(z.monto)+'</td><td class="r">'+_nnum(z.peso)+'</td><td class="r zt-inc">'+_pct(z.incidencia)+'</td></tr>';}).join('')+'</tbody></table></div></div>';
   return head+'<div class="rep2-zt-grid">'+barChart+zTable+'</div>';
 }
-/* ===== Coverflow 3D de "Reparto por tipo" ===== */
+/* ===== Reparto por tipo: panel único ancho + KPIs integrados + transición de empuje ===== */
+let _repSegKey='local',_repSegIdx=1,_repSegPanels=null;
+const _repSegOrder=['interior','local','trans','serv'];
+const _repSegLabels={interior:'Interior',local:'Local',trans:'Transportadora',serv:'Servicios'};
+function _repSegWire(stage){
+  if(!stage)return;
+  stage.querySelectorAll('[data-saldet]').forEach(b=>b.onclick=()=>_cfSalidasModal(_cfRepMes,b.dataset.saldet));
+}
+function _repShowSeg(key,animate){
+  const stage=document.getElementById('repSegStage');if(!stage||!_repSegPanels||!_repSegPanels[key])return;
+  const newIdx=_repSegOrder.indexOf(key),dir=newIdx>=_repSegIdx?1:-1;
+  _repSegIdx=newIdx;_repSegKey=key;
+  document.querySelectorAll('#repSegFilters .ch3d-fbtn').forEach(b=>b.classList.toggle('on',b.dataset.ch===key));
+  const html=_repSegPanels[key];
+  if(!animate||!window.gsap){stage.innerHTML=html;_repSegWire(stage);return;}
+  const g=window.gsap,old=stage.firstElementChild;
+  stage.insertAdjacentHTML('beforeend',html);
+  const nw=stage.lastElementChild;_repSegWire(stage);
+  g.set(nw,{position:'absolute',top:0,left:0,width:'100%',xPercent:dir*7,opacity:0});
+  if(old)g.to(old,{xPercent:-dir*7,opacity:0,duration:.26,ease:'power2.in',onComplete:()=>old.remove()});
+  g.to(nw,{xPercent:0,opacity:1,duration:.42,delay:.1,ease:'power3.out',onComplete:()=>g.set(nw,{position:'',width:'',clearProps:'transform,opacity'})});
+  g.from(nw.querySelectorAll('.rp-kpi'),{opacity:0,y:12,duration:.36,stagger:.05,delay:.16,ease:'back.out(1.4)',clearProps:'transform,opacity'});
+  g.from(nw.querySelectorAll('.rp-drow'),{opacity:0,x:-10,duration:.3,stagger:.03,delay:.24,ease:'power2.out',clearProps:'transform,opacity'});
+}
+function _repSegInit(){
+  const fh=document.getElementById('repSegFilters');if(!fh)return;
+  fh.innerHTML=_repSegOrder.map(k=>'<button class="ch3d-fbtn" type="button" data-ch="'+k+'"><span class="ch3d-fl">'+_repSegLabels[k]+'</span></button>').join('');
+  fh.querySelectorAll('.ch3d-fbtn').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.ch!==_repSegKey)_repShowSeg(b.dataset.ch,true);}));
+  if(window.gsap)window.gsap.from(fh.children,{opacity:0,x:-14,duration:.42,stagger:.06,delay:.1,ease:'power3.out',clearProps:'transform,opacity'});
+  _repSegKey='local';_repSegIdx=1;
+  _repShowSeg('local',false);
+  if(window.gsap){const p=document.querySelector('#repSegStage .rp-panel');if(p)window.gsap.from(p,{opacity:0,y:16,duration:.45,ease:'power3.out',clearProps:'transform,opacity'});}
+}
+/* ===== (legacy) Coverflow 3D ===== */
 let _ch3dIdx=0;
 function _ch3dLayout(animate){
   const grid=document.getElementById('ch3dGrid');if(!grid)return;
@@ -5597,6 +5668,38 @@ async function renderReporte(){
   const aut=(v,u)=>'<span class="ch-rv">'+nn(v)+(u?'<i class="unit">'+u+'</i>':'')+'</span>';
   // Monto e incidencia por zona con filtro de segmento (se re-renderiza in-place)
   const zonaSection='<div id="repZonaHost">'+_repZonaHTML(_cfRepMes)+'</div>';
+  // ===== Paneles "Reparto por tipo" (un panel ancho + KPIs integrados, sin duplicar) =====
+  (function(){
+    const SC={interior:['#0B5F8D','#E0EDF6'],local:['#3B82F6','#DBEAFE'],trans:['#7C6BF0','#E9E6FD'],serv:['#F97316','#FFEDD5']};
+    const SN={interior:'Interior',local:'Local',trans:'Transportadora',serv:'Servicios'};
+    const STG={interior:'Reparto interior · flete por km',local:'Reparto local · flete fijo',trans:'Reparto con transportadoras',serv:'Servicios de flete'};
+    const GREEN=['#16A34A','#DCFCE7'],BLUE=['#0B5F8D','#E0EDF6'],RED=['#DC2626','#FEE2E2'];
+    const truck='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5h9v7H3zM12 10h4l3 3v1.5h-7z"/><circle cx="7" cy="16.5" r="1.5"/><circle cx="16.5" cy="16.5" r="1.5"/></svg>';
+    const icMonto='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="5.5" width="16" height="13" rx="2"/><path d="M4 9.5h16"/></svg>';
+    const icGasto='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"/></svg>';
+    const icPct='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M18 6L6 18"/><circle cx="8" cy="8" r="2.4"/><circle cx="16" cy="16" r="2.4"/></svg>';
+    const icObj='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M4 20V11M10 20V4M16 20v-6M22 20H2"/></svg>';
+    const kpi=(c,ic,l,v,mattr)=>'<div class="rp-kpi" style="--kc:'+c[0]+';--kcs:'+c[1]+'"><span class="rp-kpi__ic">'+ic+'</span><span class="rp-kpi__l">'+l+'</span><span class="rp-kpi__v'+(mattr?' man-ed':'')+'"'+(mattr||'')+'>'+v+'</span></div>';
+    const drow=(l,v)=>'<div class="rp-drow"><span class="rp-drow__l">'+l+'</span><span class="rp-drow__r">'+v+'</span></div>';
+    const salRow=(chan,count)=>'<div class="rp-drow rp-drow--sal"><span class="rp-drow__l">Salidas del mes</span><span class="rp-drow__r">'+(count>0?'<button class="ch-sal-btn" data-saldet="'+chan+'" type="button">Ver detalles</button>':'')+'<span class="rp-sal-v">'+nn(count)+'</span></span></div>';
+    const shell=(key,camN,kpis,detail)=>'<div class="rp-panel" data-ch="'+key+'" style="--sc:'+SC[key][0]+';--sc-soft:'+SC[key][1]+'">'+
+      '<div class="rp-panel__head"><span class="rp-panel__ico">'+truck+'</span><div class="rp-panel__title"><div class="rp-panel__name">'+SN[key]+'</div><div class="rp-panel__tag">'+STG[key]+'</div></div><span class="rp-panel__cams">'+nn(camN)+'<small>camiones</small></span></div>'+
+      '<div class="rp-panel__kpis">'+kpis+'</div>'+
+      '<div class="rp-panel__detail"><div class="rp-detail__hd">Desglose</div>'+detail+'</div></div>';
+    const incKpi=(mo,ga)=>{const inc=mo>0?ga/mo:0;return kpi(inc>0.03?RED:GREEN,icPct,'Incidencia',_pct(inc));};
+    const objKpi=(mo,ga)=>{const d=ga-mo*0.03,ov=d>0;return kpi(ov?RED:GREEN,icObj,ov?'Sobre el objetivo (3%)':'Dentro del objetivo (3%)',(ov?'+':'−')+'<small>Gs.</small> '+nn(Math.abs(d)));};
+    const iK=kpi(GREEN,icMonto,'Monto repartido','<small>Gs.</small> '+nn(m.interior.monto))+kpi(BLUE,icGasto,'Gasto total','<small>Gs.</small> '+nn(m.interior.gastoTotal))+incKpi(m.interior.monto,m.interior.gastoTotal)+objKpi(m.interior.monto,m.interior.gastoTotal);
+    const iD=salRow('interior',m.salidas.interior)+drow('Peso',man(m.interior.peso,'Kg','seg.interior.peso','Peso · Interior'))+drow('Km recorridos',aut(intKm,'Km'))+drow('Pago a transportadoras',aut(m.interior.flete))+drow('Gratificaciones',man(m.interior.gratificaciones,'','seg.interior.gratificaciones','Gratificaciones · Interior'))+drow('Gasto viático',man(m.interior.viatico,'','seg.interior.viatico','Gasto viático · Interior'));
+    const lK=kpi(GREEN,icMonto,'Monto repartido','<small>Gs.</small> '+nn(m.local.monto))+kpi(BLUE,icGasto,'Gasto total','<small>Gs.</small> '+nn(m.local.gastoTotal))+incKpi(m.local.monto,m.local.gastoTotal)+objKpi(m.local.monto,m.local.gastoTotal);
+    const lD=salRow('periferia',m.salidas.periferia)+drow('Peso',man(m.local.peso,'Kg','seg.local.peso','Peso · Local'))+drow('Pago a transportadoras',aut(m.local.flete))+drow('Gasto viático',man(m.local.viatico,'','seg.local.viatico','Gasto viático · Local'));
+    const tMo=m.transportadora.monto||0,tGa=m.transportadora.flete||0;
+    const tK=kpi(GREEN,icMonto,'Monto repartido','<small>Gs.</small> '+nn(tMo),_manAttr(tMo,'','seg.transportadora.monto','Monto repartido · Transportadora'))+kpi(BLUE,icGasto,'Gasto (flete)','<small>Gs.</small> '+nn(tGa))+incKpi(tMo,tGa)+objKpi(tMo,tGa);
+    const tD=salRow('transportadora',m.salidas.transportadora);
+    const sGa=m.servicios.flete||0;
+    const sK=kpi(SC.serv,icGasto,'Gasto (flete)','<small>Gs.</small> '+nn(sGa));
+    const sD=salRow('servicios',m.salidas.servicios);
+    _repSegPanels={interior:shell('interior',m.interior.cam,iK,iD),local:shell('local',m.local.cam,lK,lD),trans:shell('trans',m.transportadora.cam,tK,tD),serv:shell('serv',m.servicios.cam,sK,sD)};
+  })();
   host.innerHTML='<div class="rep2">'+
     '<div class="rep2-hd"><h2><img src="logo-alas-s.a.png">Reporte General</h2>'+segBtns+'<div class="rep2-spacer"></div>'+editBtn+'</div>'+
     '<div class="hero-bar">'+
@@ -5628,9 +5731,10 @@ async function renderReporte(){
       '<div class="rep-kpi"><span class="rep-kpi__l">Peso en hierros</span><b class="rep-kpi__v man-ed"'+_manAttr(m.gen.pesoEnHierros,'Kg','pesoEnHierros','Peso en hierros')+'>'+nn(m.gen.pesoEnHierros)+'<i>Kg</i></b></div>'+
     '</div>'+
     '<div class="section-label rep-sl2">Reparto por tipo</div>'+
-    '<div class="ch3d-wrap">'+
-    '<div class="ch3d-aside ch3d-left"><div class="ch3d-filters" id="ch3dFilters"></div></div>'+
-    '<div class="channel-grid ch3d" id="ch3dGrid">'+
+    '<div class="rp-wrap">'+
+    '<div class="rp-filters ch3d-filters" id="repSegFilters"></div>'+
+    '<div class="rp-seg-stage" id="repSegStage"></div>'+
+    '<div style="display:none">'+
       '<div class="ch-card" data-ch="int" data-cam="'+(m.interior.cam||0)+'" data-monto="'+(m.interior.monto||0)+'" data-flete="'+(m.interior.gastoTotal||0)+'"><div class="ch-top"></div><div class="ch-head"><span class="ch-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5h9v7H3zM12 10h4l3 3v1.5h-7z"/><circle cx="7" cy="16.5" r="1.5"/><circle cx="16.5" cy="16.5" r="1.5"/></svg></span><span class="ch-name">Interior</span><span class="ch-cams">'+nn(m.interior.cam)+'<small>camiones</small></span></div>'+
         '<div class="ch-rows"><div class="ch-row ch-row--sal"><span class="ch-rl">Salidas del mes</span><span class="ch-sal-right">'+(m.salidas.interior>0?'<button class="ch-sal-btn" data-saldet="interior" type="button">Ver detalles</button>':'')+'<span class="ch-sv">'+nn(m.salidas.interior)+'</span></span></div><div class="ch-row"><span class="ch-rl">Peso</span>'+man(m.interior.peso,'Kg','seg.interior.peso','Peso · Interior')+'</div>'+
           '<div class="ch-row"><span class="ch-rl">Km recorridos</span>'+aut(intKm,'Km')+'</div>'+
@@ -5650,7 +5754,6 @@ async function renderReporte(){
         '<div class="ch-rows"><div class="ch-row ch-row--sal"><span class="ch-rl">Salidas del mes</span><span class="ch-sal-right">'+(m.salidas.servicios>0?'<button class="ch-sal-btn" data-saldet="servicios" type="button">Ver detalles</button>':'')+'<span class="ch-sv">'+nn(m.salidas.servicios)+'</span></span></div></div>'+
         '</div>'+
     '</div>'+
-    '<div class="ch3d-aside ch3d-stats" id="ch3dStats"></div>'+
     '</div>'+
       zonaSection+
   '</div>';
@@ -5662,7 +5765,7 @@ async function renderReporte(){
   // "Ver detalles" de salidas → modal PRO por fecha
   host.querySelectorAll('[data-saldet]').forEach(b=>b.addEventListener('click',()=>_cfSalidasModal(_cfRepMes,b.dataset.saldet)));
   _repWireZona();
-  _ch3dInit();
+  _repSegInit();
   if(window.gsap){
     const g=window.gsap;
     g.from('#repHost .hero-seg',{opacity:0,y:14,duration:.42,stagger:.07,ease:'power3.out',clearProps:'opacity,transform'});
