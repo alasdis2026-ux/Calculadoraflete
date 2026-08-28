@@ -4222,11 +4222,9 @@ function showSaveAnim(text){
   .rep2 .ch3d-aside{position:relative;z-index:2;flex:0 0 auto;display:flex;align-items:center;min-width:0}
   .rep2 .ch3d-left{width:250px;justify-content:center}
   .rep2 .ch3d-filters{display:flex;flex-direction:column;gap:7px;width:100%;max-width:176px}
-  .rep2 .ch3d-fbtn{position:relative;display:flex;align-items:center;gap:10px;padding:10px 14px;border:1.5px solid #0A4F75;background:#fff;border-radius:11px;cursor:pointer;font-family:inherit;font-size:12.5px;font-weight:800;color:#0B5F8D;transition:all var(--fast);text-align:left;white-space:nowrap;letter-spacing:-.1px}
-  .rep2 .ch3d-fbtn:hover{background:#EAF3F9;transform:translateX(3px)}
-  .rep2 .ch3d-fdot{width:8px;height:8px;border-radius:50%;background:currentColor;flex-shrink:0;opacity:.75;transition:transform var(--fast)}
-  .rep2 .ch3d-fbtn.on{background:#0B5F8D;border-color:#0A4F75;color:#fff;box-shadow:0 9px 20px -7px rgba(11,95,141,.6)}
-  .rep2 .ch3d-fbtn.on .ch3d-fdot{background:#fff;opacity:1;transform:scale(1.15)}
+  .rep2 .ch3d-fbtn{position:relative;display:flex;align-items:center;justify-content:center;padding:12px 16px;border:1.5px solid #DCE7F1;background:#fff;border-radius:12px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:800;color:#0B5F8D;transition:all .2s ease;text-align:center;white-space:nowrap;letter-spacing:-.1px}
+  .rep2 .ch3d-fbtn:hover{border-color:#0B5F8D;background:#F2F8FC}
+  .rep2 .ch3d-fbtn.on{background:linear-gradient(180deg,#0F6BA0,#0A4F75);border-color:#0A4F75;color:#fff;box-shadow:0 8px 18px -6px rgba(11,95,141,.55)}
   .rep2 .ch3d-stats{width:250px;flex-direction:column;justify-content:center;gap:9px;align-items:stretch}
   .rep2 .ch3d-kpi{position:relative;display:flex;align-items:center;gap:11px;padding:11px 14px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 3px 12px rgba(15,23,42,.06);overflow:hidden}
   .rep2 .ch3d-kpi::before{content:"";position:absolute;left:0;top:0;right:0;height:3px;background:var(--k,#0B5F8D)}
@@ -5541,7 +5539,7 @@ function _ch3dInit(){
   const CHN={int:{n:'Interior',c:'#0B5F8D'},loc:{n:'Local',c:'#3B82F6'},trans:{n:'Transportadora',c:'#7C6BF0'},serv:{n:'Servicios',c:'#F97316'}};
   const fh=document.getElementById('ch3dFilters');
   if(fh){
-    fh.innerHTML=cards.map((el,i)=>{const meta=CHN[el.dataset.ch]||{n:el.dataset.ch,c:'#0B5F8D'};return '<button class="ch3d-fbtn" type="button" data-i="'+i+'" style="--fc:'+meta.c+'"><span class="ch3d-fdot"></span><span class="ch3d-fl">'+meta.n+'</span></button>';}).join('');
+    fh.innerHTML=cards.map((el,i)=>{const meta=CHN[el.dataset.ch]||{n:el.dataset.ch,c:'#0B5F8D'};return '<button class="ch3d-fbtn" type="button" data-i="'+i+'" style="--fc:'+meta.c+'"><span class="ch3d-fl">'+meta.n+'</span></button>';}).join('');
     fh.querySelectorAll('.ch3d-fbtn').forEach(b=>b.addEventListener('click',()=>_ch3dGo(+b.dataset.i)));
     if(window.gsap)window.gsap.from(fh.children,{opacity:0,x:-14,duration:.42,stagger:.06,delay:.1,ease:'power3.out',clearProps:'transform,opacity'});
   }
