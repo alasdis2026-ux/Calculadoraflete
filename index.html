@@ -4247,9 +4247,10 @@ function showSaveAnim(text){
   .rep2 .rp-kpi__v small{font-size:11px;font-weight:800;color:#94a3b8;margin-right:2px}
   .rep2 .rp-kpi__v.man-ed{cursor:pointer;border-radius:7px;padding:0 5px;margin-left:-5px;transition:background var(--fast)}
   .rep2 .rp-kpi__v.man-ed:hover{background:rgba(59,130,246,.1);box-shadow:inset 0 0 0 1px rgba(59,130,246,.3)}
-  .rep2 .rp-panel__detail{padding:14px 18px 18px}
-  .rep2 .rp-detail__hd{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#94a3b8;margin:0 0 2px}
+  .rep2 .rp-panel__detail{padding:0 18px 18px}
+  .rep2 .rp-detail__hd{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#94a3b8;margin:13px 0 2px}
   .rep2 .rp-detail__hd--mt{margin-top:14px}
+  .rep2 .rp-panel__detail>.rp-drow--sal:first-child{margin-top:0}
   .rep2 .rp-drow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 2px;border-bottom:1px dashed var(--soft-line)}
   .rep2 .rp-drow:last-child{border-bottom:none}
   .rep2 .rp-drow__l{font-size:13px;font-weight:600;color:var(--muted)}
@@ -5685,20 +5686,24 @@ async function renderReporte(){
     const salRow=(chan,count)=>'<div class="rp-drow rp-drow--sal"><span class="rp-drow__l">Salidas del mes</span><span class="rp-drow__r">'+(count>0?'<button class="ch-sal-btn" data-saldet="'+chan+'" type="button">Ver detalles</button>':'')+'<span class="rp-sal-v">'+nn(count)+'</span></span></div>';
     const incRow=(mo,ga)=>{const inc=mo>0?ga/mo:0;return drow('Incidencia',cVal(_pct(inc),inc>0.03?REDc:GREENc));};
     const objRow=(mo,ga)=>{const d=ga-mo*0.03,ov=d>0;return drow(ov?'Sobre el objetivo (3%)':'Dentro del objetivo (3%)',cVal((ov?'+':'−')+'Gs. '+nn(Math.abs(d)),ov?REDc:GREENc));};
-    const shell=(key,camN,resumen,detail)=>'<div class="rp-panel" data-ch="'+key+'" style="--sc:'+SC[key][0]+';--sc-soft:'+SC[key][1]+'">'+
+    const shell=(key,camN,sal,resumen,detail)=>'<div class="rp-panel" data-ch="'+key+'" style="--sc:'+SC[key][0]+';--sc-soft:'+SC[key][1]+'">'+
       '<div class="rp-panel__head"><span class="rp-panel__ico">'+truck+'</span><div class="rp-panel__title"><div class="rp-panel__name">'+SN[key]+'</div><div class="rp-panel__tag">'+STG[key]+'</div></div><span class="rp-panel__cams">'+nn(camN)+'<small>camiones</small></span></div>'+
-      '<div class="rp-panel__detail"><div class="rp-detail__hd">Resumen</div>'+resumen+'<div class="rp-detail__hd rp-detail__hd--mt">Desglose</div>'+detail+'</div></div>';
+      '<div class="rp-panel__detail">'+sal+'<div class="rp-detail__hd">Resumen</div>'+resumen+(detail?'<div class="rp-detail__hd rp-detail__hd--mt">Desglose</div>'+detail:'')+'</div></div>';
     const iR=drowHi('Monto repartido','<small>Gs.</small> '+nn(m.interior.monto))+drowHi('Gasto total','<small>Gs.</small> '+nn(m.interior.gastoTotal))+incRow(m.interior.monto,m.interior.gastoTotal)+objRow(m.interior.monto,m.interior.gastoTotal);
-    const iD=salRow('interior',m.salidas.interior)+drow('Peso',man(m.interior.peso,'Kg','seg.interior.peso','Peso · Interior'))+drow('Km recorridos',aut(intKm,'Km'))+drow('Pago a transportadoras',aut(m.interior.flete))+drow('Gratificaciones',man(m.interior.gratificaciones,'','seg.interior.gratificaciones','Gratificaciones · Interior'))+drow('Gasto viático',man(m.interior.viatico,'','seg.interior.viatico','Gasto viático · Interior'));
+    const iD=drow('Peso',man(m.interior.peso,'Kg','seg.interior.peso','Peso · Interior'))+drow('Km recorridos',aut(intKm,'Km'))+drow('Pago a transportadoras',aut(m.interior.flete))+drow('Gratificaciones',man(m.interior.gratificaciones,'','seg.interior.gratificaciones','Gratificaciones · Interior'))+drow('Gasto viático',man(m.interior.viatico,'','seg.interior.viatico','Gasto viático · Interior'));
     const lR=drowHi('Monto repartido','<small>Gs.</small> '+nn(m.local.monto))+drowHi('Gasto total','<small>Gs.</small> '+nn(m.local.gastoTotal))+incRow(m.local.monto,m.local.gastoTotal)+objRow(m.local.monto,m.local.gastoTotal);
-    const lD=salRow('periferia',m.salidas.periferia)+drow('Peso',man(m.local.peso,'Kg','seg.local.peso','Peso · Local'))+drow('Pago a transportadoras',aut(m.local.flete))+drow('Gasto viático',man(m.local.viatico,'','seg.local.viatico','Gasto viático · Local'));
+    const lD=drow('Peso',man(m.local.peso,'Kg','seg.local.peso','Peso · Local'))+drow('Pago a transportadoras',aut(m.local.flete))+drow('Gasto viático',man(m.local.viatico,'','seg.local.viatico','Gasto viático · Local'));
     const tMo=m.transportadora.monto||0,tGa=m.transportadora.flete||0;
     const tR=drowHi('Monto repartido','<small>Gs.</small> '+man(tMo,'','seg.transportadora.monto','Monto repartido · Transportadora'))+drowHi('Gasto (flete)','<small>Gs.</small> '+nn(tGa))+incRow(tMo,tGa)+objRow(tMo,tGa);
-    const tD=salRow('transportadora',m.salidas.transportadora);
+    const tD='';
     const sGa=m.servicios.flete||0;
     const sR=drowHi('Gasto (flete)','<small>Gs.</small> '+nn(sGa));
-    const sD=salRow('servicios',m.salidas.servicios);
-    _repSegPanels={interior:shell('interior',m.interior.cam,iR,iD),local:shell('local',m.local.cam,lR,lD),trans:shell('trans',m.transportadora.cam,tR,tD),serv:shell('serv',m.servicios.cam,sR,sD)};
+    const sD='';
+    _repSegPanels={
+      interior:shell('interior',m.interior.cam,salRow('interior',m.salidas.interior),iR,iD),
+      local:shell('local',m.local.cam,salRow('periferia',m.salidas.periferia),lR,lD),
+      trans:shell('trans',m.transportadora.cam,salRow('transportadora',m.salidas.transportadora),tR,tD),
+      serv:shell('serv',m.servicios.cam,salRow('servicios',m.salidas.servicios),sR,sD)};
   })();
   host.innerHTML='<div class="rep2">'+
     '<div class="rep2-hd"><h2><img src="logo-alas-s.a.png">Reporte General</h2>'+segBtns+'<div class="rep2-spacer"></div>'+editBtn+'</div>'+
