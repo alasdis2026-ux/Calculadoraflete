@@ -4228,11 +4228,9 @@ function showSaveAnim(text){
   .rep2 .ch3d-fbtn.on{background:#0B5F8D;border-color:#0A4F75;color:#fff;box-shadow:0 9px 20px -7px rgba(11,95,141,.6)}
   .rep2 .ch3d-fbtn.on .ch3d-fdot{background:#fff;opacity:1;transform:scale(1.15)}
   /* ===== Panel único grande "Reparto por tipo" ===== */
-  .rep2 .rp-wrap{display:flex;align-items:stretch;gap:20px;margin-top:10px}
-  .rep2 .rp-filters{width:186px;flex:0 0 auto;max-width:none;justify-content:center}
-  .rep2 .rp-logo{flex:1 1 auto;min-width:60px;align-self:stretch;background:url('logo-icon.png') no-repeat center center;background-size:auto 56%;opacity:.1;filter:grayscale(1) brightness(.55);pointer-events:none}
-  .rep2 .rp-seg-stage{flex:0 0 auto;width:min(660px,52vw);min-width:0;position:relative}
-  @media(max-width:1120px){.rep2 .rp-logo{display:none}}
+  .rep2 .rp-wrap{display:flex;align-items:flex-start;gap:22px;margin-top:10px}
+  .rep2 .rp-filters{width:186px;flex:0 0 auto;max-width:none}
+  .rep2 .rp-seg-stage{flex:1;min-width:0;position:relative}
   .rep2 .rp-panel{background:#fff;border:1px solid var(--line);border-radius:18px;box-shadow:0 14px 38px -20px rgba(15,23,42,.3);overflow:hidden}
   .rep2 .rp-panel__head{display:flex;align-items:center;gap:14px;padding:16px 22px;background:var(--sc);background-image:linear-gradient(120deg,rgba(255,255,255,.1),rgba(0,0,0,.14));color:#fff;position:relative;overflow:hidden}
   .rep2 .rp-panel__head::after{content:"";position:absolute;right:-30px;top:-40px;width:170px;height:170px;background:url('logo-icon.png') no-repeat center/contain;filter:brightness(0) invert(1);opacity:.1;pointer-events:none}
@@ -5740,7 +5738,6 @@ async function renderReporte(){
     '<div class="section-label rep-sl2">Reparto por tipo</div>'+
     '<div class="rp-wrap">'+
     '<div class="rp-filters ch3d-filters" id="repSegFilters"></div>'+
-    '<div class="rp-logo" aria-hidden="true"></div>'+
     '<div class="rp-seg-stage" id="repSegStage"></div>'+
     '<div class="rp-legacy-hidden" style="display:none">'+
       '<div class="ch-card" data-ch="int" data-cam="'+(m.interior.cam||0)+'" data-monto="'+(m.interior.monto||0)+'" data-flete="'+(m.interior.gastoTotal||0)+'"><div class="ch-top"></div><div class="ch-head"><span class="ch-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5h9v7H3zM12 10h4l3 3v1.5h-7z"/><circle cx="7" cy="16.5" r="1.5"/><circle cx="16.5" cy="16.5" r="1.5"/></svg></span><span class="ch-name">Interior</span><span class="ch-cams">'+nn(m.interior.cam)+'<small>camiones</small></span></div>'+
