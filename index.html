@@ -4217,15 +4217,15 @@ function showSaveAnim(text){
   .rep2 .ch-card{display:flex;flex-direction:column;background:#fff;border-radius:var(--radius);border:1px solid var(--line);box-shadow:0 1px 3px rgba(15,23,42,.05);overflow:hidden;transition:box-shadow var(--base),transform var(--base)}
   .rep2 .ch-card:hover{box-shadow:0 8px 22px rgba(15,23,42,.09);transform:translateY(-2px)}
   /* ===== Coverflow 3D "Reparto por tipo" (los 4 visibles) ===== */
-  .rep2 .ch3d-wrap{position:relative;display:flex;align-items:stretch;justify-content:center;gap:44px;margin-top:8px}
+  .rep2 .ch3d-wrap{position:relative;display:flex;align-items:stretch;justify-content:center;gap:44px;margin-top:14px}
   .rep2 .ch3d-wrap::before{content:"";position:absolute;left:0;top:0;bottom:0;width:26%;background:url('logo-icon.png') no-repeat center center;background-size:auto 60%;opacity:.1;filter:grayscale(1) brightness(.55);pointer-events:none;z-index:0}
   .rep2 .ch3d-aside{position:relative;z-index:2;flex:0 0 auto;display:flex;align-items:center;min-width:0}
-  .rep2 .ch3d-left{width:250px;justify-content:center;align-items:flex-start;padding-top:6px}
+  .rep2 .ch3d-left{width:250px;justify-content:center;align-items:flex-start;padding-top:0}
   .rep2 .ch3d-filters{display:flex;flex-direction:column;gap:7px;width:100%;max-width:176px}
   .rep2 .ch3d-fbtn{position:relative;display:flex;align-items:center;justify-content:center;padding:12px 16px;border:1.5px solid #DCE7F1;background:#fff;border-radius:12px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:800;color:#0B5F8D;transition:all .2s ease;text-align:center;white-space:nowrap;letter-spacing:-.1px}
   .rep2 .ch3d-fbtn:hover{border-color:#0B5F8D;background:#F2F8FC}
   .rep2 .ch3d-fbtn.on{background:linear-gradient(180deg,#0F6BA0,#0A4F75);border-color:#0A4F75;color:#fff;box-shadow:0 8px 18px -6px rgba(11,95,141,.55)}
-  .rep2 .ch3d-stats{width:250px;flex-direction:column;justify-content:flex-start;padding-top:6px;gap:9px;align-items:stretch}
+  .rep2 .ch3d-stats{width:250px;flex-direction:column;justify-content:flex-start;padding-top:0;gap:9px;align-items:stretch}
   .rep2 .ch3d-kpi{position:relative;display:flex;align-items:center;gap:11px;padding:11px 14px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 3px 12px rgba(15,23,42,.06);overflow:hidden}
   .rep2 .ch3d-kpi::before{content:"";position:absolute;left:0;top:0;right:0;height:3px;background:var(--k,#0B5F8D)}
   .rep2 .ch3d-kpi__ic{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;background:var(--k-soft,#E0EDF6);color:var(--k,#0B5F8D);flex-shrink:0}
@@ -4237,7 +4237,7 @@ function showSaveAnim(text){
   .rep2 .ch3d-kpi__sub{font-size:9.5px;font-weight:700;color:#94a3b8;margin-top:1px}
   @media(max-width:1240px){.rep2 .ch3d-logo{display:none}}
   @media(max-width:1040px){.rep2 .ch3d-stats{display:none}}
-  .rep2 .channel-grid.ch3d{flex:0 0 auto;width:min(680px,52vw);display:block;position:relative;z-index:1;height:460px;perspective:1700px;perspective-origin:50% 48%;overflow:hidden}
+  .rep2 .channel-grid.ch3d{flex:0 0 auto;width:min(680px,52vw);display:block;position:relative;z-index:1;height:420px;perspective:1700px;perspective-origin:50% 48%;overflow:hidden}
   .rep2 .channel-grid.ch3d .ch-card{position:absolute;top:0;left:50%;width:370px;max-width:80%;height:366px;transform-style:preserve-3d;will-change:transform;cursor:pointer;box-shadow:0 26px 62px -22px rgba(15,23,42,.42);-webkit-font-smoothing:antialiased;-webkit-backface-visibility:hidden;backface-visibility:hidden}
   .rep2 .channel-grid.ch3d .ch-card:hover{transform:none}
   .rep2 .channel-grid.ch3d .ch-card.is-front{cursor:default;border-color:var(--ch-color)}
