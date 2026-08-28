@@ -4247,12 +4247,16 @@ function showSaveAnim(text){
   .rep2 .rp-kpi__v small{font-size:11px;font-weight:800;color:#94a3b8;margin-right:2px}
   .rep2 .rp-kpi__v.man-ed{cursor:pointer;border-radius:7px;padding:0 5px;margin-left:-5px;transition:background var(--fast)}
   .rep2 .rp-kpi__v.man-ed:hover{background:rgba(59,130,246,.1);box-shadow:inset 0 0 0 1px rgba(59,130,246,.3)}
-  .rep2 .rp-panel__detail{padding:8px 18px 18px}
-  .rep2 .rp-detail__hd{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#94a3b8;margin:4px 0 2px}
+  .rep2 .rp-panel__detail{padding:14px 18px 18px}
+  .rep2 .rp-detail__hd{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#94a3b8;margin:0 0 2px}
+  .rep2 .rp-detail__hd--mt{margin-top:14px}
   .rep2 .rp-drow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 2px;border-bottom:1px dashed var(--soft-line)}
   .rep2 .rp-drow:last-child{border-bottom:none}
   .rep2 .rp-drow__l{font-size:13px;font-weight:600;color:var(--muted)}
-  .rep2 .rp-drow__r{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:800;color:var(--text);font-variant-numeric:tabular-nums}
+  .rep2 .rp-drow__r{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:800;color:var(--text);font-variant-numeric:tabular-nums}
+  .rep2 .rp-drow__r small{font-size:10px;font-weight:800;color:#94a3b8}
+  .rep2 .rp-drow--hi .rp-drow__l{color:var(--text);font-weight:700}
+  .rep2 .rp-drow--hi .rp-drow__r{font-size:16px}
   .rep2 .rp-drow--sal{background:var(--sc-soft);margin:0 -18px;padding:12px 18px;border-bottom:none}
   .rep2 .rp-drow--sal .rp-drow__l{color:var(--sc);font-weight:800;font-size:13.5px}
   .rep2 .rp-sal-v{font-family:Sora,Inter,sans-serif;font-size:18px;font-weight:900;color:var(--sc)}
@@ -5674,26 +5678,27 @@ async function renderReporte(){
     const icGasto='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"/></svg>';
     const icPct='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M18 6L6 18"/><circle cx="8" cy="8" r="2.4"/><circle cx="16" cy="16" r="2.4"/></svg>';
     const icObj='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M4 20V11M10 20V4M16 20v-6M22 20H2"/></svg>';
-    const kpi=(c,ic,l,v,mattr)=>'<div class="rp-kpi" style="--kc:'+c[0]+';--kcs:'+c[1]+'"><span class="rp-kpi__ic">'+ic+'</span><span class="rp-kpi__l">'+l+'</span><span class="rp-kpi__v'+(mattr?' man-ed':'')+'"'+(mattr||'')+'>'+v+'</span></div>';
+    const REDc='#DC2626',GREENc='#16A34A';
+    const cVal=(v,col)=>'<span style="color:'+col+'">'+v+'</span>';
     const drow=(l,v)=>'<div class="rp-drow"><span class="rp-drow__l">'+l+'</span><span class="rp-drow__r">'+v+'</span></div>';
+    const drowHi=(l,v)=>'<div class="rp-drow rp-drow--hi"><span class="rp-drow__l">'+l+'</span><span class="rp-drow__r">'+v+'</span></div>';
     const salRow=(chan,count)=>'<div class="rp-drow rp-drow--sal"><span class="rp-drow__l">Salidas del mes</span><span class="rp-drow__r">'+(count>0?'<button class="ch-sal-btn" data-saldet="'+chan+'" type="button">Ver detalles</button>':'')+'<span class="rp-sal-v">'+nn(count)+'</span></span></div>';
-    const shell=(key,camN,kpis,detail)=>'<div class="rp-panel" data-ch="'+key+'" style="--sc:'+SC[key][0]+';--sc-soft:'+SC[key][1]+'">'+
+    const incRow=(mo,ga)=>{const inc=mo>0?ga/mo:0;return drow('Incidencia',cVal(_pct(inc),inc>0.03?REDc:GREENc));};
+    const objRow=(mo,ga)=>{const d=ga-mo*0.03,ov=d>0;return drow(ov?'Sobre el objetivo (3%)':'Dentro del objetivo (3%)',cVal((ov?'+':'−')+'Gs. '+nn(Math.abs(d)),ov?REDc:GREENc));};
+    const shell=(key,camN,resumen,detail)=>'<div class="rp-panel" data-ch="'+key+'" style="--sc:'+SC[key][0]+';--sc-soft:'+SC[key][1]+'">'+
       '<div class="rp-panel__head"><span class="rp-panel__ico">'+truck+'</span><div class="rp-panel__title"><div class="rp-panel__name">'+SN[key]+'</div><div class="rp-panel__tag">'+STG[key]+'</div></div><span class="rp-panel__cams">'+nn(camN)+'<small>camiones</small></span></div>'+
-      '<div class="rp-panel__kpis">'+kpis+'</div>'+
-      '<div class="rp-panel__detail"><div class="rp-detail__hd">Desglose</div>'+detail+'</div></div>';
-    const incKpi=(mo,ga)=>{const inc=mo>0?ga/mo:0;return kpi(inc>0.03?RED:GREEN,icPct,'Incidencia',_pct(inc));};
-    const objKpi=(mo,ga)=>{const d=ga-mo*0.03,ov=d>0;return kpi(ov?RED:GREEN,icObj,ov?'Sobre el objetivo (3%)':'Dentro del objetivo (3%)',(ov?'+':'−')+'<small>Gs.</small> '+nn(Math.abs(d)));};
-    const iK=kpi(GREEN,icMonto,'Monto repartido','<small>Gs.</small> '+nn(m.interior.monto))+kpi(BLUE,icGasto,'Gasto total','<small>Gs.</small> '+nn(m.interior.gastoTotal))+incKpi(m.interior.monto,m.interior.gastoTotal)+objKpi(m.interior.monto,m.interior.gastoTotal);
+      '<div class="rp-panel__detail"><div class="rp-detail__hd">Resumen</div>'+resumen+'<div class="rp-detail__hd rp-detail__hd--mt">Desglose</div>'+detail+'</div></div>';
+    const iR=drowHi('Monto repartido','<small>Gs.</small> '+nn(m.interior.monto))+drowHi('Gasto total','<small>Gs.</small> '+nn(m.interior.gastoTotal))+incRow(m.interior.monto,m.interior.gastoTotal)+objRow(m.interior.monto,m.interior.gastoTotal);
     const iD=salRow('interior',m.salidas.interior)+drow('Peso',man(m.interior.peso,'Kg','seg.interior.peso','Peso · Interior'))+drow('Km recorridos',aut(intKm,'Km'))+drow('Pago a transportadoras',aut(m.interior.flete))+drow('Gratificaciones',man(m.interior.gratificaciones,'','seg.interior.gratificaciones','Gratificaciones · Interior'))+drow('Gasto viático',man(m.interior.viatico,'','seg.interior.viatico','Gasto viático · Interior'));
-    const lK=kpi(GREEN,icMonto,'Monto repartido','<small>Gs.</small> '+nn(m.local.monto))+kpi(BLUE,icGasto,'Gasto total','<small>Gs.</small> '+nn(m.local.gastoTotal))+incKpi(m.local.monto,m.local.gastoTotal)+objKpi(m.local.monto,m.local.gastoTotal);
+    const lR=drowHi('Monto repartido','<small>Gs.</small> '+nn(m.local.monto))+drowHi('Gasto total','<small>Gs.</small> '+nn(m.local.gastoTotal))+incRow(m.local.monto,m.local.gastoTotal)+objRow(m.local.monto,m.local.gastoTotal);
     const lD=salRow('periferia',m.salidas.periferia)+drow('Peso',man(m.local.peso,'Kg','seg.local.peso','Peso · Local'))+drow('Pago a transportadoras',aut(m.local.flete))+drow('Gasto viático',man(m.local.viatico,'','seg.local.viatico','Gasto viático · Local'));
     const tMo=m.transportadora.monto||0,tGa=m.transportadora.flete||0;
-    const tK=kpi(GREEN,icMonto,'Monto repartido','<small>Gs.</small> '+nn(tMo),_manAttr(tMo,'','seg.transportadora.monto','Monto repartido · Transportadora'))+kpi(BLUE,icGasto,'Gasto (flete)','<small>Gs.</small> '+nn(tGa))+incKpi(tMo,tGa)+objKpi(tMo,tGa);
+    const tR=drowHi('Monto repartido','<small>Gs.</small> '+man(tMo,'','seg.transportadora.monto','Monto repartido · Transportadora'))+drowHi('Gasto (flete)','<small>Gs.</small> '+nn(tGa))+incRow(tMo,tGa)+objRow(tMo,tGa);
     const tD=salRow('transportadora',m.salidas.transportadora);
     const sGa=m.servicios.flete||0;
-    const sK=kpi(SC.serv,icGasto,'Gasto (flete)','<small>Gs.</small> '+nn(sGa));
+    const sR=drowHi('Gasto (flete)','<small>Gs.</small> '+nn(sGa));
     const sD=salRow('servicios',m.salidas.servicios);
-    _repSegPanels={interior:shell('interior',m.interior.cam,iK,iD),local:shell('local',m.local.cam,lK,lD),trans:shell('trans',m.transportadora.cam,tK,tD),serv:shell('serv',m.servicios.cam,sK,sD)};
+    _repSegPanels={interior:shell('interior',m.interior.cam,iR,iD),local:shell('local',m.local.cam,lR,lD),trans:shell('trans',m.transportadora.cam,tR,tD),serv:shell('serv',m.servicios.cam,sR,sD)};
   })();
   host.innerHTML='<div class="rep2">'+
     '<div class="rep2-hd"><h2><img src="logo-alas-s.a.png">Reporte General</h2>'+segBtns+'<div class="rep2-spacer"></div>'+editBtn+'</div>'+
