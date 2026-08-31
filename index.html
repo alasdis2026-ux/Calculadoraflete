@@ -4199,7 +4199,42 @@ function showSaveAnim(text){
   .meta-sal-ic{width:16px;height:16px;flex-shrink:0}
   .meta-hero__sal{display:inline-flex;align-items:center;gap:8px}
   .meta-hero__sal .meta-sal-ic{width:17px;height:17px}
+  .meta-salbtn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--gray-200);background:var(--gray-50,#f8fafc);color:var(--gray-600);font-family:inherit;font-size:12px;font-weight:700;padding:6px 8px 6px 11px;border-radius:9px;cursor:pointer;transition:all .15s;align-self:flex-start}
+  .meta-salbtn:hover{border-color:var(--primary);color:var(--primary);background:#fff;box-shadow:0 4px 12px -4px rgba(11,95,141,.3)}
+  .meta-salbtn .meta-sal-ic{width:15px;height:15px}
+  .meta-salbtn .chev{width:14px;height:14px;stroke-width:2.4;opacity:.55;transition:transform .15s}
+  .meta-salbtn:hover .chev{transform:translateX(2px);opacity:.9}
+  .meta-hero__sal{cursor:pointer;font-family:inherit;transition:background .15s}
+  .meta-hero__sal:hover{background:rgba(255,255,255,.24)}
+  .meta-hero__sal .chev{width:15px;height:15px;stroke-width:2.4;opacity:.7;margin-left:2px;transition:transform .15s}
+  .meta-hero__sal:hover .chev{transform:translateX(2px)}
   .meta-empty{padding:40px;text-align:center;color:var(--gray-400);font-size:13px}
+  /* Modal de salidas por repartidor */
+  .msl-ov{position:fixed;inset:0;z-index:2000;background:rgba(15,23,42,.5);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:24px}
+  .msl-box{background:#fff;border-radius:20px;width:100%;max-width:740px;max-height:86vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 34px 90px -22px rgba(0,0,0,.45)}
+  .msl-hd{display:flex;align-items:center;gap:14px;padding:18px 22px;background:linear-gradient(120deg,#0B4F8A,#1466B0);color:#fff}
+  .msl-av{width:54px;height:54px;border-radius:15px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:Sora,Inter,sans-serif;font-weight:800;font-size:19px;color:#fff;border:2px solid rgba(255,255,255,.3);background-size:cover;background-position:center}
+  .msl-hdmeta{flex:1;min-width:0}
+  .msl-hdname{font-family:Sora,Inter,sans-serif;font-size:20px;font-weight:800;letter-spacing:-.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .msl-hdsub{font-size:12px;font-weight:600;color:rgba(255,255,255,.82);margin-top:3px}
+  .msl-close{width:36px;height:36px;border-radius:10px;border:none;background:rgba(255,255,255,.16);color:#fff;cursor:pointer;font-size:22px;line-height:1;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
+  .msl-close:hover{background:rgba(255,255,255,.3)}
+  .msl-kpis{display:flex;gap:10px;padding:16px 22px 4px;flex-wrap:wrap}
+  .msl-kpi{flex:1;min-width:110px;background:var(--gray-50,#f8fafc);border:1px solid var(--line);border-radius:12px;padding:11px 14px}
+  .msl-kpi__l{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:#94a3b8}
+  .msl-kpi__v{font-family:Sora,Inter,sans-serif;font-size:18px;font-weight:800;color:var(--text);margin-top:4px;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .msl-kpi__v small{font-size:10px;font-weight:700;color:#94a3b8}
+  .msl-tblwrap{flex:1;min-height:0;overflow-y:auto;padding:12px 22px 20px}
+  .msl-tbl{width:100%;border-collapse:collapse;font-size:13px}
+  .msl-tbl thead th{position:sticky;top:0;background:#fff;text-align:left;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:#94a3b8;padding:9px 8px;border-bottom:2px solid var(--line)}
+  .msl-tbl td{padding:10px 8px;border-bottom:1px solid var(--soft-line);color:var(--gray-700)}
+  .msl-tbl tbody tr:hover{background:var(--gray-50,#f8fafc)}
+  .msl-cam{font-weight:700;color:var(--text)}
+  .msl-r{text-align:right;font-variant-numeric:tabular-nums;font-weight:700;color:var(--text)}
+  .msl-empty{text-align:center;color:var(--gray-400);padding:34px}
+  .msl-seg{display:inline-block;font-size:10px;font-weight:800;padding:2px 9px;border-radius:99px}
+  .msl-seg--local{background:#DBEAFE;color:#0B5F8D}
+  .msl-seg--interior{background:#E0EDF6;color:#0B5F8D}
   .cf-hd{display:flex;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap}
   .cf-hd h2{margin:0;font-family:Sora,Inter,sans-serif;font-size:22px;font-weight:800;color:var(--primary);display:flex;align-items:center;gap:10px}
   .cf-hd h2 img{height:34px;object-fit:contain}
@@ -5607,6 +5642,64 @@ function _metaPickFoto(name){
   inp.click();
 }
 function _metaDelFoto(name){try{localStorage.removeItem('metaFoto:'+(name||'').trim().toLowerCase());}catch(e){}renderMetaRep();}
+function _metaInitials(n){const p=(n||'').trim().split(/\s+/);return (((p[0]||'')[0]||'')+((p[1]||'')[0]||'')).toUpperCase()||'?';}
+function _metaColor(n){let h=0;n=n||'';for(let i=0;i<n.length;i++)h=n.charCodeAt(i)+((h<<5)-h);return 'hsl('+(Math.abs(h)%360)+',50%,46%)';}
+function _metaSalidasDe(mk,seg,rep){
+  const out=[];
+  (repartos||[]).forEach(r=>{
+    if(mk&&(r.fechaISO||'').slice(0,7)!==mk)return;
+    (r.clientes||[]).forEach(cl=>{
+      const s=cl.seg||'local';
+      if(seg==='ambos'){if(s!=='local'&&s!=='interior')return;}else if(s!==seg)return;
+      let rp=(cl.rep||'').trim();if(!rp||/^tercerizado$/i.test(rp)||/^sin\srepartidor$/i.test(rp))rp='Tercerizado';
+      if(rp!==rep)return;
+      out.push({fecha:(r.fechaISO||''),cam:(cl.trDesc||'—'),zona:(cl.zona||'—'),seg:s,monto:+cl.monto||0,flete:+cl.precio||0});
+    });
+  });
+  out.sort((a,b)=>(a.fecha||'').localeCompare(b.fecha||''));
+  return out;
+}
+function _metaSalidasModal(rep){
+  const data=_metaSalidasDe(_metaMes,_metaSeg,rep);
+  const totMonto=data.reduce((a,x)=>a+x.monto,0),totFlete=data.reduce((a,x)=>a+x.flete,0);
+  const segLbl={local:'Local',interior:'Interior',ambos:'Local + Interior'}[_metaSeg];
+  const mesLbl=_metaMes?_mesLbl(_metaMes):'Todos los meses';
+  const amb=_metaSeg==='ambos';
+  const dmy=iso=>{if(!iso)return '—';const p=String(iso).slice(0,10).split('-');return p.length<3?iso:(p[2]+'/'+p[1]+'/'+p[0].slice(-2));};
+  const rows=data.length?data.map(x=>'<tr>'+
+    '<td>'+dmy(x.fecha)+'</td>'+
+    '<td class="msl-cam">'+esc(x.cam)+'</td>'+
+    '<td>'+esc(x.zona)+'</td>'+
+    (amb?'<td><span class="msl-seg msl-seg--'+x.seg+'">'+(x.seg==='local'?'Local':'Interior')+'</span></td>':'')+
+    '<td class="msl-r">'+_nnum(x.monto)+'</td>'+
+    '<td class="msl-r">'+_nnum(x.flete)+'</td>'+
+  '</tr>').join(''):'<tr><td colspan="'+(amb?6:5)+'" class="msl-empty">Sin salidas registradas.</td></tr>';
+  const foto=_metaGetFoto(rep);
+  const av=foto?'<span class="msl-av" style="background-image:url('+foto+');background-size:cover;background-position:center"></span>':'<span class="msl-av" style="background:'+_metaColor(rep)+'">'+esc(_metaInitials(rep))+'</span>';
+  const old=document.getElementById('metaSalModal');if(old)old.remove();
+  const ov=document.createElement('div');ov.id='metaSalModal';ov.className='msl-ov';
+  ov.innerHTML='<div class="msl-box">'+
+    '<div class="msl-hd">'+av+'<div class="msl-hdmeta"><div class="msl-hdname">'+esc(rep)+'</div><div class="msl-hdsub">Salidas · '+segLbl+' · '+mesLbl+'</div></div><button class="msl-close" type="button" aria-label="Cerrar">×</button></div>'+
+    '<div class="msl-kpis">'+
+      '<div class="msl-kpi"><div class="msl-kpi__l">Salidas</div><div class="msl-kpi__v">'+_nnum(data.length)+'</div></div>'+
+      '<div class="msl-kpi"><div class="msl-kpi__l">Monto</div><div class="msl-kpi__v">'+_nnum(totMonto)+'<small> Gs.</small></div></div>'+
+      '<div class="msl-kpi"><div class="msl-kpi__l">Flete</div><div class="msl-kpi__v">'+_nnum(totFlete)+'<small> Gs.</small></div></div>'+
+      '<div class="msl-kpi"><div class="msl-kpi__l">Prom. Gs/salida</div><div class="msl-kpi__v">'+_nnum(data.length>0?totMonto/data.length:0)+'</div></div>'+
+    '</div>'+
+    '<div class="msl-tblwrap"><table class="msl-tbl"><thead><tr><th>Fecha</th><th>Camión</th><th>Zona</th>'+(amb?'<th>Segmento</th>':'')+'<th class="msl-r">Monto</th><th class="msl-r">Flete</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+
+  '</div>';
+  document.body.appendChild(ov);
+  const close=()=>{if(window.gsap){window.gsap.to(ov.querySelector('.msl-box'),{y:18,scale:.98,opacity:0,duration:.2,ease:'power2.in'});window.gsap.to(ov,{opacity:0,duration:.22,onComplete:()=>ov.remove()});}else ov.remove();};
+  ov.addEventListener('click',e=>{if(e.target===ov)close();});
+  ov.querySelector('.msl-close').addEventListener('click',close);
+  const onKey=e=>{if(e.key==='Escape'){close();document.removeEventListener('keydown',onKey);}};document.addEventListener('keydown',onKey);
+  if(window.gsap){const g=window.gsap;
+    g.from(ov,{opacity:0,duration:.22});
+    g.from(ov.querySelector('.msl-box'),{y:26,scale:.96,opacity:0,duration:.42,ease:'back.out(1.4)'});
+    g.from(ov.querySelectorAll('.msl-kpi'),{opacity:0,y:10,duration:.35,stagger:.05,delay:.1,ease:'back.out(1.5)',clearProps:'all'});
+    g.from(ov.querySelectorAll('.msl-tbl tbody tr'),{opacity:0,y:8,duration:.3,stagger:.02,delay:.16,ease:'power2.out',clearProps:'opacity,transform'});
+  }
+}
 function renderMetaRep(){
   const host=document.getElementById('metaHost');if(!host)return;
   const months=_metaMonths();
@@ -5637,7 +5730,7 @@ function renderMetaRep(){
       '<div class="meta-hero__badge">★ Líder · '+segLbl+'</div>'+
       '<div class="meta-hero__name" title="'+esc(top.rep)+'">'+esc(top.rep)+'</div>'+
       '<div class="meta-hero__monto">'+_nnum(top.monto)+'<small>Gs.</small></div>'+
-      '<div class="meta-hero__sal">'+salIc+'<span>'+_nnum(top.salidas)+' salidas</span></div>'+
+      '<button class="meta-hero__sal" type="button" data-metasal="'+esc(top.rep)+'">'+salIc+'<span>'+_nnum(top.salidas)+' salidas</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 18l6-6-6-6"/></svg></button>'+
     '</div>'+
     '<div class="meta-hero__num">1</div>'+
   '</div>':'';
@@ -5649,7 +5742,7 @@ function renderMetaRep(){
       '<div class="meta-card__info">'+
         '<div class="meta-card__name" title="'+esc(d.rep)+'">'+esc(d.rep)+'</div>'+
         '<div class="meta-card__monto">'+_nnum(d.monto)+'<small>Gs.</small></div>'+
-        '<div class="meta-card__sal">'+salIc+'<span>'+_nnum(d.salidas)+' salidas</span></div>'+
+        '<button class="meta-salbtn" type="button" data-metasal="'+esc(d.rep)+'">'+salIc+'<span>'+_nnum(d.salidas)+' salidas</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 18l6-6-6-6"/></svg></button>'+
       '</div>'+
     '</div>';
   }).join('');
@@ -5669,6 +5762,7 @@ function renderMetaRep(){
   host.querySelectorAll('[data-metam]').forEach(b=>b.addEventListener('click',()=>{const base=_metaMes||curStep;const a=base.split('-').map(Number);const dd=new Date(a[0],a[1]-1+(+b.dataset.metam),1);_metaMes=dd.getFullYear()+'-'+String(dd.getMonth()+1).padStart(2,'0');renderMetaRep();}));
   const tt=host.querySelector('[data-metatotal]');if(tt)tt.addEventListener('click',()=>{_metaMes=null;renderMetaRep();});
   host.querySelectorAll('[data-metafoto]').forEach(b=>b.addEventListener('click',()=>_metaPickFoto(b.dataset.metafoto)));
+  host.querySelectorAll('[data-metasal]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();_metaSalidasModal(b.dataset.metasal);}));
   if(window.gsap){const g=window.gsap;
     g.from(host.querySelectorAll('.meta-kpi'),{opacity:0,y:14,duration:.45,stagger:.05,ease:'back.out(1.5)',clearProps:'all'});
     g.from(host.querySelectorAll('.meta-hero'),{opacity:0,y:16,scale:.98,duration:.5,delay:.08,ease:'back.out(1.4)',clearProps:'all'});
