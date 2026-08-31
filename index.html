@@ -4178,32 +4178,23 @@ function showSaveAnim(text){
   .meta-hero{position:relative;display:flex;align-items:center;gap:20px;padding:20px 24px;border-radius:20px;overflow:hidden;max-width:600px;margin:0 auto;background:linear-gradient(120deg,#0B4F8A 0%,#1466B0 58%,#1b83cf 100%);color:#fff;box-shadow:0 20px 44px -18px rgba(11,95,141,.55)}
   .meta-hero__glow{position:absolute;right:-30px;top:-70px;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,var(--hc,#3B82F6),transparent 68%);opacity:.55;pointer-events:none}
   .meta-hero__num{position:absolute;right:20px;bottom:-18px;font-family:Sora,Inter,sans-serif;font-size:120px;font-weight:800;color:rgba(255,255,255,.08);line-height:1;pointer-events:none}
-  .meta-hero__av{width:80px;height:80px;border-radius:22px;background:rgba(255,255,255,.16);border:2px solid rgba(255,255,255,.34);display:flex;align-items:center;justify-content:center;font-family:Sora,Inter,sans-serif;font-weight:800;font-size:29px;flex-shrink:0;z-index:1}
+  .meta-hero__av{width:104px;height:104px;border-radius:26px;background:rgba(255,255,255,.16);border:2px solid rgba(255,255,255,.34);display:flex;align-items:center;justify-content:center;font-family:Sora,Inter,sans-serif;font-weight:800;font-size:38px;flex-shrink:0;z-index:1}
   .meta-hero__body{flex:1;min-width:0;z-index:1}
   .meta-hero__badge{display:inline-block;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;background:rgba(255,255,255,.18);padding:5px 12px;border-radius:999px;margin-bottom:9px}
   .meta-hero__name{font-family:Sora,Inter,sans-serif;font-size:26px;font-weight:800;letter-spacing:-.5px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .meta-hero__monto{font-family:Sora,Inter,sans-serif;font-size:34px;font-weight:800;margin-top:7px;line-height:1;font-variant-numeric:tabular-nums}
+  .meta-hero__monto{font-family:Sora,Inter,sans-serif;font-size:33px;font-weight:800;margin-top:7px;line-height:1;font-variant-numeric:tabular-nums}
   .meta-hero__monto small{font-size:14px;font-weight:700;color:rgba(255,255,255,.62);margin-left:5px}
-  .meta-hero__chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:15px}
-  .meta-hero__chips span{background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.16);padding:7px 13px;border-radius:10px;font-size:12px;font-weight:600;color:rgba(255,255,255,.85)}
-  .meta-hero__chips b{font-family:Sora,Inter,sans-serif;font-weight:800;color:#fff}
-  /* Grilla de tarjetas (resto) */
-  .meta-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(232px,1fr));gap:14px}
-  .meta-card{position:relative;background:#fff;border:1px solid var(--line);border-radius:16px;padding:15px 16px;box-shadow:0 3px 12px rgba(15,23,42,.05);overflow:hidden;transition:transform .16s,box-shadow .16s}
-  .meta-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--cc,#0B5F8D)}
+  .meta-hero__sal{margin-top:12px;display:inline-block;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.16);padding:7px 14px;border-radius:10px;font-size:13px;font-weight:700;color:#fff}
+  /* Grilla de tarjetas (resto) — minimalista, retrato protagonista */
+  .meta-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:14px}
+  .meta-card{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;background:#fff;border:1px solid var(--line);border-radius:18px;padding:20px 14px 16px;box-shadow:0 3px 12px rgba(15,23,42,.05);transition:transform .16s,box-shadow .16s}
   .meta-card:hover{transform:translateY(-3px);box-shadow:0 16px 32px -12px rgba(15,23,42,.18)}
-  .meta-card__top{display:flex;align-items:center;gap:10px;margin-bottom:11px}
-  .meta-card__rank{min-width:26px;height:26px;padding:0 7px;border-radius:8px;background:var(--gray-100);color:var(--gray-500);font-family:Sora,Inter,sans-serif;font-weight:800;font-size:12.5px;display:flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums}
-  .meta-card__av{width:36px;height:36px;border-radius:10px;background:var(--cc,#0B5F8D);color:#fff;display:flex;align-items:center;justify-content:center;font-family:Sora,Inter,sans-serif;font-weight:800;font-size:13px}
-  .meta-card__share{margin-left:auto;font-size:12.5px;font-weight:800;color:var(--cc,#0B5F8D);font-variant-numeric:tabular-nums}
-  .meta-card__name{font-size:14.5px;font-weight:800;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .meta-card__mix{font-size:10.5px;font-weight:700;color:#94a3b8;margin-top:2px}
-  .meta-card__monto{font-family:Sora,Inter,sans-serif;font-size:19px;font-weight:800;color:var(--text);margin-top:9px;line-height:1;font-variant-numeric:tabular-nums}
-  .meta-card__monto small{font-size:11px;font-weight:700;color:#94a3b8;margin-left:3px}
-  .meta-card__bar{margin-top:11px;height:6px;border-radius:99px;background:var(--gray-100);overflow:hidden}
-  .meta-card__fill{height:100%;border-radius:99px;background:var(--cc,#0B5F8D)}
-  .meta-card__foot{display:flex;justify-content:space-between;gap:8px;margin-top:11px;font-size:11.5px;color:var(--gray-500);font-weight:600}
-  .meta-card__foot b{font-family:Sora,Inter,sans-serif;font-weight:800;color:var(--text)}
+  .meta-card__rank{position:absolute;top:11px;left:11px;min-width:23px;height:23px;padding:0 6px;border-radius:7px;background:var(--gray-100);color:var(--gray-500);font-family:Sora,Inter,sans-serif;font-weight:800;font-size:11.5px;display:flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums}
+  .meta-card__av{width:78px;height:78px;border-radius:22px;background:var(--cc,#0B5F8D);color:#fff;display:flex;align-items:center;justify-content:center;font-family:Sora,Inter,sans-serif;font-weight:800;font-size:26px}
+  .meta-card__name{font-size:13.5px;font-weight:800;color:var(--text);margin-top:13px;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .meta-card__monto{font-family:Sora,Inter,sans-serif;font-size:19px;font-weight:800;color:var(--primary);margin-top:8px;line-height:1;font-variant-numeric:tabular-nums}
+  .meta-card__monto small{font-size:10.5px;font-weight:700;color:#94a3b8;margin-left:3px}
+  .meta-card__sal{font-size:12px;font-weight:700;color:var(--gray-500);margin-top:7px}
   .meta-empty{padding:40px;text-align:center;color:var(--gray-400);font-size:13px}
   .cf-hd{display:flex;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap}
   .cf-hd h2{margin:0;font-family:Sora,Inter,sans-serif;font-size:22px;font-weight:800;color:var(--primary);display:flex;align-items:center;gap:10px}
@@ -5639,19 +5630,18 @@ function renderMetaRep(){
       '<div class="meta-hero__badge">★ Líder · '+segLbl+'</div>'+
       '<div class="meta-hero__name" title="'+esc(top.rep)+'">'+esc(top.rep)+'</div>'+
       '<div class="meta-hero__monto">'+_nnum(top.monto)+'<small>Gs.</small></div>'+
-      '<div class="meta-hero__chips"><span><b>'+_nnum(top.salidas)+'</b> salidas</span><span><b>'+_nnum(top.salidas>0?top.monto/top.salidas:0)+'</b> Gs/salida</span><span><b>'+share(top.monto)+'%</b> del total</span>'+(_metaSeg==='ambos'?'<span><b>'+_nnum(top.local)+'</b> local · <b>'+_nnum(top.interior)+'</b> interior</span>':'')+'</div>'+
+      '<div class="meta-hero__sal">'+_nnum(top.salidas)+' salidas</div>'+
     '</div>'+
     '<div class="meta-hero__num">1</div>'+
   '</div>':'';
   const cards=data.slice(1).map((d,j)=>{
-    const i=j+1,pct=(d.monto/maxM*100).toFixed(1),prom=d.salidas>0?d.monto/d.salidas:0;
-    const mix=_metaSeg==='ambos'?'<div class="meta-card__mix">'+_nnum(d.local)+' local · '+_nnum(d.interior)+' interior</div>':'';
+    const i=j+1;
     return '<div class="meta-card" style="--cc:'+avColor(d.rep)+'">'+
-      '<div class="meta-card__top"><span class="meta-card__rank">'+(i+1)+'</span>'+avEl(d.rep,'meta-card__av',avColor(d.rep))+'<span class="meta-card__share">'+share(d.monto)+'%</span></div>'+
-      '<div class="meta-card__name" title="'+esc(d.rep)+'">'+esc(d.rep)+'</div>'+mix+
+      '<span class="meta-card__rank">'+(i+1)+'</span>'+
+      avEl(d.rep,'meta-card__av',avColor(d.rep))+
+      '<div class="meta-card__name" title="'+esc(d.rep)+'">'+esc(d.rep)+'</div>'+
       '<div class="meta-card__monto">'+_nnum(d.monto)+'<small>Gs.</small></div>'+
-      '<div class="meta-card__bar"><div class="meta-card__fill" style="width:'+pct+'%"></div></div>'+
-      '<div class="meta-card__foot"><span><b>'+_nnum(d.salidas)+'</b> salidas</span><span><b>'+_nnum(prom)+'</b> /salida</span></div>'+
+      '<div class="meta-card__sal">'+_nnum(d.salidas)+' salidas</div>'+
     '</div>';
   }).join('');
   const listBlock=data.length?(heroBlock+(cards?'<div class="meta-grid">'+cards+'</div>':'')):'<div class="meta-empty">Sin datos de repartidores para este período.</div>';
@@ -5662,7 +5652,6 @@ function renderMetaRep(){
       '<div class="meta-kpi" style="--mkc:#0B5F8D;--mks:#E0EDF6"><span class="meta-kpi__ic">'+icPeople+'</span><div class="meta-kpi__m"><span class="meta-kpi__l">Repartidores</span><b class="meta-kpi__v">'+_nnum(nRep)+'</b></div></div>'+
       '<div class="meta-kpi" style="--mkc:#C2410C;--mks:#FFEDD5"><span class="meta-kpi__ic">'+icTruck+'</span><div class="meta-kpi__m"><span class="meta-kpi__l">Salidas · '+segLbl+'</span><b class="meta-kpi__v">'+_nnum(totSal)+'</b></div></div>'+
       '<div class="meta-kpi meta-kpi--hi"><span class="meta-kpi__ic">'+icMoney+'</span><div class="meta-kpi__m"><span class="meta-kpi__l">Monto repartido</span><b class="meta-kpi__v">'+_nnum(totMonto)+'<i>Gs.</i></b></div></div>'+
-      '<div class="meta-kpi" style="--mkc:#7C6BF0;--mks:#E9E6FD"><span class="meta-kpi__ic">'+icCoins+'</span><div class="meta-kpi__m"><span class="meta-kpi__l">Flete</span><b class="meta-kpi__v">'+_nnum(totFlete)+'<i>Gs.</i></b></div></div>'+
     '</div>'+
     listBlock+
   '</div>';
