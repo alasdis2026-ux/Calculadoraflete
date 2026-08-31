@@ -1154,6 +1154,10 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M1 3h15v13H1zm15 5h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
       <span class="label">Transportistas</span>
     </button>
+    <button class="sidebar-item" type="button" data-nav="meta">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M6 4h12v5a6 6 0 01-12 0V4zM6 6H3v2a3 3 0 003 3M18 6h3v2a3 3 0 01-3 3"/></svg>
+      <span class="label">Meta Repartidores</span>
+    </button>
     <div class="sidebar-spacer"></div>
     <div class="sidebar-user" id="ssoUserChip">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-7 8-7s8 3 8 7"/></svg>
@@ -1424,6 +1428,11 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 <!-- ═══ VIEW — ESTADÍSTICAS DEL GASTO ══════════════════ -->
 <section id="viewStats" class="stage">
   <div id="statsHost" class="cf-host"></div>
+</section>
+
+<!-- ═══ VIEW — META REPARTIDORES ═══════════════════════ -->
+<section id="viewMeta" class="stage">
+  <div id="metaHost" class="cf-host"></div>
 </section>
 
 </main>
@@ -1835,7 +1844,7 @@ function initials(name){
 /* ════════ NAVIGATION ════════════════════════════════ */
 let _lastView=null;
 function showView(v){
-  ['calc','trans','hist','dash','fact','rrep','stats'].forEach(x=>{
+  ['calc','trans','hist','dash','fact','rrep','stats','meta'].forEach(x=>{
     document.getElementById('view'+x.charAt(0).toUpperCase()+x.slice(1)).classList.toggle('is-active',x===v);
   });
   document.querySelectorAll('[data-nav]').forEach(b=>{
@@ -1855,6 +1864,7 @@ function showView(v){
   if(v==='fact')renderFacturas();
   if(v==='rrep')renderReporteRepartos();
   if(v==='stats')_cfOpenStats();
+  if(v==='meta')renderMetaRep();
 }
 document.querySelectorAll('[data-nav]').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.nav)));
 
@@ -4135,6 +4145,49 @@ function showSaveAnim(text){
 <!-- ═══════════ Gestión unificada: Reporte General + Facturas ═══════════ -->
 <style>
   .cf-host{padding:0}
+  /* ═══ Meta Repartidores ═══ */
+  .meta2{display:flex;flex-direction:column;gap:16px;padding:2px}
+  .meta-hd{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .meta-hd h2{display:flex;align-items:center;gap:10px;font-family:Sora,Inter,sans-serif;font-size:24px;font-weight:800;color:var(--primary);letter-spacing:-.4px;margin:0}
+  .meta-hd h2 img{height:34px;object-fit:contain}
+  .meta-spacer{flex:1}
+  .meta-seg{display:inline-flex;gap:3px;padding:4px;background:var(--gray-100);border:1.5px solid var(--gray-200);border-radius:12px}
+  .meta-seg__b{border:none;background:transparent;color:var(--gray-500);font-family:inherit;font-size:12.5px;font-weight:800;padding:8px 16px;border-radius:9px;cursor:pointer;transition:all .18s}
+  .meta-seg__b:hover{color:var(--gray-800)}
+  .meta-seg__b.on{color:#fff;box-shadow:0 4px 12px rgba(15,23,42,.14)}
+  .meta-seg__b.on.seg-local{background:#3B82F6}
+  .meta-seg__b.on.seg-interior{background:#0B5F8D}
+  .meta-seg__b.on.seg-ambos{background:linear-gradient(135deg,#3B82F6,#0B5F8D)}
+  .meta-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:12px}
+  .meta-kpi{position:relative;background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:0 2px 8px rgba(15,23,42,.05)}
+  .meta-kpi__l{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#94a3b8}
+  .meta-kpi__v{display:block;margin-top:6px;font-family:Sora,Inter,sans-serif;font-size:24px;font-weight:800;color:var(--text);line-height:1;font-variant-numeric:tabular-nums}
+  .meta-kpi__v i{font-size:12px;font-style:normal;font-weight:700;color:#94a3b8;margin-left:4px}
+  .meta-kpi--hi{background:linear-gradient(135deg,#0B4F8A,#1466B0);border-color:transparent;box-shadow:0 10px 26px rgba(11,95,141,.28)}
+  .meta-kpi--hi .meta-kpi__l{color:rgba(255,255,255,.72)}
+  .meta-kpi--hi .meta-kpi__v{color:#fff}.meta-kpi--hi .meta-kpi__v i{color:rgba(255,255,255,.7)}
+  .meta-listhd{display:grid;grid-template-columns:48px 1fr 96px 150px 170px;gap:12px;align-items:center;padding:2px 16px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#94a3b8}
+  .meta-listhd .mh-sal,.meta-listhd .mh-prom,.meta-listhd .mh-monto{text-align:right}
+  .meta-list{display:flex;flex-direction:column;gap:8px}
+  .meta-row{display:grid;grid-template-columns:48px 1fr 96px 150px 170px;gap:12px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:13px;padding:12px 16px;box-shadow:0 2px 8px rgba(15,23,42,.04);transition:transform .15s,box-shadow .15s}
+  .meta-row:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(15,23,42,.09)}
+  .meta-rank{display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1}
+  .meta-rank span{width:30px;height:30px;border-radius:50%;background:var(--gray-100);color:var(--gray-500);display:flex;align-items:center;justify-content:center;font-size:13px;font-family:Sora,Inter,sans-serif;font-weight:800}
+  .meta-row--top.t1{border-color:#FCD34D;box-shadow:0 6px 18px rgba(251,191,36,.22)}
+  .meta-row--top.t2{border-color:#CBD5E1}
+  .meta-row--top.t3{border-color:#E5B888}
+  .meta-row__main{min-width:0}
+  .meta-row__name{font-size:14px;font-weight:800;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:baseline;gap:8px}
+  .meta-row__mix{font-size:10.5px;font-weight:700;color:#94a3b8;flex-shrink:0}
+  .meta-bar{margin-top:7px;height:7px;border-radius:99px;background:var(--gray-100);overflow:hidden}
+  .meta-bar__fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#3B82F6,#0B5F8D)}
+  .meta-row__sal,.meta-row__prom,.meta-row__monto{text-align:right;font-family:Sora,Inter,sans-serif;font-weight:800;font-variant-numeric:tabular-nums;color:var(--text);line-height:1.1}
+  .meta-row__sal{font-size:16px}
+  .meta-row__prom{font-size:14px;color:var(--gray-600)}
+  .meta-row__monto{font-size:17px;color:var(--primary)}
+  .meta-row__sal small,.meta-row__prom small,.meta-row__monto small{display:block;font-size:9px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.3px;margin-top:3px}
+  .meta-empty{padding:40px;text-align:center;color:var(--gray-400);font-size:13px}
+  @media(max-width:860px){.meta-listhd,.meta-row{grid-template-columns:40px 1fr 84px 150px}.meta-listhd .mh-prom,.meta-row__prom{display:none}}
   .cf-hd{display:flex;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap}
   .cf-hd h2{margin:0;font-family:Sora,Inter,sans-serif;font-size:22px;font-weight:800;color:var(--primary);display:flex;align-items:center;gap:10px}
   .cf-hd h2 img{height:34px;object-fit:contain}
@@ -5497,6 +5550,70 @@ function _repFacturado(r){if(!r)return false;if(r.factura_id!=null)return !!(win
 // Facturado POR LÍNEA (cliente): usa cl.factura_id, con fallback al del reparto y a legacy por ts+semana.
 function _clFacturado(cl,r){const _repHasCl=r&&(r.clientes||[]).some(c=>c.factura_id!=null);const fid=(cl&&cl.factura_id!=null)?cl.factura_id:(_repHasCl?null:(r&&r.factura_id));if(fid!=null)return !!(window.__cfFac||[]).find(x=>x.id===fid);if(!r||!r.fechaISO)return false;const wk=(typeof isoWeekRange==='function')?isoWeekRange(r.fechaISO):null;if(!wk)return false;const own=cl.trId?tsOfTruck(cl.trId):null;const ts=(own&&own.n)||cl.tsNombre||'—';return !!_facLegacy(ts,wk.desde);}
 function _cfLines(mk){const out=[];(repartos||[]).forEach(r=>{if(mk&&(r.fechaISO||'').slice(0,7)!==mk)return;(r.clientes||[]).forEach(cl=>{if(!_clFacturado(cl,r))return;out.push({seg:cl.seg||'local',monto:+cl.monto||0,flete:+cl.precio||0,cam:(cl.trDesc||'').toUpperCase(),km:+cl.km||0});});});return out;}
+
+/* ═══ META REPARTIDORES — ranking por monto (Local / Interior) ═══ */
+let _metaSeg='local',_metaMes=null;
+function _metaMonths(){return [...new Set((repartos||[]).map(r=>(r.fechaISO||'').slice(0,7)).filter(Boolean))].sort().reverse();}
+function _metaData(mk,seg){
+  const map={};
+  (repartos||[]).forEach(r=>{
+    if(mk&&(r.fechaISO||'').slice(0,7)!==mk)return;
+    (r.clientes||[]).forEach(cl=>{
+      const s=cl.seg||'local';
+      if(seg==='ambos'){if(s!=='local'&&s!=='interior')return;}else if(s!==seg)return;
+      const rep=((cl.rep||'').trim())||'Sin repartidor';
+      const o=map[rep]||(map[rep]={rep:rep,salidas:0,monto:0,flete:0,km:0,local:0,interior:0});
+      o.salidas++;o.monto+=+cl.monto||0;o.flete+=+cl.precio||0;o.km+=+cl.km||0;
+      if(s==='local')o.local++;else if(s==='interior')o.interior++;
+    });
+  });
+  return Object.values(map).sort((a,b)=>(b.monto-a.monto)||(b.salidas-a.salidas));
+}
+function renderMetaRep(){
+  const host=document.getElementById('metaHost');if(!host)return;
+  const months=_metaMonths();
+  if(_metaMes&&months.indexOf(_metaMes)<0)_metaMes=null;
+  const curStep=_metaMes||months[0]||(new Date().getFullYear()+'-'+String(new Date().getMonth()+1).padStart(2,'0'));
+  const data=_metaData(_metaMes,_metaSeg);
+  const maxM=data.reduce((a,d)=>Math.max(a,d.monto),0)||1;
+  const totMonto=data.reduce((a,d)=>a+d.monto,0),totSal=data.reduce((a,d)=>a+d.salidas,0),totFlete=data.reduce((a,d)=>a+d.flete,0),nRep=data.length;
+  const segLbl={local:'Local',interior:'Interior',ambos:'Local + Interior'}[_metaSeg];
+  const medal=i=>i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
+  const mnav='<div class="rr-mnav"><button data-metam="-1" aria-label="Mes anterior">‹</button><span>'+_mesLbl(curStep)+'</span><button data-metam="1" aria-label="Mes siguiente">›</button><button class="rr-mnav__today'+(!_metaMes?' on':'')+'" data-metatotal type="button">Total</button></div>';
+  const seg=(k,l)=>'<button class="meta-seg__b'+(_metaSeg===k?' on seg-'+k:'')+'" data-metaseg="'+k+'" type="button">'+l+'</button>';
+  const rows=data.length?data.map((d,i)=>{
+    const pct=(d.monto/maxM*100).toFixed(1),prom=d.salidas>0?d.monto/d.salidas:0;
+    const sub=_metaSeg==='ambos'?'<span class="meta-row__mix">'+_nnum(d.local)+' local · '+_nnum(d.interior)+' interior</span>':'';
+    return '<div class="meta-row'+(i<3?' meta-row--top t'+(i+1):'')+'">'+
+      '<div class="meta-rank">'+(medal(i)||('<span>'+(i+1)+'</span>'))+'</div>'+
+      '<div class="meta-row__main"><div class="meta-row__name">'+esc(d.rep)+sub+'</div>'+
+        '<div class="meta-bar"><div class="meta-bar__fill" style="width:'+pct+'%"></div></div></div>'+
+      '<div class="meta-row__sal">'+_nnum(d.salidas)+'<small>salidas</small></div>'+
+      '<div class="meta-row__prom">'+_nnum(prom)+'<small>Gs/salida</small></div>'+
+      '<div class="meta-row__monto">'+_nnum(d.monto)+'<small>Gs.</small></div>'+
+    '</div>';
+  }).join(''):'<div class="meta-empty">Sin datos de repartidores para este período.</div>';
+  host.innerHTML='<div class="meta2">'+
+    '<div class="meta-hd"><h2><img src="logo-alas-s.a.png">Meta Repartidores</h2>'+mnav+'<div class="meta-spacer"></div>'+
+      '<div class="meta-seg">'+seg('local','Local')+seg('interior','Interior')+seg('ambos','Ambos')+'</div></div>'+
+    '<div class="meta-kpis">'+
+      '<div class="meta-kpi"><span class="meta-kpi__l">Repartidores</span><b class="meta-kpi__v">'+_nnum(nRep)+'</b></div>'+
+      '<div class="meta-kpi"><span class="meta-kpi__l">Salidas · '+segLbl+'</span><b class="meta-kpi__v">'+_nnum(totSal)+'</b></div>'+
+      '<div class="meta-kpi meta-kpi--hi"><span class="meta-kpi__l">Monto repartido</span><b class="meta-kpi__v">'+_nnum(totMonto)+'<i>Gs.</i></b></div>'+
+      '<div class="meta-kpi"><span class="meta-kpi__l">Flete</span><b class="meta-kpi__v">'+_nnum(totFlete)+'<i>Gs.</i></b></div>'+
+    '</div>'+
+    '<div class="meta-listhd"><span class="mh-rank">#</span><span class="mh-name">Repartidor</span><span class="mh-sal">Salidas</span><span class="mh-prom">Prom. Gs/salida</span><span class="mh-monto">Monto</span></div>'+
+    '<div class="meta-list">'+rows+'</div>'+
+  '</div>';
+  host.querySelectorAll('[data-metaseg]').forEach(b=>b.addEventListener('click',()=>{if(_metaSeg===b.dataset.metaseg)return;_metaSeg=b.dataset.metaseg;renderMetaRep();}));
+  host.querySelectorAll('[data-metam]').forEach(b=>b.addEventListener('click',()=>{const base=_metaMes||curStep;const a=base.split('-').map(Number);const dd=new Date(a[0],a[1]-1+(+b.dataset.metam),1);_metaMes=dd.getFullYear()+'-'+String(dd.getMonth()+1).padStart(2,'0');renderMetaRep();}));
+  const tt=host.querySelector('[data-metatotal]');if(tt)tt.addEventListener('click',()=>{_metaMes=null;renderMetaRep();});
+  if(window.gsap){const g=window.gsap;
+    g.from(host.querySelectorAll('.meta-kpi'),{opacity:0,y:14,duration:.45,stagger:.05,ease:'back.out(1.5)',clearProps:'all'});
+    g.from(host.querySelectorAll('.meta-row'),{opacity:0,y:12,duration:.4,stagger:.03,delay:.08,ease:'power3.out',clearProps:'opacity,transform'});
+    g.fromTo(host.querySelectorAll('.meta-bar__fill'),{scaleX:0,transformOrigin:'left center'},{scaleX:1,duration:.7,stagger:.03,delay:.18,ease:'power3.out'});
+  }
+}
 // Monto e incidencia agrupados por zona (para el Reporte General)
 function _cfZonas(mk,seg){const map={};(repartos||[]).forEach(r=>{if(mk&&(r.fechaISO||'').slice(0,7)!==mk)return;(r.clientes||[]).forEach(c=>{if(!_clFacturado(c,r))return;if(seg&&seg!=='todos'&&(c.seg||'local')!==seg)return;const z=((c.zona||'').trim())||'Sin zona';const o=map[z]||(map[z]={zona:z,monto:0,flete:0,peso:0});o.monto+=+c.monto||0;o.flete+=+c.precio||0;o.peso+=+c.peso||0;});});return Object.values(map).map(z=>({zona:z.zona,monto:z.monto,flete:z.flete,peso:z.peso,incidencia:z.monto>0?z.flete/z.monto:0})).sort((a,b)=>b.monto-a.monto);}
 let _cfZonaSeg='todos';
