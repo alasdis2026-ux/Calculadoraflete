@@ -6670,7 +6670,9 @@ function renderReporteRepartos(){
   const wkObj=_rrWeek?weeks.find(w=>w.desde===_rrWeek):null;
   const periodLbl=wkObj?(_dispD(_clipD(wkObj.desde))+' al '+_dispD(_clipD(wkObj.hasta))):'Mes completo';
   // Chips de semana: punto en pulso sobre la semana actual + conteo de planillas por semana (cortado por mes)
-  const chips='<div class="rr-chips">'+weeks.map(w=>{const isCur=today>=w.desde&&today<=w.hasta;const n=_planillasDe(null,w.desde,_rrMes).length;return '<button class="rr-chip'+(_rrWeek===w.desde?' on':'')+'" data-rrw="'+w.desde+'">'+(isCur?'<span class="rr-chip__dot" title="Semana actual"></span>':'')+_shD(_clipD(w.desde))+'–'+_shD(_clipD(w.hasta))+(n?'<span class="rr-chip__n">'+n+'</span>':'')+'</button>';}).join('')+'</div>';
+  const _monthN=_rrGroups(null).length;
+  const allChip='<button class="rr-chip rr-chip--all'+(_rrWeek===null?' on':'')+'" data-rrw="" type="button">Todo el mes'+(_monthN?'<span class="rr-chip__n">'+_monthN+'</span>':'')+'</button>';
+  const chips='<div class="rr-chips">'+allChip+weeks.map(w=>{const isCur=today>=w.desde&&today<=w.hasta;const n=_planillasDe(null,w.desde,_rrMes).length;return '<button class="rr-chip'+(_rrWeek===w.desde?' on':'')+'" data-rrw="'+w.desde+'">'+(isCur?'<span class="rr-chip__dot" title="Semana actual"></span>':'')+_shD(_clipD(w.desde))+'–'+_shD(_clipD(w.hasta))+(n?'<span class="rr-chip__n">'+n+'</span>':'')+'</button>';}).join('')+'</div>';
   const nav='<div class="rr-mnav"><button data-rrm="-1" aria-label="Mes anterior">‹</button><span>'+monthLbl+'</span><button data-rrm="1" aria-label="Mes siguiente">›</button><button class="rr-mnav__today" data-rrtoday type="button">Semana actual</button></div>';
   // Filtro de segmento PRO: ícono minimalista + label, centrado, con entrada GSAP
   const SEGF=[
