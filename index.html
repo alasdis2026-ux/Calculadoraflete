@@ -5608,9 +5608,11 @@ function renderMetaRep(){
   const months=_metaMonths();
   if(_metaMes&&months.indexOf(_metaMes)<0)_metaMes=null;
   const curStep=_metaMes||months[0]||(new Date().getFullYear()+'-'+String(new Date().getMonth()+1).padStart(2,'0'));
-  const data=_metaData(_metaMes,_metaSeg);
+  const all=_metaData(_metaMes,_metaSeg);
+  const terc=all.find(d=>d.rep==='Tercerizado')||null;
+  const data=all.filter(d=>d.rep!=='Tercerizado');
   const maxM=data.reduce((a,d)=>Math.max(a,d.monto),0)||1;
-  const totMonto=data.reduce((a,d)=>a+d.monto,0),totSal=data.reduce((a,d)=>a+d.salidas,0),totFlete=data.reduce((a,d)=>a+d.flete,0),nRep=data.length;
+  const totMonto=data.reduce((a,d)=>a+d.monto,0),totSal=data.reduce((a,d)=>a+d.salidas,0),nRep=data.length;
   const segLbl={local:'Local',interior:'Interior',ambos:'Local + Interior'}[_metaSeg];
   const initials=n=>{const p=(n||'').trim().split(/\s+/);return (((p[0]||'')[0]||'')+((p[1]||'')[0]||'')).toUpperCase()||'?';};
   const avColor=n=>{let h=0;for(let i=0;i<n.length;i++)h=n.charCodeAt(i)+((h<<5)-h);return 'hsl('+(Math.abs(h)%360)+',50%,46%)';};
@@ -5652,6 +5654,7 @@ function renderMetaRep(){
       '<div class="meta-kpi" style="--mkc:#0B5F8D;--mks:#E0EDF6"><span class="meta-kpi__ic">'+icPeople+'</span><div class="meta-kpi__m"><span class="meta-kpi__l">Repartidores</span><b class="meta-kpi__v">'+_nnum(nRep)+'</b></div></div>'+
       '<div class="meta-kpi" style="--mkc:#C2410C;--mks:#FFEDD5"><span class="meta-kpi__ic">'+icTruck+'</span><div class="meta-kpi__m"><span class="meta-kpi__l">Salidas · '+segLbl+'</span><b class="meta-kpi__v">'+_nnum(totSal)+'</b></div></div>'+
       '<div class="meta-kpi meta-kpi--hi"><span class="meta-kpi__ic">'+icMoney+'</span><div class="meta-kpi__m"><span class="meta-kpi__l">Monto repartido</span><b class="meta-kpi__v">'+_nnum(totMonto)+'<i>Gs.</i></b></div></div>'+
+      (terc?'<div class="meta-kpi" style="--mkc:#7C6BF0;--mks:#E9E6FD"><span class="meta-kpi__ic">'+icCoins+'</span><div class="meta-kpi__m"><span class="meta-kpi__l">Tercerizado · '+_nnum(terc.salidas)+' sal.</span><b class="meta-kpi__v">'+_nnum(terc.monto)+'<i>Gs.</i></b></div></div>':'')+
     '</div>'+
     listBlock+
   '</div>';
