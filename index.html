@@ -4159,23 +4159,29 @@ function showSaveAnim(text){
   .meta-seg__b.on.seg-interior{background:#0B5F8D}
   .meta-seg__b.on.seg-ambos{background:linear-gradient(135deg,#3B82F6,#0B5F8D)}
   .meta-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:12px}
-  .meta-kpi{position:relative;background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:0 2px 8px rgba(15,23,42,.05)}
+  .meta-kpi{position:relative;display:flex;align-items:center;gap:13px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:0 2px 8px rgba(15,23,42,.05)}
+  .meta-kpi__ic{width:42px;height:42px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:var(--mks,#E0EDF6);color:var(--mkc,#0B5F8D)}
+  .meta-kpi__ic svg{width:22px;height:22px}
+  .meta-kpi__m{min-width:0}
   .meta-kpi__l{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#94a3b8}
-  .meta-kpi__v{display:block;margin-top:6px;font-family:Sora,Inter,sans-serif;font-size:24px;font-weight:800;color:var(--text);line-height:1;font-variant-numeric:tabular-nums}
+  .meta-kpi__v{display:block;margin-top:5px;font-family:Sora,Inter,sans-serif;font-size:23px;font-weight:800;color:var(--text);line-height:1;font-variant-numeric:tabular-nums}
   .meta-kpi__v i{font-size:12px;font-style:normal;font-weight:700;color:#94a3b8;margin-left:4px}
   .meta-kpi--hi{background:linear-gradient(135deg,#0B4F8A,#1466B0);border-color:transparent;box-shadow:0 10px 26px rgba(11,95,141,.28)}
+  .meta-kpi--hi .meta-kpi__ic{background:rgba(255,255,255,.18);color:#fff}
   .meta-kpi--hi .meta-kpi__l{color:rgba(255,255,255,.72)}
   .meta-kpi--hi .meta-kpi__v{color:#fff}.meta-kpi--hi .meta-kpi__v i{color:rgba(255,255,255,.7)}
-  .meta-listhd{display:grid;grid-template-columns:48px 1fr 96px 150px 170px;gap:12px;align-items:center;padding:2px 16px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#94a3b8}
+  .meta-listhd{display:grid;grid-template-columns:34px 40px 1fr 84px 140px 156px;gap:12px;align-items:center;padding:2px 16px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#94a3b8}
   .meta-listhd .mh-sal,.meta-listhd .mh-prom,.meta-listhd .mh-monto{text-align:right}
   .meta-list{display:flex;flex-direction:column;gap:8px}
-  .meta-row{display:grid;grid-template-columns:48px 1fr 96px 150px 170px;gap:12px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:13px;padding:12px 16px;box-shadow:0 2px 8px rgba(15,23,42,.04);transition:transform .15s,box-shadow .15s}
+  .meta-row{display:grid;grid-template-columns:34px 40px 1fr 84px 140px 156px;gap:12px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:13px;padding:11px 16px;box-shadow:0 2px 8px rgba(15,23,42,.04);transition:transform .15s,box-shadow .15s}
   .meta-row:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(15,23,42,.09)}
-  .meta-rank{display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1}
-  .meta-rank span{width:30px;height:30px;border-radius:50%;background:var(--gray-100);color:var(--gray-500);display:flex;align-items:center;justify-content:center;font-size:13px;font-family:Sora,Inter,sans-serif;font-weight:800}
-  .meta-row--top.t1{border-color:#FCD34D;box-shadow:0 6px 18px rgba(251,191,36,.22)}
-  .meta-row--top.t2{border-color:#CBD5E1}
-  .meta-row--top.t3{border-color:#E5B888}
+  .meta-rank{display:flex;align-items:center;justify-content:center}
+  .meta-rank span{min-width:28px;height:28px;padding:0 6px;border-radius:8px;background:var(--gray-100);color:var(--gray-500);display:flex;align-items:center;justify-content:center;font-size:13px;font-family:Sora,Inter,sans-serif;font-weight:800;font-variant-numeric:tabular-nums}
+  .meta-row--top.r1 .meta-rank span{background:var(--primary);color:#fff}
+  .meta-row--top.r2 .meta-rank span{background:#DBEAFE;color:var(--primary)}
+  .meta-row--top.r3 .meta-rank span{background:#E0EDF6;color:var(--primary)}
+  .meta-row--top.r1{border-color:rgba(11,95,141,.3)}
+  .meta-av{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;color:#fff;font-family:Sora,Inter,sans-serif;font-weight:800;font-size:14px;flex-shrink:0;letter-spacing:.3px}
   .meta-row__main{min-width:0}
   .meta-row__name{font-size:14px;font-weight:800;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:baseline;gap:8px}
   .meta-row__mix{font-size:10.5px;font-weight:700;color:#94a3b8;flex-shrink:0}
@@ -5561,7 +5567,8 @@ function _metaData(mk,seg){
     (r.clientes||[]).forEach(cl=>{
       const s=cl.seg||'local';
       if(seg==='ambos'){if(s!=='local'&&s!=='interior')return;}else if(s!==seg)return;
-      const rep=((cl.rep||'').trim())||'Sin repartidor';
+      let rep=(cl.rep||'').trim();
+      if(!rep||/^tercerizado$/i.test(rep)||/^sin\srepartidor$/i.test(rep))rep='Tercerizado';
       const o=map[rep]||(map[rep]={rep:rep,salidas:0,monto:0,flete:0,km:0,local:0,interior:0});
       o.salidas++;o.monto+=+cl.monto||0;o.flete+=+cl.precio||0;o.km+=+cl.km||0;
       if(s==='local')o.local++;else if(s==='interior')o.interior++;
@@ -5578,14 +5585,20 @@ function renderMetaRep(){
   const maxM=data.reduce((a,d)=>Math.max(a,d.monto),0)||1;
   const totMonto=data.reduce((a,d)=>a+d.monto,0),totSal=data.reduce((a,d)=>a+d.salidas,0),totFlete=data.reduce((a,d)=>a+d.flete,0),nRep=data.length;
   const segLbl={local:'Local',interior:'Interior',ambos:'Local + Interior'}[_metaSeg];
-  const medal=i=>i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
+  const initials=n=>{const p=(n||'').trim().split(/\s+/);return (((p[0]||'')[0]||'')+((p[1]||'')[0]||'')).toUpperCase()||'?';};
+  const avColor=n=>{let h=0;for(let i=0;i<n.length;i++)h=n.charCodeAt(i)+((h<<5)-h);return 'hsl('+(Math.abs(h)%360)+',50%,46%)';};
   const mnav='<div class="rr-mnav"><button data-metam="-1" aria-label="Mes anterior">‹</button><span>'+_mesLbl(curStep)+'</span><button data-metam="1" aria-label="Mes siguiente">›</button><button class="rr-mnav__today'+(!_metaMes?' on':'')+'" data-metatotal type="button">Total</button></div>';
   const seg=(k,l)=>'<button class="meta-seg__b'+(_metaSeg===k?' on seg-'+k:'')+'" data-metaseg="'+k+'" type="button">'+l+'</button>';
+  const icPeople='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="9" cy="8" r="3.4"/><path d="M2.5 20c0-3.3 2.9-5.2 6.5-5.2S15.5 16.7 15.5 20"/><path d="M16.5 5.2a3.2 3.2 0 010 6.2M21.5 20c0-2.4-1.1-3.9-2.9-4.7"/></svg>';
+  const icTruck='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M3 6.5h11v9H3zM14 9.5h4l3 3v3h-7z"/><circle cx="7" cy="18" r="1.7"/><circle cx="17.5" cy="18" r="1.7"/></svg>';
+  const icMoney='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg>';
+  const icCoins='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"/></svg>';
   const rows=data.length?data.map((d,i)=>{
     const pct=(d.monto/maxM*100).toFixed(1),prom=d.salidas>0?d.monto/d.salidas:0;
     const sub=_metaSeg==='ambos'?'<span class="meta-row__mix">'+_nnum(d.local)+' local · '+_nnum(d.interior)+' interior</span>':'';
-    return '<div class="meta-row'+(i<3?' meta-row--top t'+(i+1):'')+'">'+
-      '<div class="meta-rank">'+(medal(i)||('<span>'+(i+1)+'</span>'))+'</div>'+
+    return '<div class="meta-row'+(i<3?' meta-row--top r'+(i+1):'')+'">'+
+      '<div class="meta-rank"><span>'+(i+1)+'</span></div>'+
+      '<div class="meta-av" style="background:'+avColor(d.rep)+'">'+esc(initials(d.rep))+'</div>'+
       '<div class="meta-row__main"><div class="meta-row__name">'+esc(d.rep)+sub+'</div>'+
         '<div class="meta-bar"><div class="meta-bar__fill" style="width:'+pct+'%"></div></div></div>'+
       '<div class="meta-row__sal">'+_nnum(d.salidas)+'<small>salidas</small></div>'+
@@ -5593,17 +5606,17 @@ function renderMetaRep(){
       '<div class="meta-row__monto">'+_nnum(d.monto)+'<small>Gs.</small></div>'+
     '</div>';
   }).join(''):'<div class="meta-empty">Sin datos de repartidores para este período.</div>';
+  const listBlock='<div class="meta-listhd"><span class="mh-rank">#</span><span></span><span class="mh-name">Repartidor</span><span class="mh-sal">Salidas</span><span class="mh-prom">Prom. Gs/salida</span><span class="mh-monto">Monto</span></div><div class="meta-list">'+rows+'</div>';
   host.innerHTML='<div class="meta2">'+
     '<div class="meta-hd"><h2><img src="logo-alas-s.a.png">Meta Repartidores</h2>'+mnav+'<div class="meta-spacer"></div>'+
       '<div class="meta-seg">'+seg('local','Local')+seg('interior','Interior')+seg('ambos','Ambos')+'</div></div>'+
     '<div class="meta-kpis">'+
-      '<div class="meta-kpi"><span class="meta-kpi__l">Repartidores</span><b class="meta-kpi__v">'+_nnum(nRep)+'</b></div>'+
-      '<div class="meta-kpi"><span class="meta-kpi__l">Salidas · '+segLbl+'</span><b class="meta-kpi__v">'+_nnum(totSal)+'</b></div>'+
-      '<div class="meta-kpi meta-kpi--hi"><span class="meta-kpi__l">Monto repartido</span><b class="meta-kpi__v">'+_nnum(totMonto)+'<i>Gs.</i></b></div>'+
-      '<div class="meta-kpi"><span class="meta-kpi__l">Flete</span><b class="meta-kpi__v">'+_nnum(totFlete)+'<i>Gs.</i></b></div>'+
+      '<div class="meta-kpi" style="--mkc:#0B5F8D;--mks:#E0EDF6"><span class="meta-kpi__ic">'+icPeople+'</span><div class="meta-kpi__m"><span class="meta-kpi__l">Repartidores</span><b class="meta-kpi__v">'+_nnum(nRep)+'</b></div></div>'+
+      '<div class="meta-kpi" style="--mkc:#C2410C;--mks:#FFEDD5"><span class="meta-kpi__ic">'+icTruck+'</span><div class="meta-kpi__m"><span class="meta-kpi__l">Salidas · '+segLbl+'</span><b class="meta-kpi__v">'+_nnum(totSal)+'</b></div></div>'+
+      '<div class="meta-kpi meta-kpi--hi"><span class="meta-kpi__ic">'+icMoney+'</span><div class="meta-kpi__m"><span class="meta-kpi__l">Monto repartido</span><b class="meta-kpi__v">'+_nnum(totMonto)+'<i>Gs.</i></b></div></div>'+
+      '<div class="meta-kpi" style="--mkc:#7C6BF0;--mks:#E9E6FD"><span class="meta-kpi__ic">'+icCoins+'</span><div class="meta-kpi__m"><span class="meta-kpi__l">Flete</span><b class="meta-kpi__v">'+_nnum(totFlete)+'<i>Gs.</i></b></div></div>'+
     '</div>'+
-    '<div class="meta-listhd"><span class="mh-rank">#</span><span class="mh-name">Repartidor</span><span class="mh-sal">Salidas</span><span class="mh-prom">Prom. Gs/salida</span><span class="mh-monto">Monto</span></div>'+
-    '<div class="meta-list">'+rows+'</div>'+
+    listBlock+
   '</div>';
   host.querySelectorAll('[data-metaseg]').forEach(b=>b.addEventListener('click',()=>{if(_metaSeg===b.dataset.metaseg)return;_metaSeg=b.dataset.metaseg;renderMetaRep();}));
   host.querySelectorAll('[data-metam]').forEach(b=>b.addEventListener('click',()=>{const base=_metaMes||curStep;const a=base.split('-').map(Number);const dd=new Date(a[0],a[1]-1+(+b.dataset.metam),1);_metaMes=dd.getFullYear()+'-'+String(dd.getMonth()+1).padStart(2,'0');renderMetaRep();}));
