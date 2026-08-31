@@ -4170,8 +4170,12 @@ function showSaveAnim(text){
   .meta-kpi--hi .meta-kpi__ic{background:rgba(255,255,255,.18);color:#fff}
   .meta-kpi--hi .meta-kpi__l{color:rgba(255,255,255,.72)}
   .meta-kpi--hi .meta-kpi__v{color:#fff}.meta-kpi--hi .meta-kpi__v i{color:rgba(255,255,255,.7)}
+  /* Avatar clickeable (foto o iniciales) */
+  .meta-av{position:relative;overflow:hidden;border:none;padding:0;cursor:pointer;background-size:cover;background-position:center;color:#fff;font-family:Sora,Inter,sans-serif;font-weight:800;letter-spacing:.3px}
+  .meta-av::after{content:"";position:absolute;inset:0;background-color:rgba(0,0,0,.4);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z'/%3E%3Ccircle cx='12' cy='13' r='4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:center;background-size:42%;opacity:0;transition:opacity .15s;pointer-events:none}
+  .meta-av:hover::after{opacity:1}
   /* Hero del líder */
-  .meta-hero{position:relative;display:flex;align-items:center;gap:22px;padding:22px 26px;border-radius:20px;overflow:hidden;background:linear-gradient(120deg,#0B4F8A 0%,#1466B0 58%,#1b83cf 100%);color:#fff;box-shadow:0 20px 44px -18px rgba(11,95,141,.55)}
+  .meta-hero{position:relative;display:flex;align-items:center;gap:20px;padding:20px 24px;border-radius:20px;overflow:hidden;max-width:600px;margin:0 auto;background:linear-gradient(120deg,#0B4F8A 0%,#1466B0 58%,#1b83cf 100%);color:#fff;box-shadow:0 20px 44px -18px rgba(11,95,141,.55)}
   .meta-hero__glow{position:absolute;right:-30px;top:-70px;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,var(--hc,#3B82F6),transparent 68%);opacity:.55;pointer-events:none}
   .meta-hero__num{position:absolute;right:20px;bottom:-18px;font-family:Sora,Inter,sans-serif;font-size:120px;font-weight:800;color:rgba(255,255,255,.08);line-height:1;pointer-events:none}
   .meta-hero__av{width:80px;height:80px;border-radius:22px;background:rgba(255,255,255,.16);border:2px solid rgba(255,255,255,.34);display:flex;align-items:center;justify-content:center;font-family:Sora,Inter,sans-serif;font-weight:800;font-size:29px;flex-shrink:0;z-index:1}
@@ -5583,6 +5587,31 @@ function _metaData(mk,seg){
   });
   return Object.values(map).sort((a,b)=>(b.monto-a.monto)||(b.salidas-a.salidas));
 }
+function _metaGetFoto(name){try{return localStorage.getItem('metaFoto:'+(name||'').trim().toLowerCase())||'';}catch(e){return '';}}
+function _metaPickFoto(name){
+  const inp=document.createElement('input');inp.type='file';inp.accept='image/*';
+  inp.onchange=function(){
+    const f=inp.files&&inp.files[0];if(!f)return;
+    const rd=new FileReader();
+    rd.onload=function(){
+      const img=new Image();
+      img.onload=function(){
+        try{
+          const size=240,c=document.createElement('canvas');c.width=size;c.height=size;
+          const ctx=c.getContext('2d'),s=Math.min(img.width,img.height),sx=(img.width-s)/2,sy=(img.height-s)/2;
+          ctx.drawImage(img,sx,sy,s,s,0,0,size,size);
+          const url=c.toDataURL('image/jpeg',0.82);
+          localStorage.setItem('metaFoto:'+(name||'').trim().toLowerCase(),url);
+          renderMetaRep();if(window.showToast)showToast('Foto de '+name+' actualizada');
+        }catch(e){if(window.showToast)showToast('No pude guardar la foto (muy grande)');}
+      };
+      img.src=rd.result;
+    };
+    rd.readAsDataURL(f);
+  };
+  inp.click();
+}
+function _metaDelFoto(name){try{localStorage.removeItem('metaFoto:'+(name||'').trim().toLowerCase());}catch(e){}renderMetaRep();}
 function renderMetaRep(){
   const host=document.getElementById('metaHost');if(!host)return;
   const months=_metaMonths();
@@ -5594,6 +5623,7 @@ function renderMetaRep(){
   const segLbl={local:'Local',interior:'Interior',ambos:'Local + Interior'}[_metaSeg];
   const initials=n=>{const p=(n||'').trim().split(/\s+/);return (((p[0]||'')[0]||'')+((p[1]||'')[0]||'')).toUpperCase()||'?';};
   const avColor=n=>{let h=0;for(let i=0;i<n.length;i++)h=n.charCodeAt(i)+((h<<5)-h);return 'hsl('+(Math.abs(h)%360)+',50%,46%)';};
+  const avEl=(name,cls,bg)=>{const f=_metaGetFoto(name);return '<button type="button" class="meta-av '+cls+(f?' has-foto':'')+'" data-metafoto="'+esc(name)+'" title="'+(f?'Cambiar':'Cargar')+' foto de '+esc(name)+'"'+(f?' style="background-image:url('+f+');background-size:cover;background-position:center"':(bg?' style="background:'+bg+'"':''))+'>'+(f?'':esc(initials(name)))+'</button>';};
   const mnav='<div class="rr-mnav"><button data-metam="-1" aria-label="Mes anterior">‹</button><span>'+_mesLbl(curStep)+'</span><button data-metam="1" aria-label="Mes siguiente">›</button><button class="rr-mnav__today'+(!_metaMes?' on':'')+'" data-metatotal type="button">Total</button></div>';
   const seg=(k,l)=>'<button class="meta-seg__b'+(_metaSeg===k?' on seg-'+k:'')+'" data-metaseg="'+k+'" type="button">'+l+'</button>';
   const icPeople='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="9" cy="8" r="3.4"/><path d="M2.5 20c0-3.3 2.9-5.2 6.5-5.2S15.5 16.7 15.5 20"/><path d="M16.5 5.2a3.2 3.2 0 010 6.2M21.5 20c0-2.4-1.1-3.9-2.9-4.7"/></svg>';
@@ -5604,7 +5634,7 @@ function renderMetaRep(){
   const top=data[0];
   const heroBlock=top?'<div class="meta-hero" style="--hc:'+avColor(top.rep)+'">'+
     '<div class="meta-hero__glow"></div>'+
-    '<div class="meta-hero__av">'+esc(initials(top.rep))+'</div>'+
+    avEl(top.rep,'meta-hero__av','')+
     '<div class="meta-hero__body">'+
       '<div class="meta-hero__badge">★ Líder · '+segLbl+'</div>'+
       '<div class="meta-hero__name" title="'+esc(top.rep)+'">'+esc(top.rep)+'</div>'+
@@ -5617,7 +5647,7 @@ function renderMetaRep(){
     const i=j+1,pct=(d.monto/maxM*100).toFixed(1),prom=d.salidas>0?d.monto/d.salidas:0;
     const mix=_metaSeg==='ambos'?'<div class="meta-card__mix">'+_nnum(d.local)+' local · '+_nnum(d.interior)+' interior</div>':'';
     return '<div class="meta-card" style="--cc:'+avColor(d.rep)+'">'+
-      '<div class="meta-card__top"><span class="meta-card__rank">'+(i+1)+'</span><span class="meta-card__av">'+esc(initials(d.rep))+'</span><span class="meta-card__share">'+share(d.monto)+'%</span></div>'+
+      '<div class="meta-card__top"><span class="meta-card__rank">'+(i+1)+'</span>'+avEl(d.rep,'meta-card__av',avColor(d.rep))+'<span class="meta-card__share">'+share(d.monto)+'%</span></div>'+
       '<div class="meta-card__name" title="'+esc(d.rep)+'">'+esc(d.rep)+'</div>'+mix+
       '<div class="meta-card__monto">'+_nnum(d.monto)+'<small>Gs.</small></div>'+
       '<div class="meta-card__bar"><div class="meta-card__fill" style="width:'+pct+'%"></div></div>'+
@@ -5639,6 +5669,7 @@ function renderMetaRep(){
   host.querySelectorAll('[data-metaseg]').forEach(b=>b.addEventListener('click',()=>{if(_metaSeg===b.dataset.metaseg)return;_metaSeg=b.dataset.metaseg;renderMetaRep();}));
   host.querySelectorAll('[data-metam]').forEach(b=>b.addEventListener('click',()=>{const base=_metaMes||curStep;const a=base.split('-').map(Number);const dd=new Date(a[0],a[1]-1+(+b.dataset.metam),1);_metaMes=dd.getFullYear()+'-'+String(dd.getMonth()+1).padStart(2,'0');renderMetaRep();}));
   const tt=host.querySelector('[data-metatotal]');if(tt)tt.addEventListener('click',()=>{_metaMes=null;renderMetaRep();});
+  host.querySelectorAll('[data-metafoto]').forEach(b=>b.addEventListener('click',()=>_metaPickFoto(b.dataset.metafoto)));
   if(window.gsap){const g=window.gsap;
     g.from(host.querySelectorAll('.meta-kpi'),{opacity:0,y:14,duration:.45,stagger:.05,ease:'back.out(1.5)',clearProps:'all'});
     g.from(host.querySelectorAll('.meta-hero'),{opacity:0,y:16,scale:.98,duration:.5,delay:.08,ease:'back.out(1.4)',clearProps:'all'});
