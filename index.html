@@ -5266,6 +5266,12 @@ function showSaveAnim(text){
   .rrd-erowdel{width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border:none;background:transparent;color:#DC2626;border-radius:8px;cursor:pointer;transition:background .14s}
   .rrd-erowdel svg{width:16px;height:16px;fill:none;stroke:currentColor}
   .rrd-erowdel:hover{background:#FEF2F2}
+  .rrd-actc{white-space:nowrap}
+  .rrd-selrow,.rrd-selall{width:16px;height:16px;cursor:pointer;vertical-align:middle;accent-color:var(--accent,#3B82F6);margin-right:2px}
+  .rrd-rowsel{background:rgba(37,120,184,.07)}
+  .rrd-hdbtn--del{color:#DC2626;background:#FEF2F2;border-color:rgba(220,38,38,.4)}
+  .rrd-hdbtn--del:hover{background:#FEE2E2;border-color:#DC2626;color:#b91c1c}
+  .rrd-hdbtn--del svg{stroke:currentColor}
   .rrd-hdbtn--cancel{color:var(--gray-500)}
   .rrd-hdbtn--cancel:hover{background:var(--gray-100)}
   .rrd-hdbtn--save{background:var(--primary);color:#fff}
@@ -6772,7 +6778,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     if(g3){g3.fromTo(c,{opacity:0},{opacity:1,duration:.24,ease:'power2.out'});g3.fromTo(c.querySelector('svg'),{scale:0,rotate:-15,transformOrigin:'50% 50%'},{scale:1,rotate:0,duration:.36,delay:.05,ease:'back.out(2.6)'});g3.to(c,{opacity:0,duration:.3,delay:1.15,ease:'power2.in',onComplete:()=>c.remove()});}
     else setTimeout(()=>c.remove(),1500);
   }
-  let work=[],firstDraw=true,_wuid=1,selUid=null,_ddEl=null,_ddCleanup=null,_ddBtn=null,_lastTotal=null,_dragUid=null,_dashSeg='todos',_dashEdit=false,_dashDraft=null,_dashDK=1,_facMode=false,_facSel=new Set(),_facNro='',_facMonto=0;
+  let work=[],firstDraw=true,_wuid=1,selUid=null,_ddEl=null,_ddCleanup=null,_ddBtn=null,_lastTotal=null,_dragUid=null,_dashSeg='todos',_dashEdit=false,_dashDraft=null,_dashDK=1,_facMode=false,_facSel=new Set(),_facNro='',_facMonto=0,_dashSel=new Set();
   const SEGL=['local','interior','servicios','transportadora'];
   // Conteo animado (el total "sube" con pop) — estilo prototipo, con nuestra lógica
   function countTo(el,from,to,delay){if(!el)return;const gs=window.gsap;if(!gs||from===to){el.textContent=_gs(to);return;}delay=delay||0;const o={v:from};el.textContent=_gs(from);gs.to(o,{v:to,duration:.8,delay:delay,ease:'power2.out',onUpdate:()=>{el.textContent=_gs(Math.round(o.v));},onComplete:()=>{el.textContent=_gs(to);}});gs.fromTo(el,{scale:1.15,textShadow:'0 0 30px rgba(21,128,61,.55)'},{scale:1,textShadow:'0 0 0px rgba(21,128,61,0)',duration:.55,delay:delay,ease:'back.out(2)',clearProps:'transform,textShadow'});}
@@ -6854,8 +6860,8 @@ function _rrOpenDetail(g,periodLbl,wkObj){
   const _dfKm=d=>(d.seg||_dashSeg)==='interior'&&(+d.km>0)&&(+d.precioKm>0);
   const _dfFlete=d=>_dfKm(d)?Math.round(d.km*d.precioKm):(+d.precio||0);
   function _dashBlank(){const isTr=_dashSeg==='transportadora',tr=(trucks||[])[0]||null;return {k:_dashDK++,uid:null,isNew:true,seg:_dashSeg,trId:isTr?null:(tr?tr.id:null),trDesc:isTr?'':(tr?tr.d:''),tsId:tsObj?tsObj.id:g.tsId,tsNombre:g.ts,rep:'',zona:'',fecha:(wkObj?wkObj.desde:null),km:0,precioKm:0,precio:0,obs:'',cant:1,del:false};}
-  function _dashEnterEdit(sk,autoAdd){if(_facDeGrupo(g)){showToast('Esta planilla ya está facturada · no se puede modificar');return;}_dashSeg=sk;_dashDK=1;_dashDraft=work.filter(w=>!w.del&&w.seg===sk).map(w=>({k:_dashDK++,uid:w.uid,isNew:!!w.isNew,seg:w.seg||sk,trId:w.trId,trDesc:w.trDesc,tsId:w.tsId,tsNombre:w.tsNombre,rep:w.rep||'',zona:w.zona||'',fecha:w.fecha||null,km:+w.km||0,precioKm:+w.precioKm||0,precio:+w.precio||0,obs:w.obs||'',cant:+w.cant||1,del:false}));_dashEdit=true;if(autoAdd)_dashDraft.push(_dashBlank());render('filter');}
-  function _dashExitEdit(){_dashEdit=false;_dashDraft=null;render('filter');}
+  function _dashEnterEdit(sk,autoAdd){if(_facDeGrupo(g)){showToast('Esta planilla ya está facturada · no se puede modificar');return;}_dashSeg=sk;_dashDK=1;_dashSel.clear();_dashDraft=work.filter(w=>!w.del&&w.seg===sk).map(w=>({k:_dashDK++,uid:w.uid,isNew:!!w.isNew,seg:w.seg||sk,trId:w.trId,trDesc:w.trDesc,tsId:w.tsId,tsNombre:w.tsNombre,rep:w.rep||'',zona:w.zona||'',fecha:w.fecha||null,km:+w.km||0,precioKm:+w.precioKm||0,precio:+w.precio||0,obs:w.obs||'',cant:+w.cant||1,del:false}));_dashEdit=true;if(autoAdd)_dashDraft.push(_dashBlank());render('filter');}
+  function _dashExitEdit(){_dashEdit=false;_dashDraft=null;_dashSel.clear();render('filter');}
   // Desde "Todos": si hay 1 segmento entra directo; si hay varios, muestra un modal PRO para elegir
   function _dashPickSeg(isAdd){if(_facDeGrupo(g)){showToast('Esta planilla ya está facturada · no se puede modificar');return;}const present=SEGL.filter(sk=>work.some(w=>!w.del&&w.seg===sk));if(present.length<=1){_dashEnterEdit(present[0]||'local',isAdd);return;}_openSegModal(present,isAdd);}
   function _openSegModal(segs,isAdd){
@@ -6956,7 +6962,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     const items=_dashSort(work.filter(w=>!w.del&&w.seg===sk&&(!_camFilter||camLbl(w)===_camFilter)),sk);
     let thead;
     const facReadReg=_dashSeg!=='todos'&&!!_facDeGrupo(g);
-    const actTh=editing?'<th class="rrd-actth"></th>':(facReadReg?'':'<th class="rrd-facth rrd-facc--slim r"></th>');
+    const actTh=editing?'<th class="rrd-actth"><input type="checkbox" class="rrd-selall" title="Seleccionar todos"></th>':(facReadReg?'':'<th class="rrd-facth rrd-facc--slim r"></th>');
     const segTh=(editing&&!isTr)?'<th class="rrd-segth">Segmento</th>':'';
     if(isTr)thead='<tr><th>Fecha</th><th class="rrd-grow">Detalle</th><th class="r">Cantidad</th><th class="r">Flete</th>'+actTh+'</tr>';
     else thead='<tr><th>Fecha</th>'+segTh+'<th>Camión</th><th>Repartidor</th><th class="rrd-grow">'+(isServ?'Servicio':'Zona')+'</th>'+(showKmCol?'<th class="r">Km · Precio/km</th>':'')+'<th class="r">Flete</th>'+actTh+'</tr>';
@@ -6970,8 +6976,8 @@ function _rrOpenDetail(g,periodLbl,wkObj){
         const fecCell='<td><input type="date" class="xls-in rrd-fin rrd-fdate" data-dk="'+d.k+'" value="'+dd+'"></td>';
         const segCell='<td><button type="button" class="xls-pick rrd-segpick'+((d.seg&&d.seg!==sk)?' moved':'')+'" data-segpick="'+d.k+'"><span>'+SEGN[d.seg||sk]+'</span>'+CHV+'</button></td>';
         let c;
-        if(isTr)c=fecCell+'<td><span class="rrd-mut">Transportadora (total)</span></td><td class="r"><input class="xls-in r rrd-fin rrd-fcant" data-dk="'+d.k+'" inputmode="numeric" placeholder="0" value="'+(d.cant||'')+'"></td>'+fleteCell+'<td class="rrd-actc"></td>';
-        else{const _rInt=(d.seg||sk)==='interior';const zcell=((d.seg||sk)==='servicios')?('<td><input class="xls-in rrd-fin rrd-fobs" data-dk="'+d.k+'" placeholder="—" value="'+_escp(d.obs||'')+'"></td>'):('<td>'+pk('zona')+'</td>');const kmcell=showKmCol?(_rInt?('<td class="r"><div class="rrd-kmedit"><input class="xls-in r rrd-fin rrd-fkm" data-dk="'+d.k+'" inputmode="decimal" placeholder="Km" value="'+(d.km?_kmFmt(d.km):'')+'"><span>×</span><input class="xls-in r rrd-fin rrd-fpkm" data-dk="'+d.k+'" inputmode="numeric" placeholder="Precio por km" value="'+(d.precioKm?_nnum(d.precioKm):'')+'"></div></td>'):'<td class="r"><span class="rrd-mut">—</span></td>'):'';c=fecCell+segCell+'<td>'+pk('tr')+'</td><td>'+pk('rep')+'</td>'+zcell+kmcell+fleteCell+'<td class="rrd-actc"></td>';}
+        if(isTr)c=fecCell+'<td><span class="rrd-mut">Transportadora (total)</span></td><td class="r"><input class="xls-in r rrd-fin rrd-fcant" data-dk="'+d.k+'" inputmode="numeric" placeholder="0" value="'+(d.cant||'')+'"></td>'+fleteCell+'<td class="rrd-actc"><input type="checkbox" class="rrd-selrow" data-dk="'+d.k+'"'+(_dashSel.has(d.k)?' checked':'')+'>'+dtrash(d.k)+'</td>';
+        else{const _rInt=(d.seg||sk)==='interior';const zcell=((d.seg||sk)==='servicios')?('<td><input class="xls-in rrd-fin rrd-fobs" data-dk="'+d.k+'" placeholder="—" value="'+_escp(d.obs||'')+'"></td>'):('<td>'+pk('zona')+'</td>');const kmcell=showKmCol?(_rInt?('<td class="r"><div class="rrd-kmedit"><input class="xls-in r rrd-fin rrd-fkm" data-dk="'+d.k+'" inputmode="decimal" placeholder="Km" value="'+(d.km?_kmFmt(d.km):'')+'"><span>×</span><input class="xls-in r rrd-fin rrd-fpkm" data-dk="'+d.k+'" inputmode="numeric" placeholder="Precio por km" value="'+(d.precioKm?_nnum(d.precioKm):'')+'"></div></td>'):'<td class="r"><span class="rrd-mut">—</span></td>'):'';c=fecCell+segCell+'<td>'+pk('tr')+'</td><td>'+pk('rep')+'</td>'+zcell+kmcell+fleteCell+'<td class="rrd-actc"><input type="checkbox" class="rrd-selrow" data-dk="'+d.k+'"'+(_dashSel.has(d.k)?' checked':'')+'>'+dtrash(d.k)+'</td>';}
         return '<tr data-dk="'+d.k+'">'+c+'</tr>';}).join('')||'<tr><td colspan="8" class="rrd-empty">Sin líneas — agregá una.</td></tr>';
     }else{
       // La selección/factura vive solo en "Todos". En los segmentos queda solo el tacho (borrar),
@@ -6983,7 +6989,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
       if(!rowsHtml)rowsHtml='<tr><td colspan="8" class="rrd-empty">Sin líneas</td></tr>';
     }
     let hdActs;
-    if(editing)hdActs='<button class="rrd-hdbtn" data-dashaddline="1"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg> Agregar</button><button class="rrd-hdbtn rrd-hdbtn--cancel" data-dashcancel="1">Cancelar</button><button class="rrd-hdbtn rrd-hdbtn--save" data-dashsave="1"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> Guardar</button>';
+    if(editing)hdActs='<button class="rrd-hdbtn rrd-hdbtn--del" data-dashdelsel="1"'+(_dashSel.size?'':' style="display:none"')+'><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg> <span class="rrd-delseln">Borrar ('+_dashSel.size+')</span></button><button class="rrd-hdbtn" data-dashaddline="1"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg> Agregar</button><button class="rrd-hdbtn rrd-hdbtn--cancel" data-dashcancel="1">Cancelar</button><button class="rrd-hdbtn rrd-hdbtn--save" data-dashsave="1"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> Guardar</button>';
     else if(_facMode)hdActs='<span class="rrd-hdlock rrd-hdlock--sel"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg> Elegí qué repartos entran</span>';
     else if(_facDeGrupo(g))hdActs='<span class="rrd-hdlock"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><rect x="4.5" y="11" width="15" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg> Facturada · conciliada</span>';
     else hdActs='<button class="rrd-hdbtn" data-dashadd="'+sk+'"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg> Añadir</button>'+(items.some(w=>!w.isNew)?'<button class="rrd-hdbtn rrd-hdbtn--edit" data-dashedit="'+sk+'"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4z"/></svg> Editar</button>':'');
@@ -7209,7 +7215,13 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     bd.querySelectorAll('.rrd-fflete').forEach(i=>i.addEventListener('input',()=>{const d=_DD(i.dataset.dk);if(d&&!i.readOnly){d.precio=parseInt(i.value.replace(/\D/g,''),10)||0;i.value=d.precio?_nnum(d.precio):'';}}));
     bd.querySelectorAll('.rrd-fcant').forEach(i=>i.addEventListener('input',()=>{const d=_DD(i.dataset.dk);if(d)d.cant=parseInt(i.value.replace(/\D/g,''),10)||0;}));
     bd.querySelectorAll('.rrd-fobs').forEach(i=>i.addEventListener('input',()=>{const d=_DD(i.dataset.dk);if(d)d.obs=i.value;}));
-    bd.querySelectorAll('.rrd-erowdel').forEach(b=>b.addEventListener('click',()=>{const d=_DD(b.dataset.dk);if(!d)return;const tr=b.closest('tr'),gs=window.gsap;const go=()=>{d.del=true;render('filter');};if(gs&&tr)gs.to(tr,{opacity:0,x:22,duration:.2,ease:'power2.in',onComplete:go});else go();}));
+    bd.querySelectorAll('.rrd-erowdel').forEach(b=>b.addEventListener('click',()=>{const d=_DD(b.dataset.dk);if(!d)return;_dashSel.delete(+b.dataset.dk);const tr=b.closest('tr'),gs=window.gsap;const go=()=>{d.del=true;render('filter');};if(gs&&tr)gs.to(tr,{opacity:0,x:22,duration:.2,ease:'power2.in',onComplete:go});else go();}));
+    // Multi-selección de filas (borrar varias a la vez)
+    const _dashUpdSelBtn=()=>{const b=bd.querySelector('[data-dashdelsel]');if(b){const n=_dashSel.size;b.style.display=n?'':'none';const s=b.querySelector('.rrd-delseln');if(s)s.textContent='Borrar ('+n+')';}const sa=bd.querySelector('.rrd-selall');if(sa){const boxes=bd.querySelectorAll('.rrd-selrow');sa.checked=boxes.length>0&&_dashSel.size===boxes.length;sa.indeterminate=_dashSel.size>0&&_dashSel.size<boxes.length;}};
+    bd.querySelectorAll('.rrd-selrow').forEach(c=>c.addEventListener('change',()=>{const k=+c.dataset.dk;if(c.checked)_dashSel.add(k);else _dashSel.delete(k);const tr=c.closest('tr');if(tr)tr.classList.toggle('rrd-rowsel',c.checked);_dashUpdSelBtn();}));
+    const _selall=bd.querySelector('.rrd-selall');if(_selall)_selall.addEventListener('change',()=>{const on=_selall.checked;bd.querySelectorAll('.rrd-selrow').forEach(c=>{c.checked=on;const k=+c.dataset.dk;if(on)_dashSel.add(k);else _dashSel.delete(k);const tr=c.closest('tr');if(tr)tr.classList.toggle('rrd-rowsel',on);});_dashUpdSelBtn();});
+    bd.querySelectorAll('[data-dashdelsel]').forEach(b=>b.addEventListener('click',()=>{if(!_dashSel.size)return;const gs=window.gsap;const trs=[].slice.call(bd.querySelectorAll('.rrd-selrow:checked')).map(c=>c.closest('tr')).filter(Boolean);const go=()=>{(_dashDraft||[]).forEach(d=>{if(_dashSel.has(d.k))d.del=true;});_dashSel.clear();render('filter');};if(gs&&trs.length)gs.to(trs,{opacity:0,x:22,duration:.2,stagger:.03,ease:'power2.in',onComplete:go});else go();}));
+    _dashUpdSelBtn();
     // Cambiar de segmento un reparto (mueve la línea a Local/Interior/Servicios y guarda)
     bd.querySelectorAll('.rrd-segpick').forEach(b=>b.addEventListener('click',()=>{const d=_DD(b.dataset.segpick);if(!d)return;openChipPop(b,{value:d.seg||_dashSeg,options:[['local','Local'],['interior','Interior'],['servicios','Servicios']].map(s=>({v:s[0],label:s[1]})),onPick:v=>{if(v){d.seg=v;if(d.zona&&!_zonasFor(v).some(z=>z.n===d.zona))d.zona='';render('filter');}}});}));
     bd.querySelectorAll('.rrd-tbl--edit .xls-pick:not(.rrd-segpick)').forEach(b=>b.addEventListener('click',()=>{const d=_DD(b.dataset.dk);if(!d)return;const kind=b.dataset.pick,setT=(t,ph)=>{const s=b.querySelector('span');if(s)s.textContent=t;b.classList.toggle('ph',!!ph);};
