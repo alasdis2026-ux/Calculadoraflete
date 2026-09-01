@@ -3598,6 +3598,7 @@ function _gridColOf(inp){const cls=['rrd-fkm','rrd-fpkm','rrd-fflete','rrd-fcant
 document.addEventListener('keydown',function(e){
   const inp=e.target;
   if(!inp||!inp.classList||!(inp.classList.contains('rrd-fin')||inp.classList.contains('cal-e-in')))return;
+  if(inp.type==='date')return; // los inputs de fecha manejan sus propias flechas (día/mes/año)
   const k=e.key; if(k!=='ArrowUp'&&k!=='ArrowDown'&&k!=='ArrowLeft'&&k!=='ArrowRight'&&k!=='Enter')return;
   const row=inp.closest('tr'); if(!row)return;
   const SEL='.rrd-fin, .cal-e-in';
@@ -5241,7 +5242,8 @@ function showSaveAnim(text){
   .rrd-fin:focus{background:#fff;border-color:var(--accent,#3B82F6);box-shadow:0 0 0 3px rgba(37,120,184,.18)}
   .rrd-fflete.is-auto{color:#15803d;font-weight:800;background:rgba(21,128,61,.07);border-color:rgba(21,128,61,.22);box-shadow:none;cursor:default}
   .rrd-fflete.is-auto:hover{background:rgba(21,128,61,.07);border-color:rgba(21,128,61,.22)}
-  .rrd-fdate{min-width:118px}
+  .rrd-fdate{min-width:138px;font-size:14px;font-weight:800;color:var(--primary,#0B5F8D);background:rgba(37,120,184,.13);border-color:rgba(37,120,184,.55);padding:8px 10px}
+  .rrd-fdate:focus{background:#fff}
   .rrd-kmedit{display:flex;align-items:center;gap:5px;justify-content:flex-end}
   .rrd-kmedit>span{color:var(--gray-300);font-weight:800}
   .rrd-kmedit .rrd-fin{width:74px}
