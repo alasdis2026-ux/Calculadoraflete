@@ -4531,7 +4531,7 @@ function showSaveAnim(text){
   .sal-addmonto{display:inline-flex;align-items:center;font-weight:800;font-size:11px;color:var(--sal-c,#0B5F8D);background:rgba(37,120,184,.1);padding:3px 9px;border-radius:999px}
   .sal-montoinp{width:100%;border:1.5px solid var(--sal-c,#0B5F8D);border-radius:7px;padding:4px 7px;font:inherit;font-size:11.5px;font-weight:800;color:var(--sal-c,#0B5F8D);text-align:right;outline:none;background:#fff;font-variant-numeric:tabular-nums}
   /* Modal de viáticos por repartidor */
-  .viat-modal{position:relative;max-width:860px!important;width:min(860px,calc(100vw - 34px));padding:0!important;overflow:hidden;display:flex;flex-direction:column;max-height:88vh}
+  .viat-modal{position:relative;max-width:920px!important;width:min(920px,calc(100vw - 34px));padding:0!important;overflow:hidden;display:flex;flex-direction:column;max-height:88vh}
   .viat-hd{display:flex;align-items:center;gap:14px;padding:18px 54px 16px 24px;border-bottom:1px solid #eef2f7;position:relative;flex-shrink:0}
   .viat-hd::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--viat-c,#0B5F8D)}
   .viat-ic{width:44px;height:44px;border-radius:13px;background:var(--viat-soft,#E0EDF6);color:var(--viat-c,#0B5F8D);display:flex;align-items:center;justify-content:center;flex-shrink:0}
@@ -4543,7 +4543,10 @@ function showSaveAnim(text){
   .viat-total span{display:block;font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#94a3b8}
   .viat-total b{display:block;margin-top:4px;font-family:Sora,Inter,sans-serif;font-size:22px;font-weight:800;color:#15803d;font-variant-numeric:tabular-nums}
   .viat-list{padding:14px 22px;overflow:auto;display:flex;flex-direction:column;gap:10px;min-height:180px}
-  .viat-row{display:grid;grid-template-columns:minmax(0,1fr) 92px 160px;align-items:center;gap:12px;padding:10px 12px;border:1px solid #eef2f7;border-radius:12px;background:#fff;box-shadow:0 2px 8px rgba(15,23,42,.04)}
+  .viat-row{display:grid;grid-template-columns:minmax(0,1fr) 60px 144px 144px;align-items:center;gap:10px;padding:10px 12px;border:1px solid #eef2f7;border-radius:12px;background:#fff;box-shadow:0 2px 8px rgba(15,23,42,.04)}
+  .viat-per span{white-space:nowrap;color:var(--viat-c,#0B5F8D);opacity:.8}
+  .viat-per.is-off{opacity:.45}
+  .viat-per.is-off .viat-perin{cursor:not-allowed}
   .viat-name{min-width:0}
   .viat-name b{display:block;font-size:13px;font-weight:800;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .viat-name small{display:block;font-size:10.5px;font-weight:700;color:#94a3b8;margin-top:2px}
@@ -6356,13 +6359,15 @@ function _cfViaticoModal(mk,segKey){
   const current=((_cfReporte[mk]&&_cfReporte[mk].seg&&_cfReporte[mk].seg[segKey])||{});
   const legacy=+current.viatico||0;
   const IC='<span class="viat-ic__gs">Gs.</span>';
-  const rowHtml=rows.length?rows.map(r=>
-    '<div class="viat-row">'+
+  const rowHtml=rows.length?rows.map(r=>{
+    const per0=(r.salidas>0&&saved[r.rep]&&saved[r.rep]%r.salidas===0)?saved[r.rep]/r.salidas:'';
+    return '<div class="viat-row">'+
       '<div class="viat-name"><b title="'+_escp(r.rep)+'">'+_escp(r.rep)+'</b><small>'+(r.extra?'Guardado sin salidas en este mes':_gs(r.monto)+' repartido · '+_gs(r.flete)+' flete')+'</small></div>'+
       '<div class="viat-sal">'+_nnum(r.salidas)+'<small>salidas</small></div>'+
-      '<label class="viat-money"><span>Gs.</span><input class="viat-in" data-rep="'+_escp(r.rep)+'" inputmode="numeric" value="'+(saved[r.rep]?_nnum(saved[r.rep]):'')+'" placeholder="0"></label>'+
-    '</div>'
-  ).join(''):'<div class="viat-empty">No hay repartidores registrados en este mes para '+cfg.lbl+'.</div>';
+      '<label class="viat-money viat-per'+(r.salidas>0?'':' is-off')+'" title="Precio por cada salida"><span>Gs./sal</span><input class="viat-perin" data-rep="'+_escp(r.rep)+'" data-sal="'+r.salidas+'" inputmode="numeric" value="'+(per0?_nnum(per0):'')+'" placeholder="0"'+(r.salidas>0?'':' disabled')+'></label>'+
+      '<label class="viat-money" title="Total del viático (precio × salidas)"><span>Gs.</span><input class="viat-in" data-rep="'+_escp(r.rep)+'" inputmode="numeric" value="'+(saved[r.rep]?_nnum(saved[r.rep]):'')+'" placeholder="0"></label>'+
+    '</div>';
+  }).join(''):'<div class="viat-empty">No hay repartidores registrados en este mes para '+cfg.lbl+'.</div>';
   const hint=(legacy&&legacy!==total0)?'Total manual actual: '+_gs(legacy)+'. Al guardar, se reemplaza por la suma del detalle.':'Se guarda por mes y se suma al gasto total del panel.';
   const m=_cfModalOpen('<div class="cf-mbox viat-modal" style="--viat-c:'+cfg.c+';--viat-soft:'+cfg.soft+'"><button class="sal-x" aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>'+
     '<div class="viat-hd"><span class="viat-ic">'+IC+'</span><div><div class="viat-title">Viáticos · '+cfg.lbl+'</div><div class="viat-sub">'+_mesLbl(mk)+' · '+rows.filter(r=>!r.extra).length+' repartidores registrados</div></div><div class="viat-total"><span>Total viático</span><b id="viatTotal">'+_gs(total0)+'</b></div></div>'+
@@ -6377,7 +6382,19 @@ function _cfViaticoModal(mk,segKey){
   function refreshTotal(){const mp=readMap(),t=Object.keys(mp).reduce((a,k)=>a+mp[k],0);if(totalEl)totalEl.textContent=_gs(t);}
   m.$('.sal-x').addEventListener('click',m.close);
   const cancel=m.$('.viat-cancel');if(cancel)cancel.addEventListener('click',m.close);
-  m.box.querySelectorAll('.viat-in').forEach(inp=>inp.addEventListener('input',()=>{const n=parseInt(inp.value.replace(/\D/g,''),10)||0;inp.value=n?_nnum(n):'';refreshTotal();}));
+  m.box.querySelectorAll('.viat-perin').forEach(inp=>inp.addEventListener('input',()=>{
+    const per=parseInt(inp.value.replace(/\D/g,''),10)||0;inp.value=per?_nnum(per):'';
+    const sal=parseInt(inp.dataset.sal,10)||0,total=per*sal;
+    const row=inp.closest('.viat-row'),tin=row&&row.querySelector('.viat-in');
+    if(tin)tin.value=total?_nnum(total):'';
+    refreshTotal();
+  }));
+  m.box.querySelectorAll('.viat-in').forEach(inp=>inp.addEventListener('input',()=>{
+    const n=parseInt(inp.value.replace(/\D/g,''),10)||0;inp.value=n?_nnum(n):'';
+    const row=inp.closest('.viat-row'),pin=row&&row.querySelector('.viat-perin');
+    if(pin)pin.value='';
+    refreshTotal();
+  }));
   const save=m.$('.viat-save');
   if(save)save.addEventListener('click',async()=>{if(save.disabled)return;save.disabled=true;save.textContent='Guardando...';try{await _cfSaveViaticos(mk,segKey,readMap());m.close();showToast('Viáticos actualizados');renderReporte();}catch(e){console.error(e);save.disabled=false;save.textContent='Guardar viáticos';showToast('No pude guardar los viáticos');}});
   const g=window.gsap;if(g&&m.box){g.from(m.box.querySelectorAll('.viat-row'),{opacity:0,y:10,duration:.34,stagger:.035,delay:.1,ease:'power2.out',clearProps:'all'});}
