@@ -4354,7 +4354,7 @@ function showSaveAnim(text){
   .rep2 .ch3d-fbtn:hover{border-color:#0B5F8D;background:#F2F8FC}
   .rep2 .ch3d-fbtn.on{background:linear-gradient(180deg,#0F6BA0,#0A4F75);border-color:#0A4F75;color:#fff;box-shadow:0 8px 18px -6px rgba(11,95,141,.55)}
   /* ===== Grilla de paneles separados "Reparto por tipo" ===== */
-  .rep2 .rp-seg-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:16px;margin-top:14px;align-items:start}
+  .rep2 .rp-seg-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(620px,1fr));gap:16px;margin-top:14px;align-items:start}
   .rep2 .rep-extra-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:2px}
   .rep2 .rep-extra-btn{display:inline-flex;align-items:center;gap:10px;border:1.5px solid var(--xc,#0B5F8D);background:#fff;color:var(--xc,#0B5F8D);border-radius:12px;padding:9px 14px;font:inherit;cursor:pointer;box-shadow:0 3px 10px rgba(15,23,42,.06);transition:background var(--fast),color var(--fast),transform var(--fast),box-shadow var(--fast)}
   .rep2 .rep-extra-btn:hover{background:var(--xc,#0B5F8D);color:#fff;transform:translateY(-1px);box-shadow:0 8px 20px rgba(15,23,42,.14)}
@@ -4385,6 +4385,7 @@ function showSaveAnim(text){
   .rep2 .rp-kpi__v.man-ed{cursor:pointer;border-radius:7px;padding:0 5px;margin-left:-5px;transition:background var(--fast)}
   .rep2 .rp-kpi__v.man-ed:hover{background:rgba(59,130,246,.1);box-shadow:inset 0 0 0 1px rgba(59,130,246,.3)}
   .rep2 .rp-panel__detail{padding:0 18px 18px}
+  .rep2 .rp-panel__block{min-width:0}
   .rep2 .rp-detail__hd{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#94a3b8;margin:13px 0 2px}
   .rep2 .rp-detail__hd--mt{margin-top:14px}
   .rep2 .rp-panel__detail>.rp-drow--sal:first-child{margin-top:0}
@@ -4405,6 +4406,24 @@ function showSaveAnim(text){
   .rep2 .rp-drow .ch-viat-btn:hover{background:#15803d;border-color:#15803d;color:#fff}
   .rep2 .rp-drow__r .man-ed{cursor:pointer;border-radius:6px;padding:1px 5px;transition:background var(--fast)}
   .rep2 .rp-drow__r .man-ed:hover{background:rgba(59,130,246,.1);box-shadow:inset 0 0 0 1px rgba(59,130,246,.3)}
+  @media(min-width:960px){
+    .rep2 .rp-seg-grid .rp-panel{display:grid;grid-template-columns:minmax(170px,210px) minmax(0,1fr)}
+    .rep2 .rp-seg-grid .rp-panel__head{min-height:100%;flex-direction:column;align-items:flex-start;justify-content:space-between;padding:18px}
+    .rep2 .rp-seg-grid .rp-panel__head::after{right:-44px;top:auto;bottom:-46px;width:160px;height:160px}
+    .rep2 .rp-seg-grid .rp-panel__cams{margin-left:0}
+    .rep2 .rp-seg-grid .rp-panel__detail{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.95fr);gap:12px 18px;padding:14px 18px}
+    .rep2 .rp-seg-grid .rp-panel__block--status{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+    .rep2 .rp-seg-grid .rp-panel__block--status .rp-drow{margin:0;padding:10px 12px;border:1px solid #edf2f7;border-radius:12px}
+    .rep2 .rp-seg-grid .rp-panel__block--status .rp-drow--sal{background:var(--sc-soft);border-color:transparent}
+    .rep2 .rp-seg-grid .rp-detail__hd{margin-top:2px}
+    .rep2 .rp-seg-grid .rp-panel__detail>.rp-drow--sal:first-child{margin:0}
+  }
+  @media(max-width:959px){.rep2 .rp-seg-grid{grid-template-columns:1fr}}
+  .rep-panel-modal .rep2 .rp-panel{display:block}
+  .rep-panel-modal .rep2 .rp-panel__head{min-height:0;flex-direction:row;align-items:center}
+  .rep-panel-modal .rep2 .rp-panel__detail{display:block;padding:0 18px 18px}
+  .rep-panel-modal .rep2 .rp-panel__block--status{display:block}
+  .rep-panel-modal .rep2 .rp-panel__block--status .rp-drow--sal{margin:0 -18px;border-radius:0;border:0}
   @media(max-width:820px){.rep2 .rp-wrap{flex-direction:column}.rep2 .rp-filters{width:100%;flex-direction:row;flex-wrap:wrap}.rep2 .rp-filters .ch3d-fbtn{flex:1 1 auto}}
   .rep2 .ch3d-stats{width:250px;flex-direction:column;justify-content:flex-start;padding-top:0;gap:9px;align-items:stretch}
   .rep2 .ch3d-kpi{position:relative;display:flex;align-items:center;gap:11px;padding:11px 14px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 3px 12px rgba(15,23,42,.06);overflow:hidden}
@@ -6069,7 +6088,7 @@ async function renderReporte(){
     const objRow=(mo,ga)=>{const d=ga-mo*0.03,ov=d>0;return drow(ov?'Sobre el objetivo (3%)':'Dentro del objetivo (3%)',cVal((ov?'+':'−')+'Gs. '+nn(Math.abs(d)),ov?REDc:GREENc));};
     const shell=(key,camN,sal,resumen,detail)=>'<div class="rp-panel" data-ch="'+key+'" style="--sc:'+SC[key][0]+';--sc-soft:'+SC[key][1]+'">'+
       '<div class="rp-panel__head"><span class="rp-panel__ico">'+truck+'</span><div class="rp-panel__title"><div class="rp-panel__name">'+SN[key]+'</div></div><span class="rp-panel__cams">'+nn(camN)+'<small>camiones</small></span></div>'+
-      '<div class="rp-panel__detail">'+sal+'<div class="rp-detail__hd">Resumen</div>'+resumen+(detail?'<div class="rp-detail__hd rp-detail__hd--mt">Desglose</div>'+detail:'')+'</div></div>';
+      '<div class="rp-panel__detail"><div class="rp-panel__block rp-panel__block--status">'+sal+'</div><div class="rp-panel__block"><div class="rp-detail__hd">Resumen</div>'+resumen+'</div>'+(detail?'<div class="rp-panel__block"><div class="rp-detail__hd rp-detail__hd--mt">Desglose</div>'+detail+'</div>':'')+'</div></div>';
     const iR=drowHi('Monto repartido','<small>Gs.</small> '+nn(m.interior.monto))+drowHi('Gasto total','<small>Gs.</small> '+nn(m.interior.gastoTotal))+incRow(m.interior.monto,m.interior.gastoTotal)+objRow(m.interior.monto,m.interior.gastoTotal);
     const iD=drow('Peso',man(m.interior.peso,'Kg','seg.interior.peso','Peso · Interior'))+drow('Km recorridos',aut(intKm,'Km'))+drow('Pago a transportadoras',aut(m.interior.flete))+drow('Gratificaciones',man(m.interior.gratificaciones,'','seg.interior.gratificaciones','Gratificaciones · Interior'))+drow('Gasto viático',aut(m.interior.viatico));
     const lR=drowHi('Monto repartido','<small>Gs.</small> '+nn(m.local.monto))+drowHi('Gasto total','<small>Gs.</small> '+nn(m.local.gastoTotal))+incRow(m.local.monto,m.local.gastoTotal)+objRow(m.local.monto,m.local.gastoTotal);
