@@ -4355,14 +4355,14 @@ function showSaveAnim(text){
   .rep2 .ch3d-fbtn.on{background:linear-gradient(180deg,#0F6BA0,#0A4F75);border-color:#0A4F75;color:#fff;box-shadow:0 8px 18px -6px rgba(11,95,141,.55)}
   /* ===== Grilla de paneles separados "Reparto por tipo" ===== */
   .rep2 .rp-seg-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(620px,1fr));gap:16px;margin-top:14px;align-items:stretch}
-  .rep2 .rep-extra-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:2px}
+  .rep2 .rep-extra-actions{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:2px}
   .rep2 .rep-extra-btn{display:inline-flex;align-items:center;gap:10px;border:1.5px solid var(--xc,#0B5F8D);background:#fff;color:var(--xc,#0B5F8D);border-radius:12px;padding:9px 14px;font:inherit;cursor:pointer;box-shadow:0 3px 10px rgba(15,23,42,.06);transition:background var(--fast),color var(--fast),transform var(--fast),box-shadow var(--fast)}
   .rep2 .rep-extra-btn:hover{background:var(--xc,#0B5F8D);color:#fff;transform:translateY(-1px);box-shadow:0 8px 20px rgba(15,23,42,.14)}
   .rep2 .rep-extra-btn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
   .rep2 .rep-extra-btn b{display:block;font-size:13px;font-weight:900;line-height:1}
   .rep2 .rep-extra-btn small{display:block;margin-top:3px;font-size:10.5px;font-weight:800;color:#94a3b8;line-height:1;white-space:nowrap}
   .rep2 .rep-extra-btn:hover small{color:rgba(255,255,255,.78)}
-  .rep-panel-modal{position:relative;max-width:460px!important;padding:0!important;overflow:hidden}
+  .rep-panel-modal{position:relative;max-width:540px!important;width:min(540px,94vw);padding:0!important;overflow:hidden}
   .rep-panel-modal .rp-panel{border:0;border-radius:18px;box-shadow:none}
   .rep2 .rp-panel{background:#fff;border:1px solid var(--line);border-radius:18px;box-shadow:0 16px 40px -22px rgba(15,23,42,.32);overflow:hidden}
   .rep2 .rp-panel__head{display:flex;align-items:center;gap:12px;padding:14px 18px;background:var(--sc);background-image:linear-gradient(120deg,rgba(255,255,255,.1),rgba(0,0,0,.14));color:#fff;position:relative;overflow:hidden}
@@ -4413,12 +4413,13 @@ function showSaveAnim(text){
   .rep2 .rp-drow__r .man-ed:hover{background:rgba(59,130,246,.1);box-shadow:inset 0 0 0 1px rgba(59,130,246,.3)}
   @media(min-width:960px){
     .rep2 .rp-seg-grid .rp-panel{display:grid;grid-template-columns:minmax(170px,210px) minmax(0,1fr)}
-    .rep2 .rp-seg-grid .rp-panel__head{min-height:100%;flex-direction:column;align-items:flex-start;justify-content:space-between;gap:20px;padding:20px}
+    .rep2 .rp-seg-grid .rp-panel__head{min-height:100%;flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:20px;padding:22px 20px}
     .rep2 .rp-seg-grid .rp-panel__head::after{right:-14px;top:auto;bottom:-16px;width:128px;height:128px;opacity:.17}
     .rep2 .rp-seg-grid .rp-panel__name{font-size:19px}
-    .rep2 .rp-seg-grid .rp-panel__stats{flex-direction:column;gap:16px;margin-top:auto}
-    .rep2 .rp-seg-grid .rp-panel__stat b{font-size:30px;letter-spacing:-.5px}
-    .rep2 .rp-seg-grid .rp-panel__stat small{font-size:10.5px;margin-top:4px}
+    .rep2 .rp-seg-grid .rp-panel__stats{flex-direction:column;gap:20px;margin:auto 0;align-items:flex-start}
+    .rep2 .rp-seg-grid .rp-panel__stat{align-items:flex-start;text-align:left}
+    .rep2 .rp-seg-grid .rp-panel__stat b{font-size:36px;letter-spacing:-.6px}
+    .rep2 .rp-seg-grid .rp-panel__stat small{font-size:11px;letter-spacing:.6px;margin-top:5px}
     .rep2 .rp-seg-grid .rp-panel__cams{margin-left:0}
     .rep2 .rp-seg-grid .rp-panel__detail{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.95fr);gap:12px 18px;padding:14px 18px}
     .rep2 .rp-seg-grid .rp-panel__block--status{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
@@ -4429,7 +4430,7 @@ function showSaveAnim(text){
   }
   @media(max-width:959px){.rep2 .rp-seg-grid{grid-template-columns:1fr}}
   .rep-panel-modal .rep2 .rp-panel{display:block}
-  .rep-panel-modal .rep2 .rp-panel__head{min-height:0;flex-direction:row;align-items:center}
+  .rep-panel-modal .rep2 .rp-panel__head{min-height:0;flex-direction:row;align-items:center;padding-right:58px}
   .rep-panel-modal .rep2 .rp-panel__stats{margin-left:auto;flex-direction:row;gap:22px}
   .rep-panel-modal .rep2 .rp-panel__stat b{font-size:17px}
   .rep-panel-modal .rep2 .rp-panel__detail{display:block;padding:0 18px 18px}
@@ -6061,7 +6062,7 @@ function _cfReporteModel(mk){
   const I=seg('interior'),L=seg('local'),S=seg('servicios'),T=seg('transportadora');
   const monto=I.monto+L.monto+T.monto,gasto=I.gastoTotal+L.gastoTotal;
   const facTotal=fac.facturacionMes+fac.factUltimoDiaMesPasado,disp=facTotal-fac.retira;
-  return{interior:I,local:L,servicios:S,transportadora:T,fac:fac,gen:{monto:monto,gasto:gasto,incidencia:monto>0?gasto/monto:0,peso:I.peso+L.peso+S.peso+T.peso,pesoEnHierros:fac.pesoEnHierros,facturacionTotal:facTotal,disponible:disp,nivel:(monto>0&&disp>0)?monto/disp:0},camiones:{interior:I.cam,periferia:L.cam,servicios:S.cam,transportadora:T.cam,total:I.cam+L.cam+S.cam+T.cam},salidas:{interior:I.salidas,periferia:L.salidas,servicios:S.salidas,transportadora:T.salidas,total:I.salidas+L.salidas+S.salidas+T.salidas}};
+  return{interior:I,local:L,servicios:S,transportadora:T,fac:fac,gen:{monto:monto,gasto:gasto,incidencia:monto>0?gasto/monto:0,peso:I.peso+L.peso,pesoEnHierros:fac.pesoEnHierros,facturacionTotal:facTotal,disponible:disp,nivel:(monto>0&&disp>0)?monto/disp:0},camiones:{interior:I.cam,periferia:L.cam,servicios:S.cam,transportadora:T.cam,total:I.cam+L.cam},salidas:{interior:I.salidas,periferia:L.salidas,servicios:S.salidas,transportadora:T.salidas,total:I.salidas+L.salidas}};
 }
 function _cfGauge(p){p=Math.max(0,Math.min(1,p||0));const cx=150,cy=150,r=118;const pt=a=>[(cx+r*Math.cos(a)).toFixed(1),(cy-r*Math.sin(a)).toFixed(1)];const full='M'+pt(Math.PI).join(',')+' A'+r+','+r+' 0 0 1 '+pt(0).join(',');const fg='M'+pt(Math.PI).join(',')+' A'+r+','+r+' 0 0 1 '+pt(Math.PI*(1-p)).join(',');return '<svg viewBox="0 0 300 186" width="100%" style="max-width:320px"><path class="cf-gauge__bg" d="'+full+'"/>'+(p>0?'<path class="cf-gauge__fg" d="'+fg+'"/>':'')+'<text class="cf-gauge__val" x="150" y="136" text-anchor="middle">'+_pct(p)+'</text><text class="cf-gauge__end" x="36" y="172" text-anchor="middle">0%</text><text class="cf-gauge__end" x="264" y="172" text-anchor="middle">100%</text></svg>';}
 
@@ -6103,7 +6104,7 @@ async function renderReporte(){
     const cVal=(v,col)=>'<span style="color:'+col+'">'+v+'</span>';
     const drow=(l,v)=>'<div class="rp-drow"><span class="rp-drow__l">'+l+'</span><span class="rp-drow__r">'+v+'</span></div>';
     const drowHi=(l,v)=>'<div class="rp-drow rp-drow--hi"><span class="rp-drow__l">'+l+'</span><span class="rp-drow__r">'+v+'</span></div>';
-    const salRow=(chan,count,viatKey)=>'<div class="rp-drow rp-drow--sal"><span class="rp-drow__l">Salidas del mes</span><span class="rp-drow__r">'+(count>0?'<button class="ch-sal-btn" data-saldet="'+chan+'" type="button">Ver registros</button>':'')+(viatKey?'<button class="ch-sal-btn ch-viat-btn" data-viat="'+viatKey+'" type="button">Viáticos</button>':'')+'<span class="rp-sal-v">'+nn(count)+'</span></span></div>';
+    const salRow=(chan,count,viatKey)=>'<div class="rp-drow rp-drow--sal rp-drow--btns"><span class="rp-drow__r">'+(count>0?'<button class="ch-sal-btn" data-saldet="'+chan+'" type="button">Ver registros</button>':'')+(viatKey?'<button class="ch-sal-btn ch-viat-btn" data-viat="'+viatKey+'" type="button">Viáticos</button>':'')+'</span></div>';
     const repRow=count=>drow('Repartidores registrados','<span class="rp-rep-v">'+nn(count)+'</span>');
     const incRow=(mo,ga)=>{const inc=mo>0?ga/mo:0;return drow('Incidencia',cVal(_pct(inc),inc>0.03?REDc:GREENc));};
     const objRow=(mo,ga)=>{const d=ga-mo*0.03,ov=d>0;return drow(ov?'Sobre el objetivo (3%)':'Dentro del objetivo (3%)',cVal((ov?'+':'−')+'Gs. '+nn(Math.abs(d)),ov?REDc:GREENc));};
