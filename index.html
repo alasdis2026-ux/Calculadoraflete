@@ -4355,6 +4355,15 @@ function showSaveAnim(text){
   .rep2 .ch3d-fbtn.on{background:linear-gradient(180deg,#0F6BA0,#0A4F75);border-color:#0A4F75;color:#fff;box-shadow:0 8px 18px -6px rgba(11,95,141,.55)}
   /* ===== Grilla de paneles separados "Reparto por tipo" ===== */
   .rep2 .rp-seg-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:16px;margin-top:14px;align-items:start}
+  .rep2 .rep-extra-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:2px}
+  .rep2 .rep-extra-btn{display:inline-flex;align-items:center;gap:10px;border:1.5px solid var(--xc,#0B5F8D);background:#fff;color:var(--xc,#0B5F8D);border-radius:12px;padding:9px 14px;font:inherit;cursor:pointer;box-shadow:0 3px 10px rgba(15,23,42,.06);transition:background var(--fast),color var(--fast),transform var(--fast),box-shadow var(--fast)}
+  .rep2 .rep-extra-btn:hover{background:var(--xc,#0B5F8D);color:#fff;transform:translateY(-1px);box-shadow:0 8px 20px rgba(15,23,42,.14)}
+  .rep2 .rep-extra-btn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+  .rep2 .rep-extra-btn b{display:block;font-size:13px;font-weight:900;line-height:1}
+  .rep2 .rep-extra-btn small{display:block;margin-top:3px;font-size:10.5px;font-weight:800;color:#94a3b8;line-height:1;white-space:nowrap}
+  .rep2 .rep-extra-btn:hover small{color:rgba(255,255,255,.78)}
+  .rep-panel-modal{position:relative;max-width:460px!important;padding:0!important;overflow:hidden}
+  .rep-panel-modal .rp-panel{border:0;border-radius:18px;box-shadow:none}
   .rep2 .rp-panel{background:#fff;border:1px solid var(--line);border-radius:18px;box-shadow:0 16px 40px -22px rgba(15,23,42,.32);overflow:hidden}
   .rep2 .rp-panel__head{display:flex;align-items:center;gap:12px;padding:14px 18px;background:var(--sc);background-image:linear-gradient(120deg,rgba(255,255,255,.1),rgba(0,0,0,.14));color:#fff;position:relative;overflow:hidden}
   .rep2 .rp-panel__head::after{content:"";position:absolute;right:-24px;top:-38px;width:150px;height:150px;background:url('logo-icon.png') no-repeat center/contain;filter:brightness(0) invert(1);opacity:.1;pointer-events:none}
@@ -5906,9 +5915,17 @@ function _repShowSeg(key,animate){
 }
 function _repSegInit(){
   const grid=document.getElementById('repSegGrid');if(!grid||!_repSegPanels)return;
-  grid.innerHTML=_repSegOrder.map(k=>_repSegPanels[k]).join('');
+  grid.innerHTML=['interior','local'].map(k=>_repSegPanels[k]).join('');
   _repSegWire(grid);
   if(window.gsap)window.gsap.from(grid.querySelectorAll('.rp-panel'),{opacity:0,y:18,duration:.5,stagger:.09,ease:'back.out(1.4)',clearProps:'transform,opacity'});
+}
+function _repOpenSegModal(key){
+  if(!_repSegPanels||!_repSegPanels[key])return;
+  const m=_cfModalOpen('<div class="cf-mbox rep-panel-modal"><button class="sal-x" aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button><div class="rep2">'+_repSegPanels[key]+'</div></div>');
+  const x=m.$('.sal-x');if(x)x.addEventListener('click',m.close);
+  _repSegWire(m.box);
+  m.box.addEventListener('click',_cfManualClick);
+  if(window.gsap&&m.box)window.gsap.from(m.box.querySelectorAll('.rp-drow'),{opacity:0,x:-8,duration:.3,stagger:.03,delay:.12,ease:'power2.out',clearProps:'transform,opacity'});
 }
 /* ===== (legacy) Coverflow 3D ===== */
 let _ch3dIdx=0;
@@ -6002,7 +6019,7 @@ function _cfReporteModel(mk){
   mkList.forEach(mm=>{const r=_cfReporte[mm]||{};fac.facturacionMes+=+r.facturacionMes||0;fac.retira+=+r.retira||0;fac.notaCredito+=+r.notaCredito||0;fac.factUltimoDiaMesPasado+=+r.factUltimoDiaMesPasado||0;fac.pesoEnHierros+=+r.pesoEnHierros||0;});
   function seg(key){const a=auto[key],mm=man(key),cam=key==='transportadora'?a.camN:Object.keys(a.cam).length,reps=Object.keys(a.rep).sort((x,y)=>x.localeCompare(y,'es'));const terc=(key==='transportadora'||key==='servicios');var mo=terc?(mm.monto||0):a.monto;const fl=(key==='transportadora'&&mm.flete>0)?mm.flete:a.flete;let gt,inc;if(terc){gt=fl;inc=mo>0?fl/mo:0;}else{gt=a.flete+mm.gratificaciones+mm.viatico;inc=a.monto>0?gt/a.monto:0;}return{monto:mo,flete:fl,fleteAuto:a.flete,fleteManual:mm.flete,cam:cam,salidas:a.n||0,repartidores:reps.length,repNames:reps,peso:mm.peso,gratificaciones:mm.gratificaciones,viatico:mm.viatico,gastoTotal:gt,incidencia:inc};}
   const I=seg('interior'),L=seg('local'),S=seg('servicios'),T=seg('transportadora');
-  const monto=I.monto+L.monto+S.monto+T.monto,gasto=I.gastoTotal+L.gastoTotal+S.gastoTotal+T.gastoTotal;
+  const monto=I.monto+L.monto+T.monto,gasto=I.gastoTotal+L.gastoTotal;
   const facTotal=fac.facturacionMes+fac.factUltimoDiaMesPasado,disp=facTotal-fac.retira;
   return{interior:I,local:L,servicios:S,transportadora:T,fac:fac,gen:{monto:monto,gasto:gasto,incidencia:monto>0?gasto/monto:0,peso:I.peso+L.peso+S.peso+T.peso,pesoEnHierros:fac.pesoEnHierros,facturacionTotal:facTotal,disponible:disp,nivel:(monto>0&&disp>0)?monto/disp:0},camiones:{interior:I.cam,periferia:L.cam,servicios:S.cam,transportadora:T.cam,total:I.cam+L.cam+S.cam+T.cam},salidas:{interior:I.salidas,periferia:L.salidas,servicios:S.salidas,transportadora:T.salidas,total:I.salidas+L.salidas+S.salidas+T.salidas}};
 }
@@ -6069,6 +6086,12 @@ async function renderReporte(){
       trans:shell('trans',m.transportadora.cam,salRow('transportadora',m.salidas.transportadora)+repRow(m.transportadora.repartidores),tR,tD),
       serv:shell('serv',m.servicios.cam,salRow('servicios',m.salidas.servicios)+repRow(m.servicios.repartidores),sR,sD)};
   })();
+  const extraIcon='<svg viewBox="0 0 24 24"><path d="M3 7.5h9v7H3zM12 10h4l3 3v1.5h-7z"/><circle cx="7" cy="16.5" r="1.5"/><circle cx="16.5" cy="16.5" r="1.5"/></svg>';
+  const extraBtn=(key,lbl,c,sal,gs)=>'<button class="rep-extra-btn" style="--xc:'+c+'" data-repsegopen="'+key+'" type="button">'+extraIcon+'<span><b>'+lbl+'</b><small>'+nn(sal)+' salidas · Gs. '+nn(gs)+'</small></span></button>';
+  const extraPanels='<div class="rep-extra-actions">'+
+    extraBtn('trans','Transportadora','#7C6BF0',m.salidas.transportadora,m.transportadora.flete)+
+    extraBtn('serv','Servicios','#F97316',m.salidas.servicios,m.servicios.flete)+
+  '</div>';
   host.innerHTML='<div class="rep2">'+
     '<div class="rep2-hd"><h2><img src="logo-alas-s.a.png">Reporte General</h2>'+segBtns+'<div class="rep2-spacer"></div>'+editBtn+'</div>'+
     '<div class="hero-bar">'+
@@ -6100,6 +6123,7 @@ async function renderReporte(){
       '<div class="rep-kpi"><span class="rep-kpi__l">Peso en hierros</span><b class="rep-kpi__v man-ed"'+_manAttr(m.gen.pesoEnHierros,'Kg','pesoEnHierros','Peso en hierros')+'>'+nn(m.gen.pesoEnHierros)+'<i>Kg</i></b></div>'+
     '</div>'+
     '<div class="section-label rep-sl2">Reparto por tipo</div>'+
+    extraPanels+
     '<div class="rp-seg-grid" id="repSegGrid"></div>'+
     '<div style="display:none">'+
       '<div class="ch-card" data-ch="int" data-cam="'+(m.interior.cam||0)+'" data-monto="'+(m.interior.monto||0)+'" data-flete="'+(m.interior.gastoTotal||0)+'"><div class="ch-top"></div><div class="ch-head"><span class="ch-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5h9v7H3zM12 10h4l3 3v1.5h-7z"/><circle cx="7" cy="16.5" r="1.5"/><circle cx="16.5" cy="16.5" r="1.5"/></svg></span><span class="ch-name">Interior</span><span class="ch-cams">'+nn(m.interior.cam)+'<small>camiones</small></span></div>'+
@@ -6128,6 +6152,7 @@ async function renderReporte(){
   const eb=document.getElementById('cfRepEdit');if(eb)eb.addEventListener('click',()=>_cfOpenReporteEdit(_cfRepMes));
   // Edición inline de valores manuales (solo con un mes puntual) → modal PRO de confirmación
   if(!host.dataset.manwired){host.dataset.manwired='1';host.addEventListener('click',_cfManualClick);}
+  host.querySelectorAll('[data-repsegopen]').forEach(b=>b.addEventListener('click',()=>_repOpenSegModal(b.dataset.repsegopen)));
   // "Ver detalles" de salidas → modal PRO por fecha
   host.querySelectorAll('[data-saldet]').forEach(b=>b.addEventListener('click',()=>_cfSalidasModal(_cfRepMes,b.dataset.saldet)));
   host.querySelectorAll('[data-viat]').forEach(b=>b.addEventListener('click',()=>_cfViaticoModal(_cfRepMes,b.dataset.viat)));
