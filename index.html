@@ -4354,7 +4354,7 @@ function showSaveAnim(text){
   .rep2 .ch3d-fbtn:hover{border-color:#0B5F8D;background:#F2F8FC}
   .rep2 .ch3d-fbtn.on{background:linear-gradient(180deg,#0F6BA0,#0A4F75);border-color:#0A4F75;color:#fff;box-shadow:0 8px 18px -6px rgba(11,95,141,.55)}
   /* ===== Grilla de paneles separados "Reparto por tipo" ===== */
-  .rep2 .rp-seg-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(620px,1fr));gap:16px;margin-top:14px;align-items:start}
+  .rep2 .rp-seg-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(620px,1fr));gap:16px;margin-top:14px;align-items:stretch}
   .rep2 .rep-extra-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:2px}
   .rep2 .rep-extra-btn{display:inline-flex;align-items:center;gap:10px;border:1.5px solid var(--xc,#0B5F8D);background:#fff;color:var(--xc,#0B5F8D);border-radius:12px;padding:9px 14px;font:inherit;cursor:pointer;box-shadow:0 3px 10px rgba(15,23,42,.06);transition:background var(--fast),color var(--fast),transform var(--fast),box-shadow var(--fast)}
   .rep2 .rep-extra-btn:hover{background:var(--xc,#0B5F8D);color:#fff;transform:translateY(-1px);box-shadow:0 8px 20px rgba(15,23,42,.14)}
@@ -4371,6 +4371,11 @@ function showSaveAnim(text){
   .rep2 .rp-panel__ico svg{width:24px;height:24px;stroke:#fff}
   .rep2 .rp-panel__title{flex:1;min-width:0}
   .rep2 .rp-panel__name{font-family:Sora,Inter,sans-serif;font-size:20px;font-weight:800;letter-spacing:-.4px;line-height:1.1}
+  .rep2 .rp-panel__top{display:flex;align-items:center;gap:11px;position:relative;z-index:1}
+  .rep2 .rp-panel__stats{display:flex;gap:24px;position:relative;z-index:1}
+  .rep2 .rp-panel__stat{display:flex;flex-direction:column;line-height:1}
+  .rep2 .rp-panel__stat b{font-family:Sora,Inter,sans-serif;font-weight:900;font-size:16px;line-height:1;font-variant-numeric:tabular-nums}
+  .rep2 .rp-panel__stat small{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;opacity:.78;margin-top:3px}
   .rep2 .rp-panel__tag{font-size:10.5px;font-weight:600;color:rgba(255,255,255,.82);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .rep2 .rp-panel__cams{display:inline-flex;align-items:baseline;gap:5px;padding:7px 13px;border-radius:999px;background:rgba(255,255,255,.94);color:var(--sc);font-family:Sora,Inter,sans-serif;font-weight:900;font-size:17px;line-height:1;font-variant-numeric:tabular-nums;flex-shrink:0;position:relative;z-index:1}
   .rep2 .rp-panel__cams small{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;opacity:.8}
@@ -4408,8 +4413,12 @@ function showSaveAnim(text){
   .rep2 .rp-drow__r .man-ed:hover{background:rgba(59,130,246,.1);box-shadow:inset 0 0 0 1px rgba(59,130,246,.3)}
   @media(min-width:960px){
     .rep2 .rp-seg-grid .rp-panel{display:grid;grid-template-columns:minmax(170px,210px) minmax(0,1fr)}
-    .rep2 .rp-seg-grid .rp-panel__head{min-height:100%;flex-direction:column;align-items:flex-start;justify-content:space-between;padding:18px}
-    .rep2 .rp-seg-grid .rp-panel__head::after{right:-44px;top:auto;bottom:-46px;width:160px;height:160px}
+    .rep2 .rp-seg-grid .rp-panel__head{min-height:100%;flex-direction:column;align-items:flex-start;justify-content:space-between;gap:20px;padding:20px}
+    .rep2 .rp-seg-grid .rp-panel__head::after{right:-14px;top:auto;bottom:-16px;width:128px;height:128px;opacity:.17}
+    .rep2 .rp-seg-grid .rp-panel__name{font-size:19px}
+    .rep2 .rp-seg-grid .rp-panel__stats{flex-direction:column;gap:16px;margin-top:auto}
+    .rep2 .rp-seg-grid .rp-panel__stat b{font-size:30px;letter-spacing:-.5px}
+    .rep2 .rp-seg-grid .rp-panel__stat small{font-size:10.5px;margin-top:4px}
     .rep2 .rp-seg-grid .rp-panel__cams{margin-left:0}
     .rep2 .rp-seg-grid .rp-panel__detail{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.95fr);gap:12px 18px;padding:14px 18px}
     .rep2 .rp-seg-grid .rp-panel__block--status{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
@@ -4421,6 +4430,8 @@ function showSaveAnim(text){
   @media(max-width:959px){.rep2 .rp-seg-grid{grid-template-columns:1fr}}
   .rep-panel-modal .rep2 .rp-panel{display:block}
   .rep-panel-modal .rep2 .rp-panel__head{min-height:0;flex-direction:row;align-items:center}
+  .rep-panel-modal .rep2 .rp-panel__stats{margin-left:auto;flex-direction:row;gap:22px}
+  .rep-panel-modal .rep2 .rp-panel__stat b{font-size:17px}
   .rep-panel-modal .rep2 .rp-panel__detail{display:block;padding:0 18px 18px}
   .rep-panel-modal .rep2 .rp-panel__block--status{display:block}
   .rep-panel-modal .rep2 .rp-panel__block--status .rp-drow--sal{margin:0 -18px;border-radius:0;border:0}
@@ -5936,7 +5947,17 @@ function _repSegInit(){
   const grid=document.getElementById('repSegGrid');if(!grid||!_repSegPanels)return;
   grid.innerHTML=['interior','local'].map(k=>_repSegPanels[k]).join('');
   _repSegWire(grid);
-  if(window.gsap)window.gsap.from(grid.querySelectorAll('.rp-panel'),{opacity:0,y:18,duration:.5,stagger:.09,ease:'back.out(1.4)',clearProps:'transform,opacity'});
+  if(window.gsap){
+    const g=window.gsap;
+    g.from(grid.querySelectorAll('.rp-panel'),{opacity:0,y:18,duration:.5,stagger:.09,ease:'back.out(1.4)',clearProps:'transform,opacity'});
+    g.from(grid.querySelectorAll('.rp-panel__top'),{opacity:0,x:-10,duration:.4,stagger:.1,delay:.18,ease:'power2.out',clearProps:'transform,opacity'});
+    g.from(grid.querySelectorAll('.rp-panel__stat'),{opacity:0,y:12,duration:.44,stagger:.07,delay:.26,ease:'back.out(1.6)',clearProps:'transform,opacity'});
+    grid.querySelectorAll('.rp-panel__stat b[data-cnt]').forEach((el,i)=>{
+      const target=+el.dataset.cnt||0; if(!target)return;
+      const o={v:0}; g.to(o,{v:target,duration:.9,delay:.3+i*0.04,ease:'power2.out',
+        onUpdate:()=>{el.textContent=_nnum(Math.round(o.v));},onComplete:()=>{el.textContent=_nnum(target);}});
+    });
+  }
 }
 function _repOpenSegModal(key){
   if(!_repSegPanels||!_repSegPanels[key])return;
@@ -6086,8 +6107,14 @@ async function renderReporte(){
     const repRow=count=>drow('Repartidores registrados','<span class="rp-rep-v">'+nn(count)+'</span>');
     const incRow=(mo,ga)=>{const inc=mo>0?ga/mo:0;return drow('Incidencia',cVal(_pct(inc),inc>0.03?REDc:GREENc));};
     const objRow=(mo,ga)=>{const d=ga-mo*0.03,ov=d>0;return drow(ov?'Sobre el objetivo (3%)':'Dentro del objetivo (3%)',cVal((ov?'+':'−')+'Gs. '+nn(Math.abs(d)),ov?REDc:GREENc));};
-    const shell=(key,camN,sal,resumen,detail)=>'<div class="rp-panel" data-ch="'+key+'" style="--sc:'+SC[key][0]+';--sc-soft:'+SC[key][1]+'">'+
-      '<div class="rp-panel__head"><span class="rp-panel__ico">'+truck+'</span><div class="rp-panel__title"><div class="rp-panel__name">'+SN[key]+'</div></div><span class="rp-panel__cams">'+nn(camN)+'<small>camiones</small></span></div>'+
+    const shell=(key,camN,salN,sal,resumen,detail)=>'<div class="rp-panel" data-ch="'+key+'" style="--sc:'+SC[key][0]+';--sc-soft:'+SC[key][1]+'">'+
+      '<div class="rp-panel__head">'+
+        '<div class="rp-panel__top"><span class="rp-panel__ico">'+truck+'</span><span class="rp-panel__name">'+SN[key]+'</span></div>'+
+        '<div class="rp-panel__stats">'+
+          '<div class="rp-panel__stat"><b data-cnt="'+(+camN||0)+'">'+nn(camN)+'</b><small>camiones</small></div>'+
+          '<div class="rp-panel__stat"><b data-cnt="'+(+salN||0)+'">'+nn(salN)+'</b><small>salidas del mes</small></div>'+
+        '</div>'+
+      '</div>'+
       '<div class="rp-panel__detail"><div class="rp-panel__block rp-panel__block--status">'+sal+'</div><div class="rp-panel__block"><div class="rp-detail__hd">Resumen</div>'+resumen+'</div>'+(detail?'<div class="rp-panel__block"><div class="rp-detail__hd rp-detail__hd--mt">Desglose</div>'+detail+'</div>':'')+'</div></div>';
     const iR=drowHi('Monto repartido','<small>Gs.</small> '+nn(m.interior.monto))+drowHi('Gasto total','<small>Gs.</small> '+nn(m.interior.gastoTotal))+incRow(m.interior.monto,m.interior.gastoTotal)+objRow(m.interior.monto,m.interior.gastoTotal);
     const iD=drow('Peso',man(m.interior.peso,'Kg','seg.interior.peso','Peso · Interior'))+drow('Km recorridos',aut(intKm,'Km'))+drow('Pago a transportadoras',aut(m.interior.flete))+drow('Gratificaciones',man(m.interior.gratificaciones,'','seg.interior.gratificaciones','Gratificaciones · Interior'))+drow('Gasto viático',aut(m.interior.viatico));
@@ -6100,10 +6127,10 @@ async function renderReporte(){
     const sR=drowHi('Gasto (flete)','<small>Gs.</small> '+nn(sGa));
     const sD='';
     _repSegPanels={
-      interior:shell('interior',m.interior.cam,salRow('interior',m.salidas.interior,'interior')+repRow(m.interior.repartidores),iR,iD),
-      local:shell('local',m.local.cam,salRow('periferia',m.salidas.periferia,'local')+repRow(m.local.repartidores),lR,lD),
-      trans:shell('trans',m.transportadora.cam,salRow('transportadora',m.salidas.transportadora)+repRow(m.transportadora.repartidores),tR,tD),
-      serv:shell('serv',m.servicios.cam,salRow('servicios',m.salidas.servicios)+repRow(m.servicios.repartidores),sR,sD)};
+      interior:shell('interior',m.interior.cam,m.salidas.interior,salRow('interior',m.salidas.interior,'interior')+repRow(m.interior.repartidores),iR,iD),
+      local:shell('local',m.local.cam,m.salidas.periferia,salRow('periferia',m.salidas.periferia,'local')+repRow(m.local.repartidores),lR,lD),
+      trans:shell('trans',m.transportadora.cam,m.salidas.transportadora,salRow('transportadora',m.salidas.transportadora)+repRow(m.transportadora.repartidores),tR,tD),
+      serv:shell('serv',m.servicios.cam,m.salidas.servicios,salRow('servicios',m.salidas.servicios)+repRow(m.servicios.repartidores),sR,sD)};
   })();
   const extraIcon='<svg viewBox="0 0 24 24"><path d="M3 7.5h9v7H3zM12 10h4l3 3v1.5h-7z"/><circle cx="7" cy="16.5" r="1.5"/><circle cx="16.5" cy="16.5" r="1.5"/></svg>';
   const extraBtn=(key,lbl,c,sal,gs)=>'<button class="rep-extra-btn" style="--xc:'+c+'" data-repsegopen="'+key+'" type="button">'+extraIcon+'<span><b>'+lbl+'</b><small>'+nn(sal)+' salidas · Gs. '+nn(gs)+'</small></span></button>';
