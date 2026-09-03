@@ -4403,6 +4403,8 @@ function showSaveAnim(text){
   .rep2 .rp-drow--hi .rp-drow__r{font-size:16px}
   .rep2 .rp-drow--sal{background:var(--sc-soft);margin:0 -18px;padding:12px 18px;border-bottom:none}
   .rep2 .rp-drow--sal .rp-drow__l{color:var(--sc);font-weight:800;font-size:13.5px}
+  .rep2 .rp-drow--salcol{flex-direction:column;align-items:flex-start;gap:9px}
+  .rep2 .rp-noreg{font-size:12px;font-weight:700;color:var(--sc);opacity:.65}
   .rep2 .rp-sal-v{font-family:Sora,Inter,sans-serif;font-size:18px;font-weight:900;color:var(--sc)}
   .rep2 .rp-rep-v{display:inline-flex;align-items:center;justify-content:center;min-width:34px;height:28px;padding:0 10px;border-radius:999px;background:rgba(15,23,42,.04);color:var(--sc);font-family:Sora,Inter,sans-serif;font-size:16px;font-weight:900;font-variant-numeric:tabular-nums}
   .rep2 .rp-drow .ch-sal-btn{font-family:inherit;font-size:11px;font-weight:800;color:var(--sc);background:#fff;border:1.5px solid var(--sc);padding:6px 13px;border-radius:999px;cursor:pointer;transition:all var(--fast)}
@@ -6104,8 +6106,8 @@ async function renderReporte(){
     const cVal=(v,col)=>'<span style="color:'+col+'">'+v+'</span>';
     const drow=(l,v)=>'<div class="rp-drow"><span class="rp-drow__l">'+l+'</span><span class="rp-drow__r">'+v+'</span></div>';
     const drowHi=(l,v)=>'<div class="rp-drow rp-drow--hi"><span class="rp-drow__l">'+l+'</span><span class="rp-drow__r">'+v+'</span></div>';
-    const salRow=(chan,count,viatKey)=>'<div class="rp-drow rp-drow--sal rp-drow--btns"><span class="rp-drow__r">'+(count>0?'<button class="ch-sal-btn" data-saldet="'+chan+'" type="button">Ver registros</button>':'')+(viatKey?'<button class="ch-sal-btn ch-viat-btn" data-viat="'+viatKey+'" type="button">Viáticos</button>':'')+'</span></div>';
-    const repRow=count=>drow('Repartidores registrados','<span class="rp-rep-v">'+nn(count)+'</span>');
+    const salRow=(chan,count)=>'<div class="rp-drow rp-drow--sal rp-drow--salcol"><span class="rp-drow__l">Salidas del mes</span>'+(count>0?'<button class="ch-sal-btn" data-saldet="'+chan+'" type="button">Ver registros</button>':'<span class="rp-noreg">Sin registros del mes</span>')+'</div>';
+    const repRow=(count,viatKey)=>'<div class="rp-drow rp-drow--rep"><span class="rp-drow__l">Repartidores registrados</span><span class="rp-drow__r"><span class="rp-rep-v">'+nn(count)+'</span>'+(viatKey?'<button class="ch-sal-btn ch-viat-btn" data-viat="'+viatKey+'" type="button">Viáticos</button>':'')+'</span></div>';
     const incRow=(mo,ga)=>{const inc=mo>0?ga/mo:0;return drow('Incidencia',cVal(_pct(inc),inc>0.03?REDc:GREENc));};
     const objRow=(mo,ga)=>{const d=ga-mo*0.03,ov=d>0;return drow(ov?'Sobre el objetivo (3%)':'Dentro del objetivo (3%)',cVal((ov?'+':'−')+'Gs. '+nn(Math.abs(d)),ov?REDc:GREENc));};
     const shell=(key,camN,salN,sal,resumen,detail)=>'<div class="rp-panel" data-ch="'+key+'" style="--sc:'+SC[key][0]+';--sc-soft:'+SC[key][1]+'">'+
@@ -6128,8 +6130,8 @@ async function renderReporte(){
     const sR=drowHi('Gasto (flete)','<small>Gs.</small> '+nn(sGa));
     const sD='';
     _repSegPanels={
-      interior:shell('interior',m.interior.cam,m.salidas.interior,salRow('interior',m.salidas.interior,'interior')+repRow(m.interior.repartidores),iR,iD),
-      local:shell('local',m.local.cam,m.salidas.periferia,salRow('periferia',m.salidas.periferia,'local')+repRow(m.local.repartidores),lR,lD),
+      interior:shell('interior',m.interior.cam,m.salidas.interior,salRow('interior',m.salidas.interior)+repRow(m.interior.repartidores,'interior'),iR,iD),
+      local:shell('local',m.local.cam,m.salidas.periferia,salRow('periferia',m.salidas.periferia)+repRow(m.local.repartidores,'local'),lR,lD),
       trans:shell('trans',m.transportadora.cam,m.salidas.transportadora,salRow('transportadora',m.salidas.transportadora)+repRow(m.transportadora.repartidores),tR,tD),
       serv:shell('serv',m.servicios.cam,m.salidas.servicios,salRow('servicios',m.salidas.servicios)+repRow(m.servicios.repartidores),sR,sD)};
   })();
