@@ -4424,9 +4424,9 @@ function showSaveAnim(text){
     .rep2 .rp-seg-grid .rp-panel__stat small{font-size:11px;letter-spacing:.6px;margin-top:5px}
     .rep2 .rp-seg-grid .rp-panel__cams{margin-left:0}
     .rep2 .rp-seg-grid .rp-panel__detail{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.95fr);gap:12px 18px;padding:14px 18px}
-    .rep2 .rp-seg-grid .rp-panel__block--status{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-    .rep2 .rp-seg-grid .rp-panel__block--status .rp-drow{margin:0;padding:10px 12px;border:1px solid #edf2f7;border-radius:12px}
-    .rep2 .rp-seg-grid .rp-panel__block--status .rp-drow--sal{background:var(--sc-soft);border-color:transparent}
+    .rep2 .rp-seg-grid .rp-panel__block--status{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px 22px}
+    .rep2 .rp-seg-grid .rp-panel__block--status .rp-drow{margin:0;padding:8px 0;border:0;border-radius:0;border-bottom:1px dashed var(--soft-line);min-height:40px}
+    .rep2 .rp-seg-grid .rp-panel__block--status .rp-drow--sal{background:transparent}
     .rep2 .rp-seg-grid .rp-detail__hd{margin-top:2px}
     .rep2 .rp-seg-grid .rp-panel__detail>.rp-drow--sal:first-child{margin:0}
   }
@@ -6106,7 +6106,7 @@ async function renderReporte(){
     const cVal=(v,col)=>'<span style="color:'+col+'">'+v+'</span>';
     const drow=(l,v)=>'<div class="rp-drow"><span class="rp-drow__l">'+l+'</span><span class="rp-drow__r">'+v+'</span></div>';
     const drowHi=(l,v)=>'<div class="rp-drow rp-drow--hi"><span class="rp-drow__l">'+l+'</span><span class="rp-drow__r">'+v+'</span></div>';
-    const salRow=(chan,count)=>'<div class="rp-drow rp-drow--sal rp-drow--salcol"><span class="rp-drow__l">Salidas del mes</span>'+(count>0?'<button class="ch-sal-btn" data-saldet="'+chan+'" type="button">Ver registros</button>':'<span class="rp-noreg">Sin registros del mes</span>')+'</div>';
+    const salRow=(chan,count)=>'<div class="rp-drow rp-drow--sal"><span class="rp-drow__l">Salidas del mes</span><span class="rp-drow__r">'+(count>0?'<button class="ch-sal-btn" data-saldet="'+chan+'" type="button">Ver registros</button>':'<span class="rp-noreg">Sin registros</span>')+'</span></div>';
     const repRow=(count,viatKey)=>'<div class="rp-drow rp-drow--rep"><span class="rp-drow__l">Repartidores registrados</span><span class="rp-drow__r"><span class="rp-rep-v">'+nn(count)+'</span>'+(viatKey?'<button class="ch-sal-btn ch-viat-btn" data-viat="'+viatKey+'" type="button">Viáticos</button>':'')+'</span></div>';
     const incRow=(mo,ga)=>{const inc=mo>0?ga/mo:0;return drow('Incidencia',cVal(_pct(inc),inc>0.03?REDc:GREENc));};
     const objRow=(mo,ga)=>{const d=ga-mo*0.03,ov=d>0;return drow(ov?'Sobre el objetivo (3%)':'Dentro del objetivo (3%)',cVal((ov?'+':'−')+'Gs. '+nn(Math.abs(d)),ov?REDc:GREENc));};
