@@ -4543,6 +4543,9 @@ function showSaveAnim(text){
   .viat-total span{display:block;font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#94a3b8}
   .viat-total b{display:block;margin-top:4px;font-family:Sora,Inter,sans-serif;font-size:22px;font-weight:800;color:#15803d;font-variant-numeric:tabular-nums}
   .viat-list{padding:14px 22px;overflow:auto;display:flex;flex-direction:column;gap:10px;min-height:180px}
+  .viat-colhd{display:grid;grid-template-columns:minmax(0,1fr) 60px 144px 144px;gap:10px;padding:0 12px 2px;align-items:end;position:sticky;top:0;background:#fff;z-index:2}
+  .viat-colhd span{font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#94a3b8;text-align:center}
+  .viat-colhd span:first-child{text-align:left}
   .viat-row{display:grid;grid-template-columns:minmax(0,1fr) 60px 144px 144px;align-items:center;gap:10px;padding:10px 12px;border:1px solid #eef2f7;border-radius:12px;background:#fff;box-shadow:0 2px 8px rgba(15,23,42,.04)}
   .viat-per span{white-space:nowrap;color:var(--viat-c,#0B5F8D);opacity:.8}
   .viat-per.is-off{opacity:.45}
@@ -4555,7 +4558,8 @@ function showSaveAnim(text){
   .viat-money{display:flex;align-items:center;gap:7px;border:1.5px solid #dbe7f1;border-radius:10px;padding:8px 10px;background:#f8fafc;transition:border-color .15s,box-shadow .15s,background .15s}
   .viat-money:focus-within{border-color:var(--viat-c,#0B5F8D);box-shadow:0 0 0 3px rgba(37,120,184,.12);background:#fff}
   .viat-money span{font-size:10px;font-weight:800;color:#94a3b8}
-  .viat-in{width:100%;min-width:0;border:0;background:transparent;outline:none;text-align:right;font:inherit;font-size:13px;font-weight:800;color:#0f172a;font-variant-numeric:tabular-nums}
+  .viat-in,.viat-perin{width:100%;min-width:0;border:0;background:transparent;outline:none;text-align:right;font:inherit;font-size:13px;font-weight:800;color:#0f172a;font-variant-numeric:tabular-nums}
+  .viat-perin{color:var(--viat-c,#0B5F8D)}
   .viat-empty{text-align:center;color:#94a3b8;padding:42px 12px;font-weight:700}
   .viat-foot{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 22px;border-top:1px solid #eef2f7;background:#f8fafc;flex-shrink:0}
   .viat-foot__hint{font-size:11.5px;font-weight:700;color:#64748b}
@@ -6092,6 +6096,9 @@ async function renderReporte(){
   const man=(v,u,path,lbl)=>'<span class="ch-rv man'+(path?' man-ed':'')+'"'+_manAttr(v,u,path,lbl)+'>'+nn(v)+(u?'<i class="unit">'+u+'</i>':'')+'</span>';
   const manTd=(v,u,path,lbl)=>'<td class="man'+(path?' man-ed':'')+'"'+_manAttr(v,u,path,lbl)+'>'+nn(v)+(u?'<span class="unit">'+u+'</span>':'')+'</td>';
   const aut=(v,u)=>'<span class="ch-rv">'+nn(v)+(u?'<i class="unit">'+u+'</i>':'')+'</span>';
+  // Peso en toneladas (kg/1000, coma decimal es-PY). Se ingresa en kg, se muestra en Ton.
+  const _ton=v=>((+v||0)/1000).toLocaleString('es-PY',{minimumFractionDigits:0,maximumFractionDigits:3});
+  const manTon=(v,path,lbl)=>'<span class="ch-rv man'+(path?' man-ed':'')+'"'+_manAttr(v,'Kg',path,lbl)+'>'+_ton(v)+'<i class="unit">Ton</i></span>';
   // Monto e incidencia por zona con filtro de segmento (se re-renderiza in-place)
   const zonaSection='<div id="repZonaHost">'+_repZonaHTML(_cfRepMes)+'</div>';
   // ===== Paneles "Reparto por tipo" (un panel ancho + KPIs integrados, sin duplicar) =====
@@ -6123,9 +6130,9 @@ async function renderReporte(){
       '</div>'+
       '<div class="rp-panel__detail"><div class="rp-panel__block rp-panel__block--status">'+sal+'</div><div class="rp-panel__block"><div class="rp-detail__hd">Resumen</div>'+resumen+'</div>'+(detail?'<div class="rp-panel__block"><div class="rp-detail__hd rp-detail__hd--mt">Desglose</div>'+detail+'</div>':'')+'</div></div>';
     const iR=drowHi('Monto repartido','<small>Gs.</small> '+nn(m.interior.monto))+drowHi('Gasto total','<small>Gs.</small> '+nn(m.interior.gastoTotal))+incRow(m.interior.monto,m.interior.gastoTotal)+objRow(m.interior.monto,m.interior.gastoTotal);
-    const iD=drow('Peso',man(m.interior.peso,'Kg','seg.interior.peso','Peso · Interior'))+drow('Km recorridos',aut(intKm,'Km'))+drow('Pago a transportadoras',aut(m.interior.flete))+drow('Gratificaciones',man(m.interior.gratificaciones,'','seg.interior.gratificaciones','Gratificaciones · Interior'))+drow('Gasto viático',aut(m.interior.viatico));
+    const iD=drow('Peso',manTon(m.interior.peso,'seg.interior.peso','Peso · Interior'))+drow('Km recorridos',aut(intKm,'Km'))+drow('Pago a transportadoras',aut(m.interior.flete))+drow('Gratificaciones',man(m.interior.gratificaciones,'','seg.interior.gratificaciones','Gratificaciones · Interior'))+drow('Gasto viático',aut(m.interior.viatico));
     const lR=drowHi('Monto repartido','<small>Gs.</small> '+nn(m.local.monto))+drowHi('Gasto total','<small>Gs.</small> '+nn(m.local.gastoTotal))+incRow(m.local.monto,m.local.gastoTotal)+objRow(m.local.monto,m.local.gastoTotal);
-    const lD=drow('Peso',man(m.local.peso,'Kg','seg.local.peso','Peso · Local'))+drow('Pago a transportadoras',aut(m.local.flete))+drow('Gasto viático',aut(m.local.viatico));
+    const lD=drow('Peso',manTon(m.local.peso,'seg.local.peso','Peso · Local'))+drow('Pago a transportadoras',aut(m.local.flete))+drow('Gasto viático',aut(m.local.viatico));
     const tMo=m.transportadora.monto||0,tGa=m.transportadora.flete||0;
     const tR=drowHi('Monto repartido','<small>Gs.</small> '+man(tMo,'','seg.transportadora.monto','Monto repartido · Transportadora'))+drowHi('Gasto (flete)','<small>Gs.</small> '+man(tGa,'','seg.transportadora.flete','Gasto (flete) · Transportadora'))+incRow(tMo,tGa)+objRow(tMo,tGa);
     const tD='';
@@ -6171,8 +6178,8 @@ async function renderReporte(){
       '<div class="rep-kpi"><span class="rep-kpi__l">Fac. mes pasado</span><b class="rep-kpi__v man-ed"'+_manAttr(m.fac.factUltimoDiaMesPasado,'','factUltimoDiaMesPasado','Fac. mes pasado')+'>'+nn(m.fac.factUltimoDiaMesPasado)+'</b></div>'+
       '<div class="rep-kpi"><span class="rep-kpi__l">Retira</span><b class="rep-kpi__v man-ed"'+_manAttr(m.fac.retira,'','retira','Retira')+'>'+nn(m.fac.retira)+'</b></div>'+
       '<div class="rep-kpi"><span class="rep-kpi__l">Nota de crédito</span><b class="rep-kpi__v man-ed"'+_manAttr(m.fac.notaCredito,'','notaCredito','Nota de crédito')+'>'+nn(m.fac.notaCredito)+'</b></div>'+
-      '<div class="rep-kpi"><span class="rep-kpi__l">Peso total</span><b class="rep-kpi__v">'+nn(m.gen.peso)+'<i>Kg</i></b></div>'+
-      '<div class="rep-kpi"><span class="rep-kpi__l">Peso en hierros</span><b class="rep-kpi__v man-ed"'+_manAttr(m.gen.pesoEnHierros,'Kg','pesoEnHierros','Peso en hierros')+'>'+nn(m.gen.pesoEnHierros)+'<i>Kg</i></b></div>'+
+      '<div class="rep-kpi"><span class="rep-kpi__l">Peso total</span><b class="rep-kpi__v">'+_ton(m.gen.peso)+'<i>Ton</i></b></div>'+
+      '<div class="rep-kpi"><span class="rep-kpi__l">Peso en hierros</span><b class="rep-kpi__v man-ed"'+_manAttr(m.gen.pesoEnHierros,'Kg','pesoEnHierros','Peso en hierros')+'>'+_ton(m.gen.pesoEnHierros)+'<i>Ton</i></b></div>'+
     '</div>'+
     '<div class="section-label rep-sl2">Reparto por tipo</div>'+
     extraPanels+
@@ -6371,7 +6378,7 @@ function _cfViaticoModal(mk,segKey){
   const hint=(legacy&&legacy!==total0)?'Total manual actual: '+_gs(legacy)+'. Al guardar, se reemplaza por la suma del detalle.':'Se guarda por mes y se suma al gasto total del panel.';
   const m=_cfModalOpen('<div class="cf-mbox viat-modal" style="--viat-c:'+cfg.c+';--viat-soft:'+cfg.soft+'"><button class="sal-x" aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>'+
     '<div class="viat-hd"><span class="viat-ic">'+IC+'</span><div><div class="viat-title">Viáticos · '+cfg.lbl+'</div><div class="viat-sub">'+_mesLbl(mk)+' · '+rows.filter(r=>!r.extra).length+' repartidores registrados</div></div><div class="viat-total"><span>Total viático</span><b id="viatTotal">'+_gs(total0)+'</b></div></div>'+
-    '<div class="viat-list">'+rowHtml+'</div>'+
+    '<div class="viat-list">'+(rows.length?'<div class="viat-colhd"><span>Repartidor</span><span>Salidas</span><span>Precio × salida</span><span>Total viático</span></div>':'')+rowHtml+'</div>'+
     '<div class="viat-foot"><div class="viat-foot__hint">'+hint+'</div><div class="viat-foot__actions"><button class="viat-cancel" type="button">Cancelar</button><button class="viat-save" type="button"'+(!rows.length?' disabled':'')+'>Guardar viáticos</button></div></div></div>');
   const totalEl=m.$('#viatTotal');
   function readMap(){
