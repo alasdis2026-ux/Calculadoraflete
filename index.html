@@ -5339,6 +5339,17 @@ function showSaveAnim(text){
   .rrd-tbl--edit .xls-pick>span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   /* Tabla de edición compacta (auto-width + centrada como la tabla principal) */
   .rrd-tbl--edit{width:auto;margin-left:auto;margin-right:auto}
+  /* Centrado robusto de la tabla en edición dentro de la tarjeta */
+  .rrd-tablecard.is-editing .rrd-tablewrap{display:flex;justify-content:center}
+  @media(max-width:1000px){.rrd-tablecard.is-editing .rrd-tablewrap{justify-content:flex-start}}
+  /* Bloom verde en las celdas de flete (monto) al editar */
+  .rrd-tbl--edit .rrd-fflete{color:#15803d;font-weight:800;background:rgba(21,128,61,.10);border-color:rgba(21,128,61,.40);box-shadow:0 0 0 3px rgba(21,128,61,.10),0 4px 16px rgba(21,128,61,.22)}
+  .rrd-tbl--edit .rrd-fflete::placeholder{color:rgba(21,128,61,.55)}
+  .rrd-tbl--edit .rrd-fflete:placeholder-shown{background:rgba(21,128,61,.12);border-color:rgba(21,128,61,.45);box-shadow:0 0 0 3px rgba(21,128,61,.12),0 4px 16px rgba(21,128,61,.22)}
+  .rrd-tbl--edit .rrd-fflete:hover{background:rgba(21,128,61,.14);border-color:rgba(21,128,61,.55);box-shadow:0 0 0 3px rgba(21,128,61,.13),0 6px 20px rgba(21,128,61,.30)}
+  .rrd-tbl--edit .rrd-fflete.is-auto{box-shadow:0 0 0 3px rgba(21,128,61,.10),0 4px 16px rgba(21,128,61,.22)}
+  .rrd-tbl--edit .rrd-fflete.is-auto:hover{background:rgba(21,128,61,.10);border-color:rgba(21,128,61,.40);box-shadow:0 0 0 3px rgba(21,128,61,.10),0 4px 16px rgba(21,128,61,.22)}
+  .rrd-tbl--edit .rrd-fflete:focus{background:#fff;border-color:#15803d;box-shadow:0 0 0 3px rgba(21,128,61,.20),0 6px 22px rgba(21,128,61,.34)}
   .rrd-tbl--edit .xls-pick{width:auto;min-width:110px;max-width:200px}
   .rrd-tbl--edit .rrd-fflete{width:118px}
   .rrd-tbl--edit .rrd-fcant{width:88px}
