@@ -5665,6 +5665,36 @@ function showSaveAnim(text){
   .cf-table--hover tbody tr:hover .fac-editbtn,.cf-table--hover tbody tr:hover .fac-del{opacity:1}
   .fac-editbtn:hover{color:var(--primary);background:var(--accent-soft,#DBEAFE)}
   .fac-editbtn svg{width:16px;height:16px;display:block}
+  /* Acordeón de detalle de factura */
+  .cf-table--hover tbody tr.fac-row{cursor:pointer}
+  .cf-table--hover tbody tr.fac-row.is-open{background:var(--accent-soft,#eaf2fe)}
+  .fac-chev{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;margin-right:7px;color:var(--gray-400,#94a3b8);vertical-align:-4px;transition:transform .3s cubic-bezier(.34,1.56,.64,1),color .15s}
+  .fac-chev svg{width:15px;height:15px}
+  .fac-row:hover .fac-chev{color:var(--primary,#0B5F8D)}
+  .fac-row.is-open .fac-chev{transform:rotate(180deg);color:var(--primary,#0B5F8D)}
+  .fac-exp>td{padding:0!important;border:0!important;background:linear-gradient(180deg,#f6f9fd,#fff)}
+  .fac-exp-in{overflow:hidden}
+  .facd{padding:14px 18px 18px;border-top:1px solid var(--gray-100,#eef2f7)}
+  .facd-recon{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:12px 14px;margin-bottom:12px;background:#fff;border:1px solid var(--gray-200,#e2e8f0);border-radius:12px;box-shadow:0 1px 8px rgba(15,36,64,.05)}
+  .facd-stat{display:flex;flex-direction:column;gap:2px;min-width:0}
+  .facd-stat small{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-400,#94a3b8)}
+  .facd-stat b{font-family:Sora,Inter,sans-serif;font-size:16px;font-weight:800;color:var(--gray-800,#1e293b);font-variant-numeric:tabular-nums}
+  .facd-stat--ok b{color:#15803d}.facd-stat--over b{color:#c0392b}.facd-stat--under b{color:#a9740c}
+  .facd-div{width:1px;align-self:stretch;background:var(--gray-100,#eef2f7)}
+  .facd-badge{margin-left:auto;display:inline-flex;align-items:center;gap:5px;height:30px;padding:0 13px;border-radius:99px;font-size:12.5px;font-weight:800}
+  .facd-badge--ok{background:#e9f7ef;color:#127a4b}.facd-badge--over{background:#fdeded;color:#c0392b}.facd-badge--under{background:#fdf6e6;color:#a9740c}
+  .facd-tblwrap{overflow-x:auto;border:1px solid var(--gray-200,#e2e8f0);border-radius:12px;background:#fff}
+  .facd-tbl{width:100%;border-collapse:collapse;font-size:12.5px}
+  .facd-tbl thead th{position:sticky;top:0;background:#f2f7fc;text-align:left;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-400,#94a3b8);padding:9px 12px;border-bottom:1px solid var(--gray-100,#eef2f7);white-space:nowrap}
+  .facd-tbl thead th.r{text-align:right}
+  .facd-tbl tbody td{padding:9px 12px;border-bottom:1px solid var(--gray-100,#f1f5f9);color:var(--gray-700,#334155);white-space:nowrap}
+  .facd-tbl tbody tr:last-child td{border-bottom:0}
+  .facd-tbl td.c{text-align:center;color:var(--gray-400)} .facd-tbl td.r{text-align:right;font-weight:800;font-variant-numeric:tabular-nums}
+  .facd-cam{font-weight:700;color:var(--gray-800,#1e293b)}
+  .facd-rz{color:var(--gray-500,#64748b)}
+  .facd-seg{display:inline-block;font-size:10.5px;font-weight:800;padding:2px 8px;border-radius:99px}
+  .facd-seg--local{background:#eaf2fe;color:#1d4ed8}.facd-seg--interior{background:#ecfdf3;color:#15803d}.facd-seg--servicios{background:#fef3e2;color:#a9740c}.facd-seg--transportadora{background:#f1f0fb;color:#6d28d9}
+  .facd-empty{text-align:center;color:var(--gray-400,#94a3b8);padding:16px!important;font-weight:600}
   .cf-plbtn{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;padding:12px 14px;border:1.5px dashed var(--gray-300,#cbd5e1);border-radius:11px;background:#fff;font:inherit;cursor:pointer;text-align:left;transition:border-color .15s,background .15s}
   .cf-plbtn:hover{border-color:var(--accent,#3B82F6);background:var(--gray-50,#f8fafc)}
   .cf-plbtn.set{border-style:solid;border-color:var(--gray-200,#e2e8f0)}
@@ -6521,6 +6551,66 @@ function _facSem(f){return f.semana_desde||((f.fecha&&typeof isoWeekRange==='fun
 function _fleteDe(ts,semDesde){let f=0;if(!semDesde)return 0;(repartos||[]).forEach(r=>{const wk=(r.fechaISO&&typeof isoWeekRange==='function')?isoWeekRange(r.fechaISO):null;if(!wk||wk.desde!==semDesde)return;(r.clientes||[]).forEach(cl=>{const own=cl.trId?tsOfTruck(cl.trId):null;const name=(own&&own.n)||cl.tsNombre||'—';if(name===ts)f+=_cfFleteVal(cl);});});return f;}
 // Flete real de UNA factura: suma las líneas (clientes) asignadas a esa factura. null si no hay ninguna (factura legacy).
 function _fleteDeFactura(facId){if(facId==null)return null;let f=0,any=false;(repartos||[]).forEach(r=>{(r.clientes||[]).forEach(cl=>{const fid=(cl.factura_id!=null)?cl.factura_id:r.factura_id;if(fid===facId){f+=_cfFleteVal(cl);any=true;}});});return any?f:null;}
+// Líneas (camiones) cubiertas por una factura: explícitas por factura_id, o legacy por transportadora+semana.
+function _facLineas(f){
+  const out=[];const explicit=_fleteDeFactura(f.id)!=null;
+  const ts=f.transportadora_nombre||'';const sd=f._sd||_facSem(f);
+  (repartos||[]).forEach(r=>{
+    const wk=(r.fechaISO&&typeof isoWeekRange==='function')?isoWeekRange(r.fechaISO):null;
+    (r.clientes||[]).forEach(cl=>{
+      const fid=(cl.factura_id!=null)?cl.factura_id:r.factura_id;
+      let covered;
+      if(explicit){covered=(fid===f.id);}
+      else{const own=cl.trId?tsOfTruck(cl.trId):null;const name=(own&&own.n)||cl.tsNombre||'—';covered=(fid==null&&name===ts&&!!wk&&wk.desde===sd);}
+      if(covered)out.push({fecha:r.fechaISO,cl:cl});
+    });
+  });
+  out.sort((a,b)=>String(a.fecha||'').localeCompare(String(b.fecha||'')));
+  return out;
+}
+function _facDetailHtml(f){
+  const SN={local:'Local',interior:'Interior',servicios:'Servicios',transportadora:'Transportadora'};
+  const lines=_facLineas(f);
+  const flTot=lines.reduce((s,l)=>s+_cfFleteVal(l.cl),0);
+  const monto=+f.monto||0,diff=monto-flTot;
+  const dCls=Math.round(diff)===0?'ok':(diff>0?'over':'under');
+  const rowsH=lines.length?lines.map((l,i)=>{const cl=l.cl,seg=cl.seg||'local';
+    const cam=(seg==='transportadora')?((+cl.cant||0)+' camión'+((+cl.cant||0)===1?'':'es')):_escp(cl.trDesc||'—');
+    const rz=[cl.rep,cl.zona].filter(Boolean).map(_escp).join(' · ')||'—';
+    return '<tr><td class="c">'+(i+1)+'</td><td>'+_dmy(l.fecha)+'</td><td class="facd-cam">'+cam+'</td><td><span class="facd-seg facd-seg--'+seg+'">'+(SN[seg]||seg)+'</span></td><td class="facd-rz">'+rz+'</td><td class="r facd-fl">'+_gs(_cfFleteVal(cl))+'</td></tr>';
+  }).join(''):'<tr><td colspan="6" class="facd-empty">No hay líneas vinculadas a esta factura todavía.</td></tr>';
+  const badge=dCls==='ok'?'✓ Conciliada':(dCls==='over'?'▲ Factura mayor al flete':'▼ Factura menor al flete');
+  return '<div class="facd">'+
+    '<div class="facd-recon">'+
+      '<div class="facd-stat"><small>Flete de la planilla</small><b>'+_gs(flTot)+'</b></div>'+
+      '<div class="facd-div"></div>'+
+      '<div class="facd-stat"><small>Monto de la factura</small><b>'+_gs(monto)+'</b></div>'+
+      '<div class="facd-div"></div>'+
+      '<div class="facd-stat facd-stat--'+dCls+'"><small>Diferencia</small><b>'+(diff>0?'+':'')+_gs(diff)+'</b></div>'+
+      '<div class="facd-badge facd-badge--'+dCls+'">'+badge+'</div>'+
+    '</div>'+
+    '<div class="facd-tblwrap"><table class="facd-tbl"><thead><tr><th>#</th><th>Fecha</th><th>Camión</th><th>Segmento</th><th>Repartidor · Zona</th><th class="r">Flete</th></tr></thead><tbody>'+rowsH+'</tbody></table></div>'+
+  '</div>';
+}
+// Acordeón de la fila de factura: despliega el detalle con animación GSAP.
+function _facCollapse(er){if(!er)return;const owner=er.previousElementSibling;if(owner)owner.classList.remove('is-open');const inn=er.querySelector('.fac-exp-in');const done=()=>{if(er.parentNode)er.remove();};if(window.gsap&&inn){gsap.to(inn,{height:0,opacity:0,duration:.3,ease:'power2.inOut',onComplete:done});}else done();}
+function _facToggle(tr){
+  const tbody=tr.parentNode;if(!tbody)return;
+  const wasOpen=tr.nextElementSibling&&tr.nextElementSibling.classList.contains('fac-exp');
+  tbody.querySelectorAll('tr.fac-exp').forEach(_facCollapse);
+  if(wasOpen)return; // estaba abierto → toggle off
+  const f=(window.__cfFac||[]).find(x=>x.id===+tr.dataset.facid);if(!f)return;
+  const er=document.createElement('tr');er.className='fac-exp';
+  er.innerHTML='<td colspan="7" class="fac-exp-td"><div class="fac-exp-in">'+_facDetailHtml(f)+'</div></td>';
+  tr.after(er);tr.classList.add('is-open');
+  const inn=er.querySelector('.fac-exp-in');
+  if(window.gsap){
+    gsap.set(inn,{height:'auto',opacity:1});const h=inn.offsetHeight;
+    gsap.fromTo(inn,{height:0,opacity:0},{height:h,opacity:1,duration:.42,ease:'expo.out',onComplete:()=>{inn.style.height='auto';}});
+    gsap.from(inn.querySelectorAll('.facd-stat,.facd-badge,.facd-tbl tbody tr'),{opacity:0,y:8,duration:.32,stagger:.02,ease:'power2.out',delay:.08,clearProps:'all'});
+  }
+  try{er.scrollIntoView({block:'nearest',behavior:'smooth'});}catch(_){}
+}
 // Estado de la planilla (transportista + semana) según la factura vinculada
 function _facEstadoDe(ts,semDesde){
   if(!semDesde)return{k:'proc',l:'En proceso'};
@@ -6583,7 +6673,7 @@ async function renderFacturas(){
   else{const rows=shown.map(f=>{const sd=f._sd,hasta=f.semana_hasta||(sd?_wkHasta(sd):null);
       const sem=sd?(_dispD(sd)+' al '+_dispD(hasta)):'—';
       const chip=f._st==='ok'?'<span class="cf-chip ok">✓ Conciliada</span>':f._st==='diff'?'<span class="cf-chip diff">▲ Con diferencia</span>':'<span class="cf-chip proc">Sin planilla</span>';
-      return '<tr data-facid="'+f.id+'"><td class="fac-nro">'+_escp(f.nro||'—')+'</td><td>'+(f.fecha?f.fecha.split('-').reverse().join('/'):'—')+'</td><td class="fac-ts">'+_escp(f.transportadora_nombre||'—')+'</td><td class="fac-sem">'+sem+'</td><td>'+chip+'</td><td class="r fac-monto">'+_gs(f.monto)+'</td>'+
+      return '<tr data-facid="'+f.id+'" class="fac-row"><td class="fac-nro"><span class="fac-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 9l6 6 6-6"/></svg></span>'+_escp(f.nro||'—')+'</td><td>'+(f.fecha?f.fecha.split('-').reverse().join('/'):'—')+'</td><td class="fac-ts">'+_escp(f.transportadora_nombre||'—')+'</td><td class="fac-sem">'+sem+'</td><td>'+chip+'</td><td class="r fac-monto">'+_gs(f.monto)+'</td>'+
         '<td class="r fac-acts"><button class="fac-editbtn" data-editfac="'+f.id+'" title="Editar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 4H4a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-7M18.5 2.5a2.1 2.1 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="fac-del" data-delfac="'+f.id+'" title="Eliminar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg></button></td></tr>';}).join('');
     table='<div class="cf-card cf-card--flush"><table class="cf-table cf-table--hover"><thead><tr><th>Nº Factura</th><th>Fecha</th><th>Transportista</th><th>Semana</th><th>Estado</th><th class="r">Monto</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div>';}
   host.innerHTML='<div class="cf-hd"><h2><img src="logo-alas-s.a.png">Facturas registradas</h2>'+nav+'<div class="cf-spacer"></div><button class="cf-btn" id="cfNewFac"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Registrar factura</button></div>'+chips+kpis+table;
@@ -6593,7 +6683,8 @@ async function renderFacturas(){
   host.querySelectorAll('[data-facw]').forEach(b=>b.addEventListener('click',()=>{_facWeek=b.dataset.facw||null;renderFacturas();}));
   host.querySelectorAll('[data-delfac]').forEach(b=>b.addEventListener('click',()=>_cfDeleteFactura(+b.dataset.delfac)));
   host.querySelectorAll('[data-editfac]').forEach(b=>b.addEventListener('click',()=>{const f=(window.__cfFac||[]).find(x=>x.id===+b.dataset.editfac);if(f)_cfOpenFacturaModal(f);}));
-  if(window.gsap){gsap.from('#factHost .cf-kpi',{opacity:0,y:14,duration:.4,stagger:.06,ease:'power3.out',clearProps:'all'});gsap.from('#factHost .cf-table tbody tr',{opacity:0,y:8,duration:.3,stagger:.02,delay:.1,ease:'power2.out',clearProps:'all'});}
+  host.querySelectorAll('tr.fac-row').forEach(tr=>tr.addEventListener('click',e=>{if(e.target.closest('button'))return;_facToggle(tr);}));
+  if(window.gsap){gsap.from('#factHost .cf-kpi',{opacity:0,y:14,duration:.4,stagger:.06,ease:'power3.out',clearProps:'all'});gsap.from('#factHost .cf-table tbody tr.fac-row',{opacity:0,y:8,duration:.3,stagger:.02,delay:.1,ease:'power2.out',clearProps:'all'});}
 }
 
 function _cfDeleteFactura(id){
