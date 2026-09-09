@@ -7010,7 +7010,19 @@ function _rrOpenDetail(g,periodLbl,wkObj){
   // Detecta si una línea interior guardada era "precio fijo": marca explícita, o flete cargado sin km/precio-km (legacy).
   function initFijo(cl){if((cl.seg||'local')!=='interior')return false;if(cl.fijo!==undefined&&cl.fijo!==null)return !!cl.fijo;return !(+cl.km>0)&&!(+cl.precioKm>0)&&((+cl.precio|| +cl.gasto||0)>0);}
   function buildWork(){work=g.lines.map(cl=>{const w={uid:_wuid++,ref:cl,repId:findRepId(cl),trId:cl.trId||null,trDesc:cl.trDesc||'',seg:cl.seg||'local',rep:cl.rep||'',zona:cl.zona||'',obs:cl.obs||'',cant:+cl.cant||1,fecha:cl._fecha||null,km:+cl.km||0,precioKm:+cl.precioKm||0,monto:+cl.monto||0,precio:(+cl.precio|| +cl.gasto||0),fijo:initFijo(cl),del:false,isNew:false,edit:false};ensureKm(w);return w;});}
-  function addRow(seg){const tr=trucks[0]||null;const tRepId=targetRepId();const tRep=repartos.find(x=>x.id===tRepId);const defFecha=(tRep&&tRep.fechaISO)||(wkObj?wkObj.desde:null)||(typeof _isoD==='function'?_isoD(new Date()):new Date().toISOString().slice(0,10));const it={uid:_wuid++,ref:null,repId:tRepId,trId:tr?tr.id:null,trDesc:tr?tr.d:'',seg:seg||'local',rep:'',zona:'',obs:'',cant:1,fecha:defFecha,km:0,precioKm:0,monto:0,precio:0,fijo:false,del:false,isNew:true,edit:true};ensureKm(it);work.unshift(it);selUid=it.uid;return it;}
+  // Fecha por defecto para un reparto NUEVO: la fecha de la semana en la que está la planilla.
+  function _defFecha(){
+    const tRep=repartos.find(x=>x.id===targetRepId());
+    if(wkObj&&wkObj.desde){
+      // Si ya hay un reparto dentro de la semana en vista, usar su fecha (no fragmentar la planilla);
+      // si no, el lunes de esa semana.
+      if(tRep&&tRep.fechaISO&&tRep.fechaISO>=wkObj.desde&&tRep.fechaISO<=wkObj.hasta)return tRep.fechaISO;
+      return wkObj.desde;
+    }
+    if(tRep&&tRep.fechaISO)return tRep.fechaISO;                    // "Mes completo": semana del reparto existente
+    return (typeof _isoD==='function'?_isoD(new Date()):new Date().toISOString().slice(0,10));
+  }
+  function addRow(seg){const tr=trucks[0]||null;const tRepId=targetRepId();const defFecha=_defFecha();const it={uid:_wuid++,ref:null,repId:tRepId,trId:tr?tr.id:null,trDesc:tr?tr.d:'',seg:seg||'local',rep:'',zona:'',obs:'',cant:1,fecha:defFecha,km:0,precioKm:0,monto:0,precio:0,fijo:false,del:false,isNew:true,edit:true};ensureKm(it);work.unshift(it);selUid=it.uid;return it;}
   function openEdit(uid){const w=W(uid);if(!w)return;w.edit=true;selUid=w.uid;render('edit');}
   function delItem(w){const card=bd.querySelector('.rre-card[data-uid="'+w.uid+'"], .rrv-row[data-edituid="'+w.uid+'"]'),gs=window.gsap;const apply=()=>{if(w.isNew){const idx=work.indexOf(w);if(idx>=0)work.splice(idx,1);}else w.del=true;if(selUid===w.uid)selUid=null;
     // Si no quedó ninguna tarjeta en edición, se guarda solo (sin botón "Guardar cambios")
@@ -7074,7 +7086,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
   // Edición inline del dashboard
   const _dfKm=d=>(d.seg||_dashSeg)==='interior'&&(+d.km>0)&&(+d.precioKm>0);
   const _dfFlete=d=>_dfKm(d)?Math.round(d.km*d.precioKm):(+d.precio||0);
-  function _dashBlank(){const isTr=_dashSeg==='transportadora',tr=(trucks||[])[0]||null;return {k:_dashDK++,uid:null,isNew:true,seg:_dashSeg,trId:isTr?null:(tr?tr.id:null),trDesc:isTr?'':(tr?tr.d:''),tsId:tsObj?tsObj.id:g.tsId,tsNombre:g.ts,rep:'',zona:'',fecha:(wkObj?wkObj.desde:null),km:0,precioKm:0,precio:0,obs:'',cant:1,del:false};}
+  function _dashBlank(){const isTr=_dashSeg==='transportadora',tr=(trucks||[])[0]||null;return {k:_dashDK++,uid:null,isNew:true,seg:_dashSeg,trId:isTr?null:(tr?tr.id:null),trDesc:isTr?'':(tr?tr.d:''),tsId:tsObj?tsObj.id:g.tsId,tsNombre:g.ts,rep:'',zona:'',fecha:_defFecha(),km:0,precioKm:0,precio:0,obs:'',cant:1,del:false};}
   function _dashEnterEdit(sk,autoAdd){if(_facDeGrupo(g)){showToast('Esta planilla ya está facturada · no se puede modificar');return;}_dashSeg=sk;_dashDK=1;_dashSel.clear();_dashDraft=work.filter(w=>!w.del&&w.seg===sk).map(w=>({k:_dashDK++,uid:w.uid,isNew:!!w.isNew,seg:w.seg||sk,trId:w.trId,trDesc:w.trDesc,tsId:w.tsId,tsNombre:w.tsNombre,rep:w.rep||'',zona:w.zona||'',fecha:w.fecha||null,km:+w.km||0,precioKm:+w.precioKm||0,precio:+w.precio||0,obs:w.obs||'',cant:+w.cant||1,del:false}));_dashEdit=true;if(autoAdd)_dashDraft.push(_dashBlank());render('filter');}
   function _dashExitEdit(){_dashEdit=false;_dashDraft=null;_dashSel.clear();render('filter');}
   // Desde "Todos": si hay 1 segmento entra directo; si hay varios, muestra un modal PRO para elegir
@@ -7343,7 +7355,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
       body.querySelectorAll('.xls-del').forEach(b=>b.addEventListener('click',()=>{const d=D(b.dataset.k);if(!d)return;const tr=b.closest('tr'),gs=window.gsap;const go=()=>{d.del=true;paint();};if(gs&&tr)gs.to(tr,{opacity:0,x:24,duration:.2,ease:'power2.in',onComplete:go});else go();}));
     }
     function paint(anim){const list=draft.filter(d=>!d.del);body.innerHTML=list.map(rowHTML).join('')||'<tr><td colspan="'+cols.length+'" class="xls-empty">Sin líneas — agregá una con “+ Agregar línea”.</td></tr>';wireRows();const bg=m.$('.xls-badge');if(bg)bg.innerHTML=list.length+' <small>línea'+(list.length===1?'':'s')+'</small>';updTotals();const gs=window.gsap;if(gs&&anim)gs.from(body.querySelectorAll('tr'),{opacity:0,y:8,duration:.26,stagger:.02,ease:'power2.out',clearProps:'all'});}
-    m.$('#xlsAdd').addEventListener('click',()=>{const tr=(trucks||[])[0]||null;draft.push({k:_k++,uid:null,isNew:true,trId:isTr?null:(tr?tr.id:null),trDesc:isTr?'':(tr?tr.d:''),tsId:tsObj?tsObj.id:g.tsId,tsNombre:g.ts,rep:'',zona:'',fecha:(wkObj?wkObj.desde:null),km:0,precioKm:0,precio:0,obs:'',cant:1,del:false});paint(true);const wp=m.$('.xls-wrap');if(wp)wp.scrollTop=wp.scrollHeight;});
+    m.$('#xlsAdd').addEventListener('click',()=>{const tr=(trucks||[])[0]||null;draft.push({k:_k++,uid:null,isNew:true,trId:isTr?null:(tr?tr.id:null),trDesc:isTr?'':(tr?tr.d:''),tsId:tsObj?tsObj.id:g.tsId,tsNombre:g.ts,rep:'',zona:'',fecha:_defFecha(),km:0,precioKm:0,precio:0,obs:'',cant:1,del:false});paint(true);const wp=m.$('.xls-wrap');if(wp)wp.scrollTop=wp.scrollHeight;});
     if(autoAdd)m.$('#xlsAdd').click();
     m.$('.xls-cancel').addEventListener('click',m.close);
     m.$('.xls-save').addEventListener('click',()=>{
