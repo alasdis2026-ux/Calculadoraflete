@@ -7021,16 +7021,18 @@ function _rrOpenDetail(g,periodLbl,wkObj){
   // Detecta si una línea interior guardada era "precio fijo": marca explícita, o flete cargado sin km/precio-km (legacy).
   function initFijo(cl){if((cl.seg||'local')!=='interior')return false;if(cl.fijo!==undefined&&cl.fijo!==null)return !!cl.fijo;return !(+cl.km>0)&&!(+cl.precioKm>0)&&((+cl.precio|| +cl.gasto||0)>0);}
   function buildWork(){work=g.lines.map(cl=>{const w={uid:_wuid++,ref:cl,repId:findRepId(cl),trId:cl.trId||null,trDesc:cl.trDesc||'',seg:cl.seg||'local',rep:cl.rep||'',zona:cl.zona||'',obs:cl.obs||'',cant:+cl.cant||1,fecha:cl._fecha||null,km:+cl.km||0,precioKm:+cl.precioKm||0,monto:+cl.monto||0,precio:(+cl.precio|| +cl.gasto||0),fijo:initFijo(cl),del:false,isNew:false,edit:false};ensureKm(w);return w;});}
-  // Fecha por defecto para un reparto NUEVO: la fecha de la semana en la que está la planilla.
+  // Fecha por defecto para un reparto NUEVO: dentro de la semana Y del mes en vista.
+  // OJO: la lista corta por mes (_rrGroups usa fechaISO.slice(0,7)===_rrMes), así que la
+  // fecha nunca debe caer en otro mes (si no, el reparto "desaparece" tras guardar).
   function _defFecha(){
-    const tRep=repartos.find(x=>x.id===targetRepId());
+    // 1) Si la planilla ya tiene un reparto (ya está en el mes/semana en vista), unirse a él.
+    const reps=(g.reps||[]).map(r=>r.fechaISO).filter(Boolean).sort();
+    if(reps.length)return reps[reps.length-1];
+    // 2) Fecha dentro de la semana pero respetando el mes en vista.
     if(wkObj&&wkObj.desde){
-      // Si ya hay un reparto dentro de la semana en vista, usar su fecha (no fragmentar la planilla);
-      // si no, el lunes de esa semana.
-      if(tRep&&tRep.fechaISO&&tRep.fechaISO>=wkObj.desde&&tRep.fechaISO<=wkObj.hasta)return tRep.fechaISO;
-      return wkObj.desde;
+      if(wkObj.desde.slice(0,7)===_rrMes)return wkObj.desde;        // lunes de la semana (mismo mes)
+      return _rrMes+'-01';                                          // semana que arranca el mes anterior → 1° del mes en vista
     }
-    if(tRep&&tRep.fechaISO)return tRep.fechaISO;                    // "Mes completo": semana del reparto existente
     return (typeof _isoD==='function'?_isoD(new Date()):new Date().toISOString().slice(0,10));
   }
   function addRow(seg){const tr=trucks[0]||null;const tRepId=targetRepId();const defFecha=_defFecha();const it={uid:_wuid++,ref:null,repId:tRepId,trId:tr?tr.id:null,trDesc:tr?tr.d:'',seg:seg||'local',rep:'',zona:'',obs:'',cant:1,fecha:defFecha,km:0,precioKm:0,monto:0,precio:0,fijo:false,del:false,isNew:true,edit:true};ensureKm(it);work.unshift(it);selUid=it.uid;return it;}
