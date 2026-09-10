@@ -5616,6 +5616,8 @@ function showSaveAnim(text){
   .cf-fld label{font-size:12.5px;font-weight:700;color:var(--gray-600,#475569)}
   .cf-fld input,.cf-fld select{border:1.5px solid var(--gray-200,#e2e8f0);border-radius:10px;padding:11px 13px;font:inherit;font-size:14px;font-weight:600;color:var(--gray-800,#1e293b);background:#fff;transition:border-color .15s,box-shadow .15s;width:100%}
   .cf-fld input:focus,.cf-fld select:focus{outline:none;border-color:var(--accent,#3B82F6);box-shadow:0 0 0 3px rgba(59,130,246,.12)}
+  .cf-fld input.is-locked{background:var(--gray-100,#f1f5f9);color:var(--gray-500,#64748b);border-style:dashed;cursor:not-allowed;box-shadow:none}
+  .cf-lockhint{font-size:10.5px;font-weight:800;color:var(--gray-400,#94a3b8);margin-left:4px}
   .cf-fld.is-err input,.cf-fld.is-err select{border-color:#e0707a;box-shadow:0 0 0 3px rgba(224,112,122,.13)}
   .cf-fld.is-ok input,.cf-fld.is-ok select{border-color:#5aab82}
   .cf-fld__hint{font-size:11.5px;color:var(--gray-400,#94a3b8);font-weight:600}
@@ -5661,9 +5663,12 @@ function showSaveAnim(text){
   .fac-ts{font-weight:700;color:var(--gray-800,#1e293b)}
   .fac-sem{font-size:12.5px;color:var(--gray-500,#64748b);font-weight:600;white-space:nowrap}
   .fac-acts{white-space:nowrap}
-  .fac-editbtn,.fac-del{border:0;background:transparent;color:var(--gray-300,#cbd5e1);cursor:pointer;padding:5px;border-radius:8px;opacity:0;transition:opacity .15s,color .15s,background .15s;vertical-align:middle}
+  .fac-editbtn,.fac-del{border:1px solid var(--gray-200,#e2e8f0);cursor:pointer;padding:0;width:32px;height:32px;border-radius:9px;opacity:1;display:inline-flex;align-items:center;justify-content:center;transition:opacity .15s,color .15s,background .15s,border-color .15s,transform .12s;vertical-align:middle}
+  .fac-editbtn{background:var(--accent-soft,#eaf2fe);color:var(--primary,#0B5F8D)}
+  .fac-del{background:#fdeded;color:#dc2626;border-color:#f6d0d0}
   .cf-table--hover tbody tr:hover .fac-editbtn,.cf-table--hover tbody tr:hover .fac-del{opacity:1}
-  .fac-editbtn:hover{color:var(--primary);background:var(--accent-soft,#DBEAFE)}
+  .fac-editbtn:hover{color:#fff;background:var(--primary,#0B5F8D);border-color:var(--primary,#0B5F8D);transform:translateY(-1px)}
+  .fac-del:hover{color:#fff;background:var(--danger,#EF4444);border-color:var(--danger,#EF4444);transform:translateY(-1px)}
   .fac-editbtn svg{width:16px;height:16px;display:block}
   /* Acordeón de detalle de factura */
   .cf-table--hover tbody tr.fac-row{cursor:pointer}
@@ -6856,7 +6861,7 @@ function _cfOpenFacturaModal(existing,preset){
     '<div class="cf-sec"><div class="cf-sec__t">'+_ic('doc')+'Datos de la factura</div>'+
       '<div class="cf-grid2">'+
         '<div class="cf-fld" data-fld><label for="cf_fnro">Nº de factura</label><input id="cf_fnro" placeholder="001-001-0000000" autocomplete="off"><span class="cf-fld__err"></span></div>'+
-        '<div class="cf-fld" data-fld><label for="cf_fmonto">Monto (Gs.)</label><input id="cf_fmonto" inputmode="numeric" placeholder="0"><span class="cf-fld__err"></span></div>'+
+        '<div class="cf-fld" data-fld><label for="cf_fmonto">Monto (Gs.)'+(editing?' <span class="cf-lockhint">🔒 fijo</span>':'')+'</label><input id="cf_fmonto" inputmode="numeric" placeholder="0"'+(editing?' readonly class="is-locked"':'')+'><span class="cf-fld__err"></span></div>'+
       '</div></div>'+
     '<div class="cf-sec cf-sec--pl"><div class="cf-sec__t">'+_ic('truck')+'Planilla vinculada</div>'+
       '<div class="cf-fld" data-fld><button type="button" class="cf-plbtn" id="cf_plbtn"></button><span class="cf-fld__err"></span></div>'+
