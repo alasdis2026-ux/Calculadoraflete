@@ -6832,7 +6832,10 @@ function _cfOpenFacturaModal(existing,preset){
   let sel=null;
   if(editing&&existing.transportadora_nombre&&(existing.semana_desde||existing.fecha)){
     const sd=existing.semana_desde||isoWeekRange(existing.fecha).desde;
-    sel={ts:existing.transportadora_nombre,semDesde:sd,semHasta:existing.semana_hasta||_wkHasta(sd),flete:_fleteDe(existing.transportadora_nombre,sd)};
+    // Si la factura tiene líneas atadas (por-línea), comparar contra ESAS líneas, no contra toda
+    // la transportadora+semana (que incluiría repartos que no son de esta factura).
+    const _facFl=_fleteDeFactura(existing.id);
+    sel={ts:existing.transportadora_nombre,semDesde:sd,semHasta:existing.semana_hasta||_wkHasta(sd),flete:(_facFl!=null?_facFl:_fleteDe(existing.transportadora_nombre,sd))};
   }
   if(!sel&&preset&&preset.ts&&preset.semDesde){
     // Si viene desde una planilla PENDIENTE, usar su flete (solo esas líneas), no el de toda la
