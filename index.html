@@ -5683,6 +5683,11 @@ function showSaveAnim(text){
   .facd-div{width:1px;align-self:stretch;background:var(--gray-100,#eef2f7)}
   .facd-badge{margin-left:auto;display:inline-flex;align-items:center;gap:5px;height:30px;padding:0 13px;border-radius:99px;font-size:12.5px;font-weight:800}
   .facd-badge--ok{background:#e9f7ef;color:#127a4b}.facd-badge--over{background:#fdeded;color:#c0392b}.facd-badge--under{background:#fdf6e6;color:#a9740c}
+  .facd-cerrar{margin-left:auto;display:inline-flex;align-items:center;gap:5px;height:30px;padding:0 13px;border:1.5px solid var(--gray-200,#e2e8f0);border-radius:99px;background:#fff;color:var(--gray-700,#334155);font:inherit;font-size:12px;font-weight:800;cursor:pointer;transition:border-color .15s,background .15s,color .15s}
+  .facd-cerrar:hover{border-color:var(--primary,#0B5F8D);background:var(--accent-soft,#eaf2fe);color:var(--primary,#0B5F8D)}
+  .facd-cerrar + .facd-badge{margin-left:10px}
+  .facd-hint{margin:0 0 12px;font-size:12px;font-weight:600;color:var(--gray-500,#64748b);line-height:1.5;background:#f6f9fd;border:1px solid var(--gray-100,#eef2f7);border-radius:10px;padding:9px 12px}
+  .facd-hint b{color:var(--gray-700,#334155);font-weight:800}
   .facd-tblwrap{overflow-x:auto;border:1px solid var(--gray-200,#e2e8f0);border-radius:12px;background:#fff}
   .facd-tbl{width:100%;border-collapse:collapse;font-size:12.5px}
   .facd-tbl thead th{position:sticky;top:0;background:#f2f7fc;text-align:left;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-400,#94a3b8);padding:9px 12px;border-bottom:1px solid var(--gray-100,#eef2f7);white-space:nowrap}
@@ -6551,6 +6556,21 @@ function _facSem(f){return f.semana_desde||((f.fecha&&typeof isoWeekRange==='fun
 function _fleteDe(ts,semDesde){let f=0;if(!semDesde)return 0;(repartos||[]).forEach(r=>{const wk=(r.fechaISO&&typeof isoWeekRange==='function')?isoWeekRange(r.fechaISO):null;if(!wk||wk.desde!==semDesde)return;(r.clientes||[]).forEach(cl=>{const own=cl.trId?tsOfTruck(cl.trId):null;const name=(own&&own.n)||cl.tsNombre||'—';if(name===ts)f+=_cfFleteVal(cl);});});return f;}
 // Flete real de UNA factura: suma las líneas (clientes) asignadas a esa factura. null si no hay ninguna (factura legacy).
 function _fleteDeFactura(facId){if(facId==null)return null;let f=0,any=false;(repartos||[]).forEach(r=>{(r.clientes||[]).forEach(cl=>{const fid=(cl.factura_id!=null)?cl.factura_id:r.factura_id;if(fid===facId){f+=_cfFleteVal(cl);any=true;}});});return any?f:null;}
+// "Cierra" una factura: ata (factura_id) todas las líneas de esa transportadora+semana que aún no
+// tengan factura, para que los repartos que se agreguen después NO la alteren.
+async function _claimLineasFactura(ts,semDesde,facId){
+  const affected=new Set();
+  (repartos||[]).forEach(r=>{const wk=(r.fechaISO&&typeof isoWeekRange==='function')?isoWeekRange(r.fechaISO):null;if(!wk||wk.desde!==semDesde)return;
+    (r.clientes||[]).forEach(cl=>{const own=cl.trId?tsOfTruck(cl.trId):null;const name=(own&&own.n)||cl.tsNombre||'—';if(name===ts&&cl.factura_id==null){cl.factura_id=facId;affected.add(r.id);}});});
+  for(const rid of affected){const rr=repartos.find(x=>x.id===rid);if(rr){try{await dbUpdateClientes(rid,rr.clientes);}catch(_){}}}
+  return affected.size;
+}
+async function _cerrarFactura(f){
+  const ts=f.transportadora_nombre||'',sd=f._sd||_facSem(f);if(!ts||!sd){showToast('No pude identificar la planilla de la factura');return;}
+  const n=await _claimLineasFactura(ts,sd,f.id);
+  showToast(n?('Factura cerrada: quedó fija con sus '+n+' reparto'+(n===1?'':'s')):'La factura ya estaba cerrada');
+  renderFacturas();
+}
 // Líneas (camiones) cubiertas por una factura: explícitas por factura_id, o legacy por transportadora+semana.
 function _facLineas(f){
   const out=[];const explicit=_fleteDeFactura(f.id)!=null;
@@ -6580,6 +6600,8 @@ function _facDetailHtml(f){
     return '<tr><td class="c">'+(i+1)+'</td><td>'+_dmy(l.fecha)+'</td><td class="facd-cam">'+cam+'</td><td><span class="facd-seg facd-seg--'+seg+'">'+(SN[seg]||seg)+'</span></td><td class="facd-rz">'+rz+'</td><td class="r facd-fl">'+_gs(_cfFleteVal(cl))+'</td></tr>';
   }).join(''):'<tr><td colspan="6" class="facd-empty">No hay líneas vinculadas a esta factura todavía.</td></tr>';
   const badge=dCls==='ok'?'✓ Conciliada':(dCls==='over'?'▲ Factura mayor al flete':'▼ Factura menor al flete');
+  const legacy=_fleteDeFactura(f.id)==null; // sin líneas atadas → absorbe repartos nuevos
+  const cerrarBtn=legacy?'<button type="button" class="facd-cerrar" data-cerrarfac="'+f.id+'" title="Fijar la factura con sus repartos actuales para que los repartos nuevos no la alteren">'+(dCls==='ok'?'🔒 Cerrar (proteger)':'🔒 Cerrar factura')+'</button>':'';
   return '<div class="facd">'+
     '<div class="facd-recon">'+
       '<div class="facd-stat"><small>Flete de la planilla</small><b>'+_gs(flTot)+'</b></div>'+
@@ -6587,8 +6609,10 @@ function _facDetailHtml(f){
       '<div class="facd-stat"><small>Monto de la factura</small><b>'+_gs(monto)+'</b></div>'+
       '<div class="facd-div"></div>'+
       '<div class="facd-stat facd-stat--'+dCls+'"><small>Diferencia</small><b>'+(diff>0?'+':'')+_gs(diff)+'</b></div>'+
+      cerrarBtn+
       '<div class="facd-badge facd-badge--'+dCls+'">'+badge+'</div>'+
     '</div>'+
+    (legacy?'<div class="facd-hint">Esta factura no tiene repartos atados: hoy compara contra <b>toda</b> la semana, así que un reparto nuevo la puede descuadrar. Con <b>Cerrar</b> queda fija con los repartos actuales.</div>':'')+
     '<div class="facd-tblwrap"><table class="facd-tbl"><thead><tr><th>#</th><th>Fecha</th><th>Camión</th><th>Segmento</th><th>Repartidor · Zona</th><th class="r">Flete</th></tr></thead><tbody>'+rowsH+'</tbody></table></div>'+
   '</div>';
 }
@@ -6603,6 +6627,8 @@ function _facToggle(tr){
   const er=document.createElement('tr');er.className='fac-exp';
   er.innerHTML='<td colspan="7" class="fac-exp-td"><div class="fac-exp-in">'+_facDetailHtml(f)+'</div></td>';
   tr.after(er);tr.classList.add('is-open');
+  const cb=er.querySelector('[data-cerrarfac]');
+  if(cb)cb.addEventListener('click',e=>{e.stopPropagation();const ff=(window.__cfFac||[]).find(x=>x.id===+cb.dataset.cerrarfac);if(ff)_cerrarFactura(ff);});
   const inn=er.querySelector('.fac-exp-in');
   if(window.gsap){
     gsap.set(inn,{height:'auto',opacity:1});const h=inn.offsetHeight;
@@ -6878,7 +6904,7 @@ function _cfOpenFacturaModal(existing,preset){
     let _newFacId=null;
     try{
       if(editing){const up=await sb.from('fact_facturas').update(row).eq('id',existing.id);if(up.error)throw up.error;m.close();_cfCheckBurst('Registrado',true);}
-      else{const ins=await sb.from('fact_facturas').insert(row).select('id').single();if(ins.error)throw ins.error;const facId=ins.data&&ins.data.id;_newFacId=facId;if(repsList&&facId!=null){const _aff=new Set();for(const rp of repsList){if(!repSel.has(rp.id))continue;if(rp.cl){rp.cl.factura_id=facId;if(rp.repId!=null)_aff.add(rp.repId);}else{try{await dbSetRepartoFactura(rp.id,facId);const rr=repartos.find(x=>x.id===rp.id);if(rr)rr.factura_id=facId;}catch(_){}}}for(const rid of _aff){const rr=repartos.find(x=>x.id===rid);if(rr){try{await dbUpdateClientes(rid,rr.clientes);}catch(_){}}}}m.close();_cfCheckBurst('Registrado',true);}
+      else{const ins=await sb.from('fact_facturas').insert(row).select('id').single();if(ins.error)throw ins.error;const facId=ins.data&&ins.data.id;_newFacId=facId;if(repsList&&facId!=null){const _aff=new Set();for(const rp of repsList){if(!repSel.has(rp.id))continue;if(rp.cl){rp.cl.factura_id=facId;if(rp.repId!=null)_aff.add(rp.repId);}else{try{await dbSetRepartoFactura(rp.id,facId);const rr=repartos.find(x=>x.id===rp.id);if(rr)rr.factura_id=facId;}catch(_){}}}for(const rid of _aff){const rr=repartos.find(x=>x.id===rid);if(rr){try{await dbUpdateClientes(rid,rr.clientes);}catch(_){}}}}else if(facId!=null&&sel){await _claimLineasFactura(sel.ts,sel.semDesde,facId);}m.close();_cfCheckBurst('Registrado',true);}
       // Recarga facturas para refrescar chips/estado antes de volver a la vista.
       try{const fr=await sb.from('fact_facturas').select('*');window.__cfFac=fr.data||[];}catch(_){window.__cfFac=null;}
       // Al registrar desde una planilla se QUEDA en la planilla (ya facturada) para imprimir
