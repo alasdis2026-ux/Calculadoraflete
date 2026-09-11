@@ -5359,7 +5359,11 @@ function showSaveAnim(text){
   .rrd-dash{display:flex;flex-direction:column;gap:14px}
   .rrd-bar{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:14px;margin-bottom:14px}
   .rrd-bar .rrm-filterbar{margin:0}
-  .rrd-bar .rrd-tabs{justify-self:center}
+  .rrd-bar .rrd-tabs,.rrd-bar .rrd-segctrl{justify-self:center}
+  .rrd-bar--center{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:14px;margin-bottom:14px}
+  .rrd-bar--center .rrm-filterbar{margin:0;justify-content:center}
+  /* Control de segmento dentro de la tarjeta, arriba y centrado */
+  .rrd-cardseg{display:flex;justify-content:center;padding:14px 14px 4px}
   @media(max-width:980px){.rrd-bar{grid-template-columns:1fr;justify-items:center}.rrd-bar .rrm-filterbar{justify-content:center}.rrd-bar__sp{display:none}}
   /* Sello grande "Conciliada" a la derecha de la fila de filtros (planilla facturada) */
   .rrd-seal{justify-self:start;display:inline-flex;align-items:center;gap:9px;padding:9px 16px 9px 11px;border:2.5px solid #16a34a;border-radius:13px;color:#15803d;background:linear-gradient(135deg,#f0fdf4,#dcfce7);transform:rotate(-4deg);box-shadow:0 7px 18px rgba(22,163,74,.2),inset 0 1px 0 rgba(255,255,255,.5)}
@@ -5367,6 +5371,18 @@ function showSaveAnim(text){
   .rrd-seal__ic svg{width:17px;height:17px}
   .rrd-seal__tx{font-family:Sora,Inter,sans-serif;font-weight:800;font-size:15.5px;letter-spacing:.6px;text-transform:uppercase}
   @media(max-width:980px){.rrd-seal{justify-self:center}}
+  /* Control segmentado (estilo Reporte de Repartos): ícono + nombre + contador, celdas conectadas */
+  .rrd-segctrl{display:inline-flex;align-items:stretch;border:1px solid var(--gray-200,#e2e8f0);border-radius:16px;overflow:hidden;background:#fff;box-shadow:0 2px 12px rgba(15,36,64,.07)}
+  .rrd-segbtn{flex:0 0 auto;min-width:106px;display:flex;align-items:center;justify-content:center;gap:9px;padding:8px 18px;border:0;border-left:1px solid var(--gray-100,#f1f5f9);background:transparent;cursor:pointer;transition:background .2s,color .2s;color:var(--gray-600,#475569)}
+  .rrd-segbtn:first-child{border-left:0}
+  .rrd-segbtn:hover:not(.on){background:#f1f6fb}
+  .rrd-segbtn.on{background:linear-gradient(135deg,#1478b8,#0B5F8D)}
+  .rrd-segbtn.on .rrd-segbtn__ic,.rrd-segbtn.on .rrd-segbtn__lbl,.rrd-segbtn.on .rrd-segbtn__n{color:#fff}
+  .rrd-segbtn__ic{width:22px;height:22px;color:var(--gray-400,#94a3b8);display:grid;place-items:center;flex-shrink:0}
+  .rrd-segbtn__ic svg{width:22px;height:22px}
+  .rrd-segbtn__col{display:flex;flex-direction:column;align-items:center;line-height:1}
+  .rrd-segbtn__lbl{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-400,#94a3b8);white-space:nowrap}
+  .rrd-segbtn__n{font-size:19px;font-weight:800;margin-top:3px;color:var(--gray-800,#1e293b);font-variant-numeric:tabular-nums}
   .rrd-tabs{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;background:var(--gray-50,#f8fafc);border:1px solid var(--gray-200,#e2e8f0);border-radius:14px;padding:5px}
   .rrd-tab{display:inline-flex;align-items:center;gap:8px;border:1.5px solid transparent;background:transparent;border-radius:10px;padding:8px 15px;font:inherit;font-size:13px;font-weight:800;color:var(--gray-600,#475569);cursor:pointer;transition:background .16s,color .16s,box-shadow .18s,transform .12s}
   .rrd-tab:active{transform:scale(.96)}
@@ -5384,14 +5400,13 @@ function showSaveAnim(text){
   .rrd-tablehd__t{display:flex;align-items:center;gap:9px;font-family:Sora,Inter,sans-serif;font-size:14px;font-weight:800;color:var(--gray-800)}
   .rrd-tablehd__dot{width:9px;height:9px;border-radius:50%}
   .rrd-tablehd__acts{display:flex;gap:6px;flex-shrink:0}
-  .rrd-hdbtn{display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--gray-200,#e2e8f0);background:#fff;color:var(--primary);border-radius:10px;padding:7px 13px;font:inherit;font-size:12.5px;font-weight:800;cursor:pointer;transition:background .14s,border-color .14s,box-shadow .14s,transform .12s;box-shadow:0 1px 5px rgba(15,23,42,.05)}
-  .rrd-hdbtn:hover{background:var(--accent-soft,#DBEAFE);border-color:var(--primary);transform:translateY(-1px);box-shadow:0 6px 14px rgba(11,95,141,.14)}
+  .rrd-hdbtn{display:inline-flex;align-items:center;gap:6px;border:0;background:linear-gradient(135deg,#1478b8,#0B5F8D);color:#fff;border-radius:10px;padding:8px 14px;font:inherit;font-size:12.5px;font-weight:800;cursor:pointer;transition:filter .14s,box-shadow .14s,transform .12s;box-shadow:0 4px 12px rgba(11,95,141,.24)}
+  .rrd-hdbtn:hover{filter:brightness(1.07);transform:translateY(-1px);box-shadow:0 8px 18px rgba(11,95,141,.3)}
   .rrd-hdbtn:active{transform:scale(.97)}
-  .rrd-hdbtn--save{border-color:var(--primary);background:var(--primary);color:#fff}
-  .rrd-hdbtn--save:hover{background:#0a527a;color:#fff}
-  .rrd-hdbtn--del{border-color:#fecaca;color:#dc2626}
-  .rrd-hdbtn--del:hover{background:#fef2f2;border-color:#dc2626}
-  .rrd-hdbtn--cancel{color:var(--gray-600,#475569)}
+  .rrd-hdbtn--cancel{background:#eef2f6;color:var(--gray-600,#475569);box-shadow:none}
+  .rrd-hdbtn--cancel:hover{background:#e2e8f0;filter:none}
+  .rrd-hdbtn--del{background:#fff;border:1.5px solid #fecaca;color:#dc2626;box-shadow:none}
+  .rrd-hdbtn--del:hover{background:#fef2f2;filter:none;border-color:#dc2626}
   .rrd-hdlock{display:inline-flex;align-items:center;gap:6px;border:1.5px solid rgba(22,163,74,.22);background:rgba(34,197,94,.1);color:#15803d;border-radius:9px;padding:7px 12px;font-size:12px;font-weight:800}
   /* Modal PRO: elegir segmento para añadir/editar */
   .segmodal-ov{position:fixed;inset:0;z-index:9998;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(15,23,42,.5);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
@@ -7666,9 +7681,14 @@ function _rrOpenDetail(g,periodLbl,wkObj){
   function dashTabs(){
     const segsPresent=SEGL.filter(sk=>work.some(w=>!w.del&&w.seg===sk));
     if(!segsPresent.length)return '';
-    const SEGDOT={local:'#38BDF8',interior:'#F97316',servicios:'#10B981',transportadora:'#7c3aed'};
+    const SIC={todos:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>',
+      local:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>',
+      interior:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="6" width="13" height="11" rx="1"/><path d="M14 9h4l3 3v5h-7z"/><circle cx="5" cy="18.5" r="1.7"/><circle cx="17.5" cy="18.5" r="1.7"/></svg>',
+      servicios:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.2 5.2l2.1 2.1M16.7 16.7l2.1 2.1M18.8 5.2l-2.1 2.1M7.3 16.7l-2.1 2.1"/></svg>',
+      transportadora:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M6 21V5a1 1 0 011-1h6a1 1 0 011 1v16"/><path d="M14 21V9h4a1 1 0 011 1v11"/><path d="M9 8h1M9 12h1M9 16h1"/></svg>'};
     const totalN=work.filter(w=>!w.del).reduce((a,w)=>a+camCount(w),0);
-    return '<div class="rrd-tabs"><button class="rrd-tab'+(_dashSeg==='todos'?' on':'')+'" data-dashseg="todos"><span class="rrd-tab__dot rrd-tab__dot--all"></span>Todos<span class="rrd-tab__n">'+totalN+'</span></button>'+segsPresent.map(s=>{const n=work.filter(w=>!w.del&&w.seg===s).reduce((a,w)=>a+camCount(w),0);return '<button class="rrd-tab'+(_dashSeg===s?' on':'')+'" data-dashseg="'+s+'"><span class="rrd-tab__dot" style="background:'+SEGDOT[s]+'"></span>'+SEGN[s]+'<span class="rrd-tab__n">'+n+'</span></button>';}).join('')+'</div>';
+    const btn=(key,lbl,n)=>'<button type="button" class="rrd-segbtn'+(_dashSeg===key?' on':'')+'" data-dashseg="'+key+'"><span class="rrd-segbtn__ic">'+SIC[key]+'</span><span class="rrd-segbtn__col"><span class="rrd-segbtn__lbl">'+lbl+'</span><span class="rrd-segbtn__n">'+n+'</span></span></button>';
+    return '<div class="rrd-segctrl">'+btn('todos','Todos',totalN)+segsPresent.map(s=>btn(s,SEGN[s],work.filter(w=>!w.del&&w.seg===s).reduce((a,w)=>a+camCount(w),0))).join('')+'</div>';
   }
   function dashBody(){
     const segsPresent=SEGL.filter(sk=>work.some(w=>!w.del&&w.seg===sk));
@@ -7691,7 +7711,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     if(_dashSeg==='todos'){
       const allItems=[];SEGL.forEach(s=>{_dashSort(work.filter(w=>!w.del&&w.seg===s&&(!_camFilter||camLbl(w)===_camFilter)),s).forEach(w=>allItems.push(w));});
       const rows=allItems.map(w=>{const isTr=w.seg==='transportadora';const cam=isTr?((+w.cant||0)+' camión'+((+w.cant||0)===1?'':'es')):camLbl(w);const zn=isTr?'—':(w.zona||(w.seg==='servicios'&&w.obs)||'—');const km=(w.seg==='interior'&&+w.km>0)?(_kmFmt(+w.km)+' km × '+_gs(+w.precioKm||0)):'<span class="rrd-mut">—</span>';return '<tr'+_facRowCls(w)+(_facMode?' data-facrow="'+w.uid+'" style="cursor:pointer"':'')+'>'+dfec(w)+'<td class="rrd-cam"><span class="rrd-cam__ic">'+TRUCKICON+'</span><span class="rrd-cam__t">'+_escp(cam)+'</span></td><td><span class="rrd-segtag rrd-segtag--'+w.seg+'">'+SEGN[w.seg]+'</span></td><td>'+(isTr?'<span class="rrd-mut">—</span>':_escp(w.rep||'Tercerizado'))+'</td><td class="rrd-grow">'+(zn&&zn!=='—'?dchip(zn):'<span class="rrd-mut">—</span>')+'</td><td class="r rrd-det">'+km+'</td><td class="r rrd-flete">'+_gs(+w.precio||0)+'</td>'+_facActs(w)+'</tr>';}).join('')||'<tr><td colspan="8" class="rrd-empty">Sin líneas</td></tr>';
-      const table='<div class="rrd-tablecard"><div class="rrd-tablehd"><div class="rrd-tablehd__t"><span class="rrd-tablehd__dot" style="background:linear-gradient(135deg,#2578b8,#0B5F8D)"></span>Todos los pedidos</div>'+((!_facMode&&!_facDeGrupo(g))?'<div class="rrd-tablehd__acts"><button class="rrd-hdbtn" data-todosadd="1"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg> Añadir</button>'+(work.some(w=>!w.del&&!w.isNew)?'<button class="rrd-hdbtn rrd-hdbtn--edit" data-todosedit="1"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4z"/></svg> Editar</button>':'')+'</div>':'')+'</div><div class="rrd-tablewrap"><table class="rrd-tbl"><thead><tr><th>Fecha</th><th>Camión</th><th>Segmento</th><th>Repartidor</th><th class="rrd-grow">Zona</th><th class="r">Km · Precio/km</th><th class="r">Flete</th><th class="rrd-facth r">'+(_facMode?'¿Entra?':'Factura')+'</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
+      const table='<div class="rrd-tablecard">'+(_facMode?'':'<div class="rrd-cardseg">'+dashTabs()+'</div>')+'<div class="rrd-tablehd"><div class="rrd-tablehd__t"><span class="rrd-tablehd__dot" style="background:linear-gradient(135deg,#2578b8,#0B5F8D)"></span>Todos los pedidos</div>'+((!_facMode&&!_facDeGrupo(g))?'<div class="rrd-tablehd__acts"><button class="rrd-hdbtn" data-todosadd="1"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg> Añadir</button>'+(work.some(w=>!w.del&&!w.isNew)?'<button class="rrd-hdbtn rrd-hdbtn--edit" data-todosedit="1"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4z"/></svg> Editar</button>':'')+'</div>':'')+'</div><div class="rrd-tablewrap"><table class="rrd-tbl"><thead><tr><th>Fecha</th><th>Camión</th><th>Segmento</th><th>Repartidor</th><th class="rrd-grow">Zona</th><th class="r">Km · Precio/km</th><th class="r">Flete</th><th class="rrd-facth r">'+(_facMode?'¿Entra?':'Factura')+'</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
       const nCam=allItems.reduce((a,w)=>a+camCount(w),0),sub=allItems.reduce((a,w)=>a+(+w.precio||0),0);
       return '<div class="rrd-dash">'+table+'</div>';
     }
@@ -7705,9 +7725,8 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     const facReadReg=_dashSeg!=='todos'&&!!_facDeGrupo(g);
     const actTh=editing?'<th class="rrd-actth"><input type="checkbox" class="rrd-selall" title="Seleccionar todos"></th>':(facReadReg?'':'<th class="rrd-facth rrd-facc--slim r"></th>');
     const segTh=(editing&&!isTr)?'<th class="rrd-segth">Segmento</th>':'';
-    const fecTh=editing?'<th>Fecha</th>':'';
-    if(isTr)thead='<tr>'+fecTh+'<th class="rrd-grow">Detalle</th><th class="r">Cantidad</th><th class="r">Flete</th>'+actTh+'</tr>';
-    else thead='<tr>'+fecTh+segTh+'<th>Camión</th><th>Repartidor</th><th class="rrd-grow">'+(isServ?'Servicio':'Zona')+'</th>'+(showKmCol?'<th class="r">Km · Precio/km</th>':'')+'<th class="r">Flete</th>'+actTh+'</tr>';
+    if(isTr)thead='<tr><th>Fecha</th><th class="rrd-grow">Detalle</th><th class="r">Cantidad</th><th class="r">Flete</th>'+actTh+'</tr>';
+    else thead='<tr><th>Fecha</th>'+segTh+'<th>Camión</th><th>Repartidor</th><th class="rrd-grow">'+(isServ?'Servicio':'Zona')+'</th>'+(showKmCol?'<th class="r">Km · Precio/km</th>':'')+'<th class="r">Flete</th>'+actTh+'</tr>';
     let rowsHtml;
     if(editing){
       const CHV='<svg class="xls-chv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>';
@@ -7727,15 +7746,8 @@ function _rrOpenDetail(g,periodLbl,wkObj){
       // salvo que la planilla ya esté facturada (bloqueada).
       const acts=w=>facReadReg?'':'<td class="rrd-facc rrd-facc--slim"><button class="rrd-facdel" data-dashdel="'+w.uid+'" data-tip="Eliminar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M10 11v6M14 11v6"/></svg></button></td>';
       const rowCls=w=>'';
-      const rowOne=isTr
-        ?(w=>'<tr'+rowCls(w)+' data-dashrow="'+w.uid+'"><td class="rrd-cam rrd-grow"><span class="rrd-cam__ic">'+TRUCKICON+'</span><span class="rrd-cam__t">'+((+w.cant||0)+' camión'+((+w.cant||0)===1?'':'es'))+'</span></td><td class="r">'+(+w.cant||0)+'</td><td class="r rrd-flete">'+_gs(+w.precio||0)+'</td>'+acts(w)+'</tr>')
-        :(w=>{const km=(isInt&&+w.km>0)?(_kmFmt(+w.km)+' km × '+_gs(+w.precioKm||0)):'—';return '<tr'+rowCls(w)+' data-dashrow="'+w.uid+'"><td class="rrd-cam"><span class="rrd-cam__ic">'+TRUCKICON+'</span><span class="rrd-cam__t">'+_escp(camLbl(w))+'</span></td><td>'+_escp(w.rep||'Tercerizado')+'</td><td class="rrd-grow">'+(w.zona?dchip(w.zona):(isServ&&w.obs?dchip(w.obs):'<span class="rrd-mut">—</span>'))+'</td>'+(isInt?'<td class="r rrd-det">'+km+'</td>':'')+'<td class="r rrd-flete">'+_gs(+w.precio||0)+'</td>'+acts(w)+'</tr>';});
-      // Agrupar por fecha: encabezado de día (DD/MM/AAAA) con conteo y subtotal
-      const gmap={},gord=[];items.forEach(w=>{const k=String(w.fecha||'').slice(0,10)||'zzzz';if(!gmap[k]){gmap[k]=[];gord.push(k);}gmap[k].push(w);});
-      gord.sort();
-      rowsHtml=gord.map(k=>{const arr=gmap[k];const tot=arr.reduce((s,w)=>s+(+w.precio||0),0);const nc=arr.reduce((s,w)=>s+(isTr?(+w.cant||0):1),0);const lbl=(k==='zzzz')?'Sin fecha':(k.slice(8,10)+'/'+k.slice(5,7)+'/'+k.slice(0,4));
-        const hd='<tr class="rrd-grp"><td colspan="9"><div class="rrd-grp__in"><span class="rrd-grp__d">'+CAL+lbl+'</span><span class="rrd-grp__meta"><span>'+nc+' reparto'+(nc===1?'':'s')+'</span><b>'+_gs(tot)+'</b></span></div></td></tr>';
-        return hd+arr.map(rowOne).join('');}).join('');
+      if(isTr)rowsHtml=items.map(w=>'<tr'+rowCls(w)+' data-dashrow="'+w.uid+'">'+dfec(w)+'<td class="rrd-cam rrd-grow"><span class="rrd-cam__ic">'+TRUCKICON+'</span><span class="rrd-cam__t">'+((+w.cant||0)+' camión'+((+w.cant||0)===1?'':'es'))+'</span></td><td class="r">'+(+w.cant||0)+'</td><td class="r rrd-flete">'+_gs(+w.precio||0)+'</td>'+acts(w)+'</tr>').join('');
+      else rowsHtml=items.map(w=>{const km=(isInt&&+w.km>0)?(_kmFmt(+w.km)+' km × '+_gs(+w.precioKm||0)):'—';return '<tr'+rowCls(w)+' data-dashrow="'+w.uid+'">'+dfec(w)+'<td class="rrd-cam"><span class="rrd-cam__ic">'+TRUCKICON+'</span><span class="rrd-cam__t">'+_escp(camLbl(w))+'</span></td><td>'+_escp(w.rep||'Tercerizado')+'</td><td class="rrd-grow">'+(w.zona?dchip(w.zona):(isServ&&w.obs?dchip(w.obs):'<span class="rrd-mut">—</span>'))+'</td>'+(isInt?'<td class="r rrd-det">'+km+'</td>':'')+'<td class="r rrd-flete">'+_gs(+w.precio||0)+'</td>'+acts(w)+'</tr>';}).join('');
       if(!rowsHtml)rowsHtml='<tr><td colspan="9" class="rrd-empty">Sin líneas</td></tr>';
     }
     let hdActs;
@@ -7743,7 +7755,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     else if(_facMode)hdActs='<span class="rrd-hdlock rrd-hdlock--sel"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg> Elegí qué repartos entran</span>';
     else if(_facDeGrupo(g))hdActs='<span class="rrd-hdlock"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><rect x="4.5" y="11" width="15" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg> Facturada · conciliada</span>';
     else hdActs='<button class="rrd-hdbtn" data-dashadd="'+sk+'"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg> Añadir</button>'+(items.some(w=>!w.isNew)?'<button class="rrd-hdbtn rrd-hdbtn--edit" data-dashedit="'+sk+'"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4z"/></svg> Editar</button>':'');
-    const table='<div class="rrd-tablecard'+(editing?' is-editing':'')+'"><div class="rrd-tablehd"><div class="rrd-tablehd__t"><span class="rrd-tablehd__dot" style="background:'+SEGDOT[sk]+'"></span>'+(editing?'Editando '+SEGN[sk]:'Detalle de '+SEGN[sk])+'</div><div class="rrd-tablehd__acts">'+hdActs+'</div></div><div class="rrd-tablewrap"><table class="rrd-tbl'+(editing?' rrd-tbl--edit':'')+'"><thead>'+thead+'</thead><tbody>'+rowsHtml+'</tbody></table></div></div>';
+    const table='<div class="rrd-tablecard'+(editing?' is-editing':'')+'">'+(_facMode?'':'<div class="rrd-cardseg">'+dashTabs()+'</div>')+'<div class="rrd-tablehd"><div class="rrd-tablehd__t"><span class="rrd-tablehd__dot" style="background:'+SEGDOT[sk]+'"></span>'+(editing?'Editando '+SEGN[sk]:'Detalle de '+SEGN[sk])+'</div><div class="rrd-tablehd__acts">'+hdActs+'</div></div><div class="rrd-tablewrap"><table class="rrd-tbl'+(editing?' rrd-tbl--edit':'')+'"><thead>'+thead+'</thead><tbody>'+rowsHtml+'</tbody></table></div></div>';
     const src=editing?(_dashDraft||[]).filter(d=>!d.del):items;
     const nCam=editing?src.reduce((a,d)=>a+(isTr?(+d.cant||0):1),0):items.reduce((a,w)=>a+camCount(w),0);
     const sub=editing?src.reduce((a,d)=>a+_dfFlete(d),0):items.reduce((a,w)=>a+(+w.precio||0),0);
@@ -8035,7 +8047,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
         '<div class="rrd-topresumen">'+_dashResumen('General',0,_kpiCam,_kpiSub)+'</div>'+
         '<div class="rrd-acts">'+acts+'</div>'+
       '</div>'+
-      '<div class="rrd-bar">'+camFilterBar()+(_facMode?_selActs:dashTabs())+((facReg&&!editing&&!_facMode)?'<div class="rrd-seal" title="Factura conciliada"><span class="rrd-seal__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span><span class="rrd-seal__tx">Conciliada</span></div>':'<div class="rrd-bar__sp"></div>')+'</div>'+
+      '<div class="rrd-bar rrd-bar--center">'+camFilterBar()+(_facMode?_selActs:'')+((facReg&&!editing&&!_facMode)?'<div class="rrd-seal" title="Factura conciliada"><span class="rrd-seal__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span><span class="rrd-seal__tx">Conciliada</span></div>':'')+'</div>'+
       '<div class="rrm-body">'+dashBody()+'</div>';
     wire();
     const gs=window.gsap;
