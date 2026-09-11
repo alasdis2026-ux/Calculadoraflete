@@ -4957,11 +4957,14 @@ function showSaveAnim(text){
   .rr-ci *{box-sizing:border-box}
   #viewRrep.stage{padding:12px 16px;overflow:hidden}
   #rrepHost.rr-ci{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;gap:12px}
-  .rr-ci .rr-topbar{flex-shrink:0}
+  .rr-ci .rr-topbar{flex-shrink:0;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:14px}
+  .rr-ci .rr-brand{display:flex;align-items:center;gap:10px;min-width:0;justify-self:start}
+  .rr-ci .rr-brand img{height:34px;object-fit:contain;flex-shrink:0}
+  .rr-ci .rr-brand__t{font-family:'Sora','Inter',sans-serif;font-weight:800;font-size:18px;line-height:1.1;color:var(--ci-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .rr-ci .ci-body{flex:1 1 auto;min-height:0;display:grid;grid-template-columns:minmax(0,1.38fr) minmax(0,1fr);gap:14px;align-items:stretch}
-  /* Control segmentado (segmentos) — estilo depósitos de Inventario */
-  .rr-ci .ci-seg{display:flex;align-items:stretch;border:1px solid var(--ci-border-2);border-radius:16px;overflow:hidden;background:#fff;box-shadow:0 2px 12px rgba(15,36,64,.07);width:100%}
-  .rr-ci .ci-seg__btn{flex:1;display:flex;align-items:center;justify-content:center;gap:10px;padding:9px 14px;border:0;border-left:1px solid var(--ci-border);background:transparent;cursor:pointer;transition:background .2s;color:var(--ci-text-2)}
+  /* Control segmentado (segmentos) — estilo depósitos de Inventario, compacto y centrado */
+  .rr-ci .ci-seg{display:flex;align-items:stretch;border:1px solid var(--ci-border-2);border-radius:16px;overflow:hidden;background:#fff;box-shadow:0 2px 12px rgba(15,36,64,.07);width:auto;justify-self:center}
+  .rr-ci .ci-seg__btn{flex:0 0 auto;min-width:104px;display:flex;align-items:center;justify-content:center;gap:9px;padding:8px 16px;border:0;border-left:1px solid var(--ci-border);background:transparent;cursor:pointer;transition:background .2s;color:var(--ci-text-2)}
   .rr-ci .ci-seg__btn:first-child{border-left:0}
   .rr-ci .ci-seg__btn:hover:not(.on){background:#f1f6fb}
   .rr-ci .ci-seg__btn.on{background:linear-gradient(135deg,#1478b8,var(--ci-primary-2));color:#fff}
@@ -5109,6 +5112,13 @@ function showSaveAnim(text){
   .ci-tip__row svg{width:13px;height:13px;color:#8a99a8;flex-shrink:0} .ci-tip__row b{color:#132437;font-weight:700}
   .ci-tip__st{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:800;padding:2px 9px;border-radius:99px;align-self:flex-start;margin-top:2px}
   .ci-tip__st.st-programado{background:#eef5fc;color:#0b5f8d} .ci-tip__st.st-realizado{background:#e9f7ef;color:#127a4b}
+  @media(max-width:1100px){
+    .rr-ci .rr-topbar{grid-template-columns:1fr}
+    .rr-ci .rr-brand{justify-self:center}
+    .rr-ci .ci-seg{width:100%}
+    .rr-ci .ci-seg__btn{flex:1;min-width:0;padding:8px 8px}
+    .rr-ci .rr-topbar>span{display:none}
+  }
   @media(max-width:900px){
     #viewRrep.stage{overflow-y:auto}
     #rrepHost.rr-ci{overflow:visible}
@@ -7272,7 +7282,8 @@ function renderReporteRepartos(){
   // Conteo por segmento para el control superior
   function segCount(k){const prev=_rrSeg;_rrSeg=k;const gs=weeks.reduce((acc,w)=>acc.concat(_rrGroups(w.desde)),[]);_rrSeg=prev;return gs.length;}
   const SEGS=[['todos','Todos',IC.grid],['local','Local',IC.home],['interior','Interior',IC.truck],['servicios','Servicios',IC.wrench],['transportadora','Transportadora',IC.building]];
-  const segBar='<div class="rr-topbar"><div class="ci-seg">'+SEGS.map(s=>'<button type="button" class="ci-seg__btn'+(_rrSeg===s[0]?' on':'')+'" data-rrseg="'+s[0]+'"><span class="ci-seg__ic">'+s[2]+'</span><span class="ci-seg__col"><span class="ci-seg__lbl">'+s[1]+'</span><span class="ci-seg__n">'+segCount(s[0])+'</span></span></button>').join('')+'</div></div>';
+  const segBar='<div class="rr-topbar"><div class="rr-brand"><img src="logo-alas-s.a.png" alt="ALAS"><span class="rr-brand__t">Registros del reparto del mes</span></div>'+
+    '<div class="ci-seg">'+SEGS.map(s=>'<button type="button" class="ci-seg__btn'+(_rrSeg===s[0]?' on':'')+'" data-rrseg="'+s[0]+'"><span class="ci-seg__ic">'+s[2]+'</span><span class="ci-seg__col"><span class="ci-seg__lbl">'+s[1]+'</span><span class="ci-seg__n">'+segCount(s[0])+'</span></span></button>').join('')+'</div><span></span></div>';
 
   // Eventos por día (respeta el segmento activo vía _rrDayGroups)
   const evByDay={};
