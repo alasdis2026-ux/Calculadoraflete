@@ -4948,6 +4948,93 @@ function showSaveAnim(text){
   .rr-card__monto{margin-top:10px;font-size:12.5px;color:var(--gray-500,#64748b)}
   .rr-card__monto b{color:var(--gray-800,#1e293b);font-weight:800}
   .rr-card__go{margin-top:8px;font-size:12.5px;font-weight:800;color:var(--primary)}
+  /* ══ Reporte de Repartos v2 · calendario + lista (estilo Calendario de inventarios) ══ */
+  .rr2{display:grid;grid-template-columns:340px 1fr;gap:20px;align-items:start;margin-top:6px}
+  /* Calendario */
+  .rr2-cal{background:#fff;border:1px solid var(--gray-200,#e2e8f0);border-radius:18px;padding:16px 16px 18px;position:sticky;top:12px;box-shadow:0 4px 18px rgba(15,23,42,.05)}
+  .rrcal-head{display:flex;align-items:center;gap:6px;margin-bottom:14px}
+  .rrcal-ttl{flex:1;text-align:center;font-family:Sora,Inter,sans-serif;font-size:15.5px;font-weight:800;color:var(--primary);text-transform:capitalize}
+  .rrcal-nav{border:0;background:var(--gray-100,#f1f5f9);color:var(--gray-600,#475569);width:32px;height:32px;border-radius:10px;font-size:20px;line-height:1;cursor:pointer;transition:background .15s,color .15s;flex-shrink:0}
+  .rrcal-nav:hover{background:var(--accent-soft,#DBEAFE);color:var(--primary)}
+  .rrcal-hoy{border:0;background:var(--accent-soft,#DBEAFE);color:var(--primary);font:inherit;font-size:11.5px;font-weight:800;padding:7px 11px;border-radius:10px;cursor:pointer;margin-left:2px;transition:background .15s}
+  .rrcal-hoy:hover{background:var(--primary);color:#fff}
+  .rrcal-dow{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:5px}
+  .rrcal-dow span{text-align:center;font-size:9.5px;font-weight:800;color:var(--gray-400,#94a3b8);text-transform:uppercase;letter-spacing:.3px}
+  .rrcal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+  .rrcal-cell{position:relative;aspect-ratio:1/1;border:1.5px solid transparent;background:var(--gray-50,#f8fafc);border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:Sora,Inter,sans-serif;font-size:13px;font-weight:700;color:var(--gray-700,#334155);transition:background .15s,border-color .15s,transform .12s,color .15s;padding:0}
+  .rrcal-cell:hover{background:var(--accent-soft,#DBEAFE);border-color:var(--accent,#3b82f6);transform:translateY(-1px)}
+  .rrcal-cell.out{opacity:.34;pointer-events:none}
+  .rrcal-cell.today{border-color:var(--primary);color:var(--primary)}
+  .rrcal-cell.has{background:#eef5fb;color:var(--primary);font-weight:800}
+  .rrcal-cell.sel{background:var(--primary);border-color:var(--primary);color:#fff;box-shadow:0 6px 16px rgba(11,95,141,.32)}
+  .rrcal-cell.sel .rrcal-n{background:#fff;color:var(--primary)}
+  .rrcal-d{line-height:1}
+  .rrcal-n{position:absolute;top:3px;right:3px;min-width:15px;height:15px;padding:0 3px;border-radius:8px;background:var(--primary);color:#fff;font-size:9.5px;font-weight:800;display:flex;align-items:center;justify-content:center;line-height:1}
+  /* Lista */
+  .rr2-list{min-width:0}
+  .rr2-lhead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+  .rr2-lttl{font-family:Sora,Inter,sans-serif;font-size:17px;font-weight:800;color:var(--gray-800,#1e293b);display:flex;align-items:center;gap:9px}
+  .rr2-count{display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:24px;padding:0 8px;border-radius:12px;background:var(--accent-soft,#DBEAFE);color:var(--primary);font-size:12.5px;font-weight:800}
+  .rr2-vermes{display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--gray-200,#e2e8f0);background:#fff;color:var(--primary);font:inherit;font-size:12.5px;font-weight:800;padding:8px 13px;border-radius:11px;cursor:pointer;transition:background .15s,border-color .15s}
+  .rr2-vermes:hover{background:var(--accent-soft,#DBEAFE);border-color:var(--accent,#3b82f6)}
+  .rr2-vermes svg{width:15px;height:15px;stroke-linecap:round;stroke-linejoin:round}
+  .rr2-toolbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+  .rr2-toolbar .rr-search{flex:1 1 300px;margin:0}
+  .rr2-toolbar .rrd-tabs{margin:0}
+  .rr2-rows{display:flex;flex-direction:column;gap:10px}
+  .rr2-rowwrap{background:#fff;border:1px solid var(--gray-200,#e2e8f0);border-radius:14px;overflow:hidden;transition:box-shadow .2s,border-color .2s}
+  .rr2-rowwrap.open{border-color:var(--primary);box-shadow:0 10px 30px rgba(11,95,141,.13)}
+  .rr2-row{width:100%;display:flex;align-items:center;gap:14px;padding:14px 16px;background:none;border:0;cursor:pointer;text-align:left;font:inherit}
+  .rr2-row:hover{background:var(--gray-50,#f8fafc)}
+  .rr2-row__ic{flex-shrink:0;width:40px;height:40px;border-radius:11px;background:var(--accent-soft,#DBEAFE);display:flex;align-items:center;justify-content:center;color:var(--primary)}
+  .rr2-row__ic svg{width:22px;height:22px;stroke-linecap:round;stroke-linejoin:round}
+  .rr2-row.facd .rr2-row__ic{background:var(--success-soft,#D1FAE5);color:#15803d}
+  .rr2-row__main{flex:1 1 auto;min-width:0}
+  .rr2-row__ts{display:flex;align-items:center;gap:7px;font-family:Sora,Inter,sans-serif;font-size:15.5px;font-weight:800;color:var(--primary)}
+  .rr2-seal{display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;border-radius:50%;background:var(--success,#10B981);color:#fff;flex-shrink:0}
+  .rr2-seal svg{width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+  .rr2-row__meta{display:flex;align-items:center;gap:8px;margin-top:4px;flex-wrap:wrap}
+  .rr2-pill{font-size:11.5px;font-weight:700;color:var(--gray-500,#64748b);background:var(--gray-100,#f1f5f9);padding:3px 9px;border-radius:8px}
+  .rr2-row__chip{display:inline-flex}
+  .rr2-row__stat{flex-shrink:0;text-align:center;min-width:64px}
+  .rr2-row__stat.r{text-align:right;min-width:96px}
+  .rr2-row__stat b{display:block;font-family:Sora,Inter,sans-serif;font-size:16px;font-weight:800;color:var(--gray-800,#1e293b);font-variant-numeric:tabular-nums}
+  .rr2-row__stat small{font-size:9.5px;font-weight:700;color:var(--gray-400,#94a3b8);text-transform:uppercase;letter-spacing:.4px}
+  .rr2-row__chev{flex-shrink:0;color:var(--gray-400,#94a3b8);transition:transform .25s,color .2s}
+  .rr2-row__chev svg{width:20px;height:20px;display:block}
+  .rr2-rowwrap.open .rr2-row__chev{transform:rotate(180deg);color:var(--primary)}
+  .rr2-exp{overflow:hidden}
+  .rr2-exp-in{padding:2px 16px 16px;border-top:1px dashed var(--gray-200,#e2e8f0)}
+  .rr2-exp-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 2px 12px;flex-wrap:wrap}
+  .rr2-exp-bar span{font-size:13px;font-weight:600;color:var(--gray-500,#64748b)}
+  .rr2-exp-bar b{color:#15803d;font-weight:800}
+  .rr2-ver{display:inline-flex;align-items:center;gap:7px;border:0;background:var(--primary);color:#fff;font:inherit;font-size:12.5px;font-weight:800;padding:9px 16px;border-radius:11px;cursor:pointer;transition:background .15s,transform .12s;box-shadow:0 4px 12px rgba(11,95,141,.24)}
+  .rr2-ver:hover{background:#0a527a}
+  .rr2-ver:active{transform:scale(.97)}
+  .rr2-ver svg{width:15px;height:15px;stroke-linecap:round;stroke-linejoin:round}
+  .rr2-btblwrap{overflow-x:auto;border:1px solid var(--gray-200,#e2e8f0);border-radius:11px}
+  .rr2-btbl{width:100%;border-collapse:collapse;font-size:12.5px}
+  .rr2-btbl th{background:var(--gray-50,#f8fafc);color:var(--gray-500,#64748b);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;text-align:left;padding:8px 10px;white-space:nowrap;border-bottom:1px solid var(--gray-200,#e2e8f0)}
+  .rr2-btbl td{padding:8px 10px;border-bottom:1px solid var(--gray-100,#f1f5f9);color:var(--gray-700,#334155);white-space:nowrap}
+  .rr2-btbl tr:last-child td{border-bottom:0}
+  .rr2-btbl td.c{text-align:center;color:var(--gray-400,#94a3b8);font-weight:700}
+  .rr2-btbl td.r{text-align:right;font-weight:800;color:#15803d;font-variant-numeric:tabular-nums}
+  .rr2-btbl .rr2b-cam{font-weight:700;color:var(--gray-800,#1e293b)}
+  .rr2-btbl .rr2b-rz{color:var(--gray-500,#64748b)}
+  .rr2b-seg{display:inline-block;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.3px;padding:2px 8px;border-radius:7px;background:#eef5fb;color:var(--primary)}
+  .rr2b-seg.s-interior{background:var(--orange-soft,#FFEDD5);color:#c2410c}
+  .rr2b-seg.s-servicios{background:var(--success-soft,#D1FAE5);color:#15803d}
+  .rr2b-seg.s-transportadora{background:#ede9fe;color:#6d28d9}
+  .rr2-empty,.rr2-noresults{text-align:center;padding:48px 20px;color:var(--gray-400,#94a3b8);background:#fff;border:1px dashed var(--gray-200,#e2e8f0);border-radius:14px;display:flex;flex-direction:column;align-items:center;gap:4px}
+  .rr2-empty svg,.rr2-noresults svg{width:44px;height:44px;stroke:var(--gray-300,#cbd5e1);margin-bottom:6px}
+  .rr2-empty b,.rr2-noresults b{font-size:15px;color:var(--gray-700,#334155)}
+  .rr2-empty span,.rr2-noresults span{font-size:12.5px}
+  @media(max-width:880px){
+    .rr2{grid-template-columns:1fr}
+    .rr2-cal{position:static}
+    .rr2-row__stat{min-width:52px}
+    .rr2-row__stat.r{min-width:80px}
+  }
   .cf-table tr.hc-grp td{background:#e8eef5;font-weight:800;color:var(--primary);font-size:10.5px;letter-spacing:.4px;text-transform:uppercase;padding:6px 10px}
   .cf-table tr.hc-grp--interior td{background:var(--orange-soft,#FFEDD5);color:var(--orange,#F97316)}
   .cf-table tr.hc-grp--servicios td{background:var(--success-soft,#D1FAE5);color:#15803d}
@@ -6956,12 +7043,35 @@ let _rrWeek=undefined; // undefined=auto · null=Mes completo · 'YYYY-MM-DD'=se
 let _rrSeg='todos';    // todos | local | interior | servicios
 let _rrTabAnim=false;  // true = el re-render viene de tocar un segmento (anim igual a la planilla)
 let _rrQ='';           // buscador general (transportista o camión)
+let _rrDay=null;       // día seleccionado en el calendario (ISO) o null = todo el mes
+let _rrExpTs=null;     // transportista con el desglose desplegado en la lista
+// Repartos por día del mes en vista (respeta el filtro de segmento) → para pintar el calendario.
+function _rrCountByDay(){
+  const map={};
+  (repartos||[]).forEach(r=>{ var d=String(r.fechaISO||'').slice(0,10); if(d.slice(0,7)!==_rrMes) return;
+    (r.clientes||[]).forEach(cl=>{ if(_rrSeg!=='todos'&&(cl.seg||'local')!==_rrSeg) return; map[d]=(map[d]||0)+1; });
+  });
+  return map;
+}
+// Planillas (transportista) de un día puntual, agrupando los repartos de esa fecha.
+function _rrDayGroups(dayISO){
+  const groups={}, order=[];
+  (repartos||[]).forEach(r=>{ if(String(r.fechaISO||'').slice(0,10)!==dayISO) return;
+    (r.clientes||[]).forEach(cl=>{ if(_rrSeg!=='todos'&&(cl.seg||'local')!==_rrSeg) return;
+      const own=cl.trId?tsOfTruck(cl.trId):null; const ts=(own&&own.n)||cl.tsNombre||'—'; const tsId=(own&&own.id)||cl.tsId;
+      let g=groups[ts]; if(!g){ g=groups[ts]={ts:ts,tsId:tsId,facturaId:null,semDesde:isoWeekRange(dayISO).desde,lines:[],monto:0,flete:0,reps:[]}; order.push(ts); }
+      cl._fecha=r.fechaISO||r.fecha||null; cl._repId=r.id; g.lines.push(cl); g.monto+=+cl.monto||0; g.flete+=_cfFleteVal(cl);
+      if(!g.reps.some(x=>x.id===r.id)) g.reps.push({id:r.id,fecha:r.fecha,fechaISO:r.fechaISO,factura_id:r.factura_id});
+    });
+  });
+  return order.map(k=>groups[k]);
+}
 function _isoD(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function _dispD(iso){return iso?iso.split('-').reverse().join('/'):'—';}
 function _shD(iso){const p=iso.split('-');return p[2]+'/'+p[1];}
 function _dmy(iso){const p=String(iso||'').slice(0,10).split('-');return p.length<3?String(iso||''):(p[2]+'/'+p[1]+'/'+p[0].slice(-2));} // DD/MM/AA
 function _weeksOfMonth(mk){const a=mk.split('-').map(Number),y=a[0],mo=a[1];const first=new Date(y,mo-1,1),last=new Date(y,mo,0);let d=new Date(first);d.setDate(d.getDate()-((d.getDay()+6)%7));const w=[];while(d<=last){const mon=new Date(d),sun=new Date(d);sun.setDate(sun.getDate()+6);w.push({desde:_isoD(mon),hasta:_isoD(sun)});d.setDate(d.getDate()+7);}return w;}
-function _rrShiftMonth(delta){const a=_rrMes.split('-').map(Number);const d=new Date(a[0],a[1]-1+delta,1);_rrMes=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');_rrWeek=undefined;renderReporteRepartos();}
+function _rrShiftMonth(delta){const a=_rrMes.split('-').map(Number);const d=new Date(a[0],a[1]-1+delta,1);_rrMes=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');_rrWeek=undefined;_rrDay=null;_rrExpTs=null;renderReporteRepartos();}
 // Buscador general: filtra las tarjetas por transportista o camión (sin re-render, mantiene el foco)
 function _rrApplySearch(){
   const host=document.getElementById('rrepHost');if(!host)return;
@@ -7042,71 +7152,101 @@ function _cfMigrateLegacyPerLine(){
 window._diagFac=function(tsFiltro){const rowsD=[];(repartos||[]).forEach(r=>{(r.clientes||[]).forEach(c=>{const o=c.trId?tsOfTruck(c.trId):null;const ts=(o&&o.n)||c.tsNombre||'—';if(tsFiltro&&ts!==tsFiltro)return;rowsD.push({reparto:r.id,fecha:r.fechaISO,ts:ts,rep:c.rep,precio:c.precio,r_factura_id:(r.factura_id===undefined?'(sin campo)':r.factura_id),cl_factura_id:(c.factura_id===undefined?'(sin campo)':c.factura_id)});});});console.log('=== DIAG FACTURA'+(tsFiltro?' · '+tsFiltro:'')+' ===');console.table(rowsD);console.log('facturas registradas:',(window.__cfFac||[]).map(f=>({id:f.id,ts:f.transportadora_nombre,monto:f.monto,semana:f.semana_desde})));return rowsD;};
 function renderReporteRepartos(){
   const host=document.getElementById('rrepHost');if(!host)return;
-  // Carga las facturas (una vez) para mostrar el estado en cada tarjeta
+  const TRUCKICON_RR='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="2.5" y="7" width="11" height="8" rx="1"/><path d="M13.5 9.5H17l3.5 3.5V15h-7z"/><circle cx="7" cy="17.5" r="1.6"/><circle cx="17.5" cy="17.5" r="1.6"/></svg>';
+  const CAL_ICO_RR='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4.5" width="18" height="16.5" rx="2"/><path d="M3 9h18M8 2.5v4M16 2.5v4"/></svg>';
+  const LIST_ICO_RR='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>';
   if(!window.__cfFac){sb.from('fact_facturas').select('*').then(r=>{window.__cfFac=r.data||[];if(document.getElementById('viewRrep').classList.contains('is-active'))renderReporteRepartos();}).catch(()=>{window.__cfFac=[];});}
   _cfResetBackfill();
   _cfMigrateLegacyPerLine();
-  const weeks=_weeksOfMonth(_rrMes);
-  const today=_isoD(new Date());
-  // Siempre una semana seleccionada (ya no hay "Mes completo"): la actual si cae en el mes, si no la primera
-  if(_rrWeek===undefined||(_rrWeek&&!weeks.some(w=>w.desde===_rrWeek))){const cur=weeks.find(w=>today>=w.desde&&today<=w.hasta);_rrWeek=cur?cur.desde:(weeks[0]?weeks[0].desde:null);}
   const M=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
   const a=_rrMes.split('-').map(Number),monthLbl=M[a[1]-1]+' '+a[0];
-  const groups=_rrGroups(_rrWeek);
-  // Recorte de fechas al mes visible (la semana puede cruzar, pero mostramos solo el tramo del mes)
-  const _mFirst=_rrMes+'-01',_mLast=(()=>{const aa=_rrMes.split('-').map(Number);return _isoD(new Date(aa[0],aa[1],0));})();
-  const _clipD=iso=>iso<_mFirst?_mFirst:(iso>_mLast?_mLast:iso);
-  const wkObj=_rrWeek?weeks.find(w=>w.desde===_rrWeek):null;
-  const periodLbl=wkObj?(_dispD(_clipD(wkObj.desde))+' al '+_dispD(_clipD(wkObj.hasta))):'Mes completo';
-  // Chips de semana: punto en pulso sobre la semana actual + conteo de planillas por semana (cortado por mes)
-  const _monthN=_rrGroups(null).length;
-  const allChip='<button class="rr-chip rr-chip--all'+(_rrWeek===null?' on':'')+'" data-rrw="" type="button">Todo el mes'+(_monthN?'<span class="rr-chip__n">'+_monthN+'</span>':'')+'</button>';
-  const chips='<div class="rr-chips">'+allChip+weeks.map(w=>{const isCur=today>=w.desde&&today<=w.hasta;const n=_planillasDe(null,w.desde,_rrMes).length;return '<button class="rr-chip'+(_rrWeek===w.desde?' on':'')+'" data-rrw="'+w.desde+'">'+(isCur?'<span class="rr-chip__dot" title="Semana actual"></span>':'')+_shD(_clipD(w.desde))+'–'+_shD(_clipD(w.hasta))+(n?'<span class="rr-chip__n">'+n+'</span>':'')+'</button>';}).join('')+'</div>';
-  const nav='<div class="rr-mnav"><button data-rrm="-1" aria-label="Mes anterior">‹</button><span>'+monthLbl+'</span><button data-rrm="1" aria-label="Mes siguiente">›</button><button class="rr-mnav__today" data-rrtoday type="button">Semana actual</button></div>';
-  // Filtro de segmento PRO: ícono minimalista + label, centrado, con entrada GSAP
-  const SEGF=[
-    ['todos','Todos','<svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>'],
-    ['local','Local','<svg viewBox="0 0 24 24"><path d="M3 21h18"/><path d="M5 21V8l7-4 7 4v13"/><path d="M9 21v-5h6v5"/><path d="M9 11h.01M15 11h.01"/></svg>'],
-    ['interior','Interior','<svg viewBox="0 0 24 24"><path d="M1 3h13v13H1z"/><path d="M14 8h4l3 3v5h-7z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="17.5" cy="18.5" r="2.5"/></svg>'],
-    ['servicios','Servicios','<svg viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 01-5.4 5.4L4 17v3h3l5.3-5.3a4 4 0 015.4-5.4l-2.5 2.5-2-2 2.5-2.5z"/></svg>'],
-    ['transportadora','Transportadora','<svg viewBox="0 0 24 24"><path d="M3 21h18"/><path d="M6 21V5a1 1 0 011-1h6a1 1 0 011 1v16"/><path d="M14 21V9h4a1 1 0 011 1v11"/><path d="M9 8h1M9 12h1M9 16h1"/></svg>']
-  ];
+  const weeks=_weeksOfMonth(_rrMes);
+  const today=_isoD(new Date());
+  const _mFirst=_rrMes+'-01',_mLast=_isoD(new Date(a[0],a[1],0));
+  const clip=iso=>iso<_mFirst?_mFirst:(iso>_mLast?_mLast:iso);
+  const cntByDay=_rrCountByDay();
+  // Grupos según scope: un día seleccionado → planillas de ese día; si no, todas las planillas
+  // del mes = una por (transportista·semana·factura), concatenando cada semana (semDesde correcto).
+  const groups=_rrDay?_rrDayGroups(_rrDay):weeks.reduce((acc,w)=>acc.concat(_rrGroups(w.desde)),[]);
+  const wkOfDay=_rrDay?(weeks.find(w=>_rrDay>=w.desde&&_rrDay<=w.hasta)||{desde:isoWeekRange(_rrDay).desde,hasta:_wkHasta(isoWeekRange(_rrDay).desde)}):null;
+
+  // ── Panel calendario ──
+  const DOW=['LUN','MAR','MIÉ','JUE','VIE','SÁB','DOM'];
+  let cells='';
+  weeks.forEach(w=>{const p=w.desde.split('-').map(Number),base=new Date(p[0],p[1]-1,p[2]);
+    for(let i=0;i<7;i++){const dd=new Date(base);dd.setDate(base.getDate()+i);const iso=_isoD(dd);const inM=iso.slice(0,7)===_rrMes;const n=cntByDay[iso]||0;
+      cells+='<button type="button" class="rrcal-cell'+(inM?'':' out')+(iso===today?' today':'')+(iso===_rrDay?' sel':'')+(n?' has':'')+'" data-rrday="'+iso+'"><span class="rrcal-d">'+dd.getDate()+'</span>'+(n?'<span class="rrcal-n">'+n+'</span>':'')+'</button>';}
+  });
+  const calH='<div class="rr2-cal"><div class="rrcal-head"><button class="rrcal-nav" data-rrm="-1" aria-label="Mes anterior">‹</button><span class="rrcal-ttl">'+monthLbl+'</span><button class="rrcal-nav" data-rrm="1" aria-label="Mes siguiente">›</button><button class="rrcal-hoy" data-rrtoday type="button">Hoy</button></div>'+
+    '<div class="rrcal-dow">'+DOW.map(d=>'<span>'+d+'</span>').join('')+'</div>'+
+    '<div class="rrcal-grid">'+cells+'</div></div>';
+
+  // ── Filtro de segmento ──
+  const SEGF=[['todos','Todos'],['local','Local'],['interior','Interior'],['servicios','Servicios'],['transportadora','Transportadora']];
   const SEGDOTF={local:'#38BDF8',interior:'#F97316',servicios:'#10B981',transportadora:'#7c3aed'};
   const segFilter='<div class="rrd-tabs rr-segtabs">'+SEGF.map(s=>{const dot=s[0]==='todos'?'<span class="rrd-tab__dot rrd-tab__dot--all"></span>':'<span class="rrd-tab__dot" style="background:'+SEGDOTF[s[0]]+'"></span>';return '<button class="rrd-tab'+(_rrSeg===s[0]?' on':'')+'" data-rrseg="'+s[0]+'">'+dot+s[1]+'</button>';}).join('')+'</div>';
   const search='<div class="rr-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input type="text" placeholder="Buscar transportista o camión…" value="'+_escp(_rrQ)+'" autocomplete="off"><button class="rr-search__clear'+(_rrQ?' show':'')+'" aria-label="Limpiar">&times;</button></div>';
-  let cards;
-  if(!groups.length){cards='<div class="cf-card"><div class="cf-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 3h13v13H1zm13 5h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg><b>Sin registros para esta semana 🚚</b><span>Cargá un flete en la Calculadora y aparece.</span></div></div>';}
-  else{cards='<div class="rr-grid">'+groups.map((g,i)=>{const chip=_facChipDe(g,_rrWeek);const facd=!!_facDeGrupo(g);const sk=_escp((g.ts+' '+g.lines.map(l=>l.trDesc||'').join(' ')).toLowerCase());return '<div class="rr-card'+(facd?' rr-card--facd':'')+'" data-rrts="'+i+'" data-search="'+sk+'">'+(facd?'<span class="rr-card__seal"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></span>':'')+'<div class="rr-card__ts">'+_escp(g.ts)+'</div><div class="rr-card__pd">'+periodLbl+'</div>'+(chip?'<div class="rr-card__st">'+chip+'</div>':'')+'<div class="rr-card__foot"><div><b>'+g.lines.reduce((s,l)=>s+((l.seg||'local')==='transportadora'?(+l.cant||1):1),0)+'</b><span>Camiones</span></div><div style="text-align:right"><b>'+_gs(g.flete)+'</b><span>Flete total</span></div></div><div class="rr-card__go">Ver planilla ›</div></div>';}).join('')+'</div>'+
-    '<div class="rr-noresults cf-card" style="display:none"><div class="cf-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><b>Sin resultados para “<span class="rr-nq"></span>”</b><span>Probá con otro nombre de transportista o de camión.</span></div></div>';}
-  host.innerHTML='<div class="cf-hd"><h2><img src="logo-alas-s.a.png">Reporte de Repartos</h2><span class="cf-count">'+groups.length+'</span><div class="rr-filterbar">'+nav+chips+'</div></div><div class="rr-toolbar">'+search+segFilter+'</div>'+cards;
+
+  // ── Filas (planillas) ──
+  let rows;
+  if(!groups.length){rows='<div class="rr2-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 3h13v13H1zm13 5h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg><b>'+(_rrDay?'Sin repartos este día 🚚':'Sin repartos este mes 🚚')+'</b><span>Elegí otra fecha o cargá un flete en la Calculadora.</span></div>';}
+  else{rows=groups.map((g,i)=>{const facd=!!_facDeGrupo(g);const chip=_facChipDe(g,g.semDesde);const cam=g.lines.reduce((s,l)=>s+((l.seg||'local')==='transportadora'?(+l.cant||1):1),0);const sk=_escp((g.ts+' '+g.lines.map(l=>l.trDesc||'').join(' ')).toLowerCase());
+    return '<div class="rr2-rowwrap" data-search="'+sk+'">'+
+      '<button type="button" class="rr2-row'+(facd?' facd':'')+'" data-rrts="'+i+'">'+
+        '<span class="rr2-row__ic">'+TRUCKICON_RR+'</span>'+
+        '<span class="rr2-row__main"><span class="rr2-row__ts">'+_escp(g.ts)+(facd?'<span class="rr2-seal"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></span>':'')+'</span>'+
+          '<span class="rr2-row__meta"><span class="rr2-pill">'+(_rrDay?_dispD(_rrDay):(_dispD(clip(g.semDesde))+' al '+_dispD(clip(_wkHasta(g.semDesde)))))+'</span>'+(chip?'<span class="rr2-row__chip">'+chip+'</span>':'')+'</span></span>'+
+        '<span class="rr2-row__stat"><b>'+cam+'</b><small>camiones</small></span>'+
+        '<span class="rr2-row__stat r"><b>'+_gs(g.flete)+'</b><small>flete</small></span>'+
+        '<span class="rr2-row__chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg></span>'+
+      '</button>'+
+      '<div class="rr2-exp" hidden></div>'+
+    '</div>';
+  }).join('')+'<div class="rr2-noresults" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><b>Sin resultados</b><span>Probá con otro transportista o camión.</span></div>';}
+
+  const lttl=_rrDay?('Planillas del '+_dispD(_rrDay)):('Planillas de '+monthLbl);
+  const listH='<div class="rr2-list"><div class="rr2-lhead"><div class="rr2-lttl">'+lttl+'<span class="rr2-count">'+groups.length+'</span></div>'+(_rrDay?'<button class="rr2-vermes" data-rrvermes type="button">'+CAL_ICO_RR+' Ver el mes</button>':'')+'</div>'+
+    '<div class="rr2-toolbar">'+search+segFilter+'</div>'+
+    '<div class="rr2-rows">'+rows+'</div></div>';
+
+  host.innerHTML='<div class="cf-hd"><h2><img src="logo-alas-s.a.png">Reporte de Repartos</h2><span class="cf-count">'+groups.length+'</span></div><div class="rr2">'+calH+listH+'</div>';
+
+  // Desglose de una planilla (líneas)
+  function bdHTML(g){
+    const rowsH=g.lines.map((cl,i)=>{const seg=cl.seg||'local';const cam=(seg==='transportadora')?((+cl.cant||0)+' camión'+((+cl.cant||0)===1?'':'es')):_escp(cl.trDesc||'—');const rz=[cl.rep,cl.zona].filter(Boolean).map(_escp).join(' · ')||'—';
+      return '<tr><td class="c">'+(i+1)+'</td><td>'+_dmy(cl._fecha)+'</td><td class="rr2b-cam">'+cam+'</td><td><span class="rr2b-seg s-'+seg+'">'+seg+'</span></td><td class="rr2b-rz">'+rz+'</td><td class="r">'+_gs(_cfFleteVal(cl))+'</td></tr>';}).join('');
+    return '<div class="rr2-exp-in"><div class="rr2-exp-bar"><span>'+g.lines.length+' línea'+(g.lines.length===1?'':'s')+' · <b>'+_gs(g.flete)+'</b></span><button class="rr2-ver" type="button" data-rrver>'+LIST_ICO_RR+' Ver resumen</button></div>'+
+      '<div class="rr2-btblwrap"><table class="rr2-btbl"><thead><tr><th>#</th><th>Fecha</th><th>Camión</th><th>Segmento</th><th>Repartidor · Zona</th><th class="r">Flete</th></tr></thead><tbody>'+rowsH+'</tbody></table></div></div>';
+  }
+  function openResumen(g){const wd=g.semDesde;_rrWeek=wd;const wk=weeks.find(w=>w.desde===wd)||{desde:wd,hasta:_wkHasta(wd)};const wg=_rrGroups(wd);const full=wg.find(x=>x.ts===g.ts&&x.facturaId===g.facturaId)||wg.find(x=>x.ts===g.ts)||g;const pLbl=_dispD(clip(wk.desde))+' al '+_dispD(clip(wk.hasta));_rrOpenDetail(full,pLbl,wk);}
+
   host.querySelectorAll('[data-rrm]').forEach(b=>b.addEventListener('click',()=>_rrShiftMonth(+b.dataset.rrm)));
-  const rrToday=host.querySelector('[data-rrtoday]');if(rrToday)rrToday.addEventListener('click',()=>{const d=new Date();_rrMes=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');_rrWeek=undefined;renderReporteRepartos();});
-  host.querySelectorAll('[data-rrw]').forEach(b=>b.addEventListener('click',()=>{_rrWeek=b.dataset.rrw||null;renderReporteRepartos();}));
-  host.querySelectorAll('[data-rrseg]').forEach(b=>b.addEventListener('click',()=>{if(_rrSeg===b.dataset.rrseg)return;_rrSeg=b.dataset.rrseg;_rrTabAnim=true;renderReporteRepartos();}));
-  host.querySelectorAll('[data-rrts]').forEach(b=>b.addEventListener('click',()=>_rrOpenDetail(groups[+b.dataset.rrts],periodLbl,wkObj)));
+  const rrToday=host.querySelector('[data-rrtoday]');if(rrToday)rrToday.addEventListener('click',()=>{const d=new Date();_rrMes=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');_rrDay=null;_rrExpTs=null;renderReporteRepartos();});
+  host.querySelectorAll('[data-rrday]').forEach(c=>c.addEventListener('click',()=>{const iso=c.dataset.rrday;_rrDay=(_rrDay===iso?null:iso);_rrExpTs=null;renderReporteRepartos();}));
+  const vm=host.querySelector('[data-rrvermes]');if(vm)vm.addEventListener('click',()=>{_rrDay=null;_rrExpTs=null;renderReporteRepartos();});
+  host.querySelectorAll('[data-rrseg]').forEach(b=>b.addEventListener('click',()=>{if(_rrSeg===b.dataset.rrseg)return;_rrSeg=b.dataset.rrseg;_rrExpTs=null;renderReporteRepartos();}));
+
+  host.querySelectorAll('.rr2-row').forEach(btn=>btn.addEventListener('click',()=>{
+    const g=groups[+btn.dataset.rrts];const wrap=btn.closest('.rr2-rowwrap');const exp=wrap.querySelector('.rr2-exp');const wasOpen=wrap.classList.contains('open');
+    host.querySelectorAll('.rr2-rowwrap.open').forEach(w=>{if(w!==wrap){w.classList.remove('open');const e=w.querySelector('.rr2-exp');if(e){if(window.gsap){gsap.to(e,{height:0,opacity:0,duration:.24,ease:'power2.inOut',onComplete:()=>{e.hidden=true;e.style.height='';e.style.opacity='';e.innerHTML='';}});}else{e.hidden=true;e.innerHTML='';}}}});
+    if(wasOpen){wrap.classList.remove('open');_rrExpTs=null;if(window.gsap){gsap.to(exp,{height:0,opacity:0,duration:.28,ease:'power2.inOut',onComplete:()=>{exp.hidden=true;exp.style.height='';exp.style.opacity='';exp.innerHTML='';}});}else{exp.hidden=true;exp.innerHTML='';}return;}
+    _rrExpTs=g.ts;exp.innerHTML=bdHTML(g);exp.hidden=false;wrap.classList.add('open');
+    const ver=exp.querySelector('[data-rrver]');if(ver)ver.addEventListener('click',e=>{e.stopPropagation();openResumen(g);});
+    if(window.gsap){gsap.set(exp,{height:'auto',opacity:1});const h=exp.offsetHeight;gsap.fromTo(exp,{height:0,opacity:0},{height:h,opacity:1,duration:.4,ease:'expo.out',onComplete:()=>{exp.style.height='auto';}});gsap.from(exp.querySelectorAll('.rr2-btbl tbody tr'),{opacity:0,y:6,duration:.28,stagger:.02,ease:'power2.out',delay:.06,clearProps:'all'});}
+  }));
+
   const _si=host.querySelector('.rr-search input'),_sc=host.querySelector('.rr-search__clear');
-  if(_si){_si.addEventListener('input',()=>{_rrQ=_si.value;if(_sc)_sc.classList.toggle('show',!!_rrQ);_rrApplySearch();});}
-  if(_sc){_sc.addEventListener('click',()=>{_rrQ='';if(_si){_si.value='';_si.focus();}_sc.classList.remove('show');_rrApplySearch();});}
-  if(_rrQ)_rrApplySearch(); // aplicar la búsqueda ANTES de animar, para preservar el filtro al volver
-  if(window.gsap){
-    const gs=gsap;
-    const visCards=[].slice.call(host.querySelectorAll('.rr-card')).filter(c=>c.style.display!=='none');
-    if(_rrTabAnim){
-      // Igual que el filtro de la planilla: "pop" del tab activo + cascada de cards, sin re-animar la cabecera
-      _rrTabAnim=false;
-      const _tb=host.querySelectorAll('.rr-segtabs .rrd-tab');
-      if(_tb.length){gs.from(_tb,{opacity:0,y:-6,duration:.28,stagger:.03,ease:'power2.out',clearProps:'all'});const _at=host.querySelector('.rr-segtabs .rrd-tab.on');if(_at)gs.fromTo(_at,{scale:.88},{scale:1,duration:.44,ease:'back.out(2.6)',clearProps:'transform'});}
-      if(visCards.length)gs.from(visCards,{opacity:0,y:12,duration:.34,stagger:.018,ease:'power2.out',clearProps:'all'});
-    }else{
-      const tl=gs.timeline({defaults:{ease:'power2.out'}});
-      tl.from('#rrepHost .cf-hd',{opacity:0,y:-10,duration:.36,clearProps:'all'},0)
-        .from('#rrepHost .rr-mnav',{opacity:0,x:-8,duration:.3,clearProps:'all'},.05)
-        .from('#rrepHost .rr-chip',{opacity:0,y:-6,duration:.28,stagger:.025,clearProps:'all'},.09)
-        .from('#rrepHost .rr-search',{opacity:0,y:6,duration:.28,clearProps:'all'},.13)
-        .from('#rrepHost .rr-segtabs .rrd-tab',{opacity:0,y:-6,duration:.3,stagger:.03,clearProps:'all'},.17);
-      const _at=host.querySelector('.rr-segtabs .rrd-tab.on');if(_at)tl.fromTo(_at,{scale:.88},{scale:1,duration:.44,ease:'back.out(2.6)',clearProps:'transform'},.2);
-      if(visCards.length)tl.from(visCards,{opacity:0,y:12,duration:.34,stagger:.018,clearProps:'all'},.22);
-    }
+  function applyQ(){const q=(_rrQ||'').trim().toLowerCase();let any=false;host.querySelectorAll('.rr2-rowwrap').forEach(w=>{const m=!q||(w.dataset.search||'').indexOf(q)>=0;w.style.display=m?'':'none';if(m)any=true;});const nr=host.querySelector('.rr2-noresults');if(nr)nr.style.display=(!any&&q)?'':'none';}
+  if(_si)_si.addEventListener('input',()=>{_rrQ=_si.value;if(_sc)_sc.classList.toggle('show',!!_rrQ);applyQ();});
+  if(_sc)_sc.addEventListener('click',()=>{_rrQ='';if(_si){_si.value='';_si.focus();}_sc.classList.remove('show');applyQ();});
+  if(_rrQ)applyQ();
+
+  if(window.gsap){const gs=gsap;const tl=gs.timeline({defaults:{ease:'power2.out'}});
+    tl.from('#rrepHost .cf-hd',{opacity:0,y:-8,duration:.32,clearProps:'all'},0)
+      .from('#rrepHost .rr2-cal',{opacity:0,x:-10,duration:.4,clearProps:'all'},.05)
+      .from('#rrepHost .rrcal-cell',{opacity:0,scale:.85,duration:.28,stagger:.004,clearProps:'all'},.12)
+      .from('#rrepHost .rr2-list',{opacity:0,x:10,duration:.4,clearProps:'all'},.08)
+      .from('#rrepHost .rr2-rowwrap',{opacity:0,y:10,duration:.3,stagger:.03,clearProps:'all'},.2);
   }
 }
 function _rrOpenDetail(g,periodLbl,wkObj){
