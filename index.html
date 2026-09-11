@@ -4958,9 +4958,9 @@ function showSaveAnim(text){
   #viewRrep.stage{padding:12px 16px;overflow:hidden}
   #rrepHost.rr-ci{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;gap:12px}
   .rr-ci .rr-topbar{flex-shrink:0;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:14px}
-  .rr-ci .rr-brand{display:flex;align-items:center;gap:10px;min-width:0;justify-self:start}
-  .rr-ci .rr-brand img{height:34px;object-fit:contain;flex-shrink:0}
-  .rr-ci .rr-brand__t{font-family:'Sora','Inter',sans-serif;font-weight:800;font-size:18px;line-height:1.1;color:var(--ci-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rr-ci .rr-brand{display:flex;align-items:center;gap:11px;min-width:0;justify-self:start;height:44px}
+  .rr-ci .rr-brand img{height:34px;width:auto;object-fit:contain;flex-shrink:0;display:block}
+  .rr-ci .rr-brand__t{display:flex;align-items:center;font-family:'Sora','Inter',sans-serif;font-weight:800;font-size:18px;line-height:1;color:var(--ci-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .rr-ci .ci-body{flex:1 1 auto;min-height:0;display:grid;grid-template-columns:minmax(0,1.38fr) minmax(0,1fr);gap:14px;align-items:stretch}
   /* Control segmentado (segmentos) — estilo depósitos de Inventario, compacto y centrado */
   .rr-ci .ci-seg{display:flex;align-items:stretch;border:1px solid var(--ci-border-2);border-radius:16px;overflow:hidden;background:#fff;box-shadow:0 2px 12px rgba(15,36,64,.07);width:auto;justify-self:center}
@@ -7138,6 +7138,7 @@ let _rrQ='';           // buscador general (transportista o camión)
 let _rrDay=null;       // día seleccionado en el calendario (ISO) o null = todo el mes
 let _rrExpTs=null;     // transportista con el desglose desplegado en la lista
 let _rrFac='todos';    // filtro de estado de factura: todos | realizado (facturado) | programado (pendiente)
+let _rrSegAnim=false;  // true = el re-render viene de tocar un segmento (dispara animación especial del control)
 // Repartos por día del mes en vista (respeta el filtro de segmento) → para pintar el calendario.
 function _rrCountByDay(){
   const map={};
@@ -7255,7 +7256,7 @@ function renderReporteRepartos(){
     box:'<svg fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5zM3 8v8l9 5 9-5V8"/></svg>',
     grid:'<svg fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>',
     home:'<svg fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>',
-    wrench:'<svg fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 01-5.4 5.4L4 17v3h3l5.3-5.3a4 4 0 015.4-5.4l-2.5 2.5-2-2 2.5-2.5z"/></svg>',
+    wrench:'<svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.2 5.2l2.1 2.1M16.7 16.7l2.1 2.1M18.8 5.2l-2.1 2.1M7.3 16.7l-2.1 2.1"/></svg>',
     building:'<svg fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M6 21V5a1 1 0 011-1h6a1 1 0 011 1v16"/><path d="M14 21V9h4a1 1 0 011 1v11"/><path d="M9 8h1M9 12h1M9 16h1"/></svg>',
     chevronD:'<svg fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>',
     chevronL:'<svg fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>',
@@ -7369,7 +7370,7 @@ function renderReporteRepartos(){
   function openResumen(g){const wd=g.semDesde;_rrWeek=wd;const wk=weeks.find(w=>w.desde===wd)||{desde:wd,hasta:_wkHasta(wd)};const wg=_rrGroups(wd);const full=wg.find(x=>x.ts===g.ts&&x.facturaId===g.facturaId)||wg.find(x=>x.ts===g.ts)||g;const pLbl=_dispD(clip(wk.desde))+' al '+_dispD(clip(wk.hasta));_rrOpenDetail(full,pLbl,wk);}
 
   // Segmentos (control superior)
-  host.querySelectorAll('[data-rrseg]').forEach(b=>b.addEventListener('click',()=>{if(_rrSeg===b.dataset.rrseg)return;_rrSeg=b.dataset.rrseg;renderReporteRepartos();}));
+  host.querySelectorAll('[data-rrseg]').forEach(b=>b.addEventListener('click',()=>{if(_rrSeg===b.dataset.rrseg)return;_rrSeg=b.dataset.rrseg;_rrSegAnim=true;renderReporteRepartos();}));
   // Navegación
   host.querySelectorAll('[data-rrm]').forEach(b=>b.addEventListener('click',()=>_rrShiftMonth(+b.dataset.rrm)));
   const rrToday=host.querySelector('[data-rrtoday]');if(rrToday)rrToday.addEventListener('click',()=>{const d=new Date();_rrMes=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');_rrDay=null;_rrWeek=null;renderReporteRepartos();});
@@ -7410,12 +7411,29 @@ function renderReporteRepartos(){
   if(si)si.addEventListener('input',()=>{_rrQ=si.value;applyQ();});
   if(_rrQ)applyQ();
 
-  // Animación de entrada
+  // Animación
   if(window.gsap){const gs=gsap;
-    gs.from(host.querySelectorAll('.ci-seg__btn'),{opacity:0,y:-6,duration:.3,stagger:.03,ease:'power2.out',clearProps:'all'});
-    gs.from(host.querySelectorAll('.ci-wrow'),{opacity:0,y:6,duration:.3,stagger:.03,ease:'power2.out',clearProps:'all',delay:.05});
-    gs.from(host.querySelectorAll('.ci-rowwrap'),{opacity:0,y:8,duration:.32,stagger:.03,ease:'power2.out',clearProps:'all',delay:.1});
-    gs.from(host.querySelectorAll('.ci-phead'),{opacity:0,y:-8,duration:.34,stagger:.06,ease:'power2.out',clearProps:'all'});
+    const tb=host.querySelectorAll('.ci-seg__btn');
+    const at=host.querySelector('.ci-seg__btn.on');
+    const atN=at?at.querySelector('.ci-seg__n'):null;
+    if(_rrSegAnim){
+      // Cambio de segmento: sólo se re-anima el control (pop del activo + rebote de su número) y la lista
+      _rrSegAnim=false;
+      gs.fromTo(tb,{opacity:.35,scale:.94},{opacity:1,scale:1,duration:.34,stagger:.035,ease:'power3.out',clearProps:'all'});
+      if(at)gs.fromTo(at,{scale:.82,y:-3},{scale:1,y:0,duration:.5,ease:'back.out(3)',clearProps:'transform'});
+      if(atN)gs.fromTo(atN,{scale:.4,opacity:0},{scale:1,opacity:1,duration:.55,ease:'back.out(3.2)',delay:.06,clearProps:'all'});
+      gs.from(host.querySelectorAll('.ci-rowwrap'),{opacity:0,y:10,duration:.34,stagger:.025,ease:'power2.out',clearProps:'all',delay:.05});
+      gs.from(host.querySelectorAll('.ci-ev'),{opacity:0,scale:.9,duration:.26,stagger:.006,ease:'power2.out',clearProps:'all'});
+    }else{
+      const tl=gs.timeline({defaults:{ease:'power3.out'}});
+      tl.from(host.querySelectorAll('.rr-brand'),{opacity:0,x:-14,duration:.42,clearProps:'all'},0)
+        .from(tb,{opacity:0,y:-12,scale:.9,duration:.42,stagger:.055,ease:'back.out(1.9)',clearProps:'all'},.06)
+        .from(host.querySelectorAll('.ci-phead'),{opacity:0,y:-8,duration:.4,stagger:.08,clearProps:'all'},.14)
+        .from(host.querySelectorAll('.ci-wrow'),{opacity:0,y:8,duration:.34,stagger:.035,clearProps:'all'},.2)
+        .from(host.querySelectorAll('.ci-rowwrap'),{opacity:0,y:10,duration:.36,stagger:.035,clearProps:'all'},.26);
+      if(at)tl.fromTo(at,{scale:.84},{scale:1,duration:.5,ease:'back.out(2.8)',clearProps:'transform'},.3);
+      if(atN)tl.fromTo(atN,{scale:.4,opacity:0},{scale:1,opacity:1,duration:.5,ease:'back.out(3)',clearProps:'all'},.34);
+    }
   }
 }
 function _rrOpenDetail(g,periodLbl,wkObj){
