@@ -4955,7 +4955,22 @@ function showSaveAnim(text){
     --ci-prog:#2a78d6;--ci-proc:#eab308;--ci-real:#16a34a;--ci-pend:#ef4444;
     font-family:'Inter',system-ui,sans-serif;color:var(--ci-text)}
   .rr-ci *{box-sizing:border-box}
-  .rr-ci .ci-body{display:grid;grid-template-columns:minmax(0,1.38fr) minmax(0,1fr);gap:14px;align-items:stretch}
+  #viewRrep.stage{padding:12px 16px;overflow:hidden}
+  #rrepHost.rr-ci{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;gap:12px}
+  .rr-ci .rr-topbar{flex-shrink:0}
+  .rr-ci .ci-body{flex:1 1 auto;min-height:0;display:grid;grid-template-columns:minmax(0,1.38fr) minmax(0,1fr);gap:14px;align-items:stretch}
+  /* Control segmentado (segmentos) — estilo depósitos de Inventario */
+  .rr-ci .ci-seg{display:flex;align-items:stretch;border:1px solid var(--ci-border-2);border-radius:16px;overflow:hidden;background:#fff;box-shadow:0 2px 12px rgba(15,36,64,.07);width:100%}
+  .rr-ci .ci-seg__btn{flex:1;display:flex;align-items:center;justify-content:center;gap:10px;padding:9px 14px;border:0;border-left:1px solid var(--ci-border);background:transparent;cursor:pointer;transition:background .2s;color:var(--ci-text-2)}
+  .rr-ci .ci-seg__btn:first-child{border-left:0}
+  .rr-ci .ci-seg__btn:hover:not(.on){background:#f1f6fb}
+  .rr-ci .ci-seg__btn.on{background:linear-gradient(135deg,#1478b8,var(--ci-primary-2));color:#fff}
+  .rr-ci .ci-seg__btn.on .ci-seg__ic,.rr-ci .ci-seg__btn.on .ci-seg__n,.rr-ci .ci-seg__btn.on .ci-seg__lbl{color:#fff}
+  .rr-ci .ci-seg__ic{width:22px;height:22px;color:var(--ci-muted);flex-shrink:0;display:grid;place-items:center}
+  .rr-ci .ci-seg__ic svg{width:22px;height:22px}
+  .rr-ci .ci-seg__col{display:flex;flex-direction:column;align-items:center;line-height:1;min-width:0}
+  .rr-ci .ci-seg__lbl{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--ci-muted);white-space:nowrap}
+  .rr-ci .ci-seg__n{font-size:19px;font-weight:800;margin-top:3px;color:var(--ci-text)}
   .rr-ci .ci-panel{background:var(--ci-surface);border:1px solid var(--ci-border);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;min-height:0;box-shadow:0 1px 10px rgba(15,36,64,.05)}
   /* Header azul de panel */
   .rr-ci .ci-phead{flex-shrink:0;display:flex;align-items:center;gap:10px;padding:11px 16px;color:#fff;background:linear-gradient(90deg,#1478b8,var(--ci-primary-2));box-shadow:0 2px 10px rgba(8,119,175,.22)}
@@ -4971,10 +4986,19 @@ function showSaveAnim(text){
   .rr-ci .ci-phead__meta .s{font-size:11px;font-weight:600;color:rgba(255,255,255,.78)}
   /* Calendario */
   .rr-ci .ci-cal{flex:1;min-height:0;display:flex;flex-direction:column;padding:12px}
-  .rr-ci .ci-dow{flex-shrink:0;display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:6px;background:var(--ci-primary-soft);border-radius:10px;padding:6px 0}
+  .rr-ci .ci-dow{flex-shrink:0;display:grid;grid-template-columns:46px repeat(7,1fr);gap:6px;margin-bottom:6px;background:var(--ci-primary-soft);border-radius:10px;padding:6px 0}
   .rr-ci .ci-dow span{text-align:center;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:rgba(8,119,175,.75)}
-  .rr-ci .ci-grid{flex:1;min-height:0;display:grid;grid-template-columns:repeat(7,1fr);grid-auto-rows:1fr;gap:6px}
-  .rr-ci .ci-cell{position:relative;display:flex;flex-direction:column;min-height:92px;border:1px solid var(--ci-border);border-radius:11px;padding:6px;background:var(--ci-surface);cursor:pointer;overflow:hidden;transition:border-color .15s,box-shadow .15s,transform .15s}
+  .rr-ci .ci-grid{flex:1;min-height:0;display:flex;flex-direction:column;gap:6px}
+  .rr-ci .ci-wrow{display:grid;grid-template-columns:46px 1fr;gap:6px;flex:1 1 0;min-height:0}
+  .rr-ci .ci-week7{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;min-height:0}
+  /* Selector de semana */
+  .rr-ci .ci-wsel{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border:1px solid var(--ci-border);border-radius:11px;background:linear-gradient(180deg,#fff,#f6faff);color:var(--ci-muted);cursor:pointer;padding:4px 2px;transition:border-color .15s,background .15s,color .15s,box-shadow .15s}
+  .rr-ci .ci-wsel:hover{border-color:var(--ci-primary);color:var(--ci-primary);background:var(--ci-primary-soft)}
+  .rr-ci .ci-wsel__ic{width:16px;height:16px} .rr-ci .ci-wsel__ic svg{width:16px;height:16px}
+  .rr-ci .ci-wsel__n{font-size:11px;font-weight:800;letter-spacing:.2px}
+  .rr-ci .ci-wrow.sel .ci-wsel{background:linear-gradient(135deg,#1478b8,var(--ci-primary-2));color:#fff;border-color:transparent;box-shadow:0 6px 14px rgba(8,119,175,.3)}
+  .rr-ci .ci-wrow.sel .ci-cell:not(.out){border-color:rgba(8,119,175,.4);background:#f2f9ff}
+  .rr-ci .ci-cell{position:relative;display:flex;flex-direction:column;min-height:58px;border:1px solid var(--ci-border);border-radius:11px;padding:6px;background:var(--ci-surface);cursor:pointer;overflow:hidden;transition:border-color .15s,box-shadow .15s,transform .15s}
   .rr-ci .ci-cell.wknd{background:#fafcfe}
   .rr-ci .ci-cell.out{background:#f6f8fb;border-color:transparent;pointer-events:none}
   .rr-ci .ci-cell:hover{border-color:rgba(8,119,175,.5);box-shadow:0 6px 16px rgba(8,119,175,.12)}
@@ -5016,7 +5040,7 @@ function showSaveAnim(text){
   .rr-ci .ci-resp__opt:hover{background:#f1f6fb} .rr-ci .ci-resp__opt.on{background:var(--ci-primary-soft);color:var(--ci-primary)}
   .rr-ci .ci-resp__dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
   /* Lista */
-  .rr-ci .ci-list{flex:1;min-height:0;max-height:66vh;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:10px}
+  .rr-ci .ci-list{flex:1;min-height:0;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:10px}
   .rr-ci .ci-rowwrap{border-radius:16px;transition:box-shadow .28s ease}
   .rr-ci .ci-rowwrap.open{box-shadow:0 18px 44px -12px rgba(8,119,175,.34)}
   .rr-ci .ci-row{position:relative;display:flex;align-items:center;gap:10px;border:1px solid var(--ci-border);border-radius:16px;background:#fff;padding:10px 12px 10px 10px;cursor:pointer;overflow:hidden;transition:border-color .16s,box-shadow .16s,transform .16s,border-radius .2s,background .2s}
@@ -5061,9 +5085,10 @@ function showSaveAnim(text){
   .rr-ci .ci-ver{display:inline-flex;align-items:center;gap:7px;border:0;background:linear-gradient(135deg,#1478b8,var(--ci-primary-2));color:#fff;font:inherit;font-size:12.5px;font-weight:800;padding:9px 16px;border-radius:11px;cursor:pointer;transition:filter .15s,transform .12s;box-shadow:0 4px 12px rgba(8,119,175,.28)}
   .rr-ci .ci-ver:hover{filter:brightness(1.06)} .rr-ci .ci-ver:active{transform:scale(.97)} .rr-ci .ci-ver svg{width:15px;height:15px}
   .rr-ci .ci-btbl-wrap{overflow-x:auto;border:1px solid var(--ci-border);border-radius:11px}
-  .rr-ci .ci-btbl{width:100%;border-collapse:collapse;font-size:12.5px;background:#fff}
-  .rr-ci .ci-btbl th{background:#f4f8fc;color:var(--ci-muted);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;text-align:left;padding:8px 10px;white-space:nowrap;border-bottom:1px solid var(--ci-border)}
-  .rr-ci .ci-btbl td{padding:8px 10px;border-bottom:1px solid #eef2f6;color:var(--ci-text-2);white-space:nowrap}
+  .rr-ci .ci-btbl{width:100%;border-collapse:collapse;font-size:11px;background:#fff;table-layout:fixed}
+  .rr-ci .ci-btbl th{background:#f4f8fc;color:var(--ci-muted);font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.3px;text-align:left;padding:6px 8px;white-space:nowrap;border-bottom:1px solid var(--ci-border)}
+  .rr-ci .ci-btbl td{padding:6px 8px;border-bottom:1px solid #eef2f6;color:var(--ci-text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rr-ci .ci-btbl col.col-n{width:26px} .rr-ci .ci-btbl col.col-f{width:64px} .rr-ci .ci-btbl col.col-seg{width:78px} .rr-ci .ci-btbl col.col-fl{width:82px}
   .rr-ci .ci-btbl tr:last-child td{border-bottom:0}
   .rr-ci .ci-btbl td.c{text-align:center;color:var(--ci-muted);font-weight:700} .rr-ci .ci-btbl td.r{text-align:right;font-weight:800;color:#127a4b;font-variant-numeric:tabular-nums}
   .rr-ci .ci-btbl .b-cam{font-weight:700;color:var(--ci-text)} .rr-ci .ci-btbl .b-rz{color:var(--ci-muted)}
@@ -5085,8 +5110,12 @@ function showSaveAnim(text){
   .ci-tip__st{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:800;padding:2px 9px;border-radius:99px;align-self:flex-start;margin-top:2px}
   .ci-tip__st.st-programado{background:#eef5fc;color:#0b5f8d} .ci-tip__st.st-realizado{background:#e9f7ef;color:#127a4b}
   @media(max-width:900px){
-    .rr-ci .ci-body{grid-template-columns:1fr}
-    .rr-ci .ci-list{max-height:none}
+    #viewRrep.stage{overflow-y:auto}
+    #rrepHost.rr-ci{overflow:visible}
+    .rr-ci .ci-body{grid-template-columns:1fr;min-height:auto}
+    .rr-ci .ci-list{max-height:70vh}
+    .rr-ci .ci-seg__lbl{font-size:9px}
+    .rr-ci .ci-seg__n{font-size:15px}
   }
   .cf-table tr.hc-grp td{background:#e8eef5;font-weight:800;color:var(--primary);font-size:10.5px;letter-spacing:.4px;text-transform:uppercase;padding:6px 10px}
   .cf-table tr.hc-grp--interior td{background:var(--orange-soft,#FFEDD5);color:var(--orange,#F97316)}
@@ -7209,16 +7238,18 @@ function renderReporteRepartos(){
   if(!window.__cfFac){sb.from('fact_facturas').select('*').then(r=>{window.__cfFac=r.data||[];if(document.getElementById('viewRrep').classList.contains('is-active'))renderReporteRepartos();}).catch(()=>{window.__cfFac=[];});}
   _cfResetBackfill();
   _cfMigrateLegacyPerLine();
-  // Iconos (estilo Calendario de inventarios)
   const IC={cal:'<svg fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>',
+    week:'<svg fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/><rect x="6" y="13" width="12" height="4" rx="1" fill="currentColor" stroke="none" opacity=".55"/></svg>',
     truck:'<svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="6" width="13" height="11" rx="1"/><path d="M14 9h4l3 3v5h-7z"/><circle cx="5" cy="18.5" r="1.7"/><circle cx="17.5" cy="18.5" r="1.7"/></svg>',
-    user:'<svg fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>',
     money:'<svg fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.6"/><path d="M6 12h.01M18 12h.01"/></svg>',
     box:'<svg fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5zM3 8v8l9 5 9-5V8"/></svg>',
+    grid:'<svg fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>',
+    home:'<svg fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>',
+    wrench:'<svg fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 01-5.4 5.4L4 17v3h3l5.3-5.3a4 4 0 015.4-5.4l-2.5 2.5-2-2 2.5-2.5z"/></svg>',
+    building:'<svg fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M6 21V5a1 1 0 011-1h6a1 1 0 011 1v16"/><path d="M14 21V9h4a1 1 0 011 1v11"/><path d="M9 8h1M9 12h1M9 16h1"/></svg>',
     chevronD:'<svg fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>',
     chevronL:'<svg fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>',
     chevronR:'<svg fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>',
-    grip:'<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="18" r="1"/></svg>',
     list:'<svg fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>',
     chk:'<svg fill="none" stroke="currentColor" stroke-width="2.6" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>',
     srch:'<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>'};
@@ -7231,18 +7262,27 @@ function renderReporteRepartos(){
   const clip=iso=>iso<_mFirst?_mFirst:(iso>_mLast?_mLast:iso);
   const stOf=g=>_facDeGrupo(g)?'realizado':'programado';
 
-  // Grupos del día o del mes (una planilla por transportista·semana·factura)
-  const groupsAll=_rrDay?_rrDayGroups(_rrDay):weeks.reduce((acc,w)=>acc.concat(_rrGroups(w.desde)),[]);
-  const groups=groupsAll.filter(g=>_rrFac==='todos'||stOf(g)===_rrFac);
-  // Eventos por día para el calendario (transportistas con repartos ese día)
+  // Alcance: día > semana > mes
+  let scopeGroups;
+  if(_rrDay)scopeGroups=_rrDayGroups(_rrDay);
+  else if(_rrWeek)scopeGroups=_rrGroups(_rrWeek);
+  else scopeGroups=weeks.reduce((acc,w)=>acc.concat(_rrGroups(w.desde)),[]);
+  const groups=scopeGroups.filter(g=>_rrFac==='todos'||stOf(g)===_rrFac);
+
+  // Conteo por segmento para el control superior
+  function segCount(k){const prev=_rrSeg;_rrSeg=k;const gs=weeks.reduce((acc,w)=>acc.concat(_rrGroups(w.desde)),[]);_rrSeg=prev;return gs.length;}
+  const SEGS=[['todos','Todos',IC.grid],['local','Local',IC.home],['interior','Interior',IC.truck],['servicios','Servicios',IC.wrench],['transportadora','Transportadora',IC.building]];
+  const segBar='<div class="rr-topbar"><div class="ci-seg">'+SEGS.map(s=>'<button type="button" class="ci-seg__btn'+(_rrSeg===s[0]?' on':'')+'" data-rrseg="'+s[0]+'"><span class="ci-seg__ic">'+s[2]+'</span><span class="ci-seg__col"><span class="ci-seg__lbl">'+s[1]+'</span><span class="ci-seg__n">'+segCount(s[0])+'</span></span></button>').join('')+'</div></div>';
+
+  // Eventos por día (respeta el segmento activo vía _rrDayGroups)
   const evByDay={};
   weeks.forEach(w=>{const p=w.desde.split('-').map(Number),base=new Date(p[0],p[1]-1,p[2]);for(let i=0;i<7;i++){const dd=new Date(base);dd.setDate(base.getDate()+i);const iso=_isoD(dd);if(iso.slice(0,7)!==_rrMes)continue;evByDay[iso]=_rrDayGroups(iso);}});
-  // Cache de eventos por id para el tooltip (sobre window para persistir entre renders)
   window.__rrEvMap={};
 
-  // ── Panel izquierdo: calendario ──
-  let cells='';
-  weeks.forEach(w=>{const p=w.desde.split('-').map(Number),base=new Date(p[0],p[1]-1,p[2]);
+  // ── Calendario (por filas de semana con selector) ──
+  let wrows='';
+  weeks.forEach((w,wi)=>{const p=w.desde.split('-').map(Number),base=new Date(p[0],p[1]-1,p[2]);
+    let cells='';
     for(let i=0;i<7;i++){const dd=new Date(base);dd.setDate(base.getDate()+i);const iso=_isoD(dd);const inM=iso.slice(0,7)===_rrMes;const wknd=i>=5;
       const evs=(inM?(evByDay[iso]||[]):[]).filter(g=>_rrFac==='todos'||stOf(g)===_rrFac);
       const shown=evs.slice(0,3);
@@ -7251,39 +7291,36 @@ function renderReporteRepartos(){
       cells+='<div class="ci-cell'+(inM?'':' out')+(wknd&&inM?' wknd':'')+(iso===today?' today':'')+(iso===_rrDay?' sel':'')+'" data-iso="'+iso+'">'+
         '<div class="ci-cell__top"><span class="ci-cell__d">'+dd.getDate()+'</span></div>'+
         '<div class="ci-cell__events">'+evHtml+(evs.length>shown.length?'<div class="ci-more">+'+(evs.length-shown.length)+' más</div>':'')+'</div></div>';}
+    const wc=_rrGroups(w.desde).length;
+    wrows+='<div class="ci-wrow'+(_rrWeek===w.desde&&!_rrDay?' sel':'')+'">'+
+      '<button type="button" class="ci-wsel" data-rrweek="'+w.desde+'" title="Semana '+_dispD(clip(w.desde))+' – '+_dispD(clip(w.hasta))+' · '+wc+' planilla'+(wc===1?'':'s')+'"><span class="ci-wsel__ic">'+IC.week+'</span><span class="ci-wsel__n">S'+(wi+1)+'</span></button>'+
+      '<div class="ci-week7">'+cells+'</div></div>';
   });
   const leftH='<div class="ci-panel"><div class="ci-phead"><button class="ci-phead__btn" data-rrm="-1" aria-label="Mes anterior">'+IC.chevronL+'</button>'+
       '<button class="ci-phead__btn" data-rrm="1" aria-label="Mes siguiente">'+IC.chevronR+'</button>'+
       '<span class="ci-phead__ttl">'+monthLbl+'</span>'+
       '<button class="ci-phead__hoy" data-rrtoday type="button">Hoy</button></div>'+
-    '<div class="ci-cal"><div class="ci-dow">'+DOW.map(d=>'<span>'+d+'</span>').join('')+'</div>'+
-      '<div class="ci-grid">'+cells+'</div></div></div>';
+    '<div class="ci-cal"><div class="ci-dow"><span></span>'+DOW.map(d=>'<span>'+d+'</span>').join('')+'</div>'+
+      '<div class="ci-grid">'+wrows+'</div></div></div>';
 
-  // ── Panel derecho: lista ──
-  const SEGN={local:'Local',interior:'Interior',servicios:'Servicios',transportadora:'Transportadora'};
-  const SEGDOT={local:'#38BDF8',interior:'#F97316',servicios:'#10B981',transportadora:'#7c3aed'};
+  // ── Lista ──
   const estados='<div class="ci-estados">'+
     '<button class="'+(_rrFac==='todos'?'on e-all':'')+'" data-rrfac="todos">Todos</button>'+
     '<button class="'+(_rrFac==='realizado'?'on e-realizado':'')+'" data-rrfac="realizado">Facturado</button>'+
     '<button class="'+(_rrFac==='programado'?'on e-programado':'')+'" data-rrfac="programado">Pendiente</button></div>';
-  const segLbl=_rrSeg==='todos'?'Segmento':SEGN[_rrSeg];
-  const segMenu=['todos','local','interior','servicios','transportadora'].map(k=>'<button class="ci-resp__opt'+(_rrSeg===k?' on':'')+'" data-rrseg="'+k+'">'+(k==='todos'?'<span class="ci-resp__dot" style="background:#94a3b8"></span>':'<span class="ci-resp__dot" style="background:'+SEGDOT[k]+'"></span>')+(k==='todos'?'Todos los segmentos':SEGN[k])+'</button>').join('');
-  const segDrop='<div class="ci-resp"><button class="ci-resp__btn'+(_rrSeg!=='todos'?' on':'')+'" data-rrsegbtn type="button">'+IC.box+'<span>'+_escp(segLbl)+'</span><svg class="cv" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button><div class="ci-resp__menu" hidden>'+segMenu+'</div></div>';
   const search='<div class="ci-srch">'+IC.srch+'<input type="text" placeholder="Buscar transportista o camión…" value="'+_escp(_rrQ)+'" autocomplete="off"></div>';
 
   let rowsH;
-  if(!groups.length){rowsH='<div class="ci-empty"><div class="ci-empty__ic">'+IC.truck+'</div><h4>'+(_rrDay?'Sin repartos este día':'Sin planillas este mes')+'</h4><p>Elegí otra fecha o cargá un flete en la Calculadora.</p></div>';}
+  if(!groups.length){rowsH='<div class="ci-empty"><div class="ci-empty__ic">'+IC.truck+'</div><h4>'+(_rrDay?'Sin repartos este día':(_rrWeek?'Sin planillas esta semana':'Sin planillas este mes'))+'</h4><p>Elegí otra fecha o cargá un flete en la Calculadora.</p></div>';}
   else{rowsH=groups.map((g,i)=>{const st=stOf(g);const facd=st==='realizado';
     const cam=g.lines.reduce((s,l)=>s+((l.seg||'local')==='transportadora'?(+l.cant||1):1),0);
     const bd=_rrDay?new Date(_rrDay+'T00:00:00'):new Date(clip(g.semDesde)+'T00:00:00');
     const perLbl=_rrDay?_dispD(_rrDay):(_dispD(clip(g.semDesde))+' – '+_dispD(clip(_wkHasta(g.semDesde))));
-    let flags='';flags+=facd?'<span class="ci-flag ok">'+IC.chk+'Facturado</span>':'<span class="ci-flag sob">Sin factura</span>';
+    const flags=facd?'<span class="ci-flag ok">'+IC.chk+'Facturado</span>':'<span class="ci-flag sob">Sin factura</span>';
     const sk=_escp((g.ts+' '+g.lines.map(l=>l.trDesc||'').join(' ')).toLowerCase());
     return '<div class="ci-rowwrap" data-search="'+sk+'" data-gi="'+i+'">'+
       '<div class="ci-row st-'+st+'">'+
         '<span class="ci-row__bar"></span>'+
-        '<span class="ci-row__grip">'+IC.grip+'</span>'+
-        '<span class="ci-row__n">'+(i+1)+'</span>'+
         '<div class="ci-row__date"><span class="d">'+bd.getDate()+'</span><span class="m">'+MES[bd.getMonth()].slice(0,3)+'</span></div>'+
         '<div class="ci-row__main"><div class="ci-row__ttl">'+_escp(g.ts)+'<span class="ci-row__flags">'+flags+'</span></div>'+
           '<div class="ci-row__meta">'+
@@ -7298,39 +7335,42 @@ function renderReporteRepartos(){
     '</div>';
   }).join('')+'<div class="ci-empty" data-noresults hidden><div class="ci-empty__ic">'+IC.srch+'</div><h4>Sin resultados</h4><p>Probá con otro transportista o camión.</p></div>';}
 
-  const rttl=_rrDay?('Repartos del '+_dispD(_rrDay)):('Repartos de '+monthLbl);
-  const rsub=groups.length+' planilla'+(groups.length===1?'':'s')+(_rrDay?'':' · '+MES[a[1]-1]);
+  let rttl,rsub;
+  if(_rrDay){rttl='Repartos del '+_dispD(_rrDay);rsub=groups.length+' planilla'+(groups.length===1?'':'s');}
+  else if(_rrWeek){rttl='Semana '+_dispD(clip(_rrWeek))+' – '+_dispD(clip(_wkHasta(_rrWeek)));rsub=groups.length+' planilla'+(groups.length===1?'':'s');}
+  else{rttl='Repartos de '+monthLbl;rsub=groups.length+' planilla'+(groups.length===1?'':'s')+' · '+MES[a[1]-1];}
   const rightH='<div class="ci-panel"><div class="ci-phead"><div class="ci-phead__ico">'+IC.truck+'</div>'+
       '<div class="ci-phead__meta"><div class="t">'+rttl+'</div><div class="s">'+rsub+'</div></div>'+
-      (_rrDay?'<button class="ci-phead__hoy" data-rrvermes type="button">Ver el mes</button>':'')+'</div>'+
-    '<div class="ci-filters">'+search+estados+segDrop+'</div>'+
+      ((_rrDay||_rrWeek)?'<button class="ci-phead__hoy" data-rrvermes type="button">Ver el mes</button>':'')+'</div>'+
+    '<div class="ci-filters">'+search+estados+'</div>'+
     '<div class="ci-list">'+rowsH+'</div></div>';
 
   host.className='cf-host rr-ci';
-  host.innerHTML='<div class="ci-body">'+leftH+rightH+'</div>';
+  host.innerHTML=segBar+'<div class="ci-body">'+leftH+rightH+'</div>';
 
-  // ── Desglose (acordeón) ──
+  // Desglose
   function bdHTML(g){
     const rows=g.lines.map((cl,i)=>{const seg=cl.seg||'local';const cam=(seg==='transportadora')?((+cl.cant||0)+' camión'+((+cl.cant||0)===1?'':'es')):_escp(cl.trDesc||'—');const rz=[cl.rep,cl.zona].filter(Boolean).map(_escp).join(' · ')||'—';
       return '<tr><td class="c">'+(i+1)+'</td><td>'+_dmy(cl._fecha)+'</td><td class="b-cam">'+cam+'</td><td><span class="b-seg s-'+seg+'">'+seg+'</span></td><td class="b-rz">'+rz+'</td><td class="r">'+_gs(_cfFleteVal(cl))+'</td></tr>';}).join('');
     return '<div class="ci-exp-in"><div class="ci-exp-bar"><span>'+g.lines.length+' línea'+(g.lines.length===1?'':'s')+' · <b>'+_gs(g.flete)+'</b> de flete</span><button class="ci-ver" type="button" data-rrver>'+IC.list+' Ver resumen</button></div>'+
-      '<div class="ci-btbl-wrap"><table class="ci-btbl"><thead><tr><th>#</th><th>Fecha</th><th>Camión</th><th>Segmento</th><th>Repartidor · Zona</th><th class="r">Flete</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
+      '<div class="ci-btbl-wrap"><table class="ci-btbl"><colgroup><col class="col-n"><col class="col-f"><col><col class="col-seg"><col><col class="col-fl"></colgroup><thead><tr><th>#</th><th>Fecha</th><th>Camión</th><th>Segmento</th><th>Repartidor · Zona</th><th class="r">Flete</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
   }
   function openResumen(g){const wd=g.semDesde;_rrWeek=wd;const wk=weeks.find(w=>w.desde===wd)||{desde:wd,hasta:_wkHasta(wd)};const wg=_rrGroups(wd);const full=wg.find(x=>x.ts===g.ts&&x.facturaId===g.facturaId)||wg.find(x=>x.ts===g.ts)||g;const pLbl=_dispD(clip(wk.desde))+' al '+_dispD(clip(wk.hasta));_rrOpenDetail(full,pLbl,wk);}
 
-  // Navegación / filtros
+  // Segmentos (control superior)
+  host.querySelectorAll('[data-rrseg]').forEach(b=>b.addEventListener('click',()=>{if(_rrSeg===b.dataset.rrseg)return;_rrSeg=b.dataset.rrseg;renderReporteRepartos();}));
+  // Navegación
   host.querySelectorAll('[data-rrm]').forEach(b=>b.addEventListener('click',()=>_rrShiftMonth(+b.dataset.rrm)));
-  const rrToday=host.querySelector('[data-rrtoday]');if(rrToday)rrToday.addEventListener('click',()=>{const d=new Date();_rrMes=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');_rrDay=null;renderReporteRepartos();});
-  const vm=host.querySelector('[data-rrvermes]');if(vm)vm.addEventListener('click',()=>{_rrDay=null;renderReporteRepartos();});
-  host.querySelectorAll('.ci-cell[data-iso]').forEach(c=>c.addEventListener('click',()=>{const iso=c.dataset.iso;_rrDay=(_rrDay===iso?null:iso);renderReporteRepartos();}));
+  const rrToday=host.querySelector('[data-rrtoday]');if(rrToday)rrToday.addEventListener('click',()=>{const d=new Date();_rrMes=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');_rrDay=null;_rrWeek=null;renderReporteRepartos();});
+  const vm=host.querySelector('[data-rrvermes]');if(vm)vm.addEventListener('click',()=>{_rrDay=null;_rrWeek=null;renderReporteRepartos();});
+  // Selección semanal
+  host.querySelectorAll('[data-rrweek]').forEach(b=>b.addEventListener('click',()=>{const wd=b.dataset.rrweek;_rrWeek=(_rrWeek===wd&&!_rrDay)?null:wd;_rrDay=null;renderReporteRepartos();}));
+  // Selección de día
+  host.querySelectorAll('.ci-cell[data-iso]').forEach(c=>c.addEventListener('click',()=>{const iso=c.dataset.iso;_rrDay=(_rrDay===iso?null:iso);_rrWeek=null;renderReporteRepartos();}));
+  // Filtro de factura
   host.querySelectorAll('[data-rrfac]').forEach(b=>b.addEventListener('click',()=>{if(_rrFac===b.dataset.rrfac)return;_rrFac=b.dataset.rrfac;renderReporteRepartos();}));
-  // Dropdown segmento
-  const segBtn=host.querySelector('[data-rrsegbtn]'),segWrap=segBtn?segBtn.closest('.ci-resp'):null,segMn=segWrap?segWrap.querySelector('.ci-resp__menu'):null;
-  if(segBtn&&segMn){segBtn.addEventListener('click',e=>{e.stopPropagation();const op=segWrap.classList.toggle('open');segMn.hidden=!op;});
-    document.addEventListener('click',function _cl(ev){if(!segWrap.contains(ev.target)){segWrap.classList.remove('open');segMn.hidden=true;}});
-    segMn.querySelectorAll('[data-rrseg]').forEach(o=>o.addEventListener('click',()=>{_rrSeg=o.dataset.rrseg;renderReporteRepartos();}));}
 
-  // Tooltip del calendario (hover sobre evento)
+  // Tooltip del calendario
   let tipEl=null;
   function hideTip(){if(!tipEl)return;const t=tipEl;tipEl=null;if(window.gsap)gsap.to(t,{opacity:0,duration:.12,ease:'power2.in',onComplete:()=>t.remove()});else t.remove();}
   function showTip(id,rect){const x=window.__rrEvMap[id];if(!x)return;hideTip();tipEl=document.createElement('div');tipEl.className='ci-tip';
@@ -7341,7 +7381,7 @@ function renderReporteRepartos(){
     document.body.appendChild(tipEl);const W=250,left=Math.max(8,Math.min(rect.left+rect.width/2-W/2,window.innerWidth-W-8));const below=rect.top<240;tipEl.style.left=left+'px';if(below)tipEl.style.top=(rect.bottom+8)+'px';else tipEl.style.bottom=(window.innerHeight-rect.top+8)+'px';
     if(window.gsap)gsap.fromTo(tipEl,{opacity:0,y:6,scale:.98},{opacity:1,y:0,scale:1,duration:.18,ease:'power2.out'});}
   host.querySelectorAll('.ci-ev[data-ev]').forEach(ev=>{ev.addEventListener('mouseenter',()=>showTip(ev.dataset.ev,ev.getBoundingClientRect()));ev.addEventListener('mouseleave',hideTip);
-    ev.addEventListener('click',e=>{e.stopPropagation();const iso=(ev.dataset.ev||'').split('|')[0];_rrDay=(_rrDay===iso?null:iso);hideTip();renderReporteRepartos();});});
+    ev.addEventListener('click',e=>{e.stopPropagation();const iso=(ev.dataset.ev||'').split('|')[0];_rrDay=(_rrDay===iso?null:iso);_rrWeek=null;hideTip();renderReporteRepartos();});});
 
   // Acordeón de filas
   host.querySelectorAll('.ci-rowwrap').forEach(wrap=>{const row=wrap.querySelector('.ci-row');if(!row)return;
@@ -7355,14 +7395,15 @@ function renderReporteRepartos(){
 
   // Buscador
   const si=host.querySelector('.ci-srch input');
-  function applyQ(){const q=(_rrQ||'').trim().toLowerCase();let any=false;host.querySelectorAll('.ci-rowwrap').forEach(w=>{const m=!q||(w.dataset.search||'').indexOf(q)>=0;w.style.display=m?'':'none';if(m)any=true;});const nr=host.querySelector('[data-noresults]');if(nr)nr.hidden=!( !any&&q);}
+  function applyQ(){const q=(_rrQ||'').trim().toLowerCase();let any=false;host.querySelectorAll('.ci-rowwrap').forEach(w=>{const m=!q||(w.dataset.search||'').indexOf(q)>=0;w.style.display=m?'':'none';if(m)any=true;});const nr=host.querySelector('[data-noresults]');if(nr)nr.hidden=!(!any&&q);}
   if(si)si.addEventListener('input',()=>{_rrQ=si.value;applyQ();});
   if(_rrQ)applyQ();
 
   // Animación de entrada
   if(window.gsap){const gs=gsap;
-    gs.from(host.querySelectorAll('.ci-cell'),{opacity:0,scale:.94,y:6,duration:.3,stagger:.004,ease:'power2.out',clearProps:'all'});
-    gs.from(host.querySelectorAll('.ci-rowwrap'),{opacity:0,y:8,duration:.32,stagger:.03,ease:'power2.out',clearProps:'all',delay:.08});
+    gs.from(host.querySelectorAll('.ci-seg__btn'),{opacity:0,y:-6,duration:.3,stagger:.03,ease:'power2.out',clearProps:'all'});
+    gs.from(host.querySelectorAll('.ci-wrow'),{opacity:0,y:6,duration:.3,stagger:.03,ease:'power2.out',clearProps:'all',delay:.05});
+    gs.from(host.querySelectorAll('.ci-rowwrap'),{opacity:0,y:8,duration:.32,stagger:.03,ease:'power2.out',clearProps:'all',delay:.1});
     gs.from(host.querySelectorAll('.ci-phead'),{opacity:0,y:-8,duration:.34,stagger:.06,ease:'power2.out',clearProps:'all'});
   }
 }
