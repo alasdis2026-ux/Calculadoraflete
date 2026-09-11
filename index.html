@@ -6692,7 +6692,10 @@ async function renderFacturas(){
   let facs=[];try{const res=await sb.from('fact_facturas').select('*').order('id',{ascending:false});facs=res.data||[];}catch(e){console.error('[facturas]',e);}
   window.__cfFac=facs;
   const weeks=_weeksOfMonth(_facMes);
-  const shown=facs.filter(f=>{const sd=_facSem(f);if(!sd)return false;return _facWeek?sd===_facWeek:sd.slice(0,7)===_facMes;});
+  // "Mes completo" = cualquier semana del mes en vista (incluye la semana que arranca el mes anterior,
+  // ej. 31/08–06/09 cuenta en septiembre), igual que los chips de semana. Evita que desaparezcan facturas.
+  var _wkSet={}; weeks.forEach(function(w){ _wkSet[w.desde]=1; });
+  const shown=facs.filter(f=>{const sd=_facSem(f);if(!sd)return false;return _facWeek?sd===_facWeek:!!_wkSet[sd];});
   shown.forEach(f=>{const ts=f.transportadora_nombre||'',sd=_facSem(f);let fl=_fleteDeFactura(f.id);if(fl==null)fl=(ts&&sd)?_fleteDe(ts,sd):0;f._flete=fl;f._sd=sd;f._st=(ts&&sd)?(Math.round(+f.monto||0)===Math.round(fl)?'ok':'diff'):'sin';});
   const totalFact=shown.reduce((s,f)=>s+(+f.monto||0),0),nOk=shown.filter(f=>f._st==='ok').length,nDiff=shown.filter(f=>f._st==='diff').length;
   function kpi(cls,l,v,s){return '<div class="cf-kpi '+cls+'"><div><div class="cf-kpi__l">'+l+'</div><div class="cf-kpi__v">'+v+'</div><div class="cf-kpi__s">'+s+'</div></div></div>';}
@@ -6912,7 +6915,7 @@ function _cfOpenFacturaModal(existing,preset){
     const row={nro:nro,fecha:fecha,monto:monto,transportadora_nombre:sel.ts,semana_desde:sel.semDesde,semana_hasta:sel.semHasta};
     let _newFacId=null;
     try{
-      if(editing){const up=await sb.from('fact_facturas').update(row).eq('id',existing.id).select('id');if(up.error)throw up.error;if(!up.data||!up.data.length){showToast('No pude actualizar la factura (no se encontró o sin permisos).');if(okB){okB.disabled=false;okB.classList.remove('is-loading');okB.textContent=okTxt;}return;}m.close();try{_cfCheckBurst('Registrado',true);}catch(_){}}
+      if(editing){const up=await Promise.race([sb.from('fact_facturas').update(row).eq('id',existing.id).select('id'),new Promise(function(_,rej){setTimeout(function(){rej(new Error('La base no respondió (timeout)'));},9000);})]);if(up.error)throw up.error;if(!up.data||!up.data.length){showToast('No pude actualizar la factura (no se encontró o sin permisos).');if(okB){okB.disabled=false;okB.classList.remove('is-loading');okB.textContent=okTxt;}return;}m.close();try{_cfCheckBurst('Registrado',true);}catch(_){}}
       else{const ins=await sb.from('fact_facturas').insert(row).select('id').single();if(ins.error)throw ins.error;const facId=ins.data&&ins.data.id;_newFacId=facId;if(repsList&&facId!=null){const _aff=new Set();for(const rp of repsList){if(!repSel.has(rp.id))continue;if(rp.cl){rp.cl.factura_id=facId;if(rp.repId!=null)_aff.add(rp.repId);}else{try{await dbSetRepartoFactura(rp.id,facId);const rr=repartos.find(x=>x.id===rp.id);if(rr)rr.factura_id=facId;}catch(_){}}}for(const rid of _aff){const rr=repartos.find(x=>x.id===rid);if(rr){try{await dbUpdateClientes(rid,rr.clientes);}catch(_){}}}}else if(facId!=null&&sel){await _claimLineasFactura(sel.ts,sel.semDesde,facId);}m.close();_cfCheckBurst('Registrado',true);}
       // Recarga facturas para refrescar chips/estado antes de volver a la vista.
       try{const fr=await sb.from('fact_facturas').select('*');window.__cfFac=fr.data||[];}catch(_){window.__cfFac=null;}
@@ -6920,7 +6923,7 @@ function _cfOpenFacturaModal(existing,preset){
       if(repsList){if(preset&&typeof preset.onRegistered==='function')preset.onRegistered(_newFacId);else renderReporteRepartos();}
       else if(locked&&preset&&typeof preset.onBack==='function'){preset.onBack();} // volver a la MISMA planilla, listo para imprimir
       else{const _rrep=document.getElementById('viewRrep');if(_rrep&&_rrep.classList.contains('is-active'))renderReporteRepartos(); else renderFacturas();}
-    }catch(e){console.error(e);showToast('Uy, no pude guardar la factura. Probá de nuevo.');if(okB){okB.disabled=false;okB.classList.remove('is-loading');okB.textContent=okTxt;}}
+    }catch(e){console.error('[factura guardar]',e);showToast('No pude guardar la factura'+((e&&e.message)?': '+e.message:'. Probá de nuevo.'));if(okB){okB.disabled=false;okB.classList.remove('is-loading');okB.textContent=okTxt;}}
   });
 }
 
