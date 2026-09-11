@@ -5082,20 +5082,21 @@ function showSaveAnim(text){
   .rr-ci .ci-rowwrap.open .ci-row__chev{transform:rotate(180deg);color:#fff;background:linear-gradient(135deg,#1478b8,var(--ci-primary-2))}
   /* Acordeón */
   .rr-ci .ci-row-exp{overflow:hidden;border:1px solid rgba(8,119,175,.45);border-top:none;border-bottom-left-radius:16px;border-bottom-right-radius:16px;background:linear-gradient(180deg,#f7fbff,#fff)}
-  .rr-ci .ci-exp-in{padding:14px 15px 15px}
+  .rr-ci .ci-exp-in{padding:12px 12px 13px}
   .rr-ci .ci-exp-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
   .rr-ci .ci-exp-bar span{font-size:13px;font-weight:600;color:var(--ci-text-2)} .rr-ci .ci-exp-bar b{color:#127a4b;font-weight:800}
   .rr-ci .ci-ver{display:inline-flex;align-items:center;gap:7px;border:0;background:linear-gradient(135deg,#1478b8,var(--ci-primary-2));color:#fff;font:inherit;font-size:12.5px;font-weight:800;padding:9px 16px;border-radius:11px;cursor:pointer;transition:filter .15s,transform .12s;box-shadow:0 4px 12px rgba(8,119,175,.28)}
   .rr-ci .ci-ver:hover{filter:brightness(1.06)} .rr-ci .ci-ver:active{transform:scale(.97)} .rr-ci .ci-ver svg{width:15px;height:15px}
   .rr-ci .ci-btbl-wrap{overflow-x:auto;border:1px solid var(--ci-border);border-radius:11px}
-  .rr-ci .ci-btbl{width:100%;border-collapse:collapse;font-size:11px;background:#fff;table-layout:fixed}
-  .rr-ci .ci-btbl th{background:#f4f8fc;color:var(--ci-muted);font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.3px;text-align:left;padding:6px 8px;white-space:nowrap;border-bottom:1px solid var(--ci-border)}
-  .rr-ci .ci-btbl td{padding:6px 8px;border-bottom:1px solid #eef2f6;color:var(--ci-text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .rr-ci .ci-btbl col.col-n{width:26px} .rr-ci .ci-btbl col.col-f{width:64px} .rr-ci .ci-btbl col.col-seg{width:78px} .rr-ci .ci-btbl col.col-fl{width:82px}
+  .rr-ci .ci-btbl{width:100%;border-collapse:collapse;font-size:10px;background:#fff;table-layout:fixed}
+  .rr-ci .ci-btbl th{background:#f4f8fc;color:var(--ci-muted);font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.2px;text-align:left;padding:4px 6px;white-space:nowrap;border-bottom:1px solid var(--ci-border)}
+  .rr-ci .ci-btbl td{padding:4px 6px;border-bottom:1px solid #eef2f6;color:var(--ci-text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rr-ci .ci-btbl td.c,.rr-ci .ci-btbl td.b-fecha,.rr-ci .ci-btbl td.r{overflow:visible;text-overflow:clip}
+  .rr-ci .ci-btbl col.col-n{width:20px} .rr-ci .ci-btbl col.col-f{width:54px} .rr-ci .ci-btbl col.col-seg{width:56px} .rr-ci .ci-btbl col.col-fl{width:86px}
   .rr-ci .ci-btbl tr:last-child td{border-bottom:0}
   .rr-ci .ci-btbl td.c{text-align:center;color:var(--ci-muted);font-weight:700} .rr-ci .ci-btbl td.r{text-align:right;font-weight:800;color:#127a4b;font-variant-numeric:tabular-nums}
   .rr-ci .ci-btbl .b-cam{font-weight:700;color:var(--ci-text)} .rr-ci .ci-btbl .b-rz{color:var(--ci-muted)}
-  .rr-ci .b-seg{display:inline-block;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.3px;padding:2px 8px;border-radius:7px;background:#eef5fb;color:var(--ci-primary)}
+  .rr-ci .b-seg{display:inline-block;font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.2px;padding:1px 6px;border-radius:6px;background:#eef5fb;color:var(--ci-primary);max-width:100%;overflow:hidden;text-overflow:ellipsis;vertical-align:middle}
   .rr-ci .b-seg.s-interior{background:#FFEDD5;color:#c2410c} .rr-ci .b-seg.s-servicios{background:#D1FAE5;color:#15803d} .rr-ci .b-seg.s-transportadora{background:#ede9fe;color:#6d28d9}
   /* Vacío */
   .rr-ci .ci-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:10px;padding:40px 20px;color:var(--ci-muted)}
@@ -7363,7 +7364,7 @@ function renderReporteRepartos(){
   // Desglose
   function bdHTML(g){
     const rows=g.lines.map((cl,i)=>{const seg=cl.seg||'local';const cam=(seg==='transportadora')?((+cl.cant||0)+' camión'+((+cl.cant||0)===1?'':'es')):_escp(cl.trDesc||'—');const rz=[cl.rep,cl.zona].filter(Boolean).map(_escp).join(' · ')||'—';
-      return '<tr><td class="c">'+(i+1)+'</td><td>'+_dmy(cl._fecha)+'</td><td class="b-cam">'+cam+'</td><td><span class="b-seg s-'+seg+'">'+seg+'</span></td><td class="b-rz">'+rz+'</td><td class="r">'+_gs(_cfFleteVal(cl))+'</td></tr>';}).join('');
+      return '<tr><td class="c">'+(i+1)+'</td><td class="b-fecha">'+_dmy(cl._fecha)+'</td><td class="b-cam">'+cam+'</td><td><span class="b-seg s-'+seg+'">'+seg+'</span></td><td class="b-rz">'+rz+'</td><td class="r">'+_gs(_cfFleteVal(cl))+'</td></tr>';}).join('');
     return '<div class="ci-exp-in"><div class="ci-exp-bar"><span>'+g.lines.length+' línea'+(g.lines.length===1?'':'s')+' · <b>'+_gs(g.flete)+'</b> de flete</span><button class="ci-ver" type="button" data-rrver>'+IC.list+' Ver resumen</button></div>'+
       '<div class="ci-btbl-wrap"><table class="ci-btbl"><colgroup><col class="col-n"><col class="col-f"><col><col class="col-seg"><col><col class="col-fl"></colgroup><thead><tr><th>#</th><th>Fecha</th><th>Camión</th><th>Segmento</th><th>Repartidor · Zona</th><th class="r">Flete</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
   }
