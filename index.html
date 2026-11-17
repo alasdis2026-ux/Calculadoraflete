@@ -5008,6 +5008,11 @@ function showSaveAnim(text){
   .rr-ci .ci-cell:hover{border-color:rgba(8,119,175,.5);box-shadow:0 6px 16px rgba(8,119,175,.12)}
   .rr-ci .ci-cell.today{box-shadow:inset 0 0 0 1px rgba(8,119,175,.4)}
   .rr-ci .ci-cell.sel{border:1.5px solid var(--ci-primary);box-shadow:0 0 0 3px rgba(8,119,175,.12)}
+  .rr-ci .ci-cell.in-rng{background:#eaf4fc;border-color:rgba(8,119,175,.3)}
+  .rr-ci .ci-cell.in-rng.wknd{background:#e4f0fa}
+  .rr-ci .ci-cell.in-rng.rng-a{box-shadow:inset 3px 0 0 var(--ci-primary)}
+  .rr-ci .ci-cell.in-rng.rng-b{box-shadow:inset -3px 0 0 var(--ci-primary)}
+  .rr-ci .ci-cell.in-rng.rng-a.rng-b{box-shadow:inset 3px 0 0 var(--ci-primary),inset -3px 0 0 var(--ci-primary)}
   .rr-ci .ci-cell__top{display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
   .rr-ci .ci-cell__d{font-size:12px;font-weight:700;color:var(--ci-text-2);font-variant-numeric:tabular-nums}
   .rr-ci .ci-cell.out .ci-cell__d{color:#c3ccd6}
@@ -5022,10 +5027,44 @@ function showSaveAnim(text){
   .rr-ci .ci-more{font-size:10px;font-weight:700;color:var(--ci-primary);padding-left:4px}
   /* Filtros */
   .rr-ci .ci-filters{flex-shrink:0;display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:9px 12px;border-bottom:1px solid var(--ci-border);background:#fafcfe}
-  .rr-ci .ci-srch{position:relative;flex:1;min-width:150px}
-  .rr-ci .ci-srch svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--ci-muted);pointer-events:none}
-  .rr-ci .ci-srch input{width:100%;height:36px;border:1.5px solid var(--ci-border-2);border-radius:10px;padding:0 12px 0 32px;font-size:13.5px;font-family:inherit;color:var(--ci-text);outline:none;background:#fff;transition:border-color .15s,box-shadow .15s}
+  .rr-ci .ci-srch{position:relative;flex:1;min-width:170px}
+  .rr-ci .ci-srch>svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--ci-muted);pointer-events:none;transition:color .18s ease}
+  .rr-ci .ci-srch:focus-within>svg,.rr-ci .ci-srch.has>svg{color:var(--ci-primary)}
+  .rr-ci .ci-srch input{width:100%;height:36px;border:1.5px solid var(--ci-border-2);border-radius:10px;padding:0 10px 0 33px;font-size:13.5px;font-family:inherit;color:var(--ci-text);outline:none;background:#fff;transition:border-color .18s ease,box-shadow .18s ease,padding .18s ease}
   .rr-ci .ci-srch input:focus{border-color:var(--ci-primary);box-shadow:0 0 0 4px rgba(8,119,175,.13)}
+  .rr-ci .ci-srch.has input{border-color:var(--ci-primary);padding-right:88px}
+  .rr-ci .ci-srch__act{position:absolute;right:5px;top:50%;transform:translateY(-50%);display:none;align-items:center;gap:5px}
+  .rr-ci .ci-srch.has .ci-srch__act{display:flex}
+  .rr-ci .ci-srch__n{font-size:11px;font-weight:800;color:var(--ci-primary);background:var(--ci-primary-soft);border-radius:99px;padding:3px 7px;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .rr-ci .ci-srch__n.zero{color:#b4452f;background:#fdeeea}
+  .rr-ci .ci-srch__x{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;flex-shrink:0;padding:0;border:0;border-radius:50%;background:#eef4f9;color:var(--ci-text-2);cursor:pointer;transition:background .16s ease,color .16s ease,transform .12s ease}
+  .rr-ci .ci-srch__x svg{width:13px;height:13px}
+  .rr-ci .ci-srch__x:hover{background:var(--ci-primary);color:#fff}
+  .rr-ci .ci-srch__x:active{transform:scale(.88)}
+  .rr-ci .ci-empty__btn{margin-top:4px;display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 14px;border:1.5px solid var(--ci-border-2);border-radius:10px;background:#fff;font-size:12.5px;font-weight:700;font-family:inherit;color:var(--ci-primary);cursor:pointer;transition:background .16s ease,border-color .16s ease,color .16s ease}
+  .rr-ci .ci-empty__btn svg{width:13px;height:13px}
+  .rr-ci .ci-empty__btn:hover{background:var(--ci-primary);border-color:var(--ci-primary);color:#fff}
+  /* Período Desde/Hasta — segunda fila de la barra de filtros */
+  .rr-ci .ci-rng{flex:1 0 100%;display:flex;flex-wrap:wrap;align-items:center;gap:7px;padding-top:2px}
+  .rr-ci .ci-rng__lbl{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:800;letter-spacing:.3px;text-transform:uppercase;color:var(--ci-muted)}
+  .rr-ci .ci-rng__lbl svg{width:13px;height:13px}
+  .rr-ci .ci-rng.on .ci-rng__lbl{color:var(--ci-primary)}
+  .rr-ci .ci-rng__f{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 9px;border:1.5px solid var(--ci-border-2);border-radius:9px;background:#fff;transition:border-color .18s ease,box-shadow .18s ease}
+  .rr-ci .ci-rng__f:focus-within{border-color:var(--ci-primary);box-shadow:0 0 0 3px rgba(8,119,175,.13)}
+  .rr-ci .ci-rng__f>span{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.3px;color:var(--ci-muted)}
+  .rr-ci .ci-rng__f input{border:0;outline:none;background:transparent;font-family:inherit;font-size:12.5px;font-weight:700;color:var(--ci-text);padding:0;width:112px}
+  .rr-ci .ci-rng__f input::-webkit-calendar-picker-indicator{cursor:pointer;opacity:.5;transition:opacity .15s}
+  .rr-ci .ci-rng__f input::-webkit-calendar-picker-indicator:hover{opacity:1}
+  .rr-ci .ci-rng.on .ci-rng__f{border-color:var(--ci-primary)}
+  .rr-ci .ci-rng__arrow{font-size:13px;font-weight:800;color:var(--ci-muted)}
+  .rr-ci .ci-rng__sp{flex:1}
+  .rr-ci .ci-rng__q{height:32px;padding:0 11px;border:1.5px solid var(--ci-border-2);border-radius:9px;background:#fff;font-family:inherit;font-size:11.5px;font-weight:700;color:var(--ci-text-2);cursor:pointer;transition:background .16s ease,border-color .16s ease,color .16s ease}
+  .rr-ci .ci-rng__q:hover{background:var(--ci-primary-soft);border-color:var(--ci-primary);color:var(--ci-primary)}
+  .rr-ci .ci-rng__x{display:inline-flex;align-items:center;gap:5px;height:32px;padding:0 11px;border:0;border-radius:9px;background:var(--ci-primary);font-family:inherit;font-size:11.5px;font-weight:700;color:#fff;cursor:pointer;transition:filter .16s ease}
+  .rr-ci .ci-rng__x svg{width:12px;height:12px}
+  .rr-ci .ci-rng__x:hover{filter:brightness(1.1)}
+  /* Pill de aviso: el período recorta la planilla */
+  .rr-ci .ci-pill.part{background:#fdf1e3;color:#9a5a12}
   .rr-ci .ci-estados{display:inline-flex;border:1px solid var(--ci-border-2);border-radius:9px;overflow:hidden;background:#fff}
   .rr-ci .ci-estados button{padding:0 12px;height:36px;border:0;border-left:1px solid var(--ci-border);background:transparent;font-size:11.5px;font-weight:700;color:var(--ci-text-2);cursor:pointer;transition:background .15s}
   .rr-ci .ci-estados button:first-child{border-left:0}
@@ -5109,6 +5148,7 @@ function showSaveAnim(text){
   .rr-ci .b-seg.s-interior{background:#FFEDD5;color:#c2410c} .rr-ci .b-seg.s-servicios{background:#D1FAE5;color:#15803d} .rr-ci .b-seg.s-transportadora{background:#ede9fe;color:#6d28d9}
   /* Vacío */
   .rr-ci .ci-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:10px;padding:40px 20px;color:var(--ci-muted)}
+  .rr-ci .ci-empty[hidden]{display:none} /* display:flex le gana al hidden del navegador */
   .rr-ci .ci-empty__ic{width:64px;height:64px;border-radius:20px;display:grid;place-items:center;color:var(--ci-primary);background:linear-gradient(135deg,var(--ci-primary-soft),#fff);border:1px solid #dcebf7}
   .rr-ci .ci-empty__ic svg{width:30px;height:30px}
   .rr-ci .ci-empty h4{margin:0;font-size:14px;font-weight:800;color:var(--ci-text)} .rr-ci .ci-empty p{margin:2px 0 0;font-size:12px;font-weight:600;max-width:240px}
@@ -7189,6 +7229,10 @@ let _rrDay=null;       // día seleccionado en el calendario (ISO) o null = todo
 let _rrExpTs=null;     // transportista con el desglose desplegado en la lista
 let _rrFac='todos';    // filtro de estado de factura: todos | realizado (facturado) | programado (pendiente)
 let _rrSegAnim=false;  // true = el re-render viene de tocar un segmento (dispara animación especial del control)
+let _rrBack=null;      // alcance + búsqueda + scroll guardados al entrar al detalle
+let _rrScroll=null;    // scroll de la lista a restaurar en el próximo render
+let _rrDesde=null;     // período: fecha inicial (ISO) — siempre dentro de _rrMes
+let _rrHasta=null;     // período: fecha final (ISO) — siempre dentro de _rrMes
 // Repartos por día del mes en vista (respeta el filtro de segmento) → para pintar el calendario.
 function _rrCountByDay(){
   const map={};
@@ -7215,7 +7259,40 @@ function _dispD(iso){return iso?iso.split('-').reverse().join('/'):'—';}
 function _shD(iso){const p=iso.split('-');return p[2]+'/'+p[1];}
 function _dmy(iso){const p=String(iso||'').slice(0,10).split('-');return p.length<3?String(iso||''):(p[2]+'/'+p[1]+'/'+p[0].slice(-2));} // DD/MM/AA
 function _weeksOfMonth(mk){const a=mk.split('-').map(Number),y=a[0],mo=a[1];const first=new Date(y,mo-1,1),last=new Date(y,mo,0);let d=new Date(first);d.setDate(d.getDate()-((d.getDay()+6)%7));const w=[];while(d<=last){const mon=new Date(d),sun=new Date(d);sun.setDate(sun.getDate()+6);w.push({desde:_isoD(mon),hasta:_isoD(sun)});d.setDate(d.getDate()+7);}return w;}
-function _rrShiftMonth(delta){const a=_rrMes.split('-').map(Number);const d=new Date(a[0],a[1]-1+delta,1);_rrMes=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');_rrWeek=undefined;_rrDay=null;_rrExpTs=null;renderReporteRepartos();}
+function _rrShiftMonth(delta){const a=_rrMes.split('-').map(Number);const d=new Date(a[0],a[1]-1+delta,1);_rrMes=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');_rrWeek=undefined;_rrDay=null;_rrExpTs=null;_rrClearRange();renderReporteRepartos();}
+/* ── Período Desde/Hasta ──────────────────────────────────────────────────────
+   El período NO redefine la planilla: los grupos se siguen armando
+   transportista × semana con el mismo corte por mes (una planilla = lo que se
+   factura, ver fact_facturas.semana_desde). El período sólo decide qué repartos
+   entran en cada tarjeta, por eso se acota al mes en vista y se avisa cuando
+   deja una planilla cortada. */
+function _rrMesBounds(){const a=_rrMes.split('-').map(Number);return {first:_rrMes+'-01',last:_isoD(new Date(a[0],a[1],0))};}
+function _rrRangeOn(){return !!(_rrDesde||_rrHasta);}
+function _rrClearRange(){_rrDesde=null;_rrHasta=null;}
+// Extremos efectivos: el lado que falta se completa con el borde del mes.
+function _rrRangeBounds(){const b=_rrMesBounds();let d=_rrDesde||b.first,h=_rrHasta||b.last;
+  if(d>h){const t=d;d=h;h=t;}
+  if(d<b.first)d=b.first;if(h>b.last)h=b.last;
+  return {desde:d,hasta:h};}
+// Reutiliza _rrGroups semana por semana y recorta las líneas fuera del período.
+// fullLines guarda cuántos repartos tiene la semana completa (para el aviso de corte).
+function _rrRangeGroups(desde,hasta){
+  const out=[];
+  _weeksOfMonth(_rrMes).forEach(w=>{
+    _rrGroups(w.desde).forEach(g=>{
+      const lines=(g.lines||[]).filter(l=>{const f=String(l._fecha||'').slice(0,10);return f>=desde&&f<=hasta;});
+      if(!lines.length)return;
+      const ng=Object.assign({},g);
+      ng.lines=lines;
+      ng.fullLines=(g.lines||[]).length;
+      ng.monto=lines.reduce((t,l)=>t+(+l.monto||0),0);
+      ng.flete=lines.reduce((t,l)=>t+_cfFleteVal(l),0);
+      ng.reps=(g.reps||[]).filter(r=>lines.some(l=>l._repId===r.id));
+      out.push(ng);
+    });
+  });
+  return out.sort((a,b)=>b.flete-a.flete);
+}
 // Buscador general: filtra las tarjetas por transportista o camión (sin re-render, mantiene el foco)
 function _rrApplySearch(){
   const host=document.getElementById('rrepHost');if(!host)return;
@@ -7314,7 +7391,9 @@ function renderReporteRepartos(){
     chevronR:'<svg fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>',
     list:'<svg fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>',
     chk:'<svg fill="none" stroke="currentColor" stroke-width="2.6" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>',
-    srch:'<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>'};
+    srch:'<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>',
+    x:'<svg fill="none" stroke="currentColor" stroke-width="2.6" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>',
+    warn:'<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/><path d="M12 9.5v4M12 17h.01"/></svg>'};
   const MES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
   const DOW=['LUN','MAR','MIÉ','JUE','VIE','SÁB','DOM'];
   const a=_rrMes.split('-').map(Number),monthLbl=MES[a[1]-1]+' '+a[0];
@@ -7324,15 +7403,19 @@ function renderReporteRepartos(){
   const clip=iso=>iso<_mFirst?_mFirst:(iso>_mLast?_mLast:iso);
   const stOf=g=>_facDeGrupo(g)?'realizado':'programado';
 
-  // Alcance: día > semana > mes
-  let scopeGroups;
-  if(_rrDay)scopeGroups=_rrDayGroups(_rrDay);
-  else if(_rrWeek)scopeGroups=_rrGroups(_rrWeek);
-  else scopeGroups=weeks.reduce((acc,w)=>acc.concat(_rrGroups(w.desde)),[]);
+  // Alcance: período > día > semana > mes (sólo uno activo a la vez)
+  const rngOn=_rrRangeOn(), rngB=_rrRangeBounds();
+  function _scopeGroups(){
+    if(rngOn)return _rrRangeGroups(rngB.desde,rngB.hasta);
+    if(_rrDay)return _rrDayGroups(_rrDay);
+    if(_rrWeek)return _rrGroups(_rrWeek);
+    return weeks.reduce((acc,w)=>acc.concat(_rrGroups(w.desde)),[]);
+  }
+  const scopeGroups=_scopeGroups();
   const groups=scopeGroups.filter(g=>_rrFac==='todos'||stOf(g)===_rrFac);
 
-  // Conteo por segmento para el control superior
-  function segCount(k){const prev=_rrSeg;_rrSeg=k;const gs=weeks.reduce((acc,w)=>acc.concat(_rrGroups(w.desde)),[]);_rrSeg=prev;return gs.length;}
+  // Conteo por segmento: sigue el alcance activo, no el mes fijo.
+  function segCount(k){const prev=_rrSeg;_rrSeg=k;const gs=_scopeGroups();_rrSeg=prev;return gs.length;}
   const SEGS=[['todos','Todos',IC.grid],['local','Local',IC.home],['interior','Interior',IC.truck],['servicios','Servicios',IC.wrench],['transportadora','Transportadora',IC.building]];
   const segBar='<div class="rr-topbar"><div class="rr-brand"><img src="logo-alas-s.a.png" alt="ALAS"><span class="rr-brand__t">Registros del reparto del mes</span></div>'+
     '<div class="ci-seg">'+SEGS.map(s=>'<button type="button" class="ci-seg__btn'+(_rrSeg===s[0]?' on':'')+'" data-rrseg="'+s[0]+'"><span class="ci-seg__ic">'+s[2]+'</span><span class="ci-seg__col"><span class="ci-seg__lbl">'+s[1]+'</span><span class="ci-seg__n">'+segCount(s[0])+'</span></span></button>').join('')+'</div><span></span></div>';
@@ -7351,11 +7434,13 @@ function renderReporteRepartos(){
       const shown=evs.slice(0,3);
       const evHtml=shown.map(g=>{const st=stOf(g);const id=iso+'|'+g.ts;window.__rrEvMap[id]={ts:g.ts,cam:g.lines.reduce((s,l)=>s+((l.seg||'local')==='transportadora'?(+l.cant||1):1),0),flete:g.flete,st:st,iso:iso};
         return '<div class="ci-ev st-'+st+'" data-ev="'+_escp(id)+'"><span class="ci-ev__bar"></span><span class="ci-ev__t">'+_escp(g.ts)+'</span></div>';}).join('');
-      cells+='<div class="ci-cell'+(inM?'':' out')+(wknd&&inM?' wknd':'')+(iso===today?' today':'')+(iso===_rrDay?' sel':'')+'" data-iso="'+iso+'">'+
+      const inRng=rngOn&&inM&&iso>=rngB.desde&&iso<=rngB.hasta;
+      const rngCls=inRng?(' in-rng'+(iso===rngB.desde?' rng-a':'')+(iso===rngB.hasta?' rng-b':'')):'';
+      cells+='<div class="ci-cell'+(inM?'':' out')+(wknd&&inM?' wknd':'')+(iso===today?' today':'')+(iso===_rrDay?' sel':'')+rngCls+'" data-iso="'+iso+'">'+
         '<div class="ci-cell__top"><span class="ci-cell__d">'+dd.getDate()+'</span></div>'+
         '<div class="ci-cell__events">'+evHtml+(evs.length>shown.length?'<div class="ci-more">+'+(evs.length-shown.length)+' más</div>':'')+'</div></div>';}
     const wc=_rrGroups(w.desde).length;
-    wrows+='<div class="ci-wrow'+(_rrWeek===w.desde&&!_rrDay?' sel':'')+'">'+
+    wrows+='<div class="ci-wrow'+(_rrWeek===w.desde&&!_rrDay&&!rngOn?' sel':'')+'">'+
       '<button type="button" class="ci-wsel" data-rrweek="'+w.desde+'" title="Semana '+_dispD(clip(w.desde))+' – '+_dispD(clip(w.hasta))+' · '+wc+' planilla'+(wc===1?'':'s')+'"><span class="ci-wsel__ic">'+IC.week+'</span><span class="ci-wsel__n">S'+(wi+1)+'</span></button>'+
       '<div class="ci-week7">'+cells+'</div></div>';
   });
@@ -7371,13 +7456,30 @@ function renderReporteRepartos(){
     '<button class="'+(_rrFac==='todos'?'on e-all':'')+'" data-rrfac="todos">Todos</button>'+
     '<button class="'+(_rrFac==='realizado'?'on e-realizado':'')+'" data-rrfac="realizado">Facturado</button>'+
     '<button class="'+(_rrFac==='programado'?'on e-programado':'')+'" data-rrfac="programado">Pendiente</button></div>';
-  const search='<div class="ci-srch">'+IC.srch+'<input type="text" placeholder="Buscar transportista o camión…" value="'+_escp(_rrQ)+'" autocomplete="off"></div>';
+  const search='<div class="ci-srch'+(_rrQ?' has':'')+'">'+IC.srch+
+    '<input type="text" placeholder="Buscar transportista o camión…" value="'+_escp(_rrQ)+'" autocomplete="off" spellcheck="false" aria-label="Buscar transportista o camión">'+
+    '<span class="ci-srch__act"><span class="ci-srch__n" data-srchn></span>'+
+    '<button type="button" class="ci-srch__x" data-srchx title="Limpiar búsqueda (Esc)" aria-label="Limpiar búsqueda">'+IC.x+'</button></span></div>';
+
+  const _mb=_rrMesBounds();
+  const range='<div class="ci-rng'+(rngOn?' on':'')+'">'+
+    '<span class="ci-rng__lbl">'+IC.cal+'Período</span>'+
+    '<label class="ci-rng__f"><span>Desde</span><input type="date" data-rngd min="'+_mb.first+'" max="'+_mb.last+'" value="'+(_rrDesde||'')+'" aria-label="Período desde"></label>'+
+    '<span class="ci-rng__arrow">→</span>'+
+    '<label class="ci-rng__f"><span>Hasta</span><input type="date" data-rngh min="'+_mb.first+'" max="'+_mb.last+'" value="'+(_rrHasta||'')+'" aria-label="Período hasta"></label>'+
+    '<span class="ci-rng__sp"></span>'+
+    '<button type="button" class="ci-rng__q" data-rngq="q1">1ª quincena</button>'+
+    '<button type="button" class="ci-rng__q" data-rngq="q2">2ª quincena</button>'+
+    (rngOn?'<button type="button" class="ci-rng__x" data-rngx title="Quitar el período y volver al mes">'+IC.x+'Quitar</button>':'')+
+  '</div>';
 
   let rowsH;
   if(!groups.length){rowsH='<div class="ci-empty"><div class="ci-empty__ic">'+IC.truck+'</div><h4>'+(_rrDay?'Sin repartos este día':(_rrWeek?'Sin planillas esta semana':'Sin planillas este mes'))+'</h4><p>Elegí otra fecha o cargá un flete en la Calculadora.</p></div>';}
   else{rowsH=groups.map((g,i)=>{const st=stOf(g);const facd=st==='realizado';
     const cam=g.lines.reduce((s,l)=>s+((l.seg||'local')==='transportadora'?(+l.cant||1):1),0);
-    const bd=_rrDay?new Date(_rrDay+'T00:00:00'):new Date(clip(g.semDesde)+'T00:00:00');
+    // Con período activo, la fecha de la tarjeta es la del primer reparto que entra en el rango.
+    const _lf=(g.lines||[]).map(l=>String(l._fecha||'').slice(0,10)).filter(Boolean).sort();
+    const bd=new Date((_rrDay?_rrDay:(rngOn&&_lf.length?_lf[0]:clip(g.semDesde)))+'T00:00:00');
     const perLbl=_rrDay?_dispD(_rrDay):(_dispD(clip(g.semDesde))+' – '+_dispD(clip(_wkHasta(g.semDesde))));
     const flags=facd?'<span class="ci-flag ok">'+IC.chk+'Facturado</span>':'<span class="ci-flag sob">Sin factura</span>';
     const SEGFULL={local:'Local',interior:'Interior',servicios:'Servicios',transportadora:'Transportadora'};
@@ -7393,22 +7495,24 @@ function renderReporteRepartos(){
             '<span class="ci-pill">'+IC.truck+'<span>'+cam+' camion'+(cam===1?'':'es')+'</span></span>'+
             '<span class="ci-pill flete">'+IC.money+'<span>'+_gs(g.flete)+'</span></span>'+
             '<span class="ci-pill">'+IC.cal+'<span>'+perLbl+'</span></span>'+
+            (g.fullLines&&g.lines.length<g.fullLines?'<span class="ci-pill part" title="El período recorta esta planilla: la semana completa tiene '+g.fullLines+' repartos. Al abrirla vas a ver la semana entera, que es lo que se factura.">'+IC.warn+'<span>'+g.lines.length+' de '+g.fullLines+' repartos</span></span>':'')+
           '</div></div>'+
         '<span class="ci-badge-st st-'+st+'">'+(facd?IC.chk+'Facturado':IC.cal+'Pendiente')+'</span>'+
         '<span class="ci-row__chev">'+IC.chevronD+'</span>'+
       '</div>'+
       '<div class="ci-row-exp" hidden></div>'+
     '</div>';
-  }).join('')+'<div class="ci-empty" data-noresults hidden><div class="ci-empty__ic">'+IC.srch+'</div><h4>Sin resultados</h4><p>Probá con otro transportista o camión.</p></div>';}
+  }).join('')+'<div class="ci-empty" data-noresults hidden><div class="ci-empty__ic">'+IC.srch+'</div><h4>Sin resultados</h4><p>Nada coincide con «<b data-nq></b>». Probá con otro transportista o camión.</p><button type="button" class="ci-empty__btn" data-srchclear>'+IC.x+'Limpiar búsqueda</button></div>';}
 
   let rttl,rsub;
-  if(_rrDay){rttl='Repartos del '+_dispD(_rrDay);rsub=groups.length+' planilla'+(groups.length===1?'':'s');}
+  if(rngOn){rttl='Repartos del '+_dispD(rngB.desde)+' al '+_dispD(rngB.hasta);rsub=groups.length+' planilla'+(groups.length===1?'':'s')+' · '+MES[a[1]-1];}
+  else if(_rrDay){rttl='Repartos del '+_dispD(_rrDay);rsub=groups.length+' planilla'+(groups.length===1?'':'s');}
   else if(_rrWeek){rttl='Semana '+_dispD(clip(_rrWeek))+' – '+_dispD(clip(_wkHasta(_rrWeek)));rsub=groups.length+' planilla'+(groups.length===1?'':'s');}
   else{rttl='Repartos de '+monthLbl;rsub=groups.length+' planilla'+(groups.length===1?'':'s')+' · '+MES[a[1]-1];}
   const rightH='<div class="ci-panel"><div class="ci-phead"><div class="ci-phead__ico">'+IC.truck+'</div>'+
       '<div class="ci-phead__meta"><div class="t">'+rttl+'</div><div class="s">'+rsub+'</div></div>'+
-      ((_rrDay||_rrWeek)?'<button class="ci-phead__hoy" data-rrvermes type="button">Ver el mes</button>':'')+'</div>'+
-    '<div class="ci-filters">'+search+estados+'</div>'+
+      ((_rrDay||_rrWeek||rngOn)?'<button class="ci-phead__hoy" data-rrvermes type="button">Ver el mes</button>':'')+'</div>'+
+    '<div class="ci-filters">'+search+estados+range+'</div>'+
     '<div class="ci-list">'+rowsH+'</div></div>';
 
   host.className='cf-host rr-ci';
@@ -7421,18 +7525,40 @@ function renderReporteRepartos(){
     return '<div class="ci-exp-in"><div class="ci-exp-bar"><span>'+g.lines.length+' línea'+(g.lines.length===1?'':'s')+' · <b>'+_gs(g.flete)+'</b> de flete</span><button class="ci-ver" type="button" data-rrver>'+IC.list+' Ver resumen</button></div>'+
       '<div class="ci-btbl-wrap"><table class="ci-btbl"><thead><tr><th class="col-fecha">Fecha</th><th class="col-cam">Camión</th><th class="col-zona">Zona</th><th class="r">Monto</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
   }
-  function openResumen(g){const wd=g.semDesde;_rrWeek=wd;const wk=weeks.find(w=>w.desde===wd)||{desde:wd,hasta:_wkHasta(wd)};const wg=_rrGroups(wd);const full=wg.find(x=>x.ts===g.ts&&x.facturaId===g.facturaId)||wg.find(x=>x.ts===g.ts)||g;const pLbl=_dispD(clip(wk.desde))+' al '+_dispD(clip(wk.hasta));_rrOpenDetail(full,pLbl,wk);}
+  function openResumen(g){const _l=host.querySelector('.ci-list');_rrBack={week:_rrWeek,day:_rrDay,fac:_rrFac,q:_rrQ,desde:_rrDesde,hasta:_rrHasta,scroll:_l?_l.scrollTop:0};
+    const wd=g.semDesde;_rrWeek=wd;const wk=weeks.find(w=>w.desde===wd)||{desde:wd,hasta:_wkHasta(wd)};const wg=_rrGroups(wd);const full=wg.find(x=>x.ts===g.ts&&x.facturaId===g.facturaId)||wg.find(x=>x.ts===g.ts)||g;const pLbl=_dispD(clip(wk.desde))+' al '+_dispD(clip(wk.hasta));_rrOpenDetail(full,pLbl,wk);}
 
   // Segmentos (control superior)
   host.querySelectorAll('[data-rrseg]').forEach(b=>b.addEventListener('click',()=>{if(_rrSeg===b.dataset.rrseg)return;_rrSeg=b.dataset.rrseg;_rrSegAnim=true;renderReporteRepartos();}));
   // Navegación
   host.querySelectorAll('[data-rrm]').forEach(b=>b.addEventListener('click',()=>_rrShiftMonth(+b.dataset.rrm)));
-  const rrToday=host.querySelector('[data-rrtoday]');if(rrToday)rrToday.addEventListener('click',()=>{const d=new Date();_rrMes=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');_rrDay=null;_rrWeek=null;renderReporteRepartos();});
-  const vm=host.querySelector('[data-rrvermes]');if(vm)vm.addEventListener('click',()=>{_rrDay=null;_rrWeek=null;renderReporteRepartos();});
+  const rrToday=host.querySelector('[data-rrtoday]');if(rrToday)rrToday.addEventListener('click',()=>{const d=new Date();_rrMes=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');_rrDay=null;_rrWeek=null;_rrClearRange();renderReporteRepartos();});
+  const vm=host.querySelector('[data-rrvermes]');if(vm)vm.addEventListener('click',()=>{_rrDay=null;_rrWeek=null;_rrClearRange();renderReporteRepartos();});
   // Selección semanal
-  host.querySelectorAll('[data-rrweek]').forEach(b=>b.addEventListener('click',()=>{const wd=b.dataset.rrweek;_rrWeek=(_rrWeek===wd&&!_rrDay)?null:wd;_rrDay=null;renderReporteRepartos();}));
+  host.querySelectorAll('[data-rrweek]').forEach(b=>b.addEventListener('click',()=>{const wd=b.dataset.rrweek;_rrWeek=(_rrWeek===wd&&!_rrDay&&!rngOn)?null:wd;_rrDay=null;_rrClearRange();renderReporteRepartos();}));
   // Selección de día
-  host.querySelectorAll('.ci-cell[data-iso]').forEach(c=>c.addEventListener('click',()=>{const iso=c.dataset.iso;_rrDay=(_rrDay===iso?null:iso);_rrWeek=null;renderReporteRepartos();}));
+  host.querySelectorAll('.ci-cell[data-iso]').forEach(c=>c.addEventListener('click',()=>{const iso=c.dataset.iso;_rrDay=(_rrDay===iso&&!rngOn?null:iso);_rrWeek=null;_rrClearRange();renderReporteRepartos();}));
+
+  // ── Período Desde/Hasta ──────────────────────────────────────────────────
+  // Acotado al mes en vista: lo que se escriba fuera se recorta, y si quedan
+  // invertidos se dan vuelta solos. Al activarse, limpia día y semana.
+  function setRange(d,h){
+    const bb=_rrMesBounds(),cl=v=>!v?null:(v<bb.first?bb.first:(v>bb.last?bb.last:v));
+    _rrDesde=cl(d);_rrHasta=cl(h);
+    if(_rrDesde&&_rrHasta&&_rrDesde>_rrHasta){const t=_rrDesde;_rrDesde=_rrHasta;_rrHasta=t;}
+    if(_rrRangeOn()){_rrDay=null;_rrWeek=null;}
+    renderReporteRepartos();
+  }
+  const rngD=host.querySelector('[data-rngd]'),rngH=host.querySelector('[data-rngh]');
+  if(rngD)rngD.addEventListener('change',()=>setRange(rngD.value,_rrHasta));
+  if(rngH)rngH.addEventListener('change',()=>setRange(_rrDesde,rngH.value));
+  host.querySelectorAll('[data-rngq]').forEach(b=>b.addEventListener('click',()=>{
+    const bb=_rrMesBounds();
+    if(b.dataset.rngq==='q1')setRange(bb.first,_rrMes+'-15');
+    else setRange(_rrMes+'-16',bb.last);
+  }));
+  const rngX=host.querySelector('[data-rngx]');
+  if(rngX)rngX.addEventListener('click',()=>{_rrClearRange();renderReporteRepartos();});
   // Filtro de factura
   host.querySelectorAll('[data-rrfac]').forEach(b=>b.addEventListener('click',()=>{if(_rrFac===b.dataset.rrfac)return;_rrFac=b.dataset.rrfac;renderReporteRepartos();}));
 
@@ -7451,7 +7577,7 @@ function renderReporteRepartos(){
     document.addEventListener('pointerdown',killTips,true);window.addEventListener('scroll',killTips,true);window.addEventListener('blur',killTips);
     if(window.gsap)gsap.fromTo(tipEl,{opacity:0,y:6,scale:.98},{opacity:1,y:0,scale:1,duration:.18,ease:'power2.out'});}
   host.querySelectorAll('.ci-ev[data-ev]').forEach(ev=>{ev.addEventListener('mouseenter',()=>showTip(ev.dataset.ev,ev.getBoundingClientRect()));ev.addEventListener('mouseleave',hideTip);
-    ev.addEventListener('click',e=>{e.stopPropagation();const iso=(ev.dataset.ev||'').split('|')[0];_rrDay=(_rrDay===iso?null:iso);_rrWeek=null;hideTip();renderReporteRepartos();});});
+    ev.addEventListener('click',e=>{e.stopPropagation();const iso=(ev.dataset.ev||'').split('|')[0];_rrDay=(_rrDay===iso&&!rngOn?null:iso);_rrWeek=null;_rrClearRange();hideTip();renderReporteRepartos();});});
   const _cal=host.querySelector('.ci-cal');if(_cal)_cal.addEventListener('mouseleave',hideTip);
 
   // Acordeón de filas
@@ -7464,11 +7590,40 @@ function renderReporteRepartos(){
       if(window.gsap){gsap.set(exp,{height:'auto',opacity:1});const h=exp.offsetHeight;gsap.fromTo(exp,{height:0,opacity:0},{height:h,opacity:1,duration:.4,ease:'expo.out',onComplete:()=>{exp.style.height='auto';}});gsap.from(exp.querySelectorAll('.ci-btbl tbody tr'),{opacity:0,y:6,duration:.28,stagger:.02,ease:'power2.out',delay:.06,clearProps:'all'});}
     });});
 
-  // Buscador
-  const si=host.querySelector('.ci-srch input');
-  function applyQ(){const q=(_rrQ||'').trim().toLowerCase();let any=false;host.querySelectorAll('.ci-rowwrap').forEach(w=>{const m=!q||(w.dataset.search||'').indexOf(q)>=0;w.style.display=m?'':'none';if(m)any=true;});const nr=host.querySelector('[data-noresults]');if(nr)nr.hidden=!(!any&&q);}
-  if(si)si.addEventListener('input',()=>{_rrQ=si.value;applyQ();});
-  if(_rrQ)applyQ();
+  // Buscador: filtra sin re-render (mantiene el foco), con contador vivo y botón de limpiar.
+  const srch=host.querySelector('.ci-srch');
+  const si=srch?srch.querySelector('input'):null;
+  const sn=srch?srch.querySelector('[data-srchn]'):null;
+  const ssub=host.querySelector('.ci-phead__meta .s');
+  const subBase=ssub?ssub.textContent:'';
+  const rrTotal=groups.length;
+  function applyQ(anim){
+    const q=(_rrQ||'').trim().toLowerCase();let vis=0;const back=[];
+    host.querySelectorAll('.ci-rowwrap').forEach(w=>{
+      const m=!q||(w.dataset.search||'').indexOf(q)>=0;
+      if(m){if(w.style.display==='none')back.push(w);w.style.display='';vis++;}
+      else w.style.display='none';
+    });
+    if(srch)srch.classList.toggle('has',!!q);
+    if(sn){sn.textContent=vis+'/'+rrTotal;sn.classList.toggle('zero',vis===0);}
+    if(ssub)ssub.textContent=q?(vis+' de '+rrTotal+' planilla'+(rrTotal===1?'':'s')):subBase;
+    const nr=host.querySelector('[data-noresults]');
+    if(nr){const none=!!q&&vis===0;
+      if(none&&nr.hidden&&window.gsap)gsap.fromTo(nr,{opacity:0,y:8},{opacity:1,y:0,duration:.28,ease:'power2.out',clearProps:'opacity,transform'});
+      nr.hidden=!none;const nq=nr.querySelector('[data-nq]');if(nq)nq.textContent=(_rrQ||'').trim();}
+    // Sólo se animan las filas que vuelven a entrar (al borrar o limpiar): tipear no produce saltos.
+    if(anim&&back.length&&window.gsap){gsap.killTweensOf(back);gsap.fromTo(back.slice(0,14),{opacity:0,y:8},{opacity:1,y:0,duration:.3,stagger:.025,ease:'power2.out',clearProps:'opacity,transform'});}
+  }
+  function clearQ(){if(!_rrQ)return;_rrQ='';if(si){si.value='';si.focus();}applyQ(true);
+    if(window.gsap&&si)gsap.fromTo(si,{scale:.985},{scale:1,duration:.32,ease:'back.out(2.6)',clearProps:'transform'});}
+  if(si){
+    si.addEventListener('input',()=>{_rrQ=si.value;applyQ(true);});
+    si.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();clearQ();}});
+  }
+  host.querySelectorAll('[data-srchx],[data-srchclear]').forEach(b=>b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();clearQ();}));
+  applyQ(false);
+  // Vuelta desde el detalle: recupera la posición exacta en que quedó la lista.
+  if(_rrScroll!=null){const _l=host.querySelector('.ci-list');if(_l)_l.scrollTop=_rrScroll;_rrScroll=null;}
 
   // Animación
   if(window.gsap){const gs=gsap;
@@ -7481,7 +7636,8 @@ function renderReporteRepartos(){
       gs.fromTo(tb,{opacity:.35,scale:.94},{opacity:1,scale:1,duration:.34,stagger:.035,ease:'power3.out',clearProps:'all'});
       if(at)gs.fromTo(at,{scale:.82,y:-3},{scale:1,y:0,duration:.5,ease:'back.out(3)',clearProps:'transform'});
       if(atN)gs.fromTo(atN,{scale:.4,opacity:0},{scale:1,opacity:1,duration:.55,ease:'back.out(3.2)',delay:.06,clearProps:'all'});
-      gs.from(host.querySelectorAll('.ci-rowwrap'),{opacity:0,y:10,duration:.34,stagger:.025,ease:'power2.out',clearProps:'all',delay:.05});
+      // clearProps acotado: 'all' hace style.cssText='' y borraría el display:none del buscador.
+      gs.from(host.querySelectorAll('.ci-rowwrap'),{opacity:0,y:10,duration:.34,stagger:.025,ease:'power2.out',clearProps:'opacity,transform',delay:.05});
       gs.from(host.querySelectorAll('.ci-ev'),{opacity:0,scale:.9,duration:.26,stagger:.006,ease:'power2.out',clearProps:'all'});
     }else{
       const tl=gs.timeline({defaults:{ease:'power3.out'}});
@@ -7489,7 +7645,7 @@ function renderReporteRepartos(){
         .from(tb,{opacity:0,y:-12,scale:.9,duration:.42,stagger:.055,ease:'back.out(1.9)',clearProps:'all'},.06)
         .from(host.querySelectorAll('.ci-phead'),{opacity:0,y:-8,duration:.4,stagger:.08,clearProps:'all'},.14)
         .from(host.querySelectorAll('.ci-wrow'),{opacity:0,y:8,duration:.34,stagger:.035,clearProps:'all'},.2)
-        .from(host.querySelectorAll('.ci-rowwrap'),{opacity:0,y:10,duration:.36,stagger:.035,clearProps:'all'},.26);
+        .from(host.querySelectorAll('.ci-rowwrap'),{opacity:0,y:10,duration:.36,stagger:.035,clearProps:'opacity,transform'},.26);
       if(at)tl.fromTo(at,{scale:.84},{scale:1,duration:.5,ease:'back.out(2.8)',clearProps:'transform'},.3);
       if(atN)tl.fromTo(atN,{scale:.4,opacity:0},{scale:1,opacity:1,duration:.5,ease:'back.out(3)',clearProps:'all'},.34);
     }
@@ -7509,7 +7665,10 @@ function _rrOpenDetail(g,periodLbl,wkObj){
   bd.addEventListener('dragend',()=>{_dragUid=null;const b=_dragBoard();if(b)b.classList.remove('is-dragging');bd.querySelectorAll('.rre-dragging').forEach(r=>r.classList.remove('rre-dragging'));bd.querySelectorAll('.rre-col.drag-over').forEach(c=>c.classList.remove('drag-over'));});
   bd.addEventListener('dragover',e=>{if(_dragUid==null)return;const col=e.target.closest('.rre-col[data-seg]');if(!col||col.dataset.seg==='transportadora')return;e.preventDefault();try{e.dataTransfer.dropEffect='move';}catch(_){}bd.querySelectorAll('.rre-col.drag-over').forEach(c=>{if(c!==col)c.classList.remove('drag-over');});col.classList.add('drag-over');});
   bd.addEventListener('drop',e=>{if(_dragUid==null)return;const col=e.target.closest('.rre-col[data-seg]');if(!col)return;e.preventDefault();const sk=col.dataset.seg,w=W(_dragUid);col.classList.remove('drag-over');_dragUid=null;if(!w||sk==='transportadora'||w.seg==='transportadora'||w.seg===sk)return;w.seg=sk;w.fijo=(sk==='interior');if(w.zona&&!_zonasFor(sk).some(z=>z.n===w.zona))w.zona=null;ensureKm(w);selUid=null;render('rows');if(!work.some(x=>x.edit||x.isNew))save(null,false,true);});
-  function goBack(){closeTruckDrop(true);const gs=window.gsap;if(gs&&!reduce())gs.to(bd,{opacity:0,y:10,duration:.2,ease:'power2.in',onComplete:renderReporteRepartos});else renderReporteRepartos();}
+  function goBack(){closeTruckDrop(true);
+    // Vuelve al mismo alcance, búsqueda y scroll que había antes de abrir el detalle.
+    if(_rrBack){_rrWeek=_rrBack.week;_rrDay=_rrBack.day;_rrFac=_rrBack.fac;_rrQ=_rrBack.q;_rrDesde=_rrBack.desde;_rrHasta=_rrBack.hasta;_rrScroll=_rrBack.scroll;_rrBack=null;}
+    const gs=window.gsap;if(gs&&!reduce())gs.to(bd,{opacity:0,y:10,duration:.2,ease:'power2.in',onComplete:renderReporteRepartos});else renderReporteRepartos();}
   // Chip "Registrado" centrado sobre el board (segmentos), calculado tras el re-render.
   function _rrMiniCheck(){
     const host=bd.querySelector('.rrm-body')||bd,rc=host.getBoundingClientRect();
