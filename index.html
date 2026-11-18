@@ -5064,6 +5064,9 @@ function showSaveAnim(text){
   .rr-ci .ci-row:hover{border-color:rgba(8,119,175,.38);background:linear-gradient(90deg,#f6fbff,#fff 220px);
     box-shadow:0 8px 20px -8px rgba(8,119,175,.3),0 0 0 1px rgba(8,119,175,.07);transform:translateY(-1px)}
   .rr-ci .ci-row:hover .ci-row__name{color:var(--ci-primary-2)}
+  /* Respuesta táctil al clic: la tarjeta se hunde un punto antes de abrirse. */
+  .rr-ci .ci-row:active{transform:translateY(0) scale(.996);transition-duration:.09s}
+  .rr-ci .ci-rowwrap.open .ci-row:active{transform:none}
   .rr-ci .ci-rowwrap.open .ci-row{border-color:transparent;border-bottom-left-radius:0;border-bottom-right-radius:0;transform:none;background:linear-gradient(180deg,#fff,#f4faff);box-shadow:0 10px 20px -10px rgba(8,119,175,.4),inset 0 0 0 1px rgba(8,119,175,.45)}
   .rr-ci .ci-rowwrap.open .ci-row::after{content:'';position:absolute;left:12px;right:12px;bottom:0;height:1px;background:linear-gradient(90deg,transparent,rgba(8,119,175,.28),transparent)}
   .rr-ci .ci-rowwrap.open .ci-row:hover{transform:none;box-shadow:0 10px 20px -10px rgba(8,119,175,.4),inset 0 0 0 1px rgba(8,119,175,.45)}
@@ -5079,11 +5082,21 @@ function showSaveAnim(text){
   .rr-ci .ci-row__ttl{display:flex;align-items:center;gap:8px;min-width:0;line-height:1.25}
   .rr-ci .ci-row__name{font-size:14.5px;font-weight:800;letter-spacing:-.1px;color:var(--ci-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color .2s ease}
   /* Chip de segmento en la tarjeta (al lado de la transportadora) */
+  /* Segmento: punto de color + etiqueta. Conserva el código de color sin el arcoíris. */
+  .rr-ci .ci-sdot{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:var(--ci-text-2);white-space:nowrap}
+  .rr-ci .ci-sdot i{width:6px;height:6px;border-radius:50%;flex-shrink:0;transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
+  .rr-ci .ci-row:hover .ci-sdot i{transform:scale(1.45)}
+  .rr-ci .ci-sdot b{font-weight:800;color:var(--ci-text);font-variant-numeric:tabular-nums}
+  .rr-ci .ci-sdot.s-local i{background:#2a78d6}
+  .rr-ci .ci-sdot.s-interior i{background:#ea7317}
+  .rr-ci .ci-sdot.s-servicios i{background:#16a34a}
+  .rr-ci .ci-sdot.s-transportadora i{background:#7c3aed}
+  .rr-ci .ci-badge-st .ci-bdot{width:7px;height:7px;border-radius:50%;background:currentColor;opacity:.75;flex-shrink:0}
   .rr-ci .ci-segchip b{margin-left:5px;padding-left:5px;border-left:1px solid currentColor;opacity:.75;font-weight:800}
   .rr-ci .ci-segchip{display:inline-flex;align-items:center;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.3px;padding:2px 8px;border-radius:99px;background:#eef5fb;color:var(--ci-primary);flex-shrink:0}
   .rr-ci .ci-segchip.s-interior{background:#FFEDD5;color:#c2410c} .rr-ci .ci-segchip.s-servicios{background:#D1FAE5;color:#15803d} .rr-ci .ci-segchip.s-transportadora{background:#ede9fe;color:#6d28d9} .rr-ci .ci-segchip.s-mixto{background:#e2e8f0;color:#475569}
   /* Meta sin fondos: texto discreto con iconos, separado por un punto. */
-  .rr-ci .ci-row__meta{display:flex;align-items:center;gap:7px 14px;margin-top:6px;flex-wrap:wrap}
+  .rr-ci .ci-row__meta{display:flex;align-items:center;gap:6px 12px;margin-top:6px;flex-wrap:wrap}
   .rr-ci .ci-pill{position:relative;display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;color:var(--ci-muted);max-width:230px;transition:color .2s ease}
   .rr-ci .ci-pill svg{width:13px;height:13px;flex-shrink:0;opacity:.7;transition:opacity .2s ease}
   .rr-ci .ci-pill span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -5091,12 +5104,12 @@ function showSaveAnim(text){
   /* Importe: columna propia, a la misma altura que el estado. La hairline la cierra
      de arriba a abajo, así los montos se leen como una sola columna en toda la lista. */
   .rr-ci .ci-row__amt{flex-shrink:0;align-self:stretch;display:flex;align-items:center;justify-content:flex-end;
-    min-width:140px;padding:0 14px;margin-left:auto;border-left:1px solid var(--ci-border);
-    font-size:15px;font-weight:800;letter-spacing:-.3px;color:var(--ci-primary-2);
+    min-width:128px;padding:0 12px;margin-left:auto;border-left:1px solid var(--ci-border);
+    font-size:15px;font-weight:800;letter-spacing:-.3px;color:#0e7a46;
     font-variant-numeric:tabular-nums;white-space:nowrap;transition:color .2s ease,border-color .2s ease}
-  .rr-ci .ci-row:hover .ci-row__amt{border-color:rgba(8,119,175,.28)}
+  .rr-ci .ci-row:hover .ci-row__amt{color:#0a6239;border-color:rgba(8,119,175,.28)}
   /* Insignia de estado: plana, para que no se lea como un botón. */
-  .rr-ci .ci-badge-st{position:relative;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;gap:6px;height:28px;min-width:112px;padding:0 11px;border-radius:99px;font-size:11.5px;font-weight:800;letter-spacing:.1px;border:1px solid transparent;transition:transform .24s cubic-bezier(.2,.8,.2,1)}
+  .rr-ci .ci-badge-st{position:relative;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;gap:6px;height:28px;min-width:104px;padding:0 10px;border-radius:99px;font-size:11.5px;font-weight:800;letter-spacing:.1px;border:1px solid transparent;transition:transform .24s cubic-bezier(.2,.8,.2,1)}
   .rr-ci .ci-badge-st svg{width:13px;height:13px}
   .rr-ci .ci-row:hover .ci-badge-st{transform:translateY(-1px)}
   .rr-ci .ci-badge-st.st-programado{background:#eef5fc;color:#0b5f8d;border-color:#dceaf7}
@@ -7409,6 +7422,8 @@ function renderReporteRepartos(){
     chevronR:'<svg fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>',
     list:'<svg fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>',
     chk:'<svg fill="none" stroke="currentColor" stroke-width="2.6" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>',
+    truckMin:'<svg fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 16V7.8a1.3 1.3 0 011.3-1.3h7.9a1.3 1.3 0 011.3 1.3V16"/><path d="M13 10.6h3.5l3 3V16H13"/><circle cx="6.6" cy="17.4" r="1.8"/><circle cx="16.6" cy="17.4" r="1.8"/></svg>',
+    calMin:'<svg fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5.5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8.5 3.5v4M15.5 3.5v4"/></svg>',
     srch:'<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>',
     x:'<svg fill="none" stroke="currentColor" stroke-width="2.6" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>'};
   const MES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
@@ -7487,22 +7502,22 @@ function renderReporteRepartos(){
     const segN={};
     g.lines.forEach(l=>{const k=l.seg||'local';segN[k]=(segN[k]||0)+((k==='transportadora')?(+l.cant||1):1);});
     const segKeys=SEGORD.filter(k=>segN[k]>0);
-    const segChip=segKeys.map(k=>'<span class="ci-segchip s-'+k+'">'+SEGFULL[k]+
+    const segChip=segKeys.map(k=>'<span class="ci-sdot s-'+k+'"><i></i>'+SEGFULL[k]+
       (segKeys.length>1?'<b>'+segN[k]+'</b>':'')+'</span>').join('');
     // El período sólo se muestra si aporta: en semana o día todas las tarjetas repiten
     // el de la cabecera. Una planilla con período propio siempre lo muestra.
-    const perPill=((!_rrWeek&&!_rrDay)||g.perDesde)?('<span class="ci-pill" title="'+perTit+'">'+IC.cal+'<span>'+perLbl+'</span></span>'):'';
+    const perPill=((!_rrWeek&&!_rrDay)||g.perDesde)?('<span class="ci-pill" title="'+perTit+'">'+IC.calMin+'<span>'+perLbl+'</span></span>'):'';
     const sk=_escp((g.ts+' '+g.lines.map(l=>l.trDesc||'').join(' ')).toLowerCase());
     return '<div class="ci-rowwrap" data-search="'+sk+'" data-gi="'+i+'">'+
       '<div class="ci-row st-'+st+'">'+
         '<span class="ci-row__bar"></span>'+
         '<div class="ci-row__main"><div class="ci-row__ttl"><span class="ci-row__name">'+_escp(g.ts)+'</span></div>'+
           '<div class="ci-row__meta">'+
-            '<span class="ci-pill">'+IC.truck+'<span>'+cam+' camion'+(cam===1?'':'es')+'</span></span>'+
+            '<span class="ci-pill">'+IC.truckMin+'<span>'+cam+' camion'+(cam===1?'':'es')+'</span></span>'+
             perPill+segChip+
           '</div></div>'+
         '<span class="ci-row__amt" title="Flete del período">'+_gs(g.flete)+'</span>'+
-        '<span class="ci-badge-st st-'+st+'">'+(facd?IC.chk+'Facturado':IC.cal+'Pendiente')+'</span>'+
+        '<span class="ci-badge-st st-'+st+'">'+(facd?IC.chk+'Facturado':'<i class="ci-bdot"></i>Pendiente')+'</span>'+
         '<span class="ci-row__chev">'+IC.chevronD+'</span>'+
       '</div>'+
       '<div class="ci-row-exp" hidden></div>'+
