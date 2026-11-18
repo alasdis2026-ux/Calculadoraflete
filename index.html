@@ -313,12 +313,12 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .ac-name{flex:1;font-size:13px;font-weight:600;color:var(--gray-800);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ac-cod{font-size:11px;color:var(--gray-400);font-variant-numeric:tabular-nums;flex-shrink:0}
 .ac-empty{padding:24px 16px;font-size:13px;color:var(--gray-400);text-align:center}
-.cl-money-inp,.cl-peso-inp{height:34px;width:150px;padding:0 11px;border:1.5px solid var(--gray-200);border-radius:8px;background:#fff;font-size:15px;font-weight:800;color:var(--gray-800);outline:none;text-align:right;font-variant-numeric:tabular-nums;transition:border-color var(--fast)}
-.cl-peso-inp{width:100px;font-size:14px;font-weight:700;color:var(--gray-600)}
+.cl-money-inp,.cl-peso-inp{height:34px;width:118px;padding:0 11px;border:1.5px solid var(--gray-200);border-radius:8px;background:#fff;font-size:15px;font-weight:800;color:var(--gray-800);outline:none;text-align:right;font-variant-numeric:tabular-nums;transition:border-color var(--fast)}
+.cl-peso-inp{width:84px;font-size:14px;font-weight:700;color:var(--gray-600)}
 .cl-money-inp:focus,.cl-peso-inp:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(59,130,246,.1)}
 .cl-money-inp::placeholder,.cl-peso-inp::placeholder{color:var(--gray-300);font-weight:400}
 /* Trigger de camión por fila (minimalista) + subtexto transportista */
-.row-truck{display:flex;align-items:center;gap:8px;width:100%;min-width:210px;height:36px;padding:0 10px;border:1.5px solid var(--gray-200);border-radius:9px;background:#fff;cursor:pointer;font-family:inherit;font-size:14px;font-weight:700;color:var(--gray-800);text-align:left;outline:none;transition:border-color var(--fast),box-shadow var(--fast)}
+.row-truck{display:flex;align-items:center;gap:8px;width:100%;min-width:0;height:36px;padding:0 10px;border:1.5px solid var(--gray-200);border-radius:9px;background:#fff;cursor:pointer;font-family:inherit;font-size:14px;font-weight:700;color:var(--gray-800);text-align:left;outline:none;transition:border-color var(--fast),box-shadow var(--fast)}
 .row-truck:hover{border-color:var(--gray-300);box-shadow:0 2px 8px rgba(0,0,0,.06)}
 .row-truck.is-open{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.12)}
 .row-truck__ico{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;background:var(--gray-100);color:var(--gray-400);flex-shrink:0;transition:background var(--fast),color var(--fast)}
@@ -371,7 +371,7 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .tpf-save:hover{filter:brightness(1.08)}
 .tpf-save:disabled{opacity:.6;cursor:default}
 /* Input precio de flete por fila */
-.cl-precio-inp{height:34px;width:150px;padding:0 11px;border:1.5px solid var(--gray-200);border-radius:8px;background:#fff;font-size:15px;font-weight:800;color:var(--primary);outline:none;text-align:right;font-variant-numeric:tabular-nums;transition:border-color var(--fast)}
+.cl-precio-inp{height:34px;width:118px;padding:0 11px;border:1.5px solid var(--gray-200);border-radius:8px;background:#fff;font-size:15px;font-weight:800;color:var(--primary);outline:none;text-align:right;font-variant-numeric:tabular-nums;transition:border-color var(--fast)}
 .cl-precio-inp:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(59,130,246,.1)}
 .cl-precio-inp::placeholder{color:var(--gray-300);font-weight:400}
 /* Barra slim (solo fecha) */
@@ -409,13 +409,19 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 
 /* Clients header */
 .clients-hd{display:flex;align-items:center;gap:10px;flex-shrink:0}
+/* La tabla de camiones entra en el ancho disponible: Camión absorbe lo que sobra
+   y las columnas numéricas se quedan en su ancho natural sin partirse. */
+#clientesTable{width:100%;table-layout:fixed}
+#clientesTable th,#clientesTable td{white-space:nowrap}
+#clientesTable .row-truck__lbl,#clientesTable .cl-chip__lbl{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#clientesTable .cl-chip{min-width:0;max-width:100%}
 /* ── Carga rápida de camiones ── */
-.qadd{position:relative;flex-shrink:0;margin:10px 0 12px;display:flex;align-items:center}
-.qadd__ic{position:absolute;left:13px;width:16px;height:16px;color:#94a3b8;pointer-events:none;transition:color .18s ease}
+.qadd{position:relative;flex-shrink:0;width:100%;max-width:520px;margin:12px auto 16px;display:flex;align-items:center}
+.qadd__ic{position:absolute;left:12px;width:15px;height:15px;color:#94a3b8;pointer-events:none;transition:color .2s ease}
 .qadd:focus-within .qadd__ic{color:var(--primary)}
-.qadd input{width:100%;height:44px;border:1.5px solid #dce6f0;border-radius:8px;padding:0 96px 0 38px;font-family:inherit;font-size:14px;font-weight:600;color:var(--gray-700,#334155);background:#fff;outline:none;box-shadow:inset 0 1px 2px rgba(15,36,64,.05);transition:border-color .18s ease,box-shadow .18s ease}
+.qadd input{width:100%;height:40px;border:1.5px solid #dce6f0;border-radius:8px;padding:0 92px 0 36px;font-family:inherit;font-size:13.5px;font-weight:600;color:var(--gray-700,#334155);background:linear-gradient(180deg,#fff,#fbfdfe);outline:none;box-shadow:inset 0 1px 2px rgba(15,36,64,.05),0 1px 2px rgba(15,36,64,.04);transition:border-color .2s ease,box-shadow .2s ease,background .2s ease}
 .qadd input::placeholder{color:#9fb0c0;font-weight:500}
-.qadd input:focus{border-color:var(--primary);box-shadow:inset 0 1px 2px rgba(15,36,64,.05),0 0 0 4px rgba(11,95,141,.12)}
+.qadd input:focus{border-color:var(--primary);background:#fff;box-shadow:inset 0 1px 2px rgba(15,36,64,.04),0 0 0 4px rgba(11,95,141,.13),0 6px 16px -8px rgba(11,95,141,.4)}
 .qadd__keys{position:absolute;right:12px;display:flex;gap:5px;pointer-events:none}
 .qadd__keys kbd{font-family:inherit;font-size:10px;font-weight:800;color:#94a3b8;background:#f1f5f9;border:1px solid #e2e8f0;border-bottom-width:2px;border-radius:4px;padding:2px 5px}
 .qadd:focus-within .qadd__keys kbd{color:var(--primary);background:#eaf3fb;border-color:#cfe1f0}
@@ -2087,14 +2093,14 @@ function renderClientesTable(){
   if(btnLimp)btnLimp.style.display=c.clientes.length?'':'none';
   thead.innerHTML=
     `<th style="width:32px">#</th>`+
-    `<th style="min-width:180px">Camión</th>`+
-    `<th style="width:108px">Segmento</th>`+
-    `<th style="width:150px">Repartidor</th>`+
-    `<th style="width:150px">Zona</th>`+
-    `<th class="r" style="width:110px">Peso (kg)</th>`+
-    `<th class="r">Monto</th>`+
-    `<th class="r">Precio flete</th>`+
-    `<th class="r">Incidencia</th>`+
+    `<th>Camión</th>`+
+    `<th style="width:118px">Segmento</th>`+
+    `<th style="width:156px">Repartidor</th>`+
+    `<th style="width:128px">Zona</th>`+
+    `<th class="r" style="width:86px">Peso (kg)</th>`+
+    `<th class="r" style="width:138px">Monto</th>`+
+    `<th class="r" style="width:138px">Precio flete</th>`+
+    `<th class="r" style="width:92px">Incidencia</th>`+
     `<th style="width:44px"></th>`;
   if(!c.clientes.length){tbody.innerHTML='';tfoot.style.display='none';empty.style.display='';return;}
   empty.style.display='none';tfoot.style.display='';
@@ -2103,7 +2109,7 @@ function renderClientesTable(){
     return`<tr data-clid="${cl.id}">
       <td class="idx">${i+1}</td>
       <td style="padding:6px 10px">
-        <button type="button" class="row-truck${cl.trId?' is-set':''}" data-clid="${cl.id}">
+        <button type="button" class="row-truck${cl.trId?' is-set':''}" data-clid="${cl.id}" title="${cl.trDesc?esc(cl.trDesc):'Elegir camión'}">
           <span class="row-truck__ico">${getTrIco(cl.trDesc||'',16)}</span>
           <span class="row-truck__lbl">${cl.trDesc?esc(cl.trDesc):'Elegir camión'}</span>
           <span class="row-truck__arr"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14"><path d="M6 9l6 6 6-6"/></svg></span>
@@ -2797,11 +2803,28 @@ function _qRender(){
 }
 function _qOpen(){
   const pop=document.getElementById('qAddPop');
-  if(!pop||!pop.hidden)return;
-  pop.hidden=false;_qRender();
-  if(window.gsap)gsap.fromTo(pop,{opacity:0,y:-6},{opacity:1,y:0,duration:.2,ease:'power2.out',clearProps:'opacity,transform'});
+  if(!pop)return;
+  const venia=pop.hidden;
+  // Si venía cerrándose, se corta la salida: si no, queda a medio desvanecer.
+  if(window.gsap)gsap.killTweensOf(pop);
+  pop.hidden=false;
+  _qRender();
+  if(!window.gsap)return;
+  gsap.set(pop,{opacity:1,y:0,scale:1});
+  if(!venia)return;                       // ya estaba abierto: no re-animar en cada tecla
+  gsap.fromTo(pop,{opacity:0,y:-9,scale:.985},{opacity:1,y:0,scale:1,duration:.3,ease:'back.out(1.7)',clearProps:'opacity,transform'});
+  gsap.from(pop.querySelectorAll('.qadd__it'),{opacity:0,y:-7,duration:.24,stagger:.02,ease:'power2.out',clearProps:'opacity,transform'});
+  const nw=pop.querySelector('.qadd__new');
+  if(nw)gsap.from(nw,{opacity:0,duration:.3,delay:.1,ease:'power2.out',clearProps:'opacity'});
 }
-function _qClose(){const pop=document.getElementById('qAddPop');if(pop)pop.hidden=true;}
+function _qClose(){
+  const pop=document.getElementById('qAddPop');
+  if(!pop||pop.hidden)return;
+  if(!window.gsap){pop.hidden=true;return;}
+  gsap.killTweensOf(pop);
+  gsap.to(pop,{opacity:0,y:-7,scale:.99,duration:.16,ease:'power2.in',
+    onComplete:()=>{pop.hidden=true;gsap.set(pop,{clearProps:'opacity,transform'});}});
+}
 function _qPick(i){
   const x=_qList[i];
   if(!x)return;
@@ -2810,15 +2833,25 @@ function _qPick(i){
   renderClientesTable();updateResultCard();
   const inp=document.getElementById('qAddInp');
   if(inp){inp.value='';inp.focus();}
-  _qIdx=0;_qRender();
+  _qIdx=0;_qClose();
   // Deja ver cuál entró sin sacarte del campo.
   const row=document.querySelector('[data-clid="'+newCl.id+'"]');
-  if(row&&window.gsap)gsap.fromTo(row,{backgroundColor:'rgba(11,95,141,.14)'},{backgroundColor:'rgba(11,95,141,0)',duration:1,ease:'power2.out',clearProps:'background-color'});
+  if(row&&window.gsap){
+    gsap.fromTo(row,{opacity:0,y:-12},{opacity:1,y:0,duration:.4,ease:'back.out(1.6)',clearProps:'opacity,transform'});
+    gsap.fromTo(row,{backgroundColor:'rgba(11,95,141,.16)'},{backgroundColor:'rgba(11,95,141,0)',duration:1.1,ease:'power2.out',clearProps:'background-color'});
+    gsap.from(row.querySelectorAll('td'),{opacity:0,duration:.3,stagger:.025,ease:'power2.out',clearProps:'opacity'});
+    try{row.scrollIntoView({block:'nearest',behavior:'smooth'});}catch(_){}
+  }
+  const cnt=document.getElementById('clienteCount');
+  if(cnt&&window.gsap)gsap.fromTo(cnt,{scale:.5},{scale:1,duration:.5,ease:'back.out(3.2)',clearProps:'transform'});
+  // Pulso en el campo: confirma que entró y que ya podés seguir.
+  if(inp&&window.gsap)gsap.fromTo(inp,{boxShadow:'0 0 0 4px rgba(22,163,74,.3)'},{boxShadow:'0 0 0 0 rgba(22,163,74,0)',duration:.6,ease:'power2.out',clearProps:'box-shadow'});
 }
 (function wireQAdd(){
   const inp=document.getElementById('qAddInp'),pop=document.getElementById('qAddPop'),box=document.getElementById('qAdd');
   if(!inp||!pop)return;
   inp.addEventListener('focus',()=>{_qIdx=0;_qOpen();});
+  inp.addEventListener('click',()=>{_qIdx=0;_qOpen();});
   inp.addEventListener('input',()=>{_qIdx=0;_qOpen();_qRender();});
   inp.addEventListener('keydown',e=>{
     if(e.key==='ArrowDown'||e.key==='ArrowUp'){
