@@ -409,6 +409,32 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 
 /* Clients header */
 .clients-hd{display:flex;align-items:center;gap:10px;flex-shrink:0}
+/* ── Carga rápida de camiones ── */
+.qadd{position:relative;flex-shrink:0;margin:10px 0 12px;display:flex;align-items:center}
+.qadd__ic{position:absolute;left:13px;width:16px;height:16px;color:#94a3b8;pointer-events:none;transition:color .18s ease}
+.qadd:focus-within .qadd__ic{color:var(--primary)}
+.qadd input{width:100%;height:44px;border:1.5px solid #dce6f0;border-radius:8px;padding:0 96px 0 38px;font-family:inherit;font-size:14px;font-weight:600;color:var(--gray-700,#334155);background:#fff;outline:none;box-shadow:inset 0 1px 2px rgba(15,36,64,.05);transition:border-color .18s ease,box-shadow .18s ease}
+.qadd input::placeholder{color:#9fb0c0;font-weight:500}
+.qadd input:focus{border-color:var(--primary);box-shadow:inset 0 1px 2px rgba(15,36,64,.05),0 0 0 4px rgba(11,95,141,.12)}
+.qadd__keys{position:absolute;right:12px;display:flex;gap:5px;pointer-events:none}
+.qadd__keys kbd{font-family:inherit;font-size:10px;font-weight:800;color:#94a3b8;background:#f1f5f9;border:1px solid #e2e8f0;border-bottom-width:2px;border-radius:4px;padding:2px 5px}
+.qadd:focus-within .qadd__keys kbd{color:var(--primary);background:#eaf3fb;border-color:#cfe1f0}
+.qadd__pop{position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:60;max-height:330px;overflow-y:auto;background:#fff;border:1px solid #dce6f0;border-radius:8px;box-shadow:0 18px 40px -12px rgba(15,36,64,.3),0 2px 6px rgba(15,36,64,.08);padding:5px}
+.qadd__grp{padding:8px 11px 4px;font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:#94a3b8}
+.qadd__it{display:flex;align-items:center;gap:10px;width:100%;padding:8px 11px;border:0;border-radius:6px;background:transparent;text-align:left;font-family:inherit;font-size:13.5px;font-weight:600;color:var(--gray-700,#334155);cursor:pointer}
+.qadd__it svg{width:17px;height:17px;flex-shrink:0;color:#94a3b8}
+.qadd__it mark{background:#fde68a;color:inherit;border-radius:2px;padding:0 1px}
+.qadd__it .qadd__ts{margin-left:auto;font-size:11px;font-weight:700;color:#94a3b8;white-space:nowrap}
+.qadd__it.on,.qadd__it:hover{background:var(--primary);color:#fff}
+.qadd__it.on svg,.qadd__it:hover svg{color:#fff}
+.qadd__it.on .qadd__ts,.qadd__it:hover .qadd__ts{color:rgba(255,255,255,.75)}
+.qadd__it.on mark,.qadd__it:hover mark{background:rgba(255,255,255,.26);color:#fff}
+.qadd__empty{padding:18px 12px;text-align:center;font-size:13px;font-weight:600;color:#8a99a8}
+.truck-pop__item.kb{background:var(--primary);color:#fff}
+.truck-pop__item.kb svg{color:#fff}
+.qadd__new{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;margin-top:4px;padding:9px;border:0;border-top:1px solid #eef2f7;border-radius:0 0 6px 6px;background:transparent;font-family:inherit;font-size:12.5px;font-weight:800;color:var(--primary);cursor:pointer}
+.qadd__new:hover{background:#eaf3fb}
+@media(max-width:720px){.qadd__keys{display:none}.qadd input{padding-right:14px}}
 .clients-hd h3{font-size:15px;font-weight:800;color:var(--gray-700)}
 .cnt-badge{padding:3px 11px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-size:12px;font-weight:800}
 .incid-col{font-variant-numeric:tabular-nums;font-weight:800;font-size:16px;text-align:right}
@@ -1221,6 +1247,14 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14"><path stroke-linecap="round" stroke-width="2.2" d="M6 18L18 6M6 6l12 12"/></svg>
           Limpiar
         </button>
+      </div>
+
+      <!-- Carga rápida: escribí, ↑↓ y Enter. Crea la misma fila que "Agregar camión". -->
+      <div class="qadd" id="qAdd">
+        <svg class="qadd__ic" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input type="text" id="qAddInp" autocomplete="off" spellcheck="false" placeholder="Agregá un camión — escribí y Enter" aria-label="Carga rápida de camiones">
+        <span class="qadd__keys"><kbd>↑↓</kbd><kbd>Enter</kbd></span>
+        <div class="qadd__pop" id="qAddPop" hidden></div>
       </div>
 
       <div class="table-wrap">
@@ -2201,7 +2235,25 @@ function ensureTruckPop(){
   document.body.appendChild(p);
   const inp=p.querySelector('.truck-pop__search input');
   inp.addEventListener('input',e=>renderTruckPopList(e.target.value));
-  inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){const first=p.querySelector('.truck-pop__item');if(first)first.click();} });
+  function _tpKeys(e){
+    if(!p.classList.contains('open'))return;
+    const its=[].slice.call(p.querySelectorAll('.truck-pop__item'));
+    const cur=p.querySelector('.truck-pop__item.kb');
+    let i=cur?its.indexOf(cur):-1;
+    if(e.key==='ArrowDown'||e.key==='ArrowUp'){
+      e.preventDefault();
+      if(!its.length)return;
+      i=(i+(e.key==='ArrowDown'?1:-1)+its.length)%its.length;
+      its.forEach(x=>x.classList.remove('kb'));
+      its[i].classList.add('kb');
+      try{its[i].scrollIntoView({block:'nearest'});}catch(_){}
+    }else if(e.key==='Enter'){
+      e.preventDefault();
+      const t=cur||its[0];
+      if(t)t.click();
+    }else if(e.key==='Escape'){e.preventDefault();e.stopPropagation();closeTruckPop();}
+  }
+  document.addEventListener('keydown',_tpKeys,true);
   p.querySelector('.truck-pop__add').addEventListener('click',openNCModal);
   document.addEventListener('click',e=>{ if(_truckPop&&_truckPop.classList.contains('open')&&!_truckPop.contains(e.target)&&!e.target.closest('.row-truck'))closeTruckPop(); });
   window.addEventListener('resize',()=>{ if(_truckPop&&_truckPop.classList.contains('open'))closeTruckPop(); });
@@ -2284,7 +2336,8 @@ function renderTruckPopList(q){
   q=(q||'').toLowerCase().trim();
   let html='', n=0;
   transportistas.forEach(ts=>{
-    const trucks=(ts.trucks||[]).filter(tr=>!q||(tr.d+' '+ts.n).toLowerCase().includes(q));
+    const _tms=_qNorm(q).trim().split(/\s+/).filter(Boolean);
+    const trucks=(ts.trucks||[]).filter(tr=>_qScore(tr.d,ts.n,_tms,0)>=0);
     if(!trucks.length)return;
     html+=`<div class="truck-pop__group">${esc(ts.n)}</div>`;
     trucks.forEach(tr=>{ n++;
@@ -2668,6 +2721,136 @@ document.addEventListener('click',e=>{
 });
 
 /* Agregar camión directo en la tabla */
+/* ── Carga rápida de camiones ───────────────────────────────────────────────
+   Escribís, elegís con ↑/↓ y Enter, y el camión entra como fila. No cambia la
+   lógica: crea el mismo objeto que "Agregar camión" y el segmento sale de
+   _truckSeg, igual que cuando lo elegís desde el dropdown de la fila. */
+function _qNorm(t){return String(t==null?'':t).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');}
+// Camiones más usados, contando las líneas de los repartos ya cargados.
+function _qFreq(){
+  const f={};
+  (repartos||[]).forEach(r=>(r.clientes||[]).forEach(c=>{if(c.trId!=null)f[c.trId]=(f[c.trId]||0)+1;}));
+  return f;
+}
+/* Puntaje: igual > empieza con > empieza una palabra > contiene, y los más usados
+   primero a igualdad de puntaje. Todos los términos tienen que estar (en cualquier orden). */
+function _qScore(d,tsN,terms,freq){
+  const hay=_qNorm(d)+' '+_qNorm(tsN), nd=_qNorm(d);
+  if(!terms.length)return 1+Math.min(freq,40);
+  let sc=0;
+  for(const t of terms){
+    if(hay.indexOf(t)<0)return -1;
+    if(nd===t)sc+=1000;
+    else if(nd.indexOf(t)===0)sc+=500;
+    else if(hay.indexOf(t)===0||hay.indexOf(' '+t)>=0||hay.indexOf('-'+t)>=0)sc+=300;
+    else sc+=100;
+  }
+  return sc+Math.min(freq,40);
+}
+function _qBuscar(q){
+  const terms=_qNorm(q).trim().split(/\s+/).filter(Boolean);
+  const freq=_qFreq(), out=[];
+  (transportistas||[]).forEach(ts=>(ts.trucks||[]).forEach(tr=>{
+    const sc=_qScore(tr.d,ts.n,terms,freq[tr.id]||0);
+    if(sc>=0)out.push({tr:tr,ts:ts,sc:sc,fq:freq[tr.id]||0});
+  }));
+  out.sort((a,b)=>b.sc-a.sc||b.fq-a.fq||String(a.tr.d).localeCompare(String(b.tr.d)));
+  return {items:out,terms:terms};
+}
+// Resalta sobre un mapa de posiciones, así no se anidan <mark> entre términos.
+function _qHl(text,terms){
+  const low=_qNorm(text);
+  if(!terms.length||low.length!==String(text).length)return esc(text);
+  const on=new Array(text.length).fill(false);
+  terms.forEach(t=>{let i=low.indexOf(t);while(i>=0){for(let k=i;k<i+t.length;k++)on[k]=true;i=low.indexOf(t,i+t.length);}});
+  let out='',open=false;
+  for(let i=0;i<text.length;i++){
+    if(on[i]&&!open){out+='<mark>';open=true;}
+    else if(!on[i]&&open){out+='</mark>';open=false;}
+    out+=esc(text[i]);
+  }
+  return out+(open?'</mark>':'');
+}
+let _qIdx=0,_qList=[];
+function _qRender(){
+  const inp=document.getElementById('qAddInp'),pop=document.getElementById('qAddPop');
+  if(!inp||!pop)return;
+  const q=inp.value, r=_qBuscar(q);
+  _qList=r.items.slice(0,60);
+  if(_qIdx>=_qList.length)_qIdx=Math.max(0,_qList.length-1);
+  let html='';
+  if(!_qList.length)html='<div class="qadd__empty">Sin resultados</div>';
+  else{
+    const sinQ=!r.terms.length;
+    const top=sinQ?_qList.filter(x=>x.fq>0).slice(0,6):[];
+    const resto=sinQ?_qList.filter(x=>top.indexOf(x)<0):_qList;
+    const fila=(x,i)=>'<button type="button" class="qadd__it'+(i===_qIdx?' on':'')+'" data-qi="'+i+'">'+
+      getTrIco(x.tr.d,17)+'<span>'+_qHl(x.tr.d,r.terms)+'</span><span class="qadd__ts">'+esc(x.ts.n)+'</span></button>';
+    const idx=x=>_qList.indexOf(x);
+    if(top.length)html+='<div class="qadd__grp">Más usados</div>'+top.map(x=>fila(x,idx(x))).join('');
+    if(resto.length)html+=(top.length?'<div class="qadd__grp">Todos</div>':'')+resto.map(x=>fila(x,idx(x))).join('');
+  }
+  html+='<button type="button" class="qadd__new" data-qnew><svg fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24" width="14" height="14" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Agregar camión nuevo</button>';
+  pop.innerHTML=html;
+  const act=pop.querySelector('.qadd__it.on');
+  if(act)try{act.scrollIntoView({block:'nearest'});}catch(_){}
+}
+function _qOpen(){
+  const pop=document.getElementById('qAddPop');
+  if(!pop||!pop.hidden)return;
+  pop.hidden=false;_qRender();
+  if(window.gsap)gsap.fromTo(pop,{opacity:0,y:-6},{opacity:1,y:0,duration:.2,ease:'power2.out',clearProps:'opacity,transform'});
+}
+function _qClose(){const pop=document.getElementById('qAddPop');if(pop)pop.hidden=true;}
+function _qPick(i){
+  const x=_qList[i];
+  if(!x)return;
+  const newCl={id:nextClienteId++,trId:x.tr.id,tsId:x.ts.id,monto:0,precio:0,seg:_truckSeg(x.tr.id),rep:null};
+  currentReparto.clientes.push(newCl);
+  renderClientesTable();updateResultCard();
+  const inp=document.getElementById('qAddInp');
+  if(inp){inp.value='';inp.focus();}
+  _qIdx=0;_qRender();
+  // Deja ver cuál entró sin sacarte del campo.
+  const row=document.querySelector('[data-clid="'+newCl.id+'"]');
+  if(row&&window.gsap)gsap.fromTo(row,{backgroundColor:'rgba(11,95,141,.14)'},{backgroundColor:'rgba(11,95,141,0)',duration:1,ease:'power2.out',clearProps:'background-color'});
+}
+(function wireQAdd(){
+  const inp=document.getElementById('qAddInp'),pop=document.getElementById('qAddPop'),box=document.getElementById('qAdd');
+  if(!inp||!pop)return;
+  inp.addEventListener('focus',()=>{_qIdx=0;_qOpen();});
+  inp.addEventListener('input',()=>{_qIdx=0;_qOpen();_qRender();});
+  inp.addEventListener('keydown',e=>{
+    if(e.key==='ArrowDown'||e.key==='ArrowUp'){
+      e.preventDefault();
+      if(pop.hidden){_qOpen();return;}
+      if(!_qList.length)return;
+      _qIdx=(_qIdx+(e.key==='ArrowDown'?1:-1)+_qList.length)%_qList.length;
+      _qRender();
+    }else if(e.key==='Enter'){
+      e.preventDefault();
+      if(pop.hidden)_qOpen();
+      else _qPick(_qIdx);
+    }else if(e.key==='Escape'){
+      e.preventDefault();e.stopPropagation();
+      if(inp.value){inp.value='';_qIdx=0;_qRender();}
+      else{_qClose();inp.blur();}
+    }
+  });
+  // Delegación: un solo listener, no uno por camión.
+  pop.addEventListener('mousedown',e=>e.preventDefault());   // no perder el foco del campo
+  pop.addEventListener('click',e=>{
+    if(e.target.closest('[data-qnew]')){_qClose();openNCModal();return;}
+    const it=e.target.closest('.qadd__it');
+    if(it)_qPick(+it.dataset.qi);
+  });
+  pop.addEventListener('mousemove',e=>{
+    const it=e.target.closest('.qadd__it');
+    if(it&&+it.dataset.qi!==_qIdx){_qIdx=+it.dataset.qi;_qRender();}
+  });
+  document.addEventListener('click',e=>{if(!pop.hidden&&box&&!box.contains(e.target))_qClose();});
+})();
+
 document.getElementById('btnAddCliente').addEventListener('click',()=>{
   const newCl={id:nextClienteId++,trId:null,tsId:null,monto:0,precio:0,seg:'local',rep:null};
   currentReparto.clientes.push(newCl);
