@@ -5208,6 +5208,24 @@ function showSaveAnim(text){
   .rrm-body{flex:1 1 auto;min-height:0;overflow:auto;border:1px solid var(--gray-200,#e2e8f0);border-radius:13px}
   /* Filtro por camión */
   .rrm-filterbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:2px 0 12px}
+  /* Buscador de la planilla */
+  .rrm-srch{position:relative;display:inline-flex;align-items:center;min-width:300px;max-width:430px;flex:1 1 300px}
+  .rrm-srch>svg{position:absolute;left:12px;width:15px;height:15px;color:#94a3b8;pointer-events:none;transition:color .18s ease}
+  .rrm-srch:focus-within>svg,.rrm-srch.has>svg{color:var(--primary)}
+  .rrm-srch input{width:100%;height:36px;border:1.5px solid #dce6f0;border-radius:6px;padding:0 12px 0 34px;font-family:inherit;font-size:13px;font-weight:600;color:var(--gray-700,#334155);background:#fff;outline:none;box-shadow:inset 0 1px 2px rgba(15,36,64,.05);transition:border-color .18s ease,box-shadow .18s ease,padding .18s ease}
+  .rrm-srch input::placeholder{color:#9fb0c0;font-weight:500}
+  .rrm-srch input:focus{border-color:var(--primary);box-shadow:inset 0 1px 2px rgba(15,36,64,.05),0 0 0 3px rgba(11,95,141,.13)}
+  .rrm-srch.has input{border-color:var(--primary);padding-right:84px}
+  .rrm-srch__act{position:absolute;right:5px;display:none;align-items:center;gap:5px}
+  .rrm-srch.has .rrm-srch__act{display:flex}
+  .rrm-srch__n{font-size:11px;font-weight:800;color:var(--primary);background:#eaf3fb;border-radius:4px;padding:3px 6px;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .rrm-srch__n.zero{color:#b4452f;background:#fdeeea}
+  .rrm-srch__x{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;flex-shrink:0;padding:0;border:0;border-radius:5px;background:#eef4f9;color:#64748b;cursor:pointer;transition:background .16s ease,color .16s ease}
+  .rrm-srch__x svg{width:13px;height:13px}
+  .rrm-srch__x:hover{background:var(--primary);color:#fff}
+  .rrd-tbl tbody tr.rrd-qhid{display:none}
+  .rrd-tbl tbody tr.rrd-noq td{padding:22px 12px;text-align:center;color:#8a99a8;font-size:13px;font-weight:600}
+  .rrd-tbl tbody tr.rrd-noq b{color:var(--primary)}
   .rrm-camfilter{display:inline-flex;align-items:center;gap:9px;border:1.5px solid var(--gray-200,#e2e8f0);background:#fff;border-radius:12px;padding:9px 14px;font:inherit;font-size:13px;font-weight:700;color:var(--primary);cursor:pointer;transition:background .15s,color .15s,border-color .15s,box-shadow .15s,transform .12s;min-width:220px;box-shadow:0 1px 6px rgba(15,23,42,.05)}
   .rrm-camfilter:hover,.rrm-camfilter.is-open{background:var(--accent-soft,#DBEAFE);color:var(--primary);border-color:var(--primary);box-shadow:0 6px 16px rgba(11,95,141,.14);transform:translateY(-1px)}
   .rrm-camfilter.on{color:var(--primary);background:var(--accent-soft,#DBEAFE);border-color:var(--primary)}
@@ -7679,7 +7697,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     if(g3){g3.fromTo(c,{opacity:0},{opacity:1,duration:.24,ease:'power2.out'});g3.fromTo(c.querySelector('svg'),{scale:0,rotate:-15,transformOrigin:'50% 50%'},{scale:1,rotate:0,duration:.36,delay:.05,ease:'back.out(2.6)'});g3.to(c,{opacity:0,duration:.3,delay:1.15,ease:'power2.in',onComplete:()=>c.remove()});}
     else setTimeout(()=>c.remove(),1500);
   }
-  let work=[],firstDraw=true,_wuid=1,selUid=null,_ddEl=null,_ddCleanup=null,_ddBtn=null,_lastTotal=null,_dragUid=null,_dashSeg='todos',_dashEdit=false,_dashDraft=null,_dashDK=1,_facMode=false,_facSel=new Set(),_facNro='',_facMonto=0,_dashSel=new Set();
+  let _detQ='',work=[],firstDraw=true,_wuid=1,selUid=null,_ddEl=null,_ddCleanup=null,_ddBtn=null,_lastTotal=null,_dragUid=null,_dashSeg='todos',_dashEdit=false,_dashDraft=null,_dashDK=1,_facMode=false,_facSel=new Set(),_facNro='',_facMonto=0,_dashSel=new Set();
   const SEGL=['local','interior','servicios','transportadora'];
   // Conteo animado (el total "sube" con pop) — estilo prototipo, con nuestra lógica
   function countTo(el,from,to,delay){if(!el)return;const gs=window.gsap;if(!gs||from===to){el.textContent=_gs(to);return;}delay=delay||0;const o={v:from};el.textContent=_gs(from);gs.to(o,{v:to,duration:.8,delay:delay,ease:'power2.out',onUpdate:()=>{el.textContent=_gs(Math.round(o.v));},onComplete:()=>{el.textContent=_gs(to);}});gs.fromTo(el,{scale:1.15,textShadow:'0 0 30px rgba(21,128,61,.55)'},{scale:1,textShadow:'0 0 0px rgba(21,128,61,0)',duration:.55,delay:delay,ease:'back.out(2)',clearProps:'transform,textShadow'});}
@@ -7795,14 +7813,65 @@ function _rrOpenDetail(g,periodLbl,wkObj){
   let _camFilter=null;
   const camLbl=w=>w.trId?(((trucks.find(t=>t.id===w.trId)||{}).d)||w.trDesc||'—'):(w.trDesc||'—');
   const camsUsados=()=>[...new Set(work.filter(w=>!w.del&&!w.isNew).map(camLbl))].filter(x=>x&&x!=='—').sort((a,b)=>a.localeCompare(b));
+  /* Buscador de la planilla. Filtra las filas de la tabla sin re-render, así no se
+     pierde el foco ni lo que se esté editando. Busca sobre el texto visible de la
+     fila MÁS el valor de sus inputs, por eso funciona igual en lectura y en edición
+     (en edición casi todo son <input> y <button>). Varias palabras = todas deben
+     estar en la fila, en cualquier orden y sin importar tildes. */
+  function _detNorm(t){return String(t==null?'':t).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');}
+  function _detRowText(tr){
+    let t=_detNorm(tr.textContent);
+    tr.querySelectorAll('input').forEach(i=>{if(i.type!=='checkbox')t+=' '+_detNorm(i.value);});
+    return t;
+  }
+  function applyDetQ(anim){
+    const box=bd.querySelector('.rrm-srch');
+    const terms=_detNorm(_detQ).trim().split(/\s+/).filter(Boolean);
+    const rows=bd.querySelectorAll('.rrd-tbl tbody tr');
+    let vis=0,total=0;const back=[];
+    rows.forEach(tr=>{
+      if(tr.querySelector('.rrd-empty')){tr.classList.remove('rrd-qhid');return;}
+      total++;
+      const ok=!terms.length||terms.every(t=>_detRowText(tr).indexOf(t)>=0);
+      if(ok){if(tr.classList.contains('rrd-qhid'))back.push(tr);tr.classList.remove('rrd-qhid');vis++;}
+      else tr.classList.add('rrd-qhid');
+    });
+    if(box)box.classList.toggle('has',!!terms.length);
+    const n=bd.querySelector('[data-detn]');
+    if(n){n.textContent=vis+'/'+total;n.classList.toggle('zero',vis===0);}
+    let nr=bd.querySelector('.rrd-noq');
+    if(terms.length&&vis===0&&total){
+      if(!nr){const tb=bd.querySelector('.rrd-tbl tbody');
+        if(tb){nr=document.createElement('tr');nr.className='rrd-noq';
+          nr.innerHTML='<td colspan="9">Ninguna línea coincide con «<b></b>»</td>';tb.appendChild(nr);}}
+      if(nr){const b=nr.querySelector('b');if(b)b.textContent=_detQ.trim();nr.classList.remove('rrd-qhid');
+        if(window.gsap)gsap.fromTo(nr,{opacity:0},{opacity:1,duration:.24,ease:'power2.out',clearProps:'opacity'});}
+    }else if(nr)nr.remove();
+    if(anim&&back.length&&window.gsap){gsap.killTweensOf(back);
+      gsap.fromTo(back.slice(0,16),{opacity:0,y:6},{opacity:1,y:0,duration:.26,stagger:.02,ease:'power2.out',clearProps:'opacity,transform'});}
+  }
+  function clearDetQ(focus){
+    if(!_detQ)return;
+    _detQ='';
+    const i=bd.querySelector('[data-detq]');
+    if(i){i.value='';if(focus)i.focus();}
+    applyDetQ(true);
+  }
   function camFilterBar(){
     const used=camsUsados();
     const emptySegs=SEGL.filter(sk=>!work.some(w=>!w.del&&w.seg===sk));
     const lbl=_camFilter||'Todos los camiones';
     const filterUI=used.length?('<button type="button" class="rrm-camfilter'+(_camFilter?' on':'')+'" id="rrmCamFilter"><span class="rrm-camfilter__ic">'+TRUCKICON+'</span><span class="rrm-camfilter__t">'+_escp(lbl)+'</span><svg class="rrm-camfilter__arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg></button>'+(_camFilter?'<button type="button" class="rrm-camclear" id="rrmCamClear"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 6L6 18M6 6l12 12"/></svg> Ver todos</button>':'')):'';
     const addUI=(emptySegs.length&&!_facDeGrupo(g)&&!_facMode)?'<button type="button" class="rrm-addseg" id="rrmAddSeg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg> Agregar servicio</button>':'';
-    if(!filterUI&&!addUI)return '';
-    return '<div class="rrm-filterbar">'+filterUI+addUI+'</div>';
+    const hayLineas=work.some(w=>!w.del);
+    const SIC='<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>';
+    const XIC='<svg fill="none" stroke="currentColor" stroke-width="2.6" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>';
+    const srchUI=hayLineas?('<div class="rrm-srch'+(_detQ?' has':'')+'">'+SIC+
+      '<input type="text" data-detq value="'+_escp(_detQ)+'" autocomplete="off" spellcheck="false" aria-label="Buscar en la planilla" placeholder="Buscar camión, repartidor, zona, fecha…">'+
+      '<span class="rrm-srch__act"><span class="rrm-srch__n" data-detn></span>'+
+      '<button type="button" class="rrm-srch__x" data-detx title="Limpiar búsqueda (Esc)" aria-label="Limpiar búsqueda">'+XIC+'</button></span></div>'):'';
+    if(!filterUI&&!addUI&&!srchUI)return '';
+    return '<div class="rrm-filterbar">'+srchUI+filterUI+addUI+'</div>';
   }
   const segVisible=sk=>work.some(w=>!w.del&&w.seg===sk&&(!_camFilter||w.isNew||w.edit||camLbl(w)===_camFilter));
   // Orden por segmento: interior por precio/km→fecha; resto por camión→fecha.
@@ -8116,6 +8185,15 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     [bd.querySelector('.rrm-act--print'),bd.querySelector('#rrmAddSeg')].forEach(b=>{if(!b||!window.gsap)return;const ic=b.querySelector('svg');if(!ic)return;b.addEventListener('mouseenter',()=>{gsap.killTweensOf(ic);gsap.fromTo(ic,{scale:1},{scale:1.2,duration:.26,yoyo:true,repeat:1,ease:'power2.inOut'});});});
     // Selectores PRO (Repartidor / Zona) en la tarjeta en edición
     bd.querySelectorAll('.rre-pick').forEach(b=>b.addEventListener('click',()=>openRrePick(b)));
+    // Buscador de la planilla
+    const _sq=bd.querySelector('[data-detq]');
+    if(_sq){
+      _sq.addEventListener('input',()=>{_detQ=_sq.value;applyDetQ(true);});
+      _sq.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();clearDetQ(true);}});
+    }
+    bd.querySelectorAll('[data-detx]').forEach(b=>b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();clearDetQ(true);}));
+    applyDetQ(false);
+
     // Período de la planilla
     const _pdd=bd.querySelector('[data-pdd]'),_pdh=bd.querySelector('[data-pdh]');
     if(_pdd)_pdd.addEventListener('change',()=>setPeriodo(_pdd.value||pD,pH));
@@ -8156,7 +8234,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     bd.querySelectorAll('[data-editseg]').forEach(b=>b.addEventListener('click',()=>openSegEdit(b.dataset.editseg)));
     // Vista dashboard: pestañas + edición inline
     bd.querySelectorAll('[data-dashseg]').forEach(b=>b.addEventListener('click',()=>{if(_dashSeg===b.dataset.dashseg&&!_dashEdit)return;_dashEdit=false;_dashDraft=null;_dashSeg=b.dataset.dashseg;render('filter');}));
-    bd.querySelectorAll('[data-dashadd]').forEach(b=>b.addEventListener('click',()=>_dashEnterEdit(b.dataset.dashadd,true)));
+    bd.querySelectorAll('[data-dashadd]').forEach(b=>b.addEventListener('click',()=>{_detQ='';_dashEnterEdit(b.dataset.dashadd,true);}));
     bd.querySelectorAll('[data-dashedit]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();_dashEnterEdit(b.dataset.dashedit);}));
     bd.querySelectorAll('[data-todosadd]').forEach(b=>b.addEventListener('click',()=>_dashPickSeg(true)));
     bd.querySelectorAll('[data-todosedit]').forEach(b=>b.addEventListener('click',()=>_dashPickSeg(false)));
@@ -8179,7 +8257,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
       const place=el=>{const t=el.getAttribute('data-tip');if(!t)return;tip.textContent=t;tip.style.setProperty('--tc',colorOf(el));const r=el.getBoundingClientRect();let x=r.left+r.width/2;x=Math.max(72,Math.min(window.innerWidth-72,x));tip.style.left=x+'px';const h=tip.offsetHeight;tip.style.top=Math.max(6,r.top-h-11)+'px';const gs=window.gsap;if(gs&&!reduce()){gs.killTweensOf(tip);gs.fromTo(tip,{opacity:0,y:8,scale:.9,xPercent:-50},{opacity:1,y:0,scale:1,xPercent:-50,duration:.3,ease:'back.out(2.2)',transformOrigin:'50% 100%'});}else{tip.style.opacity='1';tip.style.transform='translateX(-50%)';}};
       const hide=()=>{const gs=window.gsap;if(gs&&!reduce()){gs.killTweensOf(tip);gs.to(tip,{opacity:0,y:6,duration:.13,ease:'power1.out'});}else tip.style.opacity='0';};
       bd.querySelectorAll('.rrd-facc [data-tip]').forEach(el=>{el.addEventListener('mouseenter',()=>place(el));el.addEventListener('mouseleave',hide);el.addEventListener('click',hide);});})();
-    bd.querySelectorAll('[data-dashaddline]').forEach(b=>b.addEventListener('click',()=>{if(_dashDraft){_dashDraft.push(_dashBlank());render('filter');const wp=bd.querySelector('.rrd-tablewrap');if(wp)wp.scrollTop=wp.scrollHeight;}}));
+    bd.querySelectorAll('[data-dashaddline]').forEach(b=>b.addEventListener('click',()=>{if(_dashDraft){_detQ='';_dashDraft.push(_dashBlank());render('filter');const wp=bd.querySelector('.rrd-tablewrap');if(wp)wp.scrollTop=wp.scrollHeight;}}));
     bd.querySelectorAll('[data-dashcancel]').forEach(b=>b.addEventListener('click',()=>_dashExitEdit()));
     bd.querySelectorAll('[data-dashsave]').forEach(b=>b.addEventListener('click',()=>_dashSaveEdit()));
     const _DD=k=>(_dashDraft||[]).find(x=>x.k===+k);
