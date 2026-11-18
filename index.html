@@ -5061,35 +5061,42 @@ function showSaveAnim(text){
   .rr-ci .ci-rowwrap{border-radius:14px;transition:box-shadow .28s ease}
   .rr-ci .ci-rowwrap.open{box-shadow:0 18px 44px -12px rgba(8,119,175,.34)}
   .rr-ci .ci-row{position:relative;display:flex;align-items:center;gap:10px;border:1px solid var(--ci-border);border-radius:16px;background:#fff;padding:10px 12px 10px 10px;cursor:pointer;overflow:hidden;transition:border-color .16s,box-shadow .16s,transform .16s,border-radius .2s,background .2s}
-  .rr-ci .ci-row:hover{border-color:rgba(8,119,175,.4);box-shadow:0 8px 22px rgba(8,119,175,.12);transform:translateY(-1px)}
+  .rr-ci .ci-row:hover{border-color:rgba(8,119,175,.38);background:linear-gradient(90deg,#f6fbff,#fff 220px);
+    box-shadow:0 8px 20px -8px rgba(8,119,175,.3),0 0 0 1px rgba(8,119,175,.07);transform:translateY(-1px)}
+  .rr-ci .ci-row:hover .ci-row__name{color:var(--ci-primary-2)}
   .rr-ci .ci-rowwrap.open .ci-row{border-color:transparent;border-bottom-left-radius:0;border-bottom-right-radius:0;transform:none;background:linear-gradient(180deg,#fff,#f4faff);box-shadow:0 10px 20px -10px rgba(8,119,175,.4),inset 0 0 0 1px rgba(8,119,175,.45)}
   .rr-ci .ci-rowwrap.open .ci-row::after{content:'';position:absolute;left:12px;right:12px;bottom:0;height:1px;background:linear-gradient(90deg,transparent,rgba(8,119,175,.28),transparent)}
   .rr-ci .ci-rowwrap.open .ci-row:hover{transform:none;box-shadow:0 10px 20px -10px rgba(8,119,175,.4),inset 0 0 0 1px rgba(8,119,175,.45)}
   /* Acento de estado: fino y redondeado; se estira al pasar el mouse. */
   .rr-ci .ci-row__bar{position:absolute;left:0;top:11px;bottom:11px;width:3px;border-radius:0 3px 3px 0;transition:width .26s cubic-bezier(.2,.8,.2,1),top .26s cubic-bezier(.2,.8,.2,1),bottom .26s cubic-bezier(.2,.8,.2,1)}
   .rr-ci .ci-row:hover .ci-row__bar{width:5px;top:6px;bottom:6px}
-  .rr-ci .ci-row.st-programado .ci-row__bar{background:var(--ci-prog)} .rr-ci .ci-row.st-realizado .ci-row__bar{background:var(--ci-real)}
+  .rr-ci .ci-row.st-programado .ci-row__bar{background:linear-gradient(180deg,#3d8ee6,var(--ci-prog))}
+  .rr-ci .ci-row.st-realizado .ci-row__bar{background:linear-gradient(180deg,#22b45c,var(--ci-real))}
   .rr-ci .ci-row__grip{color:#c3ccd6;flex-shrink:0;margin-left:4px;display:inline-flex} .rr-ci .ci-row__grip svg{width:15px;height:15px}
   .rr-ci .ci-row__n{width:22px;height:22px;border-radius:50%;background:#eef2f6;color:var(--ci-muted);display:grid;place-items:center;font-size:11px;font-weight:800;flex-shrink:0;transition:background .15s,color .15s}
   .rr-ci .ci-row:hover .ci-row__n{background:var(--ci-primary);color:#fff}
   .rr-ci .ci-row__main{min-width:0;flex:1}
-  .rr-ci .ci-row__ttl{display:flex;align-items:center;gap:8px;min-width:0}
-  .rr-ci .ci-row__name{font-size:14.5px;font-weight:800;letter-spacing:-.1px;color:var(--ci-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rr-ci .ci-row__ttl{display:flex;align-items:center;gap:8px;min-width:0;line-height:1.25}
+  .rr-ci .ci-row__name{font-size:14.5px;font-weight:800;letter-spacing:-.1px;color:var(--ci-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color .2s ease}
   /* Chip de segmento en la tarjeta (al lado de la transportadora) */
+  .rr-ci .ci-segchip b{margin-left:5px;padding-left:5px;border-left:1px solid currentColor;opacity:.75;font-weight:800}
   .rr-ci .ci-segchip{display:inline-flex;align-items:center;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.3px;padding:2px 8px;border-radius:99px;background:#eef5fb;color:var(--ci-primary);flex-shrink:0}
   .rr-ci .ci-segchip.s-interior{background:#FFEDD5;color:#c2410c} .rr-ci .ci-segchip.s-servicios{background:#D1FAE5;color:#15803d} .rr-ci .ci-segchip.s-transportadora{background:#ede9fe;color:#6d28d9} .rr-ci .ci-segchip.s-mixto{background:#e2e8f0;color:#475569}
   /* Meta sin fondos: texto discreto con iconos, separado por un punto. */
-  .rr-ci .ci-row__meta{display:flex;align-items:center;gap:10px;margin-top:5px;flex-wrap:wrap}
+  .rr-ci .ci-row__meta{display:flex;align-items:center;gap:7px 14px;margin-top:6px;flex-wrap:wrap}
   .rr-ci .ci-pill{position:relative;display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;color:var(--ci-muted);max-width:230px;transition:color .2s ease}
   .rr-ci .ci-pill svg{width:13px;height:13px;flex-shrink:0;opacity:.7;transition:opacity .2s ease}
   .rr-ci .ci-pill span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .rr-ci .ci-pill+.ci-pill::before{content:'';position:absolute;left:-6.5px;top:50%;width:3px;height:3px;margin-top:-1.5px;border-radius:50%;background:#cbd5e1}
   .rr-ci .ci-row:hover .ci-pill{color:var(--ci-text-2)} .rr-ci .ci-row:hover .ci-pill svg{opacity:1}
-  /* Importe: ancla visual de la tarjeta, en columna a lo largo de la lista. */
-  .rr-ci .ci-row__amt{margin-left:auto;padding-left:12px;font-size:14px;font-weight:800;letter-spacing:-.2px;color:var(--ci-text);font-variant-numeric:tabular-nums;white-space:nowrap}
-  .rr-ci .ci-row.st-realizado .ci-row__amt{color:#127a4b}
+  /* Importe: columna propia, a la misma altura que el estado. La hairline la cierra
+     de arriba a abajo, así los montos se leen como una sola columna en toda la lista. */
+  .rr-ci .ci-row__amt{flex-shrink:0;align-self:stretch;display:flex;align-items:center;justify-content:flex-end;
+    min-width:140px;padding:0 14px;margin-left:auto;border-left:1px solid var(--ci-border);
+    font-size:15px;font-weight:800;letter-spacing:-.3px;color:var(--ci-primary-2);
+    font-variant-numeric:tabular-nums;white-space:nowrap;transition:color .2s ease,border-color .2s ease}
+  .rr-ci .ci-row:hover .ci-row__amt{border-color:rgba(8,119,175,.28)}
   /* Insignia de estado: plana, para que no se lea como un botón. */
-  .rr-ci .ci-badge-st{position:relative;flex-shrink:0;display:inline-flex;align-items:center;gap:6px;height:27px;padding:0 12px;border-radius:99px;font-size:11.5px;font-weight:800;letter-spacing:.1px;border:1px solid transparent;transition:transform .24s cubic-bezier(.2,.8,.2,1)}
+  .rr-ci .ci-badge-st{position:relative;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;gap:6px;height:28px;min-width:112px;padding:0 11px;border-radius:99px;font-size:11.5px;font-weight:800;letter-spacing:.1px;border:1px solid transparent;transition:transform .24s cubic-bezier(.2,.8,.2,1)}
   .rr-ci .ci-badge-st svg{width:13px;height:13px}
   .rr-ci .ci-row:hover .ci-badge-st{transform:translateY(-1px)}
   .rr-ci .ci-badge-st.st-programado{background:#eef5fc;color:#0b5f8d;border-color:#dceaf7}
@@ -7472,23 +7479,29 @@ function renderReporteRepartos(){
   else{rowsH=groups.map((g,i)=>{const st=stOf(g);const facd=st==='realizado';
     const cam=g.lines.reduce((s,l)=>s+((l.seg||'local')==='transportadora'?(+l.cant||1):1),0);
     // Una planilla con período propio muestra sus fechas reales, sin recortarlas al mes.
-    const perLbl=_rrDay?_dispD(_rrDay):(g.perDesde?(_dispD(g.perDesde)+' – '+_dispD(g.perHasta)):(_dispD(clip(g.semDesde))+' – '+_dispD(clip(_wkHasta(g.semDesde)))));
+    const _pA=g.perDesde||clip(g.semDesde), _pB=g.perHasta||clip(_wkHasta(g.semDesde));
+    const perLbl=_rrDay?_shD(_rrDay):(_shD(_pA)+' – '+_shD(_pB));
+    const perTit=_rrDay?_dispD(_rrDay):(_dispD(_pA)+' – '+_dispD(_pB));
     const SEGFULL={local:'Local',interior:'Interior',servicios:'Servicios',transportadora:'Transportadora'};
-    const segset=[...new Set(g.lines.map(l=>l.seg||'local'))];
-    const segChip=segset.length===1?'<span class="ci-segchip s-'+segset[0]+'">'+SEGFULL[segset[0]]+'</span>':'<span class="ci-segchip s-mixto" title="'+segset.map(s=>SEGFULL[s]).join(', ')+'">Mixto</span>';
+    const SEGORD=['local','interior','servicios','transportadora'];
+    const segN={};
+    g.lines.forEach(l=>{const k=l.seg||'local';segN[k]=(segN[k]||0)+((k==='transportadora')?(+l.cant||1):1);});
+    const segKeys=SEGORD.filter(k=>segN[k]>0);
+    const segChip=segKeys.map(k=>'<span class="ci-segchip s-'+k+'">'+SEGFULL[k]+
+      (segKeys.length>1?'<b>'+segN[k]+'</b>':'')+'</span>').join('');
     // El período sólo se muestra si aporta: en semana o día todas las tarjetas repiten
     // el de la cabecera. Una planilla con período propio siempre lo muestra.
-    const perPill=((!_rrWeek&&!_rrDay)||g.perDesde)?('<span class="ci-pill">'+IC.cal+'<span>'+perLbl+'</span></span>'):'';
+    const perPill=((!_rrWeek&&!_rrDay)||g.perDesde)?('<span class="ci-pill" title="'+perTit+'">'+IC.cal+'<span>'+perLbl+'</span></span>'):'';
     const sk=_escp((g.ts+' '+g.lines.map(l=>l.trDesc||'').join(' ')).toLowerCase());
     return '<div class="ci-rowwrap" data-search="'+sk+'" data-gi="'+i+'">'+
       '<div class="ci-row st-'+st+'">'+
         '<span class="ci-row__bar"></span>'+
-        '<div class="ci-row__main"><div class="ci-row__ttl"><span class="ci-row__name">'+_escp(g.ts)+'</span>'+segChip+'</div>'+
+        '<div class="ci-row__main"><div class="ci-row__ttl"><span class="ci-row__name">'+_escp(g.ts)+'</span></div>'+
           '<div class="ci-row__meta">'+
             '<span class="ci-pill">'+IC.truck+'<span>'+cam+' camion'+(cam===1?'':'es')+'</span></span>'+
-            perPill+
-            '<span class="ci-row__amt" title="Flete del período">'+_gs(g.flete)+'</span>'+
+            perPill+segChip+
           '</div></div>'+
+        '<span class="ci-row__amt" title="Flete del período">'+_gs(g.flete)+'</span>'+
         '<span class="ci-badge-st st-'+st+'">'+(facd?IC.chk+'Facturado':IC.cal+'Pendiente')+'</span>'+
         '<span class="ci-row__chev">'+IC.chevronD+'</span>'+
       '</div>'+
