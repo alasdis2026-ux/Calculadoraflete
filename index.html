@@ -7436,6 +7436,8 @@ function _cfOpenStats(){
   // ── Tendencia: gasto de los últimos 6 meses, con el mismo filtro aplicado ──
   const _mkAdd=(k,n)=>{const a=k.split('-').map(Number),d=new Date(a[0],a[1]-1+n,1);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');};
   const _mesAb=k=>['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][+k.split('-')[1]-1];
+  // Nombre completo. El año solo aparece si la ventana de 6 meses cruza de año.
+  const _mesNom=k=>['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'][+k.split('-')[1]-1]+(k.slice(0,4)!==mk.slice(0,4)?(' '+k.slice(2,4)):'');
   const spMks=[-5,-4,-3,-2,-1,0].map(n=>_mkAdd(mk,n));
   const spVals=spMks.map(k=>k===mk?s.total:(k===_prevMk?prevTotal:_gastoStats(k,_cfStatsTs).total));
   const spProm=spVals.reduce((a,v)=>a+v,0)/(spVals.length||1);
@@ -7483,8 +7485,8 @@ function _cfOpenStats(){
         '<div class="gspark__x">'+spMks.map((k,i)=>'<span'+(i===spMks.length-1?' class="on"':'')+'>'+_mesAb(k)+'</span>').join('')+'</div></div>'+
       '<div class="gtrend__f">'+
         hst(_gs(spProm),'promedio 6 meses')+
-        hst(esc(_mesAb(spMks[spMaxI]))+' · '+_gs(spVals[spMaxI]),'mes más alto')+
-        hst(esc(_mesAb(spMks[spMinI]))+' · '+_gs(spVals[spMinI]),'mes más bajo')+
+        hst(esc(_mesNom(spMks[spMaxI]))+' · '+_gs(spVals[spMaxI]),'mes más alto')+
+        hst(esc(_mesNom(spMks[spMinI]))+' · '+_gs(spVals[spMinI]),'mes más bajo')+
       '</div>'+
     '</div>'+
   '</div>'+
