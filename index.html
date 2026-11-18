@@ -5060,8 +5060,9 @@ function showSaveAnim(text){
   /* ── Estadísticas del gasto ── */
   .gstat{padding-bottom:24px}
   /* ── Filtros: una sola línea, buscador compacto + chips con scroll ── */
-  .gsf{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--gray-200,#e2e8f0);border-radius:14px;padding:8px 10px;margin-bottom:13px;box-shadow:0 1px 2px rgba(19,36,55,.06)}
-  .gsf__search{position:relative;flex:0 0 232px}
+  .gsf{display:flex;align-items:flex-start;gap:14px;background:#fff;border:1px solid var(--gray-200,#e2e8f0);border-radius:14px;padding:10px 12px;margin-bottom:13px;box-shadow:0 1px 2px rgba(19,36,55,.06)}
+  .gsf__side{flex:0 0 232px;display:flex;flex-direction:column;gap:7px}
+  .gsf__search{position:relative}
   .gsf__search>svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--gray-400);pointer-events:none}
   .gsf__search input{width:100%;border:1.5px solid var(--gray-200);border-radius:10px;padding:8px 30px 8px 33px;font:inherit;font-size:12.5px;font-weight:600;color:var(--gray-800);background:var(--gray-50,#f8fafc);outline:none;transition:border-color .15s,box-shadow .15s,background .15s}
   .gsf__search input:focus{border-color:var(--accent);background:#fff;box-shadow:0 0 0 3px rgba(37,120,184,.12)}
@@ -5069,55 +5070,64 @@ function showSaveAnim(text){
   .gsf__clr svg{width:10px;height:10px}
   .gsf__clr:hover{background:#ef4444;color:#fff}
   .gsf__clr[hidden]{display:none}
-  .gsf__sep{flex:0 0 1px;align-self:stretch;background:var(--gray-200);margin:3px 0}
-  .gsf__arw{flex:0 0 25px;height:30px;border:1px solid var(--gray-200);border-radius:9px;background:#fff;color:var(--gray-500);font-size:16px;font-weight:700;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;transition:background .15s,color .15s,border-color .15s}
-  .gsf__arw:hover{background:var(--primary);border-color:transparent;color:#fff}
-  .gsf__arw[hidden]{display:none}
-  .gsf__scroll{flex:1 1 auto;min-width:0;display:flex;gap:7px;overflow-x:auto;padding:2px 0;scrollbar-width:none}
-  .gsf__scroll::-webkit-scrollbar{display:none}
-  /* Degradé en el borde: avisa que hay más transportadoras fuera de vista. */
-  .gsf__scroll.fade-r{-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 30px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 30px),transparent)}
-  .gsf__scroll.fade-l{-webkit-mask-image:linear-gradient(90deg,transparent,#000 30px);mask-image:linear-gradient(90deg,transparent,#000 30px)}
-  .gsf__scroll.fade-l.fade-r{-webkit-mask-image:linear-gradient(90deg,transparent,#000 30px,#000 calc(100% - 30px),transparent);mask-image:linear-gradient(90deg,transparent,#000 30px,#000 calc(100% - 30px),transparent)}
-  .gsf__chip--all{flex-shrink:0}
-  .gsf__chip{position:relative;flex:0 0 auto;overflow:hidden;border:1px solid var(--gray-200,#e2e8f0);background:#fff;border-radius:9px;padding:7px 12px 8px;font:inherit;font-size:12px;font-weight:800;color:var(--gray-600,#475569);cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;transition:color .16s,border-color .16s,background .16s,transform .16s,box-shadow .16s}
+  /* "Todas" vive aparte del listado: nunca se filtra ni se pierde de vista. */
+  .gsf__all{display:flex;align-items:center;justify-content:space-between;gap:8px;border:1.5px solid var(--gray-200);border-radius:10px;padding:7px 12px;font:inherit;font-size:12px;font-weight:800;color:var(--gray-600);background:#fff;cursor:pointer;transition:background .16s,color .16s,border-color .16s,box-shadow .16s}
+  .gsf__all:hover{border-color:var(--accent);color:var(--primary)}
+  .gsf__all.on{background:linear-gradient(180deg,#1a7cb0,#0B5F8D);border-color:transparent;color:#fff;box-shadow:0 4px 12px rgba(11,95,141,.28)}
+  .gsf__all em{font-style:normal;font-size:10.5px;font-weight:800;padding:1px 7px;border-radius:999px;background:var(--gray-100,#f1f5f9);color:var(--gray-500)}
+  .gsf__all.on em{background:rgba(255,255,255,.22);color:#fff}
+  /* Todas las transportadoras a la vista: rejilla que se acomoda sola. */
+  .gsf__grid{flex:1 1 auto;min-width:0;display:flex;flex-wrap:wrap;gap:6px;align-content:flex-start}
+  .gsf__chip{position:relative;flex:0 0 auto;overflow:hidden;border:1px solid var(--gray-200,#e2e8f0);background:#fff;border-radius:9px;padding:6px 10px 8px;font:inherit;font-size:11.5px;font-weight:800;color:var(--gray-600,#475569);cursor:pointer;display:inline-flex;align-items:center;gap:7px;white-space:nowrap;text-align:left;transition:color .16s,border-color .16s,background .16s,transform .16s,box-shadow .16s}
   .gsf__chip:hover{color:var(--primary);border-color:var(--accent);transform:translateY(-1px);box-shadow:0 3px 10px rgba(11,95,141,.14)}
   .gsf__chip.on{background:linear-gradient(180deg,#1a7cb0,#0B5F8D);border-color:transparent;color:#fff;box-shadow:0 4px 12px rgba(11,95,141,.3)}
+  .gsf__nm{white-space:nowrap}
+  .gsf__pc{flex-shrink:0;font-size:10px;font-weight:800;color:var(--gray-400,#94a3b8);font-variant-numeric:tabular-nums}
+  .gsf__chip:hover .gsf__pc{color:var(--accent)}
+  .gsf__chip.on .gsf__pc{color:rgba(255,255,255,.8)}
   /* Micro-medidor: cuánto pesa esa transportadora en el gasto del mes. */
   .gsf__chip i{position:absolute;left:0;bottom:0;height:2px;background:var(--accent,#3B82F6);opacity:.5;border-radius:0 2px 2px 0}
   .gsf__chip.on i{background:rgba(255,255,255,.9);opacity:1}
-  .gsf__chip em{font-style:normal;font-size:10.5px;font-weight:800;padding:1px 6px;border-radius:999px;background:var(--gray-100,#f1f5f9);color:var(--gray-500)}
-  .gsf__chip.on em{background:rgba(255,255,255,.22);color:#fff}
   .gsf__chip[hidden]{display:none}
-  /* ── Hero único: cifra principal + tendencia + reparto por segmento ── */
-  .gshero{position:relative;overflow:hidden;background:linear-gradient(135deg,#0A4578 0%,#0B5F8D 54%,#1472BE 100%);border-radius:18px;padding:20px 24px 17px;color:#fff;margin-bottom:13px;box-shadow:0 10px 30px rgba(11,79,138,.24)}
+  .gsf__nores{flex:1 1 100%;padding:9px 2px;font-size:12px;font-weight:700;color:var(--gray-400)}
+  .gsf__nores[hidden]{display:none}
+  /* ── Fila superior: gasto del mes + tendencia como KPI aparte ── */
+  .gstop{display:grid;grid-template-columns:minmax(0,1fr) 352px;gap:13px;margin-bottom:13px;align-items:stretch}
+  @media(max-width:1200px){.gstop{grid-template-columns:1fr}}
+  .gshero{position:relative;overflow:hidden;display:flex;flex-direction:column;background:linear-gradient(135deg,#0A4578 0%,#0B5F8D 54%,#1472BE 100%);border-radius:18px;padding:20px 24px 17px;color:#fff;box-shadow:0 10px 30px rgba(11,79,138,.24)}
   .gshero::after{content:'';position:absolute;right:-80px;top:-100px;width:320px;height:320px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.12),transparent 68%);pointer-events:none}
-  .gshero__top{position:relative;display:flex;align-items:flex-start;justify-content:space-between;gap:26px;flex-wrap:wrap}
-  .gshero__l{flex:1 1 300px;min-width:0}
-  .gshero__lbl{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:1.1px;color:rgba(255,255,255,.64);margin-bottom:8px}
-  .gshero__big{font-family:Sora,Inter,sans-serif;font-size:46px;font-weight:800;letter-spacing:-1.3px;line-height:1;font-variant-numeric:tabular-nums}
-  .gshero__big .u{font-size:21px;font-weight:600;color:rgba(255,255,255,.64);margin-right:5px;letter-spacing:0}
-  .gshero__trend{display:flex;align-items:center;gap:9px;margin-top:11px;flex-wrap:wrap}
-  .gshero__vs{font-size:11.5px;font-weight:600;color:rgba(255,255,255,.76)}
-  .gshero__r{flex:0 0 260px;max-width:100%}
-  .gspark__t{font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:rgba(255,255,255,.58);margin-bottom:3px;text-align:right}
-  .gspark{display:block;width:260px;max-width:100%;height:auto;overflow:visible}
-  .gspark__x{display:flex;justify-content:space-between;margin-top:2px}
-  .gspark__x span{font-size:9.5px;font-weight:700;color:rgba(255,255,255,.48);text-transform:uppercase}
-  .gspark__x span.on{color:#fff}
-  .gshero__bar{position:relative;display:flex;gap:2px;height:22px;border-radius:8px;overflow:hidden;background:rgba(255,255,255,.1);margin-top:17px;box-shadow:inset 0 1px 3px rgba(0,0,0,.16)}
+  .gshero__lbl{position:relative;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:1.1px;color:rgba(255,255,255,.64);margin-bottom:8px}
+  .gshero__big{position:relative;font-family:Sora,Inter,sans-serif;font-size:48px;font-weight:800;letter-spacing:-1.4px;line-height:1;font-variant-numeric:tabular-nums}
+  .gshero__big .u{font-size:22px;font-weight:600;color:rgba(255,255,255,.64);margin-right:5px;letter-spacing:0}
+  .gshero__bar{position:relative;display:flex;gap:2px;height:22px;border-radius:8px;overflow:hidden;background:rgba(255,255,255,.1);margin-top:auto;box-shadow:inset 0 1px 3px rgba(0,0,0,.16)}
   .gshero__seg{min-width:4px;display:flex;align-items:center;justify-content:center;transition:flex .5s cubic-bezier(.4,1.3,.5,1)}
   .gshero__seg b{font-size:10.5px;font-weight:800;color:#0A4578;font-variant-numeric:tabular-nums}
   .gshero__foot{position:relative;display:flex;flex-wrap:wrap;margin-top:15px;border-top:1px solid rgba(255,255,255,.18);padding-top:13px}
-  .gshero__st{flex:1 1 0;min-width:108px;padding:0 16px;border-right:1px solid rgba(255,255,255,.18)}
+  .gshero__st{flex:1 1 0;min-width:104px;padding:0 15px;border-right:1px solid rgba(255,255,255,.18)}
   .gshero__st:first-child{padding-left:0}
   .gshero__st:last-child{border-right:none}
   .gshero__st b{display:block;font-family:Sora,Inter,sans-serif;font-size:18px;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .gshero__st span{display:block;font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:rgba(255,255,255,.64);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .gchip{display:inline-flex;align-items:center;gap:3px;font-size:12.5px;font-weight:800;padding:4px 11px;border-radius:20px;white-space:nowrap}
-  .gchip.up{background:#fff;color:#127a4b}
-  .gchip.down{background:#fff;color:#C0392B}
-  .gchip.flat{background:rgba(255,255,255,.2);color:#fff}
+  /* ── KPI de tendencia ── */
+  .gtrend{display:flex;flex-direction:column;background:#fff;border:1px solid var(--gray-200,#e2e8f0);border-radius:18px;padding:15px 18px 14px;box-shadow:0 1px 2px rgba(19,36,55,.06),0 8px 24px rgba(19,36,55,.05)}
+  .gtrend__h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--gray-800,#1e293b)}
+  .gtrend__h span{font-size:9.5px;font-weight:800;color:var(--gray-400,#94a3b8);letter-spacing:.5px}
+  .gtrend__v{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:10px}
+  .gtrend__vs{font-size:11px;font-weight:700;color:var(--gray-400,#94a3b8)}
+  .gtrend__ch{margin-top:8px}
+  .gtchip{display:inline-flex;align-items:center;gap:3px;font-family:Sora,Inter,sans-serif;font-size:19px;font-weight:800;letter-spacing:-.3px;padding:3px 12px;border-radius:10px;white-space:nowrap;font-variant-numeric:tabular-nums}
+  .gtchip.up{background:#FEE2E2;color:#C0392B}
+  .gtchip.down{background:#DCFCE7;color:#15803d}
+  .gtchip.flat{background:var(--gray-100,#f1f5f9);color:var(--gray-500)}
+  .gspark{display:block;width:100%;height:auto;overflow:visible}
+  .gspark__avg{stroke:var(--gray-300,#cbd5e1);stroke-width:1;stroke-dasharray:3 4}
+  .gspark__x{display:flex;justify-content:space-between;margin-top:3px;padding:0 2px}
+  .gspark__x span{font-size:9.5px;font-weight:800;color:var(--gray-400,#94a3b8);text-transform:uppercase}
+  .gspark__x span.on{color:var(--primary)}
+  .gtrend__f{display:flex;flex-direction:column;gap:5px;margin-top:auto;padding-top:11px;border-top:1px solid var(--gray-100,#f1f5f9)}
+  .gtrend__f>div{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+  .gtrend__f span{font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-400,#94a3b8);white-space:nowrap}
+  .gtrend__f b{font-family:Sora,Inter,sans-serif;font-size:13px;font-weight:800;color:var(--gray-800,#1e293b);font-variant-numeric:tabular-nums;white-space:nowrap}
   /* ── Tarjetas por segmento (reemplazan al segundo bloque azul) ── */
   .gstiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(192px,1fr));gap:12px;margin-bottom:16px}
   .gstile{position:relative;overflow:hidden;background:#fff;border:1px solid var(--gray-200,#e2e8f0);border-radius:15px;padding:13px 16px 12px;box-shadow:0 1px 2px rgba(19,36,55,.06);transition:transform .18s,box-shadow .18s}
@@ -7400,24 +7410,24 @@ function _cfOpenStats(){
   const mk=_facMes,s=_gastoStats(mk,_cfStatsTs);
   const allTs=_gastoStats(mk,null).tsList; // todas las que tuvieron gasto este mes (para los botones)
   const _gsTot=allTs.reduce((a,t)=>a+t.gasto,0)||1;
-  // Filtros en una sola línea: buscador compacto + chips con scroll horizontal.
+  // Filtros: todas las transportadoras a la vista, ordenadas por gasto.
   const tsBtns='<div class="gsf">'+
-    '<div class="gsf__search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>'+
-      '<input type="text" id="gstatTsSearch" placeholder="Buscar transportadora…" autocomplete="off">'+
-      '<button type="button" class="gsf__clr" id="gstatTsClr" title="Limpiar" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>'+
-    '<div class="gsf__sep"></div>'+
-    '<button class="gsf__chip gsf__chip--all'+(!_cfStatsTs?' on':'')+'" data-tsf="" data-nm="todos" type="button">Todos<em>'+allTs.length+'</em></button>'+
-    '<button type="button" class="gsf__arw" data-gsarw="-1" aria-label="Anterior" hidden>‹</button>'+
-    '<div class="gsf__scroll" id="gstatTsBar">'+
-      allTs.map(t=>'<button class="gsf__chip'+(_cfStatsTs===t.id?' on':'')+'" data-tsf="'+t.id+'" data-nm="'+esc((t.nombre||'').toLowerCase())+'" type="button" title="'+esc(t.nombre)+' · '+_gs(t.gasto)+' · '+_pct(t.gasto/_gsTot)+'">'+esc(t.nombre)+'<i style="width:'+(t.gasto/_gsTot*100).toFixed(1)+'%"></i></button>').join('')+
+    '<div class="gsf__side">'+
+      '<div class="gsf__search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>'+
+        '<input type="text" id="gstatTsSearch" placeholder="Buscar transportadora…" autocomplete="off">'+
+        '<button type="button" class="gsf__clr" id="gstatTsClr" title="Limpiar" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>'+
+      '<button class="gsf__all'+(!_cfStatsTs?' on':'')+'" data-tsf="" type="button"><span>Todas</span><em>'+allTs.length+'</em></button>'+
     '</div>'+
-    '<button type="button" class="gsf__arw" data-gsarw="1" aria-label="Siguiente" hidden>›</button>'+
+    '<div class="gsf__grid" id="gstatTsBar">'+
+      allTs.map(t=>'<button class="gsf__chip'+(_cfStatsTs===t.id?' on':'')+'" data-tsf="'+t.id+'" data-nm="'+esc((t.nombre||'').toLowerCase())+'" type="button" title="'+esc(t.nombre)+' · '+_gs(t.gasto)+' · '+_pct(t.gasto/_gsTot)+'"><span class="gsf__nm">'+esc(t.nombre)+'</span><b class="gsf__pc">'+Math.round(t.gasto/_gsTot*100)+'%</b><i style="width:'+(t.gasto/_gsTot*100).toFixed(1)+'%"></i></button>').join('')+
+      '<div class="gsf__nores" id="gstatNoRes" hidden>Ninguna transportadora coincide</div>'+
+    '</div>'+
   '</div>';
   const SEGN={local:'Local',interior:'Interior',servicios:'Servicios',transportadora:'Transportadora'},SEGC={local:'#0B5F8D',interior:'#F97316',servicios:'#10B981',transportadora:'#7c3aed'};
   const SEGCL={local:'#9FD3FF',interior:'#FBB360',servicios:'#7EE0B0',transportadora:'#C4B5FD'};
   const _prevMk=(()=>{const a=mk.split('-').map(Number);const d=new Date(a[0],a[1]-2,1);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');})();
   const prevTotal=_gastoStats(_prevMk,_cfStatsTs).total,trend=prevTotal>0?((s.total-prevTotal)/prevTotal):null;
-  const gchip=trend===null?'<span class="gchip flat">sin mes previo</span>':'<span class="gchip '+(trend>0?'up':(trend<0?'down':'flat'))+'">'+(trend>0?'▲ ':(trend<0?'▼ ':''))+_pct(Math.abs(trend))+'</span>';
+  const gchip=trend===null?'<span class="gtchip flat">sin mes previo</span>':'<span class="gtchip '+(trend>0?'up':(trend<0?'down':'flat'))+'">'+(trend>0?'▲ ':(trend<0?'▼ ':''))+_pct(Math.abs(trend))+'</span>';
   const segOrd=['local','interior','servicios','transportadora'];
   const segIt=segOrd.map(k=>({k:k,label:SEGN[k],value:s.seg[k]?s.seg[k].g:0,n:s.seg[k]?s.seg[k].n:0,color:SEGC[k],lc:SEGCL[k]})).filter(i=>i.value>0||i.n>0);
   const totalSal=segOrd.reduce((a,k)=>a+(s.seg[k]?s.seg[k].n:0),0);
@@ -7426,42 +7436,50 @@ function _cfOpenStats(){
   const _mesAb=k=>['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][+k.split('-')[1]-1];
   const spMks=[-5,-4,-3,-2,-1,0].map(n=>_mkAdd(mk,n));
   const spVals=spMks.map(k=>k===mk?s.total:(k===_prevMk?prevTotal:_gastoStats(k,_cfStatsTs).total));
+  const spProm=spVals.reduce((a,v)=>a+v,0)/(spVals.length||1);
+  const spMaxI=spVals.reduce((bi,v,i)=>v>spVals[bi]?i:bi,0);
   const spark=(vals,mks)=>{
-    const W=260,H=58,max=Math.max(1,...vals);
-    const X=i=>vals.length<2?W/2:5+(i/(vals.length-1))*(W-10);
-    const Y=v=>H-8-(v/max)*(H-18);
+    const W=320,H=84,max=Math.max(1,...vals);
+    const X=i=>vals.length<2?W/2:6+(i/(vals.length-1))*(W-12);
+    const Y=v=>H-9-(v/max)*(H-22);
     const pts=vals.map((v,i)=>[X(i),Y(v)]);
     const line='M'+pts.map(p=>p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' L ');
     const area=line+' L '+X(vals.length-1).toFixed(1)+' '+H+' L '+X(0).toFixed(1)+' '+H+' Z';
+    const prom=Y(spProm).toFixed(1);
     const dots=pts.map((p,i)=>{const last=i===pts.length-1;
-      return '<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="'+(last?4.2:2.6)+'" fill="'+(last?'#fff':'rgba(255,255,255,.6)')+'"'+(last?' stroke="#9FD3FF" stroke-width="2.6"':'')+'><title>'+esc(_mesLbl(mks[i]))+' · '+_gs(vals[i])+'</title></circle>';}).join('');
+      return '<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="'+(last?4.6:3)+'" fill="'+(last?'var(--primary)':'#fff')+'" stroke="'+(last?'#fff':'var(--primary)')+'" stroke-width="'+(last?2.6:2)+'"><title>'+esc(_mesLbl(mks[i]))+' · '+_gs(vals[i])+'</title></circle>';}).join('');
     return '<svg class="gspark" viewBox="0 0 '+W+' '+H+'">'+
-      '<defs><linearGradient id="gspkG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9FD3FF" stop-opacity=".42"/><stop offset="1" stop-color="#9FD3FF" stop-opacity="0"/></linearGradient></defs>'+
+      '<defs><linearGradient id="gspkG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0B5F8D" stop-opacity=".22"/><stop offset="1" stop-color="#0B5F8D" stop-opacity="0"/></linearGradient></defs>'+
       '<path class="gspark__area" d="'+area+'" fill="url(#gspkG)"/>'+
-      '<path class="gspark__line" d="'+line+'" fill="none" stroke="#CFE8FF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>'+dots+'</svg>';
+      '<line class="gspark__avg" x1="4" y1="'+prom+'" x2="'+(W-4)+'" y2="'+prom+'"><title>Promedio 6 meses · '+_gs(spProm)+'</title></line>'+
+      '<path class="gspark__line" d="'+line+'" fill="none" stroke="var(--primary)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>'+dots+'</svg>';
   };
   const stack=items=>{const tot=items.reduce((a,i)=>a+i.value,0)||1;
     return '<div class="gshero__bar">'+items.map(it=>{const p=it.value/tot*100;
       return '<div class="gshero__seg" style="flex:'+it.value+' 1 0;background:'+it.lc+'" title="'+esc(it.label)+' · '+_gs(it.value)+' · '+_pct(it.value/tot)+'">'+(p>=8?'<b>'+Math.round(p)+'%</b>':'')+'</div>';}).join('')+'</div>';};
   const hst=(v,l)=>'<div class="gshero__st"><b>'+v+'</b><span>'+l+'</span></div>';
   const tsSel=_cfStatsTs&&s.tsList[0]?s.tsList[0].nombre:'';
-  const kpis='<div class="gshero">'+
-    '<div class="gshero__top">'+
-      '<div class="gshero__l">'+
-        '<div class="gshero__lbl">Gasto total · '+esc(_mesLbl(mk))+(tsSel?' · '+esc(tsSel):'')+'</div>'+
-        '<div class="gshero__big"><span class="u">Gs.</span>'+_nnum(s.total)+'</div>'+
-        '<div class="gshero__trend">'+gchip+'<span class="gshero__vs">vs '+esc(_mesLbl(_prevMk))+'</span></div>'+
+  const kpis='<div class="gstop">'+
+    '<div class="gshero">'+
+      '<div class="gshero__lbl">Gasto total · '+esc(_mesLbl(mk))+(tsSel?' · '+esc(tsSel):'')+'</div>'+
+      '<div class="gshero__big"><span class="u">Gs.</span>'+_nnum(s.total)+'</div>'+
+      stack(segIt)+
+      '<div class="gshero__foot">'+
+        hst(_nnum(totalSal),'salidas')+
+        hst(_nnum(_cfStatsTs?1:s.tsList.length),_cfStatsTs?'transportadora':'transportadoras')+
+        hst(_nnum(s.camList.length),'camiones')+
+        hst(s.kmProm>0?('Gs. '+_nnum(s.kmProm)):'—','promedio /km')+
+        hst(totalSal>0?_gs(s.total/totalSal):'—','promedio por salida')+
       '</div>'+
-      '<div class="gshero__r"><div class="gspark__t">Tendencia · 6 meses</div>'+spark(spVals,spMks)+
-        '<div class="gspark__x">'+spMks.map((k,i)=>'<span'+(i===spMks.length-1?' class="on"':'')+'>'+_mesAb(k)+'</span>').join('')+'</div></div>'+
     '</div>'+
-    stack(segIt)+
-    '<div class="gshero__foot">'+
-      hst(_nnum(totalSal),'salidas')+
-      hst(_nnum(_cfStatsTs?1:s.tsList.length),_cfStatsTs?'transportadora':'transportadoras')+
-      hst(_nnum(s.camList.length),'camiones')+
-      hst(s.kmProm>0?('Gs. '+_nnum(s.kmProm)):'—','promedio /km')+
-      hst(totalSal>0?_gs(s.total/totalSal):'—','promedio por salida')+
+    // La tendencia pasa a ser su propio KPI, al lado del gasto del mes.
+    '<div class="gtrend">'+
+      '<div class="gtrend__h">Tendencia<span>6 meses</span></div>'+
+      '<div class="gtrend__v">'+gchip+'<span class="gtrend__vs">vs '+esc(_mesLbl(_prevMk))+'</span></div>'+
+      '<div class="gtrend__ch">'+spark(spVals,spMks)+
+        '<div class="gspark__x">'+spMks.map((k,i)=>'<span'+(i===spMks.length-1?' class="on"':'')+'>'+_mesAb(k)+'</span>').join('')+'</div></div>'+
+      '<div class="gtrend__f"><div><span>Promedio 6 meses</span><b>'+_gs(spProm)+'</b></div>'+
+        '<div><span>Mes más alto</span><b>'+esc(_mesAb(spMks[spMaxI]))+' · '+_gs(spVals[spMaxI])+'</b></div></div>'+
     '</div>'+
   '</div>'+
   '<div class="gstiles">'+segIt.map(it=>'<div class="gstile" style="--c:'+it.color+'">'+
@@ -7489,32 +7507,26 @@ function _cfOpenStats(){
   host.querySelectorAll('[data-tsf]').forEach(b=>b.addEventListener('click',()=>{_cfStatsTs=b.dataset.tsf?+b.dataset.tsf:null;_cfOpenStats();}));
   // Buscador del filtro: oculta chips con el atributo hidden (el CSS lo respeta).
   const tsSearch=document.getElementById('gstatTsSearch'),tsClr=document.getElementById('gstatTsClr'),tsBar=document.getElementById('gstatTsBar');
-  const _gsArrows=()=>{ if(!tsBar)return; const over=tsBar.scrollWidth-tsBar.clientWidth>2;
-    const l=over&&tsBar.scrollLeft>2, r=over&&tsBar.scrollLeft<tsBar.scrollWidth-tsBar.clientWidth-2;
-    host.querySelectorAll('[data-gsarw]').forEach(a=>{ a.hidden=(+a.dataset.gsarw<0)?!l:!r; });
-    tsBar.classList.toggle('fade-l',l); tsBar.classList.toggle('fade-r',r); };
   const _gsFiltrar=()=>{ const q=(tsSearch?tsSearch.value:'').trim().toLowerCase();
     if(tsClr)tsClr.hidden=!q;
+    let vis=0;
     host.querySelectorAll('#gstatTsBar .gsf__chip').forEach(b=>{ const nm=b.dataset.nm||'';
-      b.hidden=!(!q||nm==='todos'||nm.indexOf(q)>=0); });
-    if(tsBar)tsBar.scrollLeft=0;
-    _gsArrows(); };
+      const ok=!q||nm.indexOf(q)>=0; b.hidden=!ok; if(ok)vis++; });
+    const nores=document.getElementById('gstatNoRes');
+    if(nores)nores.hidden=vis>0; };
   if(tsSearch)tsSearch.addEventListener('input',_gsFiltrar);
   if(tsClr)tsClr.addEventListener('click',()=>{ tsSearch.value=''; _gsFiltrar(); tsSearch.focus(); });
-  if(tsBar){ tsBar.addEventListener('scroll',_gsArrows);
-    // Rueda del mouse = desplazamiento horizontal, sin tener que arrastrar.
-    tsBar.addEventListener('wheel',e=>{ if(Math.abs(e.deltaY)<=Math.abs(e.deltaX))return; e.preventDefault(); tsBar.scrollLeft+=e.deltaY; },{passive:false});
-    host.querySelectorAll('[data-gsarw]').forEach(a=>a.addEventListener('click',()=>{ tsBar.scrollBy({left:(+a.dataset.gsarw)*280,behavior:'smooth'}); }));
-    requestAnimationFrame(()=>{ const on=tsBar.querySelector('.gsf__chip.on'); if(on&&_cfStatsTs)try{on.scrollIntoView({block:'nearest',inline:'center'});}catch(_){} _gsArrows(); }); }
   if(window.gsap){const g=window.gsap;
     g.from('#statsHost .gsf',{opacity:0,y:-8,duration:.4,ease:'power3.out',clearProps:'all'});
-    g.from('#statsHost .gsf__chip',{opacity:0,y:7,duration:.32,stagger:.016,delay:.08,ease:'power2.out',clearProps:'opacity,transform'});
+    g.from('#statsHost .gsf__chip',{opacity:0,y:7,scale:.94,duration:.32,stagger:.014,delay:.06,ease:'power2.out',clearProps:'opacity,transform'});
     g.from('#statsHost .gshero',{opacity:0,y:16,duration:.5,ease:'back.out(1.3)',clearProps:'all'});
     g.from('#statsHost .gshero__big',{opacity:0,y:12,duration:.52,delay:.12,ease:'power3.out',clearProps:'all'});
-    g.from('#statsHost .gshero__trend',{opacity:0,x:-10,duration:.4,delay:.26,ease:'power2.out',clearProps:'all'});
     g.fromTo('#statsHost .gshero__bar',{scaleX:0,transformOrigin:'left center'},{scaleX:1,duration:.7,delay:.2,ease:'power3.out'});
     g.from('#statsHost .gshero__seg b',{opacity:0,duration:.35,stagger:.05,delay:.6,ease:'power2.out',clearProps:'opacity'});
     g.from('#statsHost .gshero__st',{opacity:0,y:9,duration:.42,stagger:.05,delay:.3,ease:'power2.out',clearProps:'all'});
+    g.from('#statsHost .gtrend',{opacity:0,x:18,duration:.5,delay:.08,ease:'back.out(1.3)',clearProps:'all'});
+    g.from('#statsHost .gtrend__v',{opacity:0,y:8,duration:.4,delay:.3,ease:'power2.out',clearProps:'all'});
+    g.from('#statsHost .gtrend__f>div',{opacity:0,y:8,duration:.4,stagger:.08,delay:.42,ease:'power2.out',clearProps:'all'});
     // La línea de tendencia se dibuja sola de izquierda a derecha.
     host.querySelectorAll('.gspark__line').forEach(p=>{ let len=0; try{len=p.getTotalLength();}catch(_){}
       if(len)g.fromTo(p,{strokeDasharray:len,strokeDashoffset:len},{strokeDashoffset:0,duration:1.05,delay:.3,ease:'power2.inOut',clearProps:'strokeDasharray,strokeDashoffset'}); });
