@@ -5199,6 +5199,66 @@ function showSaveAnim(text){
   #factHost .cf-kpi__v{font-size:20px;margin:1px 0}
   #factHost .cf-kpi__s{font-size:10px}
   @media(max-width:760px){#factHost .cf-kpi{flex:1 1 100%;width:auto}}
+  /* ── Facturas: buscador en la cabecera ── */
+  .cf-search{position:relative;flex:0 0 268px;margin-right:10px}
+  .cf-search>svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--gray-400);pointer-events:none}
+  .cf-search input{width:100%;border:1.5px solid var(--gray-200);border-radius:11px;padding:9px 32px 9px 34px;font:inherit;font-size:12.5px;font-weight:600;color:var(--gray-800);background:var(--gray-50,#f8fafc);outline:none;transition:border-color .15s,box-shadow .15s,background .15s}
+  .cf-search input:focus{border-color:var(--accent);background:#fff;box-shadow:0 0 0 3px rgba(37,120,184,.12)}
+  .cf-search__clr{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:19px;height:19px;border:none;border-radius:50%;background:var(--gray-200);color:var(--gray-500);display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;transition:background .15s,color .15s}
+  .cf-search__clr svg{width:10px;height:10px}
+  .cf-search__clr:hover{background:#ef4444;color:#fff}
+  .cf-search__clr[hidden]{display:none}
+  /* ── KPIs que además filtran la tabla ── */
+  .cf-kpi.k5::before{background:#94a3b8}
+  .cf-kpi--btn{font:inherit;text-align:center;cursor:pointer;transition:transform .16s,box-shadow .16s,border-color .16s}
+  .cf-kpi--btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(19,36,55,.1);border-color:var(--accent)}
+  .cf-kpi--btn.is-on{border-color:var(--primary);box-shadow:0 0 0 2px rgba(11,95,141,.18),0 8px 20px rgba(19,36,55,.08)}
+  .cf-kpi--btn.is-on .cf-kpi__v{color:var(--primary)}
+  /* ── Columna Diferencia y marca de factura cambiada ── */
+  .fac-dif{font-variant-numeric:tabular-nums;font-weight:700;color:var(--gray-400,#94a3b8)}
+  .fac-dif--ok{color:#15803d}
+  .fac-dif--over{color:#C0392B}
+  .fac-dif--under{color:#b45309}
+  .fac-chg{display:inline-flex;align-items:center;gap:3px;margin-left:7px;padding:1px 7px 1px 5px;border-radius:999px;background:#FEF3C7;color:#92400e;font-size:10px;font-weight:800;vertical-align:1px}
+  .fac-chg svg{width:10px;height:10px}
+  /* ── Motivo del cambio (modal de factura) ── */
+  .cf-sec--mot{opacity:.55;transition:opacity .2s,border-color .2s}
+  .cf-sec--mot.is-active{opacity:1}
+  .cf-sec--mot.is-err{border-color:#ef4444}
+  .cf-mothint{font-size:11.5px;font-weight:600;color:var(--gray-500,#64748b);margin-bottom:10px}
+  .cf-mothint b{color:var(--primary)}
+  .cf-mots{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+  .cf-mot{display:flex;align-items:flex-start;gap:9px;text-align:left;font:inherit;border:1.5px solid var(--gray-200,#e2e8f0);background:#fff;border-radius:12px;padding:10px 12px;cursor:pointer;transition:border-color .16s,background .16s,box-shadow .16s,transform .16s}
+  .cf-mot:hover{border-color:var(--accent);transform:translateY(-1px);box-shadow:0 4px 12px rgba(11,95,141,.1)}
+  .cf-mot.on{border-color:var(--primary);background:#f0f7ff;box-shadow:0 0 0 2px rgba(11,95,141,.14)}
+  .cf-mot__chk{flex-shrink:0;width:19px;height:19px;border-radius:50%;border:2px solid var(--gray-300,#cbd5e1);display:flex;align-items:center;justify-content:center;color:transparent;margin-top:1px;transition:background .16s,border-color .16s,color .16s}
+  .cf-mot__chk svg{width:11px;height:11px}
+  .cf-mot.on .cf-mot__chk{background:var(--primary);border-color:var(--primary);color:#fff}
+  .cf-mot__tx{min-width:0}
+  .cf-mot__tx b{display:block;font-size:12.5px;font-weight:800;color:var(--gray-800,#1e293b);line-height:1.25}
+  .cf-mot__tx span{display:block;font-size:11px;font-weight:600;color:var(--gray-400,#94a3b8);margin-top:2px;line-height:1.3}
+  @media(max-width:620px){.cf-mots{grid-template-columns:1fr}}
+  /* ── Historial de cambios en el detalle de la fila ── */
+  .facd-hist{margin-top:12px;background:var(--gray-50,#f8fafc);border:1px solid var(--gray-200,#e2e8f0);border-radius:13px;padding:12px 14px}
+  .facd-hist__h{display:flex;align-items:center;gap:8px;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;color:var(--gray-500,#64748b);margin-bottom:10px}
+  .facd-hist__h span{font-size:10px;padding:1px 7px;border-radius:999px;background:var(--gray-200,#e2e8f0);color:var(--gray-600,#475569)}
+  .facd-hit{background:#fff;border:1px solid var(--gray-200,#e2e8f0);border-radius:11px;padding:9px 12px;margin-bottom:7px}
+  .facd-hit:last-child{margin-bottom:0}
+  .facd-hit__t{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+  .facd-mot{font-size:10.5px;font-weight:800;padding:2px 9px;border-radius:999px;background:var(--gray-100,#f1f5f9);color:var(--gray-600,#475569);white-space:nowrap}
+  .facd-mot--precio{background:#FEE2E2;color:#C0392B}
+  .facd-mot--escrita{background:#FEF3C7;color:#92400e}
+  .facd-mot--reparto{background:#EDE9FE;color:#6d28d9}
+  .facd-mot--fecha{background:#DBEAFE;color:#0B5F8D}
+  .facd-hwho{font-size:11px;font-weight:700;color:var(--gray-600,#475569)}
+  .facd-hts{margin-left:auto;font-size:10.5px;font-weight:700;color:var(--gray-400,#94a3b8);font-variant-numeric:tabular-nums}
+  .facd-hit__c{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}
+  .facd-chg{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;background:var(--gray-50,#f8fafc);border:1px solid var(--gray-200,#e2e8f0);border-radius:8px;padding:3px 9px;font-variant-numeric:tabular-nums}
+  .facd-chg i{font-style:normal;font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-400,#94a3b8)}
+  .facd-chg s{color:var(--gray-400,#94a3b8)}
+  .facd-chg b{color:var(--gray-300,#cbd5e1)}
+  .facd-chg em{font-style:normal;color:var(--gray-800,#1e293b);font-weight:800}
+  .facd-hnota{margin-top:7px;font-size:11.5px;font-weight:600;color:var(--gray-600,#475569);font-style:italic;border-left:2px solid var(--gray-200,#e2e8f0);padding-left:9px}
   /* Segment panels */
   .cf-segs{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;margin-bottom:16px}
   .cf-sp{background:var(--gray-50,#f8fafc);border:1px solid var(--gray-200,#e2e8f0);border-radius:16px;padding:10px}
@@ -7209,6 +7269,22 @@ function _cfConfirm(title,msg,onOk,okLabel){
 /* ── Facturas: filtro mes/semana + conciliación por planilla semanal ── */
 let _facMes=(function(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');})();
 let _facWeek=null; // null=mes completo · 'YYYY-MM-DD'=semana
+let _facQ='';       // búsqueda por Nº o transportadora
+let _facEst=null;   // filtro por estado: null | 'ok' | 'diff' | 'sin'
+// Motivos de cambio de factura. El orden es el que se ve en el modal.
+const CF_MOTIVOS=[
+  {k:'precio', l:'No coincide el precio',  d:'El monto facturado no coincide con el flete de la planilla'},
+  {k:'escrita',l:'Factura mal escrita',    d:'Error en el Nº o en los datos cargados de la factura'},
+  {k:'reparto',l:'No coincide el reparto', d:'La factura no corresponde a los repartos vinculados'},
+  {k:'fecha',  l:'Cambio por fecha',       d:'La fecha de la factura estaba equivocada'}
+];
+function _cfMotivo(k){ for(const m of CF_MOTIVOS) if(m.k===k) return m; return null; }
+function _cfUsuario(){ try{ const u=window.AlasAuthClient&&window.AlasAuthClient.user; return (u&&(u.name||u.email))||'—'; }catch(_){ return '—'; } }
+// cambios puede venir como array (jsonb) o como texto, según cómo lo devuelva la base.
+function _facCambios(f){ const c=f&&f.cambios; if(!c)return []; if(Array.isArray(c))return c; try{ const p=JSON.parse(c); return Array.isArray(p)?p:[]; }catch(_){ return []; } }
+function _cfFechaHora(ts){ if(!ts)return '—'; const d=new Date(ts); if(isNaN(d))return String(ts).slice(0,16).replace('T',' ');
+  const p=n=>String(n).padStart(2,'0'); return p(d.getDate())+'/'+p(d.getMonth()+1)+'/'+d.getFullYear()+' '+p(d.getHours())+':'+p(d.getMinutes()); }
+function _facNorm(t){ return String(t==null?'':t).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
 function _wkHasta(sd){const p=sd.split('-').map(Number),d=new Date(p[0],p[1]-1,p[2]+6);return _isoD(d);}
 function _facSem(f){return f.semana_desde||((f.fecha&&typeof isoWeekRange==='function')?isoWeekRange(f.fecha).desde:null);}
 // Flete agregado de un transportista en una semana (para conciliar)
@@ -7272,8 +7348,34 @@ function _facDetailHtml(f){
       '<div class="facd-badge facd-badge--'+dCls+'">'+badge+'</div>'+
     '</div>'+
     (legacy?'<div class="facd-hint">Esta factura no tiene repartos atados: hoy compara contra <b>toda</b> la semana, así que un reparto nuevo la puede descuadrar. Con <b>Cerrar</b> queda fija con los repartos actuales.</div>':'')+
+    _facHistHtml(f)+
     '<div class="facd-tblwrap"><table class="facd-tbl"><thead><tr><th>#</th><th>Fecha</th><th>Camión</th><th>Segmento</th><th>Repartidor · Zona</th><th class="r">Flete</th></tr></thead><tbody>'+rowsH+'</tbody></table></div>'+
   '</div>';
+}
+// Marca en la lista: esta factura fue cambiada al menos una vez.
+function _facChgBadge(f){
+  const cs=_facCambios(f); if(!cs.length)return '';
+  const u=cs[cs.length-1],mt=_cfMotivo(u&&u.motivo);
+  return '<span class="fac-chg" title="'+_escp((mt?mt.l:'Cambio')+' · '+(u&&u.usuario||'—')+' · '+_cfFechaHora(u&&u.ts))+'">'+
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M3 12a9 9 0 0115-6.7L21 8M21 3v5h-5"/><path d="M21 12a9 9 0 01-15 6.7L3 16M3 21v-5h5"/></svg>'+cs.length+'</span>';
+}
+// Historial de cambios de la factura: qué se cambió, quién y por qué.
+function _facHistHtml(f){
+  const cs=_facCambios(f);
+  if(!cs.length)return '';
+  const items=cs.slice().reverse().map(function(c){
+    const mt=_cfMotivo(c.motivo);
+    const campos=(c.campos||[]).map(function(x){
+      return '<span class="facd-chg"><i>'+_escp(x.l||x.k)+'</i><s>'+_escp(x.de)+'</s><b>→</b><em>'+_escp(x.a)+'</em></span>';
+    }).join('');
+    return '<div class="facd-hit">'+
+      '<div class="facd-hit__t"><span class="facd-mot facd-mot--'+_escp(c.motivo||'otro')+'">'+_escp(mt?mt.l:'Cambio')+'</span>'+
+        '<span class="facd-hwho">'+_escp(c.usuario||'—')+'</span><span class="facd-hts">'+_cfFechaHora(c.ts)+'</span></div>'+
+      (campos?'<div class="facd-hit__c">'+campos+'</div>':'')+
+      (c.nota?'<div class="facd-hnota">'+_escp(c.nota)+'</div>':'')+
+    '</div>';
+  }).join('');
+  return '<div class="facd-hist"><div class="facd-hist__h">Historial de cambios<span>'+cs.length+'</span></div>'+items+'</div>';
 }
 // Acordeón de la fila de factura: despliega el detalle con animación GSAP.
 function _facCollapse(er){if(!er)return;const owner=er.previousElementSibling;if(owner)owner.classList.remove('is-open');const inn=er.querySelector('.fac-exp-in');const done=()=>{if(er.parentNode)er.remove();};if(window.gsap&&inn){gsap.to(inn,{height:0,opacity:0,duration:.3,ease:'power2.inOut',onComplete:done});}else done();}
@@ -7284,7 +7386,7 @@ function _facToggle(tr){
   if(wasOpen)return; // estaba abierto → toggle off
   const f=(window.__cfFac||[]).find(x=>x.id===+tr.dataset.facid);if(!f)return;
   const er=document.createElement('tr');er.className='fac-exp';
-  er.innerHTML='<td colspan="7" class="fac-exp-td"><div class="fac-exp-in">'+_facDetailHtml(f)+'</div></td>';
+  er.innerHTML='<td colspan="8" class="fac-exp-td"><div class="fac-exp-in">'+_facDetailHtml(f)+'</div></td>';
   tr.after(er);tr.classList.add('is-open');
   const cb=er.querySelector('[data-cerrarfac]');
   if(cb)cb.addEventListener('click',e=>{e.stopPropagation();const ff=(window.__cfFac||[]).find(x=>x.id===+cb.dataset.cerrarfac);if(ff)_cerrarFactura(ff);});
@@ -7351,24 +7453,53 @@ async function renderFacturas(){
   var _wkSet={}; weeks.forEach(function(w){ _wkSet[w.desde]=1; });
   const shown=facs.filter(f=>{const sd=_facSem(f);if(!sd)return false;return _facWeek?sd===_facWeek:!!_wkSet[sd];});
   shown.forEach(f=>{const ts=f.transportadora_nombre||'',sd=_facSem(f);let fl=_fleteDeFactura(f.id);if(fl==null)fl=(ts&&sd)?_fleteDe(ts,sd):0;f._flete=fl;f._sd=sd;f._st=(ts&&sd)?(Math.round(+f.monto||0)===Math.round(fl)?'ok':'diff'):'sin';});
-  const totalFact=shown.reduce((s,f)=>s+(+f.monto||0),0),nOk=shown.filter(f=>f._st==='ok').length,nDiff=shown.filter(f=>f._st==='diff').length;
-  function kpi(cls,l,v,s){return '<div class="cf-kpi '+cls+'"><div><div class="cf-kpi__l">'+l+'</div><div class="cf-kpi__v">'+v+'</div><div class="cf-kpi__s">'+s+'</div></div></div>';}
-  const kpis='<div class="cf-kpis">'+kpi('k3','Total facturado',_gs(totalFact),(_facWeek?'esta semana':'este mes'))+kpi('k2','Facturas registradas',shown.length,nOk+' conciliada'+(nOk===1?'':'s'))+kpi('k1','Con diferencia',nDiff,nDiff?'revisá el monto':'todo en orden')+'</div>';
+  const totalFact=shown.reduce((s,f)=>s+(+f.monto||0),0),nOk=shown.filter(f=>f._st==='ok').length,nDiff=shown.filter(f=>f._st==='diff').length,nSin=shown.filter(f=>f._st==='sin').length;
+  // Los KPI cuentan todo el período; la tabla muestra lo que queda después de filtrar.
+  const _q=_facNorm(_facQ);
+  const view=shown.filter(function(f){
+    if(_facEst&&f._st!==_facEst)return false;
+    if(!_q)return true;
+    return _facNorm(f.nro).indexOf(_q)>=0||_facNorm(f.transportadora_nombre).indexOf(_q)>=0;
+  });
+  function kpi(cls,l,v,sub,est){
+    const clickable=est!==undefined,on=clickable&&_facEst===(est||null);
+    const tag=clickable?'button':'div',attrs=clickable?' type="button" data-facest="'+(est||'')+'"':'';
+    return '<'+tag+attrs+' class="cf-kpi '+cls+(clickable?' cf-kpi--btn':'')+(on?' is-on':'')+'"><div><div class="cf-kpi__l">'+l+'</div><div class="cf-kpi__v">'+v+'</div><div class="cf-kpi__s">'+sub+'</div></div></'+tag+'>';
+  }
+  const kpis='<div class="cf-kpis">'+
+    kpi('k3','Total facturado',_gs(totalFact),(_facWeek?'esta semana':'este mes'))+
+    kpi('k4','Registradas',shown.length,'ver todas',null)+
+    kpi('k2','Conciliadas',nOk,(shown.length&&nOk===shown.length)?'todo en orden':'coinciden con el flete','ok')+
+    kpi('k1','Con diferencia',nDiff,nDiff?'revisá el monto':'ninguna','diff')+
+    (nSin?kpi('k5','Sin planilla',nSin,'falta vincular','sin'):'')+
+  '</div>';
   const nav='<div class="rr-mnav"><button data-facm="-1" aria-label="Mes anterior">‹</button><span>'+_mesLbl(_facMes)+'</span><button data-facm="1" aria-label="Mes siguiente">›</button><button class="rr-mnav__today" data-factoday type="button">Semana actual</button></div>';
   const chips='<div class="rr-chips"><button class="rr-chip'+(!_facWeek?' on':'')+'" data-facw="">Mes completo</button>'+weeks.map(w=>'<button class="rr-chip'+(_facWeek===w.desde?' on':'')+'" data-facw="'+w.desde+'">'+_shD(w.desde)+'–'+_shD(w.hasta)+'</button>').join('')+'</div>';
   let table;
-  if(!shown.length){table='<div class="cf-card"><div class="cf-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 3h14a1 1 0 011 1v17l-3-2-3 2-3-2-3 2-3-2V4a1 1 0 011-1z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><b>No hay facturas en este período</b><span>Registrá una y elegí la planilla del transportista que corresponde.</span></div></div>';}
-  else{const rows=shown.map(f=>{const sd=f._sd,hasta=f.semana_hasta||(sd?_wkHasta(sd):null);
+  if(!view.length&&(_facEst||_q)){table='<div class="cf-card"><div class="cf-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><b>Ninguna factura coincide con el filtro</b><span>Probá con otro texto o tocá «Registradas» para ver todas.</span></div></div>';}
+  else if(!shown.length){table='<div class="cf-card"><div class="cf-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 3h14a1 1 0 011 1v17l-3-2-3 2-3-2-3 2-3-2V4a1 1 0 011-1z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><b>No hay facturas en este período</b><span>Registrá una y elegí la planilla del transportista que corresponde.</span></div></div>';}
+  else{const rows=view.map(f=>{const sd=f._sd,hasta=f.semana_hasta||(sd?_wkHasta(sd):null);
       const sem=sd?(_dispD(sd)+' al '+_dispD(hasta)):'—';
       const chip=f._st==='ok'?'<span class="cf-chip ok">✓ Conciliada</span>':f._st==='diff'?'<span class="cf-chip diff">▲ Con diferencia</span>':'<span class="cf-chip proc">Sin planilla</span>';
-      return '<tr data-facid="'+f.id+'" class="fac-row"><td class="fac-nro"><span class="fac-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 9l6 6 6-6"/></svg></span>'+_escp(f.nro||'—')+'</td><td>'+(f.fecha?f.fecha.split('-').reverse().join('/'):'—')+'</td><td class="fac-ts">'+_escp(f.transportadora_nombre||'—')+'</td><td class="fac-sem">'+sem+'</td><td>'+chip+'</td><td class="r fac-monto">'+_gs(f.monto)+'</td>'+
+      return '<tr data-facid="'+f.id+'" class="fac-row"><td class="fac-nro"><span class="fac-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 9l6 6 6-6"/></svg></span>'+_escp(f.nro||'—')+_facChgBadge(f)+'</td><td>'+(f.fecha?f.fecha.split('-').reverse().join('/'):'—')+'</td><td class="fac-ts">'+_escp(f.transportadora_nombre||'—')+'</td><td class="fac-sem">'+sem+'</td><td>'+chip+'</td><td class="r fac-dif '+(f._st==='sin'?'':('fac-dif--'+(Math.round(f.monto-f._flete)===0?'ok':(f.monto>f._flete?'over':'under'))))+'">'+(f._st==='sin'?'—':((f.monto-f._flete>0?'+':'')+_gs(f.monto-f._flete)))+'</td><td class="r fac-monto">'+_gs(f.monto)+'</td>'+
         '<td class="r fac-acts"><button class="fac-editbtn" data-editfac="'+f.id+'" title="Editar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 4H4a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-7M18.5 2.5a2.1 2.1 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="fac-del" data-delfac="'+f.id+'" title="Eliminar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg></button></td></tr>';}).join('');
-    table='<div class="cf-card cf-card--flush"><table class="cf-table cf-table--hover"><thead><tr><th>Nº Factura</th><th>Fecha</th><th>Transportista</th><th>Semana</th><th>Estado</th><th class="r">Monto</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div>';}
-  host.innerHTML='<div class="cf-hd"><h2><img src="logo-alas-s.a.png">Facturas registradas</h2>'+nav+'<div class="cf-spacer"></div><button class="cf-btn" id="cfNewFac"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Registrar factura</button></div>'+chips+kpis+table;
+    table='<div class="cf-card cf-card--flush"><table class="cf-table cf-table--hover"><thead><tr><th>Nº Factura</th><th>Fecha</th><th>Transportista</th><th>Semana</th><th>Estado</th><th class="r">Diferencia</th><th class="r">Monto</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div>';}
+  const buscador='<div class="cf-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>'+
+    '<input type="text" id="facQ" placeholder="Buscar Nº o transportadora…" autocomplete="off" value="'+_escp(_facQ)+'">'+
+    '<button type="button" class="cf-search__clr" id="facQClr" title="Limpiar"'+(_facQ?'':' hidden')+'><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>';
+  host.innerHTML='<div class="cf-hd"><h2><img src="logo-alas-s.a.png">Facturas registradas</h2>'+nav+'<div class="cf-spacer"></div>'+buscador+'<button class="cf-btn" id="cfNewFac"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Registrar factura</button></div>'+chips+kpis+table;
   document.getElementById('cfNewFac').addEventListener('click',()=>_cfOpenFacturaModal(null));
   host.querySelectorAll('[data-facm]').forEach(b=>b.addEventListener('click',()=>{const a=_facMes.split('-').map(Number),d=new Date(a[0],a[1]-1+(+b.dataset.facm),1);_facMes=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');_facWeek=null;renderFacturas();}));
   const facToday=host.querySelector('[data-factoday]');if(facToday)facToday.addEventListener('click',()=>{const d=new Date();_facMes=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');_facWeek=null;renderFacturas();});
   host.querySelectorAll('[data-facw]').forEach(b=>b.addEventListener('click',()=>{_facWeek=b.dataset.facw||null;renderFacturas();}));
+  host.querySelectorAll('[data-facest]').forEach(b=>b.addEventListener('click',()=>{const v=b.dataset.facest||null;_facEst=(_facEst===v)?null:v;renderFacturas();}));
+  const fq=document.getElementById('facQ'),fqc=document.getElementById('facQClr');
+  if(fq){
+    // Se re-renderiza toda la vista: hay que devolver el foco y el cursor al final.
+    let _t=null;
+    fq.addEventListener('input',()=>{_facQ=fq.value;clearTimeout(_t);_t=setTimeout(()=>{Promise.resolve(renderFacturas()).then(()=>{const n=document.getElementById('facQ');if(n){n.focus();n.setSelectionRange(n.value.length,n.value.length);}});},180);});
+    if(fqc)fqc.addEventListener('click',()=>{_facQ='';Promise.resolve(renderFacturas()).then(()=>{const n=document.getElementById('facQ');if(n)n.focus();});});
+  }
   host.querySelectorAll('[data-delfac]').forEach(b=>b.addEventListener('click',()=>_cfDeleteFactura(+b.dataset.delfac)));
   host.querySelectorAll('[data-editfac]').forEach(b=>b.addEventListener('click',()=>{const f=(window.__cfFac||[]).find(x=>x.id===+b.dataset.editfac);if(f)_cfOpenFacturaModal(f);}));
   host.querySelectorAll('tr.fac-row').forEach(tr=>tr.addEventListener('click',e=>{if(e.target.closest('button'))return;_facToggle(tr);}));
@@ -7573,20 +7704,30 @@ function _cfOpenFacturaModal(existing,preset){
   const preSel=!!(repsList&&preset&&preset.preselected);
   let repSel=repsList?new Set(repsList.map(r=>r.id)):null;
   const repFlete=()=>repsList?repsList.filter(r=>repSel.has(r.id)).reduce((s,r)=>s+(+r.flete||0),0):(sel?sel.flete:0);
-  const subTxt=locked?'Cargá los datos de la factura para esta planilla.':'Cargá los datos y elegí la planilla (transportista + semana) que corresponde.';
+  const subTxt=editing?'Cambiá lo que haga falta. Si modificás el Nº, el monto o la fecha vas a tener que indicar el motivo.'
+    :(locked?'Cargá los datos de la factura para esta planilla.':'Cargá los datos y elegí la planilla (transportista + semana) que corresponde.');
+  // Al editar: bloque de motivo del cambio. Solo se exige si algún dato cambió.
+  const motivoSec=editing?('<div class="cf-sec cf-sec--mot" id="cf_motsec"><div class="cf-sec__t">'+_ic('doc')+'Motivo del cambio</div>'+
+    '<div class="cf-mothint" id="cf_mothint">Se habilita cuando modificás el Nº, el monto o la fecha.</div>'+
+    '<div class="cf-mots" id="cf_mots">'+CF_MOTIVOS.map(function(mm){return '<button type="button" class="cf-mot" data-mot="'+mm.k+'">'+
+      '<span class="cf-mot__chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></span>'+
+      '<span class="cf-mot__tx"><b>'+mm.l+'</b><span>'+mm.d+'</span></span></button>';}).join('')+'</div>'+
+    '<div class="cf-fld" data-fld id="cf_motfld"><input id="cf_motnota" placeholder="Nota (opcional): contá en una línea qué pasó" autocomplete="off" maxlength="180"><span class="cf-fld__err"></span></div>'+
+  '</div>'):'';
   const m=_cfModalOpen('<div class="cf-mbox cf-mbox--form">'+
     '<div class="cf-fhead"><div class="cf-fhead__l"><h3>'+(editing?'Editar factura':'Registrar factura')+'</h3><p class="cf-msub">'+subTxt+'</p></div>'+
       '<div class="cf-fld cf-fhead__date"><label for="cf_ffecha">Fecha</label><input id="cf_ffecha" type="date"></div></div>'+
     '<div class="cf-sec"><div class="cf-sec__t">'+_ic('doc')+'Datos de la factura</div>'+
       '<div class="cf-grid2">'+
         '<div class="cf-fld" data-fld><label for="cf_fnro">Nº de factura</label><input id="cf_fnro" placeholder="001-001-0000000" autocomplete="off"><span class="cf-fld__err"></span></div>'+
-        '<div class="cf-fld" data-fld><label for="cf_fmonto">Monto (Gs.)'+(editing?' <span class="cf-lockhint">🔒 fijo</span>':'')+'</label><input id="cf_fmonto" inputmode="numeric" placeholder="0"'+(editing?' readonly class="is-locked"':'')+'><span class="cf-fld__err"></span></div>'+
+        '<div class="cf-fld" data-fld><label for="cf_fmonto">Monto (Gs.)</label><input id="cf_fmonto" inputmode="numeric" placeholder="0"><span class="cf-fld__err"></span></div>'+
       '</div></div>'+
     '<div class="cf-sec cf-sec--pl"><div class="cf-sec__t">'+_ic('truck')+'Planilla vinculada</div>'+
       '<div class="cf-fld" data-fld><button type="button" class="cf-plbtn" id="cf_plbtn"></button><span class="cf-fld__err"></span></div>'+
       '<div class="cf-live neutral" id="cf_flive">Elegí la planilla y el monto para compararlo con el flete.</div>'+
     '</div>'+
     (repsList?'<div class="cf-sec"><div class="cf-sec__t">'+_ic('truck')+(preSel?'Repartos incluidos':'Repartos a facturar')+'</div><div class="cf-reps'+(preSel?' cf-reps--ro':'')+'" id="cf_reps"></div></div>':'')+
+    motivoSec+
     '<div class="cf-mfoot"><button class="cancel">'+(locked?'Regresar':'Cancelar')+'</button><button class="ok">'+(editing?'Guardar cambios':'Guardar factura')+'</button></div></div>');
   const nroI=m.$('#cf_fnro'),feI=m.$('#cf_ffecha'),mo=m.$('#cf_fmonto'),plBtn=m.$('#cf_plbtn'),live=m.$('#cf_flive');
   const nroF=nroI.closest('[data-fld]'),moF=mo.closest('[data-fld]'),plF=plBtn.closest('[data-fld]');
@@ -7601,12 +7742,43 @@ function _cfOpenFacturaModal(existing,preset){
   function renderReps(){const host=m.$('#cf_reps');if(!host)return;
     if(preSel){host.innerHTML=repsList.map(r=>{const dd=r.fechaISO?String(r.fechaISO).slice(0,10).split('-').reverse().join('/'):'—';return '<div class="cf-rep cf-rep--ro on"><span class="cf-rep__chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></span><span class="cf-rep__d">'+dd+'</span><span class="cf-rep__f">'+_gs(+r.flete||0)+'</span></div>';}).join('')+'<div class="cf-rep-sum"><span>Total a facturar</span><b>'+_gs(repFlete())+'</b></div>';return;}
     host.innerHTML=repsList.map(r=>{const on=repSel.has(r.id);const dd=r.fechaISO?String(r.fechaISO).slice(0,10).split('-').reverse().join('/'):'—';return '<label class="cf-rep'+(on?' on':'')+'"><input type="checkbox" data-rid="'+r.id+'"'+(on?' checked':'')+'><span class="cf-rep__chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></span><span class="cf-rep__d">'+dd+'</span><span class="cf-rep__f">'+_gs(+r.flete||0)+'</span></label>';}).join('')+'<div class="cf-rep-sum"><span>Seleccionado</span><b>'+_gs(repFlete())+'</b></div>';host.querySelectorAll('[data-rid]').forEach(c=>c.addEventListener('change',()=>{const id=+c.dataset.rid;if(c.checked)repSel.add(id);else repSel.delete(id);renderReps();renderPlBtn();updLive();}));}
-  renderPlBtn();updLive();if(repsList)renderReps();
+  // ── Motivo del cambio ──────────────────────────────────────────────
+  const orig=editing?{nro:(existing.nro||'').trim(),monto:Math.round(+existing.monto||0),fecha:existing.fecha||''}:null;
+  let motSel=null;
+  function camposCambiados(){
+    if(!editing)return [];
+    const out=[],nNro=nroI.value.trim(),nMonto=parseInt(mo.value.replace(/[^\d]/g,''),10)||0,nFecha=feI.value||'';
+    if(nNro!==orig.nro)out.push({k:'nro',l:'Nº de factura',de:orig.nro||'—',a:nNro||'—'});
+    if(nMonto!==orig.monto)out.push({k:'monto',l:'Monto',de:_gs(orig.monto),a:_gs(nMonto)});
+    if(nFecha!==orig.fecha)out.push({k:'fecha',l:'Fecha',de:_dmy(orig.fecha),a:_dmy(nFecha)});
+    return out;
+  }
+  function updMot(){
+    if(!editing)return;
+    const ch=camposCambiados(),sec=m.$('#cf_motsec'),hint=m.$('#cf_mothint');
+    if(sec)sec.classList.toggle('is-active',ch.length>0);
+    if(hint)hint.innerHTML=ch.length
+      ?('Estás cambiando '+ch.map(function(c){return '<b>'+_escp(c.l)+'</b>';}).join(' · ')+'. Elegí por qué.')
+      :'Se habilita cuando modificás el Nº, el monto o la fecha.';
+    if(!ch.length&&sec)sec.classList.remove('is-err');
+  }
+  const motsHost=m.$('#cf_mots');
+  if(motsHost)motsHost.querySelectorAll('[data-mot]').forEach(function(b){
+    b.addEventListener('click',function(){
+      motSel=b.dataset.mot;
+      motsHost.querySelectorAll('[data-mot]').forEach(function(x){x.classList.toggle('on',x===b);});
+      _cfClearVal(m.$('#cf_motfld'));
+      const sec=m.$('#cf_motsec');if(sec)sec.classList.remove('is-err');
+    });
+  });
+  if(editing)feI.addEventListener('change',updMot);
+  renderPlBtn();updLive();updMot();if(repsList)renderReps();
   plBtn.addEventListener('click',()=>_facPlanillaPicker(pick=>{sel=pick;_cfClearVal(plF);renderPlBtn();updLive();}));
-  nroI.addEventListener('input',()=>{nroI.value.trim()?_cfSetOk(nroF):_cfClearVal(nroF);});
-  mo.addEventListener('input',()=>{const n=parseInt(mo.value.replace(/[^\d]/g,''),10)||0;mo.value=n?_nnum(n):'';n>0?_cfSetOk(moF):_cfClearVal(moF);updLive();});
+  nroI.addEventListener('input',()=>{nroI.value.trim()?_cfSetOk(nroF):_cfClearVal(nroF);updMot();});
+  mo.addEventListener('input',()=>{const n=parseInt(mo.value.replace(/[^\d]/g,''),10)||0;mo.value=n?_nnum(n):'';n>0?_cfSetOk(moF):_cfClearVal(moF);updLive();updMot();});
   m.$('.cancel').addEventListener('click',()=>{m.close();if(locked&&preset&&typeof preset.onBack==='function')setTimeout(preset.onBack,150);});
-  m.$('.ok').addEventListener('click',async()=>{
+  // 'button.ok' y no '.ok': #cf_flive también lleva la clase 'ok' cuando el monto coincide.
+  m.$('button.ok').addEventListener('click',async()=>{
     const nro=nroI.value.trim(),monto=parseInt(mo.value.replace(/[^\d]/g,''),10)||0,fecha=feI.value||null;
     let bad=false;
     if(!nro){_cfSetErr(nroF,'Falta un pequeño detalle: el Nº de la factura.');bad=true;}
@@ -7627,11 +7799,36 @@ function _cfOpenFacturaModal(existing,preset){
       showToast('No se puede registrar: no coincide con los repartos asignados 🚫');
       return;
     }
-    const okB=m.$('.ok'),okTxt=editing?'Guardar cambios':'Guardar factura';if(okB){okB.disabled=true;okB.classList.add('is-loading');okB.innerHTML='<span class="cf-spin"></span>Guardando…';}
+    // Al editar, cualquier cambio de Nº / monto / fecha exige motivo.
+    let _chg=[],_hist=null;
+    if(editing){
+      _chg=camposCambiados();
+      if(_chg.length&&!motSel){
+        const sec=m.$('#cf_motsec');
+        if(sec){sec.classList.add('is-active','is-err');try{sec.scrollIntoView({block:'center',behavior:'smooth'});}catch(_){}}
+        _cfSetErr(m.$('#cf_motfld'),'Elegí uno de los motivos de arriba.');
+        showToast('Falta el motivo del cambio 👀');return;
+      }
+      if(_chg.length){
+        const nota=(m.$('#cf_motnota')&&m.$('#cf_motnota').value.trim())||'';
+        const entrada={ts:new Date().toISOString(),usuario:_cfUsuario(),motivo:motSel,nota:nota,campos:_chg};
+        _hist={motivo_cambio:motSel,motivo_nota:nota,cambiada_at:entrada.ts,cambios:_facCambios(existing).concat([entrada])};
+      }
+    }
+    const okB=m.$('button.ok'),okTxt=editing?'Guardar cambios':'Guardar factura';if(okB){okB.disabled=true;okB.classList.add('is-loading');okB.innerHTML='<span class="cf-spin"></span>Guardando…';}
     const row={nro:nro,fecha:fecha,monto:monto,transportadora_nombre:sel.ts,semana_desde:sel.semDesde,semana_hasta:sel.semHasta};
+    if(_hist)Object.assign(row,_hist);
     let _newFacId=null;
     try{
-      if(editing){const up=await Promise.race([sb.from('fact_facturas').update(row).eq('id',existing.id).select('id'),new Promise(function(_,rej){setTimeout(function(){rej(new Error('La base no respondió (timeout)'));},9000);})]);if(up.error)throw up.error;if(!up.data||!up.data.length){showToast('No pude actualizar la factura (no se encontró o sin permisos).');if(okB){okB.disabled=false;okB.classList.remove('is-loading');okB.textContent=okTxt;}return;}m.close();try{_cfCheckBurst('Registrado',true);}catch(_){}}
+      if(editing){let up=await Promise.race([sb.from('fact_facturas').update(row).eq('id',existing.id).select('id'),new Promise(function(_,rej){setTimeout(function(){rej(new Error('La base no respondió (timeout)'));},9000);})]);
+        // Si todavía no se corrió facturas-motivo.sql, la base rechaza las columnas nuevas.
+        // El cambio de la factura se guarda igual y se avisa qué falta.
+        if(up.error&&_hist){
+          const base={};Object.keys(row).forEach(function(k){if(!(k in _hist))base[k]=row[k];});
+          up=await sb.from('fact_facturas').update(base).eq('id',existing.id).select('id');
+          if(!up.error)showToast('Guardé el cambio, pero no el motivo: falta correr facturas-motivo.sql');
+        }
+        if(up.error)throw up.error;if(!up.data||!up.data.length){showToast('No pude actualizar la factura (no se encontró o sin permisos).');if(okB){okB.disabled=false;okB.classList.remove('is-loading');okB.textContent=okTxt;}return;}m.close();try{_cfCheckBurst('Registrado',true);}catch(_){}}
       else{const ins=await sb.from('fact_facturas').insert(row).select('id').single();if(ins.error)throw ins.error;const facId=ins.data&&ins.data.id;_newFacId=facId;if(repsList&&facId!=null){const _aff=new Set();for(const rp of repsList){if(!repSel.has(rp.id))continue;if(rp.cl){rp.cl.factura_id=facId;if(rp.repId!=null)_aff.add(rp.repId);}else{try{await dbSetRepartoFactura(rp.id,facId);const rr=repartos.find(x=>x.id===rp.id);if(rr)rr.factura_id=facId;}catch(_){}}}for(const rid of _aff){const rr=repartos.find(x=>x.id===rid);if(rr){try{await dbUpdateClientes(rid,rr.clientes);}catch(_){}}}}else if(facId!=null&&sel){await _claimLineasFactura(sel.ts,sel.semDesde,facId);}m.close();_cfCheckBurst('Registrado',true);}
       // Recarga facturas para refrescar chips/estado antes de volver a la vista.
       try{const fr=await sb.from('fact_facturas').select('*');window.__cfFac=fr.data||[];}catch(_){window.__cfFac=null;}
