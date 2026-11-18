@@ -434,7 +434,7 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .tipo-opt.is-active.is-fijo{background:#16A34A;color:#fff}
 
 /* Clients header */
-.clients-hd{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.clients-hd{display:flex;align-items:center;gap:14px;flex-shrink:0;margin-bottom:12px}
 /* La tabla de camiones entra en el ancho disponible: Camión absorbe lo que sobra
    y las columnas numéricas se quedan en su ancho natural sin partirse. */
 #clientesTable{width:100%;table-layout:fixed}
@@ -442,7 +442,10 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 #clientesTable .row-truck__lbl,#clientesTable .cl-chip__lbl{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #clientesTable .cl-chip{min-width:0;max-width:100%}
 /* ── Carga rápida de camiones ── */
-.qadd{position:relative;flex-shrink:0;width:100%;max-width:620px;margin:14px auto 18px;display:flex;align-items:center}
+.clients-hd__l,.clients-hd__r{flex:1 1 0;min-width:0;display:flex;align-items:center;gap:10px}
+.clients-hd__r{justify-content:flex-end}
+.clients-hd .qadd{flex:0 1 620px;margin:0}
+.qadd{position:relative;flex-shrink:0;width:100%;max-width:620px;margin:0;display:flex;align-items:center}
 .qadd__ic{position:absolute;left:16px;width:19px;height:19px;color:var(--primary);opacity:.55;pointer-events:none;transition:opacity .2s ease,transform .25s cubic-bezier(.2,.8,.2,1)}
 .qadd:focus-within .qadd__ic{opacity:1;transform:scale(1.08)}
 .qadd:focus-within .qadd__ic{color:var(--primary)}
@@ -1310,20 +1313,22 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 
       <!-- Camiones del reparto -->
       <div class="clients-hd">
-        <h3>Camiones del reparto</h3>
-        <span class="cnt-badge" id="clienteCount">0</span>
-        <button class="btn btn-sm btn-ghost" type="button" id="btnLimpiarClientes" style="display:none">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14"><path stroke-linecap="round" stroke-width="2.2" d="M6 18L18 6M6 6l12 12"/></svg>
-          Limpiar
-        </button>
-      </div>
-
-      <!-- Carga rápida: escribí, ↑↓ y Enter. Crea la misma fila que "Agregar camión". -->
-      <div class="qadd" id="qAdd">
-        <svg class="qadd__ic" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-        <input type="text" id="qAddInp" autocomplete="off" spellcheck="false" placeholder="Agregá un camión — escribí y Enter" aria-label="Carga rápida de camiones">
-        <span class="qadd__keys"><kbd>↑↓</kbd><kbd>Enter</kbd></span>
-        <div class="qadd__pop" id="qAddPop" hidden></div>
+        <div class="clients-hd__l">
+          <h3>Camiones del reparto</h3>
+          <span class="cnt-badge" id="clienteCount">0</span>
+          <button class="btn btn-sm btn-ghost" type="button" id="btnLimpiarClientes" style="display:none">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14"><path stroke-linecap="round" stroke-width="2.2" d="M6 18L18 6M6 6l12 12"/></svg>
+            Limpiar
+          </button>
+        </div>
+        <!-- Carga rápida: escribí, ↑↓ y Enter. Crea la misma fila que "Agregar camión". -->
+        <div class="qadd" id="qAdd">
+          <svg class="qadd__ic" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+          <input type="text" id="qAddInp" autocomplete="off" spellcheck="false" placeholder="Agregá un camión — escribí y Enter" aria-label="Carga rápida de camiones">
+          <span class="qadd__keys"><kbd>↑↓</kbd><kbd>Enter</kbd></span>
+          <div class="qadd__pop" id="qAddPop" hidden></div>
+        </div>
+        <div class="clients-hd__r"></div>
       </div>
 
       <div class="table-wrap">
