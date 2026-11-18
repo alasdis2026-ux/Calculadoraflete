@@ -5008,11 +5008,6 @@ function showSaveAnim(text){
   .rr-ci .ci-cell:hover{border-color:rgba(8,119,175,.5);box-shadow:0 6px 16px rgba(8,119,175,.12)}
   .rr-ci .ci-cell.today{box-shadow:inset 0 0 0 1px rgba(8,119,175,.4)}
   .rr-ci .ci-cell.sel{border:1.5px solid var(--ci-primary);box-shadow:0 0 0 3px rgba(8,119,175,.12)}
-  .rr-ci .ci-cell.in-rng{background:#eaf4fc;border-color:rgba(8,119,175,.3)}
-  .rr-ci .ci-cell.in-rng.wknd{background:#e4f0fa}
-  .rr-ci .ci-cell.in-rng.rng-a{box-shadow:inset 3px 0 0 var(--ci-primary)}
-  .rr-ci .ci-cell.in-rng.rng-b{box-shadow:inset -3px 0 0 var(--ci-primary)}
-  .rr-ci .ci-cell.in-rng.rng-a.rng-b{box-shadow:inset 3px 0 0 var(--ci-primary),inset -3px 0 0 var(--ci-primary)}
   .rr-ci .ci-cell__top{display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
   .rr-ci .ci-cell__d{font-size:12px;font-weight:700;color:var(--ci-text-2);font-variant-numeric:tabular-nums}
   .rr-ci .ci-cell.out .ci-cell__d{color:#c3ccd6}
@@ -5044,27 +5039,6 @@ function showSaveAnim(text){
   .rr-ci .ci-empty__btn{margin-top:4px;display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 14px;border:1.5px solid var(--ci-border-2);border-radius:10px;background:#fff;font-size:12.5px;font-weight:700;font-family:inherit;color:var(--ci-primary);cursor:pointer;transition:background .16s ease,border-color .16s ease,color .16s ease}
   .rr-ci .ci-empty__btn svg{width:13px;height:13px}
   .rr-ci .ci-empty__btn:hover{background:var(--ci-primary);border-color:var(--ci-primary);color:#fff}
-  /* Período Desde/Hasta — segunda fila de la barra de filtros */
-  .rr-ci .ci-rng{flex:1 0 100%;display:flex;flex-wrap:wrap;align-items:center;gap:7px;padding-top:2px}
-  .rr-ci .ci-rng__lbl{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:800;letter-spacing:.3px;text-transform:uppercase;color:var(--ci-muted)}
-  .rr-ci .ci-rng__lbl svg{width:13px;height:13px}
-  .rr-ci .ci-rng.on .ci-rng__lbl{color:var(--ci-primary)}
-  .rr-ci .ci-rng__f{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 9px;border:1.5px solid var(--ci-border-2);border-radius:9px;background:#fff;transition:border-color .18s ease,box-shadow .18s ease}
-  .rr-ci .ci-rng__f:focus-within{border-color:var(--ci-primary);box-shadow:0 0 0 3px rgba(8,119,175,.13)}
-  .rr-ci .ci-rng__f>span{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.3px;color:var(--ci-muted)}
-  .rr-ci .ci-rng__f input{border:0;outline:none;background:transparent;font-family:inherit;font-size:12.5px;font-weight:700;color:var(--ci-text);padding:0;width:112px}
-  .rr-ci .ci-rng__f input::-webkit-calendar-picker-indicator{cursor:pointer;opacity:.5;transition:opacity .15s}
-  .rr-ci .ci-rng__f input::-webkit-calendar-picker-indicator:hover{opacity:1}
-  .rr-ci .ci-rng.on .ci-rng__f{border-color:var(--ci-primary)}
-  .rr-ci .ci-rng__arrow{font-size:13px;font-weight:800;color:var(--ci-muted)}
-  .rr-ci .ci-rng__sp{flex:1}
-  .rr-ci .ci-rng__q{height:32px;padding:0 11px;border:1.5px solid var(--ci-border-2);border-radius:9px;background:#fff;font-family:inherit;font-size:11.5px;font-weight:700;color:var(--ci-text-2);cursor:pointer;transition:background .16s ease,border-color .16s ease,color .16s ease}
-  .rr-ci .ci-rng__q:hover{background:var(--ci-primary-soft);border-color:var(--ci-primary);color:var(--ci-primary)}
-  .rr-ci .ci-rng__x{display:inline-flex;align-items:center;gap:5px;height:32px;padding:0 11px;border:0;border-radius:9px;background:var(--ci-primary);font-family:inherit;font-size:11.5px;font-weight:700;color:#fff;cursor:pointer;transition:filter .16s ease}
-  .rr-ci .ci-rng__x svg{width:12px;height:12px}
-  .rr-ci .ci-rng__x:hover{filter:brightness(1.1)}
-  /* Pill de aviso: el período recorta la planilla */
-  .rr-ci .ci-pill.part{background:#fdf1e3;color:#9a5a12}
   .rr-ci .ci-estados{display:inline-flex;border:1px solid var(--ci-border-2);border-radius:9px;overflow:hidden;background:#fff}
   .rr-ci .ci-estados button{padding:0 12px;height:36px;border:0;border-left:1px solid var(--ci-border);background:transparent;font-size:11.5px;font-weight:700;color:var(--ci-text-2);cursor:pointer;transition:background .15s}
   .rr-ci .ci-estados button:first-child{border-left:0}
@@ -5189,7 +5163,18 @@ function showSaveAnim(text){
   .cf-mbd--edit .cf-mbox--wide{max-width:1360px;width:min(1360px,96vw);max-height:95vh}
   .rrm-hd{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px}
   .rrm-ts{margin:0;font-family:Sora,Inter,sans-serif;font-size:23px;font-weight:800;color:var(--primary)}
-  .rrm-pd{font-size:12.5px;font-weight:600;color:var(--gray-500,#64748b);margin-top:3px}
+  .rrm-pd{display:flex;flex-wrap:wrap;align-items:center;gap:7px;font-size:12.5px;font-weight:600;color:var(--gray-500,#64748b);margin-top:3px}
+  .rrm-pd--rng{gap:6px}
+  .rrm-pd__lbl{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:#94a3b8}
+  .rrm-pd__in{height:28px;padding:0 7px;border:1.5px solid #dbe4ee;border-radius:8px;background:#fff;font-family:inherit;font-size:12px;font-weight:700;color:var(--primary);outline:none;transition:border-color .18s ease,box-shadow .18s ease}
+  .rrm-pd__in:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(11,95,141,.13)}
+  .rrm-pd__in::-webkit-calendar-picker-indicator{cursor:pointer;opacity:.5}
+  .rrm-pd__in::-webkit-calendar-picker-indicator:hover{opacity:1}
+  .rrm-pd__ar{color:#94a3b8;font-weight:800}
+  .rrm-pd__wk{height:28px;padding:0 10px;border:1.5px solid #dbe4ee;border-radius:8px;background:#fff;font-family:inherit;font-size:11.5px;font-weight:700;color:var(--primary);cursor:pointer;transition:background .16s ease,border-color .16s ease,color .16s ease}
+  .rrm-pd__wk:hover{background:var(--primary);border-color:var(--primary);color:#fff}
+  .rrm-pd__n{padding:2px 8px;border-radius:99px;background:#eaf4fc;color:#0b5f8d;font-size:11px;font-weight:800;white-space:nowrap}
+  .rrm-pd__lock{padding:2px 8px;border-radius:99px;background:#e9f7ef;color:#127a4b;font-size:11px;font-weight:800}
   .rrm-x{border:0;background:var(--gray-100,#f1f5f9);color:var(--gray-500,#64748b);width:36px;height:36px;border-radius:11px;font-size:24px;line-height:1;cursor:pointer;flex-shrink:0}
   .rrm-x:hover{background:var(--gray-200,#e2e8f0);color:var(--gray-800,#1e293b)}
   .rrm-kpis{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-bottom:18px}
@@ -7231,8 +7216,6 @@ let _rrFac='todos';    // filtro de estado de factura: todos | realizado (factur
 let _rrSegAnim=false;  // true = el re-render viene de tocar un segmento (dispara animación especial del control)
 let _rrBack=null;      // alcance + búsqueda + scroll guardados al entrar al detalle
 let _rrScroll=null;    // scroll de la lista a restaurar en el próximo render
-let _rrDesde=null;     // período: fecha inicial (ISO) — siempre dentro de _rrMes
-let _rrHasta=null;     // período: fecha final (ISO) — siempre dentro de _rrMes
 // Repartos por día del mes en vista (respeta el filtro de segmento) → para pintar el calendario.
 function _rrCountByDay(){
   const map={};
@@ -7259,40 +7242,67 @@ function _dispD(iso){return iso?iso.split('-').reverse().join('/'):'—';}
 function _shD(iso){const p=iso.split('-');return p[2]+'/'+p[1];}
 function _dmy(iso){const p=String(iso||'').slice(0,10).split('-');return p.length<3?String(iso||''):(p[2]+'/'+p[1]+'/'+p[0].slice(-2));} // DD/MM/AA
 function _weeksOfMonth(mk){const a=mk.split('-').map(Number),y=a[0],mo=a[1];const first=new Date(y,mo-1,1),last=new Date(y,mo,0);let d=new Date(first);d.setDate(d.getDate()-((d.getDay()+6)%7));const w=[];while(d<=last){const mon=new Date(d),sun=new Date(d);sun.setDate(sun.getDate()+6);w.push({desde:_isoD(mon),hasta:_isoD(sun)});d.setDate(d.getDate()+7);}return w;}
-function _rrShiftMonth(delta){const a=_rrMes.split('-').map(Number);const d=new Date(a[0],a[1]-1+delta,1);_rrMes=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');_rrWeek=undefined;_rrDay=null;_rrExpTs=null;_rrClearRange();renderReporteRepartos();}
-/* ── Período Desde/Hasta ──────────────────────────────────────────────────────
-   El período NO redefine la planilla: los grupos se siguen armando
-   transportista × semana con el mismo corte por mes (una planilla = lo que se
-   factura, ver fact_facturas.semana_desde). El período sólo decide qué repartos
-   entran en cada tarjeta, por eso se acota al mes en vista y se avisa cuando
-   deja una planilla cortada. */
-function _rrMesBounds(){const a=_rrMes.split('-').map(Number);return {first:_rrMes+'-01',last:_isoD(new Date(a[0],a[1],0))};}
-function _rrRangeOn(){return !!(_rrDesde||_rrHasta);}
-function _rrClearRange(){_rrDesde=null;_rrHasta=null;}
-// Extremos efectivos: el lado que falta se completa con el borde del mes.
-function _rrRangeBounds(){const b=_rrMesBounds();let d=_rrDesde||b.first,h=_rrHasta||b.last;
-  if(d>h){const t=d;d=h;h=t;}
-  if(d<b.first)d=b.first;if(h>b.last)h=b.last;
-  return {desde:d,hasta:h};}
-// Reutiliza _rrGroups semana por semana y recorta las líneas fuera del período.
-// fullLines guarda cuántos repartos tiene la semana completa (para el aviso de corte).
-function _rrRangeGroups(desde,hasta){
-  const out=[];
-  _weeksOfMonth(_rrMes).forEach(w=>{
-    _rrGroups(w.desde).forEach(g=>{
-      const lines=(g.lines||[]).filter(l=>{const f=String(l._fecha||'').slice(0,10);return f>=desde&&f<=hasta;});
-      if(!lines.length)return;
-      const ng=Object.assign({},g);
-      ng.lines=lines;
-      ng.fullLines=(g.lines||[]).length;
-      ng.monto=lines.reduce((t,l)=>t+(+l.monto||0),0);
-      ng.flete=lines.reduce((t,l)=>t+_cfFleteVal(l),0);
-      ng.reps=(g.reps||[]).filter(r=>lines.some(l=>l._repId===r.id));
-      out.push(ng);
+/* ── Período de la planilla ───────────────────────────────────────────────────
+   Una planilla normal es transportista × semana. El período le permite integrar
+   repartos de OTRAS semanas (y otros meses) en la misma factura: _rrRangeLines no
+   corta por semana ni por mes, sólo por fecha y por factura.
+   Sólo entran las líneas que pertenecen a la MISMA factura que la planilla
+   (o ninguna, si todavía está pendiente): nunca una ya facturada en otra planilla. */
+function _rrRangeLines(ts,desde,hasta,facId){
+  const lines=[],reps=[];
+  const want=(facId==null)?null:facId;
+  (repartos||[]).forEach(r=>{
+    const f=String(r.fechaISO||'').slice(0,10);
+    if(!f||f<desde||f>hasta)return;
+    const _repHasCl=(r.clientes||[]).some(c=>c.factura_id!=null);
+    (r.clientes||[]).forEach(cl=>{
+      const own=cl.trId?tsOfTruck(cl.trId):null;
+      const nm=(own&&own.n)||cl.tsNombre||'—';
+      if(nm!==ts)return;
+      const rawFid=(cl.factura_id!=null)?cl.factura_id:(_repHasCl?null:r.factura_id);
+      let fid=null;
+      if(rawFid!=null){const _f=(window.__cfFac||[]).find(x=>x.id===rawFid);if(_f&&(_f.transportadora_nombre||'')===nm)fid=rawFid;}
+      if(fid!==want)return;
+      cl._fecha=r.fechaISO||r.fecha||null;cl._repId=r.id;
+      lines.push(cl);
+      if(!reps.some(x=>x.id===r.id))reps.push({id:r.id,fecha:r.fecha,fechaISO:r.fechaISO,factura_id:fid});
     });
+  });
+  lines.sort((a,b)=>String(a._fecha||'').localeCompare(String(b._fecha||'')));
+  return {lines:lines,reps:reps};
+}
+function _rrSumLines(lines){return{monto:lines.reduce((t,l)=>t+(+l.monto||0),0),flete:lines.reduce((t,l)=>t+_cfFleteVal(l),0)};}
+// Período real de una planilla ya facturada (puede abarcar varias semanas).
+function _rrFacPeriodo(g){
+  const f=(g&&g.facturaId!=null)?(window.__cfFac||[]).find(x=>x.id===g.facturaId):null;
+  if(!f||!f.semana_desde)return null;
+  return {desde:f.semana_desde,hasta:f.semana_hasta||f.semana_desde};
+}
+// ¿El período de esa factura abarca más de una semana ISO?
+function _rrEsMultiSemana(p){return !!(p&&typeof isoWeekRange==='function'&&isoWeekRange(p.desde).desde!==isoWeekRange(p.hasta).desde);}
+/* Una factura multi-semana tiene sus líneas repartidas en varios grupos semanales de
+   _rrGroups. Acá se vuelven UNA sola planilla, recargada desde el período real de la
+   factura y mostrada una única vez: en el mes de su primer reparto.
+   Las facturas de una sola semana no se tocan (comportamiento de siempre). */
+function _rrMergeByFactura(list){
+  const out=[],seen={};
+  (list||[]).forEach(g=>{
+    const p=_rrFacPeriodo(g);
+    if(!_rrEsMultiSemana(p)){out.push(g);return;}
+    const key=g.ts+'|'+g.facturaId;
+    if(seen[key])return;
+    seen[key]=1;
+    const rr=_rrRangeLines(g.ts,p.desde,p.hasta,g.facturaId);
+    if(!rr.lines.length){out.push(g);return;}
+    const first=String(rr.lines[0]._fecha||'').slice(0,7);
+    if(first&&first!==_rrMes)return;                 // se muestra sólo en el mes donde arranca
+    const sum=_rrSumLines(rr.lines);
+    const ng=Object.assign({},g,{lines:rr.lines,reps:rr.reps,monto:sum.monto,flete:sum.flete,perDesde:p.desde,perHasta:p.hasta});
+    out.push(ng);
   });
   return out.sort((a,b)=>b.flete-a.flete);
 }
+function _rrShiftMonth(delta){const a=_rrMes.split('-').map(Number);const d=new Date(a[0],a[1]-1+delta,1);_rrMes=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');_rrWeek=undefined;_rrDay=null;_rrExpTs=null;renderReporteRepartos();}
 // Buscador general: filtra las tarjetas por transportista o camión (sin re-render, mantiene el foco)
 function _rrApplySearch(){
   const host=document.getElementById('rrepHost');if(!host)return;
@@ -7392,8 +7402,7 @@ function renderReporteRepartos(){
     list:'<svg fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>',
     chk:'<svg fill="none" stroke="currentColor" stroke-width="2.6" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>',
     srch:'<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>',
-    x:'<svg fill="none" stroke="currentColor" stroke-width="2.6" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>',
-    warn:'<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/><path d="M12 9.5v4M12 17h.01"/></svg>'};
+    x:'<svg fill="none" stroke="currentColor" stroke-width="2.6" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>'};
   const MES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
   const DOW=['LUN','MAR','MIÉ','JUE','VIE','SÁB','DOM'];
   const a=_rrMes.split('-').map(Number),monthLbl=MES[a[1]-1]+' '+a[0];
@@ -7403,19 +7412,17 @@ function renderReporteRepartos(){
   const clip=iso=>iso<_mFirst?_mFirst:(iso>_mLast?_mLast:iso);
   const stOf=g=>_facDeGrupo(g)?'realizado':'programado';
 
-  // Alcance: período > día > semana > mes (sólo uno activo a la vez)
-  const rngOn=_rrRangeOn(), rngB=_rrRangeBounds();
-  function _scopeGroups(){
-    if(rngOn)return _rrRangeGroups(rngB.desde,rngB.hasta);
-    if(_rrDay)return _rrDayGroups(_rrDay);
-    if(_rrWeek)return _rrGroups(_rrWeek);
-    return weeks.reduce((acc,w)=>acc.concat(_rrGroups(w.desde)),[]);
-  }
-  const scopeGroups=_scopeGroups();
+  // Alcance: día > semana > mes
+  // En semana y mes se unifican las facturas que abarcan varias semanas; la vista de
+  // día se deja como está (ahí interesa lo repartido ese día, no la planilla entera).
+  let scopeGroups;
+  if(_rrDay)scopeGroups=_rrDayGroups(_rrDay);
+  else if(_rrWeek)scopeGroups=_rrMergeByFactura(_rrGroups(_rrWeek));
+  else scopeGroups=_rrMergeByFactura(weeks.reduce((acc,w)=>acc.concat(_rrGroups(w.desde)),[]));
   const groups=scopeGroups.filter(g=>_rrFac==='todos'||stOf(g)===_rrFac);
 
-  // Conteo por segmento: sigue el alcance activo, no el mes fijo.
-  function segCount(k){const prev=_rrSeg;_rrSeg=k;const gs=_scopeGroups();_rrSeg=prev;return gs.length;}
+  // Conteo por segmento para el control superior
+  function segCount(k){const prev=_rrSeg;_rrSeg=k;const gs=weeks.reduce((acc,w)=>acc.concat(_rrGroups(w.desde)),[]);_rrSeg=prev;return gs.length;}
   const SEGS=[['todos','Todos',IC.grid],['local','Local',IC.home],['interior','Interior',IC.truck],['servicios','Servicios',IC.wrench],['transportadora','Transportadora',IC.building]];
   const segBar='<div class="rr-topbar"><div class="rr-brand"><img src="logo-alas-s.a.png" alt="ALAS"><span class="rr-brand__t">Registros del reparto del mes</span></div>'+
     '<div class="ci-seg">'+SEGS.map(s=>'<button type="button" class="ci-seg__btn'+(_rrSeg===s[0]?' on':'')+'" data-rrseg="'+s[0]+'"><span class="ci-seg__ic">'+s[2]+'</span><span class="ci-seg__col"><span class="ci-seg__lbl">'+s[1]+'</span><span class="ci-seg__n">'+segCount(s[0])+'</span></span></button>').join('')+'</div><span></span></div>';
@@ -7434,13 +7441,11 @@ function renderReporteRepartos(){
       const shown=evs.slice(0,3);
       const evHtml=shown.map(g=>{const st=stOf(g);const id=iso+'|'+g.ts;window.__rrEvMap[id]={ts:g.ts,cam:g.lines.reduce((s,l)=>s+((l.seg||'local')==='transportadora'?(+l.cant||1):1),0),flete:g.flete,st:st,iso:iso};
         return '<div class="ci-ev st-'+st+'" data-ev="'+_escp(id)+'"><span class="ci-ev__bar"></span><span class="ci-ev__t">'+_escp(g.ts)+'</span></div>';}).join('');
-      const inRng=rngOn&&inM&&iso>=rngB.desde&&iso<=rngB.hasta;
-      const rngCls=inRng?(' in-rng'+(iso===rngB.desde?' rng-a':'')+(iso===rngB.hasta?' rng-b':'')):'';
-      cells+='<div class="ci-cell'+(inM?'':' out')+(wknd&&inM?' wknd':'')+(iso===today?' today':'')+(iso===_rrDay?' sel':'')+rngCls+'" data-iso="'+iso+'">'+
+      cells+='<div class="ci-cell'+(inM?'':' out')+(wknd&&inM?' wknd':'')+(iso===today?' today':'')+(iso===_rrDay?' sel':'')+'" data-iso="'+iso+'">'+
         '<div class="ci-cell__top"><span class="ci-cell__d">'+dd.getDate()+'</span></div>'+
         '<div class="ci-cell__events">'+evHtml+(evs.length>shown.length?'<div class="ci-more">+'+(evs.length-shown.length)+' más</div>':'')+'</div></div>';}
     const wc=_rrGroups(w.desde).length;
-    wrows+='<div class="ci-wrow'+(_rrWeek===w.desde&&!_rrDay&&!rngOn?' sel':'')+'">'+
+    wrows+='<div class="ci-wrow'+(_rrWeek===w.desde&&!_rrDay?' sel':'')+'">'+
       '<button type="button" class="ci-wsel" data-rrweek="'+w.desde+'" title="Semana '+_dispD(clip(w.desde))+' – '+_dispD(clip(w.hasta))+' · '+wc+' planilla'+(wc===1?'':'s')+'"><span class="ci-wsel__ic">'+IC.week+'</span><span class="ci-wsel__n">S'+(wi+1)+'</span></button>'+
       '<div class="ci-week7">'+cells+'</div></div>';
   });
@@ -7461,26 +7466,13 @@ function renderReporteRepartos(){
     '<span class="ci-srch__act"><span class="ci-srch__n" data-srchn></span>'+
     '<button type="button" class="ci-srch__x" data-srchx title="Limpiar búsqueda (Esc)" aria-label="Limpiar búsqueda">'+IC.x+'</button></span></div>';
 
-  const _mb=_rrMesBounds();
-  const range='<div class="ci-rng'+(rngOn?' on':'')+'">'+
-    '<span class="ci-rng__lbl">'+IC.cal+'Período</span>'+
-    '<label class="ci-rng__f"><span>Desde</span><input type="date" data-rngd min="'+_mb.first+'" max="'+_mb.last+'" value="'+(_rrDesde||'')+'" aria-label="Período desde"></label>'+
-    '<span class="ci-rng__arrow">→</span>'+
-    '<label class="ci-rng__f"><span>Hasta</span><input type="date" data-rngh min="'+_mb.first+'" max="'+_mb.last+'" value="'+(_rrHasta||'')+'" aria-label="Período hasta"></label>'+
-    '<span class="ci-rng__sp"></span>'+
-    '<button type="button" class="ci-rng__q" data-rngq="q1">1ª quincena</button>'+
-    '<button type="button" class="ci-rng__q" data-rngq="q2">2ª quincena</button>'+
-    (rngOn?'<button type="button" class="ci-rng__x" data-rngx title="Quitar el período y volver al mes">'+IC.x+'Quitar</button>':'')+
-  '</div>';
-
   let rowsH;
   if(!groups.length){rowsH='<div class="ci-empty"><div class="ci-empty__ic">'+IC.truck+'</div><h4>'+(_rrDay?'Sin repartos este día':(_rrWeek?'Sin planillas esta semana':'Sin planillas este mes'))+'</h4><p>Elegí otra fecha o cargá un flete en la Calculadora.</p></div>';}
   else{rowsH=groups.map((g,i)=>{const st=stOf(g);const facd=st==='realizado';
     const cam=g.lines.reduce((s,l)=>s+((l.seg||'local')==='transportadora'?(+l.cant||1):1),0);
-    // Con período activo, la fecha de la tarjeta es la del primer reparto que entra en el rango.
-    const _lf=(g.lines||[]).map(l=>String(l._fecha||'').slice(0,10)).filter(Boolean).sort();
-    const bd=new Date((_rrDay?_rrDay:(rngOn&&_lf.length?_lf[0]:clip(g.semDesde)))+'T00:00:00');
-    const perLbl=_rrDay?_dispD(_rrDay):(_dispD(clip(g.semDesde))+' – '+_dispD(clip(_wkHasta(g.semDesde))));
+    const bd=_rrDay?new Date(_rrDay+'T00:00:00'):new Date(clip(g.semDesde)+'T00:00:00');
+    // Una planilla con período propio muestra sus fechas reales, sin recortarlas al mes.
+    const perLbl=_rrDay?_dispD(_rrDay):(g.perDesde?(_dispD(g.perDesde)+' – '+_dispD(g.perHasta)):(_dispD(clip(g.semDesde))+' – '+_dispD(clip(_wkHasta(g.semDesde)))));
     const flags=facd?'<span class="ci-flag ok">'+IC.chk+'Facturado</span>':'<span class="ci-flag sob">Sin factura</span>';
     const SEGFULL={local:'Local',interior:'Interior',servicios:'Servicios',transportadora:'Transportadora'};
     const segset=[...new Set(g.lines.map(l=>l.seg||'local'))];
@@ -7495,7 +7487,6 @@ function renderReporteRepartos(){
             '<span class="ci-pill">'+IC.truck+'<span>'+cam+' camion'+(cam===1?'':'es')+'</span></span>'+
             '<span class="ci-pill flete">'+IC.money+'<span>'+_gs(g.flete)+'</span></span>'+
             '<span class="ci-pill">'+IC.cal+'<span>'+perLbl+'</span></span>'+
-            (g.fullLines&&g.lines.length<g.fullLines?'<span class="ci-pill part" title="El período recorta esta planilla: la semana completa tiene '+g.fullLines+' repartos. Al abrirla vas a ver la semana entera, que es lo que se factura.">'+IC.warn+'<span>'+g.lines.length+' de '+g.fullLines+' repartos</span></span>':'')+
           '</div></div>'+
         '<span class="ci-badge-st st-'+st+'">'+(facd?IC.chk+'Facturado':IC.cal+'Pendiente')+'</span>'+
         '<span class="ci-row__chev">'+IC.chevronD+'</span>'+
@@ -7505,14 +7496,13 @@ function renderReporteRepartos(){
   }).join('')+'<div class="ci-empty" data-noresults hidden><div class="ci-empty__ic">'+IC.srch+'</div><h4>Sin resultados</h4><p>Nada coincide con «<b data-nq></b>». Probá con otro transportista o camión.</p><button type="button" class="ci-empty__btn" data-srchclear>'+IC.x+'Limpiar búsqueda</button></div>';}
 
   let rttl,rsub;
-  if(rngOn){rttl='Repartos del '+_dispD(rngB.desde)+' al '+_dispD(rngB.hasta);rsub=groups.length+' planilla'+(groups.length===1?'':'s')+' · '+MES[a[1]-1];}
-  else if(_rrDay){rttl='Repartos del '+_dispD(_rrDay);rsub=groups.length+' planilla'+(groups.length===1?'':'s');}
+  if(_rrDay){rttl='Repartos del '+_dispD(_rrDay);rsub=groups.length+' planilla'+(groups.length===1?'':'s');}
   else if(_rrWeek){rttl='Semana '+_dispD(clip(_rrWeek))+' – '+_dispD(clip(_wkHasta(_rrWeek)));rsub=groups.length+' planilla'+(groups.length===1?'':'s');}
   else{rttl='Repartos de '+monthLbl;rsub=groups.length+' planilla'+(groups.length===1?'':'s')+' · '+MES[a[1]-1];}
   const rightH='<div class="ci-panel"><div class="ci-phead"><div class="ci-phead__ico">'+IC.truck+'</div>'+
       '<div class="ci-phead__meta"><div class="t">'+rttl+'</div><div class="s">'+rsub+'</div></div>'+
-      ((_rrDay||_rrWeek||rngOn)?'<button class="ci-phead__hoy" data-rrvermes type="button">Ver el mes</button>':'')+'</div>'+
-    '<div class="ci-filters">'+search+estados+range+'</div>'+
+      ((_rrDay||_rrWeek)?'<button class="ci-phead__hoy" data-rrvermes type="button">Ver el mes</button>':'')+'</div>'+
+    '<div class="ci-filters">'+search+estados+'</div>'+
     '<div class="ci-list">'+rowsH+'</div></div>';
 
   host.className='cf-host rr-ci';
@@ -7525,40 +7515,21 @@ function renderReporteRepartos(){
     return '<div class="ci-exp-in"><div class="ci-exp-bar"><span>'+g.lines.length+' línea'+(g.lines.length===1?'':'s')+' · <b>'+_gs(g.flete)+'</b> de flete</span><button class="ci-ver" type="button" data-rrver>'+IC.list+' Ver resumen</button></div>'+
       '<div class="ci-btbl-wrap"><table class="ci-btbl"><thead><tr><th class="col-fecha">Fecha</th><th class="col-cam">Camión</th><th class="col-zona">Zona</th><th class="r">Monto</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
   }
-  function openResumen(g){const _l=host.querySelector('.ci-list');_rrBack={week:_rrWeek,day:_rrDay,fac:_rrFac,q:_rrQ,desde:_rrDesde,hasta:_rrHasta,scroll:_l?_l.scrollTop:0};
-    const wd=g.semDesde;_rrWeek=wd;const wk=weeks.find(w=>w.desde===wd)||{desde:wd,hasta:_wkHasta(wd)};const wg=_rrGroups(wd);const full=wg.find(x=>x.ts===g.ts&&x.facturaId===g.facturaId)||wg.find(x=>x.ts===g.ts)||g;const pLbl=_dispD(clip(wk.desde))+' al '+_dispD(clip(wk.hasta));_rrOpenDetail(full,pLbl,wk);}
+  function openResumen(g){const _l=host.querySelector('.ci-list');_rrBack={week:_rrWeek,day:_rrDay,fac:_rrFac,q:_rrQ,scroll:_l?_l.scrollTop:0};
+    const wd=g.semDesde;_rrWeek=wd;const wk=weeks.find(w=>w.desde===wd)||{desde:wd,hasta:_wkHasta(wd)};
+    if(g.perDesde){_rrOpenDetail(g,_dispD(g.perDesde)+' al '+_dispD(g.perHasta),wk);return;}
+    const wg=_rrGroups(wd);const full=wg.find(x=>x.ts===g.ts&&x.facturaId===g.facturaId)||wg.find(x=>x.ts===g.ts)||g;const pLbl=_dispD(clip(wk.desde))+' al '+_dispD(clip(wk.hasta));_rrOpenDetail(full,pLbl,wk);}
 
   // Segmentos (control superior)
   host.querySelectorAll('[data-rrseg]').forEach(b=>b.addEventListener('click',()=>{if(_rrSeg===b.dataset.rrseg)return;_rrSeg=b.dataset.rrseg;_rrSegAnim=true;renderReporteRepartos();}));
   // Navegación
   host.querySelectorAll('[data-rrm]').forEach(b=>b.addEventListener('click',()=>_rrShiftMonth(+b.dataset.rrm)));
-  const rrToday=host.querySelector('[data-rrtoday]');if(rrToday)rrToday.addEventListener('click',()=>{const d=new Date();_rrMes=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');_rrDay=null;_rrWeek=null;_rrClearRange();renderReporteRepartos();});
-  const vm=host.querySelector('[data-rrvermes]');if(vm)vm.addEventListener('click',()=>{_rrDay=null;_rrWeek=null;_rrClearRange();renderReporteRepartos();});
+  const rrToday=host.querySelector('[data-rrtoday]');if(rrToday)rrToday.addEventListener('click',()=>{const d=new Date();_rrMes=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');_rrDay=null;_rrWeek=null;renderReporteRepartos();});
+  const vm=host.querySelector('[data-rrvermes]');if(vm)vm.addEventListener('click',()=>{_rrDay=null;_rrWeek=null;renderReporteRepartos();});
   // Selección semanal
-  host.querySelectorAll('[data-rrweek]').forEach(b=>b.addEventListener('click',()=>{const wd=b.dataset.rrweek;_rrWeek=(_rrWeek===wd&&!_rrDay&&!rngOn)?null:wd;_rrDay=null;_rrClearRange();renderReporteRepartos();}));
+  host.querySelectorAll('[data-rrweek]').forEach(b=>b.addEventListener('click',()=>{const wd=b.dataset.rrweek;_rrWeek=(_rrWeek===wd&&!_rrDay)?null:wd;_rrDay=null;renderReporteRepartos();}));
   // Selección de día
-  host.querySelectorAll('.ci-cell[data-iso]').forEach(c=>c.addEventListener('click',()=>{const iso=c.dataset.iso;_rrDay=(_rrDay===iso&&!rngOn?null:iso);_rrWeek=null;_rrClearRange();renderReporteRepartos();}));
-
-  // ── Período Desde/Hasta ──────────────────────────────────────────────────
-  // Acotado al mes en vista: lo que se escriba fuera se recorta, y si quedan
-  // invertidos se dan vuelta solos. Al activarse, limpia día y semana.
-  function setRange(d,h){
-    const bb=_rrMesBounds(),cl=v=>!v?null:(v<bb.first?bb.first:(v>bb.last?bb.last:v));
-    _rrDesde=cl(d);_rrHasta=cl(h);
-    if(_rrDesde&&_rrHasta&&_rrDesde>_rrHasta){const t=_rrDesde;_rrDesde=_rrHasta;_rrHasta=t;}
-    if(_rrRangeOn()){_rrDay=null;_rrWeek=null;}
-    renderReporteRepartos();
-  }
-  const rngD=host.querySelector('[data-rngd]'),rngH=host.querySelector('[data-rngh]');
-  if(rngD)rngD.addEventListener('change',()=>setRange(rngD.value,_rrHasta));
-  if(rngH)rngH.addEventListener('change',()=>setRange(_rrDesde,rngH.value));
-  host.querySelectorAll('[data-rngq]').forEach(b=>b.addEventListener('click',()=>{
-    const bb=_rrMesBounds();
-    if(b.dataset.rngq==='q1')setRange(bb.first,_rrMes+'-15');
-    else setRange(_rrMes+'-16',bb.last);
-  }));
-  const rngX=host.querySelector('[data-rngx]');
-  if(rngX)rngX.addEventListener('click',()=>{_rrClearRange();renderReporteRepartos();});
+  host.querySelectorAll('.ci-cell[data-iso]').forEach(c=>c.addEventListener('click',()=>{const iso=c.dataset.iso;_rrDay=(_rrDay===iso?null:iso);_rrWeek=null;renderReporteRepartos();}));
   // Filtro de factura
   host.querySelectorAll('[data-rrfac]').forEach(b=>b.addEventListener('click',()=>{if(_rrFac===b.dataset.rrfac)return;_rrFac=b.dataset.rrfac;renderReporteRepartos();}));
 
@@ -7577,7 +7548,7 @@ function renderReporteRepartos(){
     document.addEventListener('pointerdown',killTips,true);window.addEventListener('scroll',killTips,true);window.addEventListener('blur',killTips);
     if(window.gsap)gsap.fromTo(tipEl,{opacity:0,y:6,scale:.98},{opacity:1,y:0,scale:1,duration:.18,ease:'power2.out'});}
   host.querySelectorAll('.ci-ev[data-ev]').forEach(ev=>{ev.addEventListener('mouseenter',()=>showTip(ev.dataset.ev,ev.getBoundingClientRect()));ev.addEventListener('mouseleave',hideTip);
-    ev.addEventListener('click',e=>{e.stopPropagation();const iso=(ev.dataset.ev||'').split('|')[0];_rrDay=(_rrDay===iso&&!rngOn?null:iso);_rrWeek=null;_rrClearRange();hideTip();renderReporteRepartos();});});
+    ev.addEventListener('click',e=>{e.stopPropagation();const iso=(ev.dataset.ev||'').split('|')[0];_rrDay=(_rrDay===iso?null:iso);_rrWeek=null;hideTip();renderReporteRepartos();});});
   const _cal=host.querySelector('.ci-cal');if(_cal)_cal.addEventListener('mouseleave',hideTip);
 
   // Acordeón de filas
@@ -7667,7 +7638,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
   bd.addEventListener('drop',e=>{if(_dragUid==null)return;const col=e.target.closest('.rre-col[data-seg]');if(!col)return;e.preventDefault();const sk=col.dataset.seg,w=W(_dragUid);col.classList.remove('drag-over');_dragUid=null;if(!w||sk==='transportadora'||w.seg==='transportadora'||w.seg===sk)return;w.seg=sk;w.fijo=(sk==='interior');if(w.zona&&!_zonasFor(sk).some(z=>z.n===w.zona))w.zona=null;ensureKm(w);selUid=null;render('rows');if(!work.some(x=>x.edit||x.isNew))save(null,false,true);});
   function goBack(){closeTruckDrop(true);
     // Vuelve al mismo alcance, búsqueda y scroll que había antes de abrir el detalle.
-    if(_rrBack){_rrWeek=_rrBack.week;_rrDay=_rrBack.day;_rrFac=_rrBack.fac;_rrQ=_rrBack.q;_rrDesde=_rrBack.desde;_rrHasta=_rrBack.hasta;_rrScroll=_rrBack.scroll;_rrBack=null;}
+    if(_rrBack){_rrWeek=_rrBack.week;_rrDay=_rrBack.day;_rrFac=_rrBack.fac;_rrQ=_rrBack.q;_rrScroll=_rrBack.scroll;_rrBack=null;}
     const gs=window.gsap;if(gs&&!reduce())gs.to(bd,{opacity:0,y:10,duration:.2,ease:'power2.in',onComplete:renderReporteRepartos});else renderReporteRepartos();}
   // Chip "Registrado" centrado sobre el board (segmentos), calculado tras el re-render.
   function _rrMiniCheck(){
@@ -7687,8 +7658,45 @@ function _rrOpenDetail(g,periodLbl,wkObj){
   const fmt=n=>n?_nnum(n):'';
   const reduce=()=>false;// animaciones siempre activas (pedido explícito): ignora prefers-reduced-motion
   const pop=el=>{const gs=window.gsap;if(gs&&el&&!reduce())gs.fromTo(el,{scale:1.14},{scale:1,duration:.34,ease:'back.out(2.2)',clearProps:'transform'});};
+  // Cabecera: el período es editable mientras la planilla no esté facturada.
+  function pdHTML(){
+    const fuera=pFuera();
+    const extra=fuera?'<span class="rrm-pd__n" title="Repartos que entraron de otras semanas al ampliar el período">+'+fuera+' de otras semanas</span>':'';
+    if(pLocked()||!pD||!pH)
+      return '<div class="rrm-pd">'+pLbl()+(pLocked()?'<span class="rrm-pd__lock" title="La planilla ya está facturada: el período queda firme">Facturada</span>':'')+extra+'</div>';
+    return '<div class="rrm-pd rrm-pd--rng">'+
+      '<span class="rrm-pd__lbl">Período</span>'+
+      '<input type="date" class="rrm-pd__in" data-pdd value="'+pD+'" aria-label="Período desde">'+
+      '<span class="rrm-pd__ar">→</span>'+
+      '<input type="date" class="rrm-pd__in" data-pdh value="'+pH+'" aria-label="Período hasta">'+
+      (pEsSemana()?'':'<button type="button" class="rrm-pd__wk" data-pdweek title="Volver a la semana de la planilla">Volver a la semana</button>')+
+      extra+'</div>';
+  }
   // Ubica el reparto padre de una línea (g.lines son referencias vivas)
   function findRepId(cl){for(const rp of (g.reps||[])){const r=repartos.find(x=>x.id===rp.id);if(r&&(r.clientes||[]).indexOf(cl)>=0)return r.id;}return (g.reps&&g.reps[0])?g.reps[0].id:null;}
+  /* Período de ESTA planilla. Arranca en el de la factura si ya está registrada, y si no
+     en la semana. Ampliarlo trae repartos pendientes del mismo transportista de otras
+     semanas para poder facturarlos juntos; los repartos conservan su fecha. */
+  const _pWeek={desde:wkObj?wkObj.desde:null,hasta:wkObj?wkObj.hasta:null};
+  const _pFac=_rrFacPeriodo(g);
+  let pD=(_pFac&&_pFac.desde)||_pWeek.desde||null;
+  let pH=(_pFac&&_pFac.hasta)||_pWeek.hasta||null;
+  const pLocked=()=>!!_facDeGrupo(g);                       // facturada: el período queda firme
+  const pLbl=()=>(pD&&pH)?(_dispD(pD)+' al '+_dispD(pH)):periodLbl;
+  const pEsSemana=()=>pD===_pWeek.desde&&pH===_pWeek.hasta;
+  // Repartos que entraron por ampliar el período (fuera de la semana de la planilla).
+  function pFuera(){if(!_pWeek.desde)return 0;return (g.lines||[]).filter(l=>{const f=String(l._fecha||'').slice(0,10);return f&&(f<_pWeek.desde||f>_pWeek.hasta);}).length;}
+  function setPeriodo(d,h){
+    if(!d||!h||pLocked())return;
+    if(d>h){const t=d;d=h;h=t;}
+    if(d===pD&&h===pH)return;
+    if(work.some(w=>w.edit||w.isNew)){showToast('Guardá o cancelá los cambios antes de mover el período');return;}
+    pD=d;pH=h;
+    const rr=_rrRangeLines(g.ts,pD,pH,g.facturaId);
+    const sum=_rrSumLines(rr.lines);
+    g.lines=rr.lines;g.reps=rr.reps;g.monto=sum.monto;g.flete=sum.flete;
+    buildWork();render('toggle');
+  }
   function targetRepId(){let best=null;(g.reps||[]).forEach(rp=>{if(!best||(rp.fechaISO||'')>(best.fechaISO||''))best=rp;});return best?best.id:null;}
   // Interior se cobra por km × precio/km. Rellena precio/km del camión y reconstruye el km de líneas viejas.
   function ensureKm(w){if(w.seg!=='interior'){w.fijo=false;return;}if(w.fijo){w.km=0;w.precioKm=0;return;}if(!(w.precioKm>0)){const tr=trucks.find(t=>t.id===w.trId);if(tr&&(+tr.precio>0))w.precioKm=+tr.precio;}if(!(w.km>0)&&w.precioKm>0&&w.precio>0)w.km=Math.round(w.precio/w.precioKm);if(w.km>0&&w.precioKm>0)w.precio=Math.round(w.km*w.precioKm);}
@@ -7980,8 +7988,11 @@ function _rrOpenDetail(g,periodLbl,wkObj){
         // OJO: no reconstruir work aquí (regeneraría los uid y el DOM ya renderizado
         // quedaría con uids viejos → no se podría editar). El work actual ya refleja el cambio.
         return; }
-      const fresh=_rrGroups(_rrWeek).find(x=>x.ts===g.ts);
-      if(fresh){g.lines=fresh.lines;g.monto=fresh.monto;g.flete=fresh.flete;g.reps=fresh.reps;}else{g.lines=[];g.monto=0;g.flete=0;g.reps=[];}
+      // Recarga por período (no por semana): si la planilla integra otras semanas, no se pierden.
+      const _rr=(pD&&pH)?_rrRangeLines(g.ts,pD,pH,g.facturaId):null;
+      if(_rr){const _sm=_rrSumLines(_rr.lines);g.lines=_rr.lines;g.reps=_rr.reps;g.monto=_sm.monto;g.flete=_sm.flete;}
+      else{const fresh=_rrGroups(_rrWeek).find(x=>x.ts===g.ts);
+        if(fresh){g.lines=fresh.lines;g.monto=fresh.monto;g.flete=fresh.flete;g.reps=fresh.reps;}else{g.lines=[];g.monto=0;g.flete=0;g.reps=[];}}
       if(!g.lines.length){goBack();return;}
       buildWork();render('toggle');
       _rrMiniCheck(); // chip "Registrado" centrado sobre los segmentos
@@ -8075,26 +8086,39 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     [bd.querySelector('.rrm-act--print'),bd.querySelector('#rrmAddSeg')].forEach(b=>{if(!b||!window.gsap)return;const ic=b.querySelector('svg');if(!ic)return;b.addEventListener('mouseenter',()=>{gsap.killTweensOf(ic);gsap.fromTo(ic,{scale:1},{scale:1.2,duration:.26,yoyo:true,repeat:1,ease:'power2.inOut'});});});
     // Selectores PRO (Repartidor / Zona) en la tarjeta en edición
     bd.querySelectorAll('.rre-pick').forEach(b=>b.addEventListener('click',()=>openRrePick(b)));
+    // Período de la planilla
+    const _pdd=bd.querySelector('[data-pdd]'),_pdh=bd.querySelector('[data-pdh]');
+    if(_pdd)_pdd.addEventListener('change',()=>setPeriodo(_pdd.value||pD,pH));
+    if(_pdh)_pdh.addEventListener('change',()=>setPeriodo(pD,_pdh.value||pH));
+    const _pdw=bd.querySelector('[data-pdweek]');
+    if(_pdw)_pdw.addEventListener('click',()=>setPeriodo(_pWeek.desde,_pWeek.hasta));
     bd.querySelectorAll('.cancel').forEach(b=>b.addEventListener('click',()=>goBack()));
     bd.querySelectorAll('.cancel-edit').forEach(b=>b.addEventListener('click',()=>{buildWork();render('toggle');}));
-    const pr=bd.querySelector('.print');if(pr)pr.addEventListener('click',()=>{const t=totals();_cfPrint({id:null,tsNombre:g.ts,semanaDesde:wkObj?wkObj.desde:null,semanaHasta:wkObj?wkObj.hasta:null,clientes:g.lines,totalMonto:t.m,totalFlete:t.f,incTotal:t.inc,factura_id:(g.facturaId!=null?g.facturaId:null)});});
+    const pr=bd.querySelector('.print');if(pr)pr.addEventListener('click',()=>{const t=totals();_cfPrint({id:null,tsNombre:g.ts,semanaDesde:pD||(wkObj?wkObj.desde:null),semanaHasta:pH||(wkObj?wkObj.hasta:null),clientes:g.lines,totalMonto:t.m,totalFlete:t.f,incTotal:t.inc,factura_id:(g.facturaId!=null?g.facturaId:null)});});
     // "Registrar factura" → entra en MODO SELECCIÓN (todos los repartos marcados por defecto)
     // Registrar factura: PRIMERO Nº+monto, después se aprueban las líneas contra ese monto
-    const fac=bd.querySelector('.rrm-act--fac');if(fac)fac.addEventListener('click',()=>{if(!work.some(w=>!w.del)){showToast('No hay repartos pendientes para facturar');return;}_cfOpenFacturaModal(null,{ts:g.ts,semDesde:wkObj.desde,semHasta:wkObj.hasta,flete:work.filter(w=>!w.del).reduce((s,w)=>s+(+w.precio||0),0),captureOnly:true,onCapture:(nro,monto)=>{_facNro=nro;_facMonto=+monto||0;_facSel=new Set();_facMode=true;_dashSeg='todos';render('filter');}});});
+    const fac=bd.querySelector('.rrm-act--fac');if(fac)fac.addEventListener('click',()=>{if(!work.some(w=>!w.del)){showToast('No hay repartos pendientes para facturar');return;}_cfOpenFacturaModal(null,{ts:g.ts,semDesde:pD||wkObj.desde,semHasta:pH||wkObj.hasta,flete:work.filter(w=>!w.del).reduce((s,w)=>s+(+w.precio||0),0),captureOnly:true,onCapture:(nro,monto)=>{_facNro=nro;_facMonto=+monto||0;_facSel=new Set();_facMode=true;_dashSeg='todos';render('filter');}});});
     // Cancelar la aprobación (descarta; nada se persiste hasta imprimir)
     bd.querySelectorAll('[data-faccancel]').forEach(b=>b.addEventListener('click',()=>{_facMode=false;_facSel=new Set();_facMonto=0;_facNro='';render('filter');}));
     bd.querySelectorAll('[data-facall]').forEach(b=>b.addEventListener('click',()=>{const cand=work.filter(w=>!w.del);const allSel=cand.length>0&&cand.every(w=>_facSel.has(w.uid));_facSel=allSel?new Set():new Set(cand.map(w=>w.uid));render('filter');}));
     // Imprimir (habilitado al conciliar): crea la factura, asigna las líneas aprobadas y luego imprime
     bd.querySelectorAll('[data-facprint]').forEach(b=>b.addEventListener('click',async()=>{const selW=work.filter(w=>!w.del&&_facSel.has(w.uid));const tot=selW.reduce((s,w)=>s+(+w.precio||0),0);if(!(_facMonto>0&&tot===_facMonto)){showToast('El flete aprobado no coincide con la factura 🚫');return;}if(b.classList.contains('is-loading'))return;const _ov=b.innerHTML;b.classList.add('is-loading');b.disabled=true;b.innerHTML='<span class="cf-spin"></span>Registrando…';
-      try{const row={nro:_facNro,fecha:(typeof todayISO==='function'?todayISO():new Date().toISOString().slice(0,10)),monto:_facMonto,transportadora_nombre:g.ts,semana_desde:wkObj.desde,semana_hasta:wkObj.hasta};
+      try{const row={nro:_facNro,fecha:(typeof todayISO==='function'?todayISO():new Date().toISOString().slice(0,10)),monto:_facMonto,transportadora_nombre:g.ts,semana_desde:pD||wkObj.desde,semana_hasta:pH||wkObj.hasta};
         const ins=await sb.from('fact_facturas').insert(row).select('id').single();if(ins.error)throw ins.error;const facId=ins.data&&ins.data.id;
         const _aff=new Set();selW.forEach(w=>{if(w.ref){w.ref.factura_id=facId;if(w.repId!=null)_aff.add(w.repId);}});
         for(const rid of _aff){const rr=repartos.find(x=>x.id===rid);if(rr){try{await dbUpdateClientes(rid,rr.clientes);}catch(_){}}}
         try{const fr=await sb.from('fact_facturas').select('*');window.__cfFac=fr.data||[];}catch(_){}
         const _mt=_facMonto;_facMode=false;_facSel=new Set();_facMonto=0;_facNro='';
         _cfCheckBurst('Registrado',true);
-        const grs=_rrGroups(_rrWeek);const fresh=grs.find(x=>x.ts===g.ts&&x.facturaId===facId);
-        if(fresh){_cfPrint({id:facId,tsNombre:g.ts,semanaDesde:wkObj.desde,semanaHasta:wkObj.hasta,clientes:fresh.lines,totalMonto:_mt,totalFlete:fresh.flete,incTotal:null,factura_id:facId});_rrOpenDetail(fresh,periodLbl,wkObj);}
+        // La planilla recién facturada se recarga por su período, que puede cruzar semanas.
+        const _fd=pD||wkObj.desde,_fh=pH||wkObj.hasta;
+        const _rr2=_rrRangeLines(g.ts,_fd,_fh,facId);
+        if(_rr2.lines.length){
+          const _s2=_rrSumLines(_rr2.lines);
+          const fresh=Object.assign({},g,{facturaId:facId,lines:_rr2.lines,reps:_rr2.reps,monto:_s2.monto,flete:_s2.flete,perDesde:_fd,perHasta:_fh});
+          _cfPrint({id:facId,tsNombre:g.ts,semanaDesde:_fd,semanaHasta:_fh,clientes:fresh.lines,totalMonto:_mt,totalFlete:fresh.flete,incTotal:null,factura_id:facId});
+          _rrOpenDetail(fresh,_dispD(_fd)+' al '+_dispD(_fh),wkObj);
+        }
         else renderReporteRepartos();
       }catch(e){console.error(e);showToast('Uy, no pude registrar. Probá de nuevo.');b.disabled=false;b.classList.remove('is-loading');b.innerHTML=_ov;}
     }));
@@ -8202,7 +8226,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     const facKpi='<div class="rrm-kpi rrm-kpi--fac"><span>Factura</span><b class="k-fac'+(facMonto==null?' k-nofac':'')+'">'+(facMonto!=null?_gs(facMonto):'Sin registros')+'</b></div>';
     bd.innerHTML=
       '<div class="rrd-topbar rrd-topbar--kpi">'+
-        '<div class="rrd-left">'+back+'<div class="rrd-ttl"><h2>'+_escp(g.ts)+(editing?'<span class="rrd-edbadge"><i></i>Editando</span>':'')+'</h2><div class="rrm-pd">'+periodLbl+'</div></div></div>'+
+        '<div class="rrd-left">'+back+'<div class="rrd-ttl"><h2>'+_escp(g.ts)+(editing?'<span class="rrd-edbadge"><i></i>Editando</span>':'')+'</h2>'+pdHTML()+'</div></div>'+
         '<div class="rrd-topresumen">'+_dashResumen('General',0,_kpiCam,_kpiSub)+'</div>'+
         '<div class="rrd-acts">'+acts+'</div>'+
       '</div>'+
@@ -8292,7 +8316,7 @@ function _cfCheckBurst(label,fast){
       .to(disc,{scale:1,opacity:1,duration:.26,ease:'back.out(2.2)'})
       .to(c,{scale:1,duration:.22,ease:'back.out(2.3)'},'-=.14')
       .to(k,{strokeDashoffset:0,duration:.2,ease:'power2.out'},'-=.12')
-      .add(()=>{gs.to(glow,{opacity:.9,scale:1.2,duration:.18,ease:'power2.out'}).to(glow,{opacity:0,scale:1.4,duration:.34,ease:'power2.in'});},'-=.09')
+      .add(()=>{gs.timeline().to(glow,{opacity:.9,scale:1.2,duration:.18,ease:'power2.out'}).to(glow,{opacity:0,scale:1.4,duration:.34,ease:'power2.in'});},'-=.09')
       .fromTo(ring,{opacity:.8,scale:.6},{opacity:0,scale:1.9,duration:.4,ease:'power2.out'},'<')
       .to(disc,{scale:1.08,duration:.12,yoyo:true,repeat:1,ease:'power1.inOut'},'<')
       .to(lbl,{y:0,opacity:1,duration:.22,ease:'power2.out'},'-=.16');
@@ -8316,7 +8340,7 @@ function _cfCheckBurst(label,fast){
     .to(svg,{opacity:1,duration:.18},'-=.1')            /* aparece el check */
     .to(c,{scale:1,duration:.4,ease:'back.out(2)'},'-=.12')
     .to(k,{strokeDashoffset:0,duration:.36,ease:'power2.out'},'-=.18')
-    .add(()=>{glowPulse.kill();gs.killTweensOf(glow);gs.to(glow,{opacity:.9,scale:1.2,duration:.28,ease:'power2.out'}).to(glow,{opacity:0,scale:1.42,duration:.62,ease:'power2.in'});},'-=.14')  /* destello de éxito */
+    .add(()=>{glowPulse.kill();gs.killTweensOf(glow);gs.timeline().to(glow,{opacity:.9,scale:1.2,duration:.28,ease:'power2.out'}).to(glow,{opacity:0,scale:1.42,duration:.62,ease:'power2.in'});},'-=.14')  /* destello de éxito */
     .fromTo(ring,{opacity:.75,scale:.55},{opacity:0,scale:2,duration:.64,ease:'power2.out'},'<')  /* onda que se expande */
     .to(disc,{scale:1.1,duration:.16,yoyo:true,repeat:1,ease:'power1.inOut'},'<')
     .to(lbl,{y:0,opacity:1,duration:.34,ease:'power2.out'},'-=.24');
