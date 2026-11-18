@@ -177,7 +177,12 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .edit-chip button{color:var(--orange);font-size:13px;font-weight:800;text-decoration:underline;padding:0 4px}
 
 /* Two-column body */
-.calc-body{flex:1;min-height:0;display:flex;gap:16px;--band-h:100px}
+/* Fila superior: la fecha ocupa lo que sobra y la incidencia queda a la derecha,
+   alineada con la columna del desglose que viene debajo. */
+.calc-topbar{display:flex;gap:16px;align-items:stretch;flex-shrink:0;margin-bottom:12px}
+.calc-topbar .selector-card--slim{flex:1;min-width:0;margin:0}
+.calc-topbar .result-card{width:480px;flex-shrink:0}
+.calc-body{flex:1;min-height:0;display:flex;gap:16px}
 .calc-left{flex:1;min-width:0;display:flex;flex-direction:column;gap:12px}
 .calc-right{width:480px;flex-shrink:0;display:flex;flex-direction:column;gap:12px;align-self:stretch;min-height:0}
 
@@ -375,7 +380,7 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .cl-precio-inp:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(59,130,246,.1)}
 .cl-precio-inp::placeholder{color:var(--gray-300);font-weight:400}
 /* Barra slim (solo fecha) */
-.selector-card--slim{padding:14px 20px;align-items:flex-end;min-height:var(--band-h)}
+.selector-card--slim{padding:14px 20px;align-items:flex-end}
 .selector-card--slim #selFechaGroup{width:220px}
 /* Tabla manifiestos PRO: fuente más grande y compacta (sin desperdiciar alto) */
 #clientesTable th{padding:8px 14px;font-size:12.5px}
@@ -461,27 +466,27 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 @keyframes cardIn{0%{opacity:0;transform:translateY(18px) scale(.96)}100%{opacity:1;transform:translateY(0) scale(1)}}
 @keyframes numPop{0%{opacity:0;transform:scale(.75)}60%{transform:scale(1.08)}100%{opacity:1;transform:scale(1)}}
 @keyframes breakIn{0%{opacity:0;transform:translateY(12px) scale(.98)}100%{opacity:1;transform:translateY(0) scale(1)}}
-.result-card{border-radius:var(--radius-xl);background:linear-gradient(135deg,#0f72ad 0%,#0B5F8D 50%,#074f7a 100%);padding:8px 20px;display:flex;flex-direction:row;align-items:center;gap:18px;text-align:left;overflow:hidden;flex-shrink:0;height:var(--band-h);position:relative;width:100%;animation:cardIn .55s var(--alas-ease-spring) both}
+.result-card{border-radius:var(--radius-xl);background:linear-gradient(135deg,#0f72ad 0%,#0B5F8D 50%,#074f7a 100%);padding:16px 24px;display:flex;flex-direction:row;align-items:center;gap:22px;text-align:left;overflow:hidden;flex-shrink:0;position:relative;width:100%;animation:cardIn .55s var(--alas-ease-spring) both}
 .result-card::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 25% 15%,rgba(255,255,255,.1) 0%,transparent 55%);pointer-events:none}
 .result-card__main{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start}
-.result-eyebrow{font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:1.2px;color:rgba(255,255,255,.45);margin-bottom:2px;white-space:nowrap}
+.result-eyebrow{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.4px;color:rgba(255,255,255,.45);margin-bottom:5px;white-space:nowrap}
 .result-hero{display:flex;align-items:flex-end;gap:3px;line-height:1;margin-bottom:1px}
-.result-number{font-family:Sora,Inter,sans-serif;font-size:40px;font-weight:800;color:#fff;letter-spacing:-1.8px;font-variant-numeric:tabular-nums;transition:color var(--base);line-height:1}
+.result-number{font-family:Sora,Inter,sans-serif;font-size:56px;font-weight:800;color:#fff;letter-spacing:-2.6px;font-variant-numeric:tabular-nums;transition:color var(--base);line-height:1}
 .result-number.is-empty{color:rgba(255,255,255,.25)}
 .result-number.pop{animation:numPop .45s var(--alas-ease-spring) both}
 .result-pct{font-family:Sora,Inter,sans-serif;font-size:38px;font-weight:700;color:rgba(255,255,255,.45);padding-bottom:14px;transition:color var(--base)}
-.result-sub{font-size:12.5px;font-weight:800;margin-bottom:0;letter-spacing:-.1px;white-space:nowrap}
+.result-sub{font-size:15px;font-weight:800;margin-bottom:0;letter-spacing:-.1px;white-space:nowrap}
 .result-sub.s-empty{color:rgba(255,255,255,.3)}
 .result-sub.s-optimo{color:#6ee7b7}
 .result-sub.s-aceptable{color:#93c5fd}
 .result-sub.s-elevado{color:#fdba74}
 .result-sub.s-critico{color:#fca5a5}
-.result-divider{width:1px;height:56px;flex-shrink:0;background:rgba(255,255,255,.14);margin:0}
+.result-divider{width:1px;height:72px;flex-shrink:0;background:rgba(255,255,255,.14);margin:0}
 .result-row2{display:flex;flex-direction:column;gap:8px;width:auto;flex-shrink:0}
 .result-r2-item{display:flex;flex-direction:column;gap:1px}
 .result-r2-item+.result-r2-item{padding-top:8px;border-top:1px solid rgba(255,255,255,.12)}
 .result-r2-lbl{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:rgba(255,255,255,.4)}
-.result-r2-val{font-size:15px;font-weight:800;color:#fff;font-variant-numeric:tabular-nums;white-space:nowrap}
+.result-r2-val{font-size:17px;font-weight:800;color:#fff;font-variant-numeric:tabular-nums;white-space:nowrap}
 .result-r2-val.na{color:rgba(255,255,255,.25)}
 
 /* ── Breakdown card ── */
@@ -1221,18 +1226,41 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
     </button>
   </div>
 
+  <!-- Fila superior a todo el ancho: fecha del reparto + incidencia -->
+  <div class="calc-topbar">
+    <div class="selector-card selector-card--slim">
+      <div class="sel-group" id="selFechaGroup">
+        <div class="sel-lbl-row"><span class="sel-lbl">Fecha del reparto</span></div>
+        <input type="date" id="inpFecha" class="sel-fecha">
+      </div>
+    </div>
+    <div class="result-card">
+      <div class="result-card__main">
+        <div class="result-eyebrow">Incidencia del Flete</div>
+        <div class="result-hero">
+          <span class="result-number is-empty" id="rNumber">—</span>
+          <span class="result-pct" id="rPct" style="opacity:0">%</span>
+        </div>
+        <div class="result-sub s-empty" id="rCaption">Agregá los camiones del reparto</div>
+      </div>
+      <div class="result-divider"></div>
+      <div class="result-row2">
+        <div class="result-r2-item">
+          <span class="result-r2-lbl">Facturación total</span>
+          <span class="result-r2-val na" id="rsMonto">—</span>
+        </div>
+        <div class="result-r2-item">
+          <span class="result-r2-lbl">Flete total</span>
+          <span class="result-r2-val na" id="rsFlete">—</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="calc-body">
 
     <!-- Columna izquierda -->
     <div class="calc-left">
-
-      <!-- Barra: solo fecha del reparto -->
-      <div class="selector-card selector-card--slim">
-        <div class="sel-group" id="selFechaGroup">
-          <div class="sel-lbl-row"><span class="sel-lbl">Fecha del reparto</span></div>
-          <input type="date" id="inpFecha" class="sel-fecha">
-        </div>
-      </div>
 
       <input type="hidden" id="inpKm" value="0">
       <div id="fbFijoArea" style="display:none"></div>
@@ -1297,28 +1325,6 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
     <div class="calc-right">
 
       <!-- Hero card -->
-      <div class="result-card">
-        <div class="result-card__main">
-          <div class="result-eyebrow">Incidencia del Flete</div>
-          <div class="result-hero">
-            <span class="result-number is-empty" id="rNumber">—</span>
-            <span class="result-pct" id="rPct" style="opacity:0">%</span>
-          </div>
-          <div class="result-sub s-empty" id="rCaption">Agregá los camiones del reparto</div>
-        </div>
-        <div class="result-divider"></div>
-        <div class="result-row2">
-          <div class="result-r2-item">
-            <span class="result-r2-lbl">Facturación total</span>
-            <span class="result-r2-val na" id="rsMonto">—</span>
-          </div>
-          <div class="result-r2-item">
-            <span class="result-r2-lbl">Flete total</span>
-            <span class="result-r2-val na" id="rsFlete">—</span>
-          </div>
-        </div>
-      </div>
-
       <!-- Breakdown card -->
       <div class="result-breakdown" id="resultBreakdown">
         <div class="rb-title">Desglose por camión</div>
