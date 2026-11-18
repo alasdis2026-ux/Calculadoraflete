@@ -5759,7 +5759,7 @@ function showSaveAnim(text){
   .rrd-bar--center .rrm-filterbar{margin:0;justify-content:center}
   /* Control de segmento dentro de la tarjeta, arriba y centrado */
   /* Las pestañas van en la misma línea que el título, centradas en la cabecera. */
-  .rrd-cardseg{display:flex;justify-content:center;padding:0;flex:1 1 auto;min-width:0}
+  .rrd-cardseg{grid-column:2;justify-self:center;display:flex;justify-content:center;padding:0}
   @media(max-width:980px){.rrd-bar{grid-template-columns:1fr;justify-items:center}.rrd-bar .rrm-filterbar{justify-content:center}.rrd-bar__sp{display:none}}
   /* Sello grande "Conciliada" a la derecha de la fila de filtros (planilla facturada) */
   /* Sello de goma: ocupa su propia línea y queda centrado en la barra. */
@@ -5795,10 +5795,10 @@ function showSaveAnim(text){
   .rrd-grid{display:grid;grid-template-columns:1fr 300px;gap:16px;align-items:start}
   @media(max-width:1050px){.rrd-grid{grid-template-columns:1fr}}
   .rrd-tablecard{background:#fff;border:1px solid var(--gray-200,#e2e8f0);border-radius:16px;overflow:hidden;min-width:0}
-  .rrd-tablehd{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 16px;border-bottom:1px solid var(--gray-100,#f1f5f9)}
-  .rrd-tablehd__t{display:flex;align-items:center;gap:9px;font-family:Sora,Inter,sans-serif;font-size:14px;font-weight:800;color:var(--gray-800)}
+  .rrd-tablehd{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;padding:13px 16px;border-bottom:1px solid var(--gray-100,#f1f5f9)}
+  .rrd-tablehd__t{grid-column:1;justify-self:start;display:flex;align-items:center;gap:9px;font-family:Sora,Inter,sans-serif;font-size:14px;font-weight:800;color:var(--gray-800)}
   .rrd-tablehd__dot{width:9px;height:9px;border-radius:50%}
-  .rrd-tablehd__acts{display:flex;gap:6px;flex-shrink:0}
+  .rrd-tablehd__acts{grid-column:3;justify-self:end;display:flex;gap:6px;flex-shrink:0}
   .rrd-hdbtn{display:inline-flex;align-items:center;gap:6px;border:0;background:linear-gradient(135deg,#1478b8,#0B5F8D);color:#fff;border-radius:10px;padding:8px 14px;font:inherit;font-size:12.5px;font-weight:800;cursor:pointer;transition:filter .14s,box-shadow .14s,transform .12s;box-shadow:0 4px 12px rgba(11,95,141,.24)}
   .rrd-hdbtn:hover{filter:brightness(1.07);transform:translateY(-1px);box-shadow:0 8px 18px rgba(11,95,141,.3)}
   .rrd-hdbtn:active{transform:scale(.97)}
