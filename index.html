@@ -183,8 +183,8 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .calc-topbar .selector-card--slim{justify-self:start;width:100%;max-width:340px;margin:0}
 .calc-topbar .result-card{justify-self:center;width:420px}
 /* Acciones al costado de la incidencia */
-.calc-actions{justify-self:end;display:flex;flex-direction:column;justify-content:center;gap:10px;width:230px}
-.calc-actions .btn{width:100%;justify-content:center}
+.calc-actions{justify-self:end;display:flex;flex-direction:row;align-items:center;justify-content:flex-end;gap:10px}
+.calc-actions .btn{justify-content:center;white-space:nowrap;flex-shrink:0}
 .calc-actions .btn:disabled{opacity:.45;cursor:not-allowed}
 .vd-dot{width:8px;height:8px;border-radius:50%;background:#ef4444;flex-shrink:0;box-shadow:0 0 0 3px rgba(239,68,68,.18)}
 /* El desglose sigue en el DOM pero fuera de la vista: el modal muestra una copia. */
