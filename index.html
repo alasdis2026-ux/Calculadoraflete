@@ -5058,28 +5058,29 @@ function showSaveAnim(text){
   .rr-ci .ci-resp__dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
   /* Lista */
   .rr-ci .ci-list{flex:1;min-height:0;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:10px}
-  .rr-ci .ci-rowwrap{border-radius:14px;transition:box-shadow .28s ease}
-  .rr-ci .ci-rowwrap.open{box-shadow:0 18px 44px -12px rgba(8,119,175,.34)}
-  .rr-ci .ci-row{position:relative;display:flex;align-items:center;gap:10px;border:1px solid var(--ci-border);border-radius:16px;background:#fff;padding:10px 12px 10px 10px;cursor:pointer;overflow:hidden;transition:border-color .16s,box-shadow .16s,transform .16s,border-radius .2s,background .2s}
-  .rr-ci .ci-row:hover{border-color:rgba(8,119,175,.38);background:linear-gradient(90deg,#f6fbff,#fff 220px);
-    box-shadow:0 8px 20px -8px rgba(8,119,175,.3),0 0 0 1px rgba(8,119,175,.07);transform:translateY(-1px)}
+  .rr-ci .ci-rowwrap{border-radius:6px;transition:box-shadow .28s ease}
+  .rr-ci .ci-rowwrap.open{box-shadow:0 14px 34px -10px rgba(8,119,175,.34)}
+  .rr-ci .ci-row{position:relative;display:flex;align-items:center;gap:10px;border:1px solid #dce6f0;border-radius:6px;background:linear-gradient(180deg,#fff,#f8fbfd);padding:10px 12px 10px 10px;cursor:pointer;overflow:hidden;box-shadow:inset 0 1px 0 #fff,0 1px 1px rgba(15,36,64,.05),0 2px 4px rgba(15,36,64,.05);transition:border-color .16s,box-shadow .16s,transform .16s,border-radius .2s,background .2s}
+  .rr-ci .ci-row:hover{border-color:rgba(8,119,175,.45);background:linear-gradient(180deg,#fcfeff,#f1f8fd);
+    box-shadow:inset 0 1px 0 #fff,0 2px 3px rgba(8,119,175,.1),0 10px 20px -8px rgba(8,119,175,.32);transform:translateY(-2px)}
   .rr-ci .ci-row:hover .ci-row__name{color:var(--ci-primary-2)}
   /* Respuesta táctil al clic: la tarjeta se hunde un punto antes de abrirse. */
-  .rr-ci .ci-row:active{transform:translateY(0) scale(.996);transition-duration:.09s}
+  .rr-ci .ci-row:active{transform:translateY(1px);box-shadow:inset 0 1px 2px rgba(15,36,64,.12);transition-duration:.08s}
   .rr-ci .ci-rowwrap.open .ci-row:active{transform:none}
-  .rr-ci .ci-rowwrap.open .ci-row{border-color:transparent;border-bottom-left-radius:0;border-bottom-right-radius:0;transform:none;background:linear-gradient(180deg,#fff,#f4faff);box-shadow:0 10px 20px -10px rgba(8,119,175,.4),inset 0 0 0 1px rgba(8,119,175,.45)}
+  .rr-ci .ci-rowwrap.open .ci-row{border-color:transparent;border-bottom-left-radius:0;border-bottom-right-radius:0;transform:none;border-top-left-radius:6px;border-top-right-radius:6px;background:linear-gradient(180deg,#fff,#f4faff);box-shadow:0 10px 20px -10px rgba(8,119,175,.4),inset 0 0 0 1px rgba(8,119,175,.45)}
   .rr-ci .ci-rowwrap.open .ci-row::after{content:'';position:absolute;left:12px;right:12px;bottom:0;height:1px;background:linear-gradient(90deg,transparent,rgba(8,119,175,.28),transparent)}
   .rr-ci .ci-rowwrap.open .ci-row:hover{transform:none;box-shadow:0 10px 20px -10px rgba(8,119,175,.4),inset 0 0 0 1px rgba(8,119,175,.45)}
   /* Acento de estado: fino y redondeado; se estira al pasar el mouse. */
-  .rr-ci .ci-row__bar{position:absolute;left:0;top:11px;bottom:11px;width:3px;border-radius:0 3px 3px 0;transition:width .26s cubic-bezier(.2,.8,.2,1),top .26s cubic-bezier(.2,.8,.2,1),bottom .26s cubic-bezier(.2,.8,.2,1)}
-  .rr-ci .ci-row:hover .ci-row__bar{width:5px;top:6px;bottom:6px}
+  .rr-ci .ci-row__bar{position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:0;transition:width .26s cubic-bezier(.2,.8,.2,1),top .26s cubic-bezier(.2,.8,.2,1),bottom .26s cubic-bezier(.2,.8,.2,1)}
+  .rr-ci .ci-row:hover .ci-row__bar{width:5px}
   .rr-ci .ci-row.st-programado .ci-row__bar{background:linear-gradient(180deg,#3d8ee6,var(--ci-prog))}
   .rr-ci .ci-row.st-realizado .ci-row__bar{background:linear-gradient(180deg,#22b45c,var(--ci-real))}
   .rr-ci .ci-row__grip{color:#c3ccd6;flex-shrink:0;margin-left:4px;display:inline-flex} .rr-ci .ci-row__grip svg{width:15px;height:15px}
   .rr-ci .ci-row__n{width:22px;height:22px;border-radius:50%;background:#eef2f6;color:var(--ci-muted);display:grid;place-items:center;font-size:11px;font-weight:800;flex-shrink:0;transition:background .15s,color .15s}
   .rr-ci .ci-row:hover .ci-row__n{background:var(--ci-primary);color:#fff}
   .rr-ci .ci-row__main{min-width:0;flex:1}
-  .rr-ci .ci-row__ttl{display:flex;align-items:center;gap:8px;min-width:0;line-height:1.25}
+  .rr-ci .ci-row__ttl{display:flex;align-items:center;gap:7px 16px;min-width:0;line-height:1.25;flex-wrap:wrap}
+  .rr-ci .ci-row__segs{display:inline-flex;align-items:center;gap:12px;flex-shrink:0}
   .rr-ci .ci-row__name{font-size:14.5px;font-weight:800;letter-spacing:-.1px;color:var(--ci-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color .2s ease}
   /* Chip de segmento en la tarjeta (al lado de la transportadora) */
   /* Segmento: punto de color + etiqueta. Conserva el código de color sin el arcoíris. */
@@ -5114,12 +5115,12 @@ function showSaveAnim(text){
   .rr-ci .ci-row:hover .ci-badge-st{transform:translateY(-1px)}
   .rr-ci .ci-badge-st.st-programado{background:#eef5fc;color:#0b5f8d;border-color:#dceaf7}
   .rr-ci .ci-badge-st.st-realizado{background:#e9f7ef;color:#127a4b;border-color:#cdebd9}
-  .rr-ci .ci-row__chev{flex-shrink:0;width:26px;height:26px;border-radius:8px;color:var(--ci-muted);display:inline-flex;align-items:center;justify-content:center;transition:transform .34s cubic-bezier(.34,1.56,.64,1),color .16s,background .16s;margin-left:2px}
+  .rr-ci .ci-row__chev{flex-shrink:0;width:26px;height:26px;border-radius:6px;color:var(--ci-muted);display:inline-flex;align-items:center;justify-content:center;transition:transform .34s cubic-bezier(.34,1.56,.64,1),color .16s,background .16s;margin-left:2px}
   .rr-ci .ci-row__chev svg{width:18px;height:18px}
   .rr-ci .ci-row:hover .ci-row__chev{color:var(--ci-primary);background:var(--ci-primary-soft)}
   .rr-ci .ci-rowwrap.open .ci-row__chev{transform:rotate(180deg);color:#fff;background:linear-gradient(135deg,#1478b8,var(--ci-primary-2))}
   /* Acordeón */
-  .rr-ci .ci-row-exp{overflow:hidden;border:1px solid rgba(8,119,175,.45);border-top:none;border-bottom-left-radius:16px;border-bottom-right-radius:16px;background:linear-gradient(180deg,#f7fbff,#fff)}
+  .rr-ci .ci-row-exp{overflow:hidden;border:1px solid rgba(8,119,175,.45);border-top:none;border-bottom-left-radius:6px;border-bottom-right-radius:6px;background:linear-gradient(180deg,#f7fbff,#fff)}
   .rr-ci .ci-exp-in{padding:12px 12px 13px}
   .rr-ci .ci-exp-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
   .rr-ci .ci-exp-bar span{font-size:13px;font-weight:600;color:var(--ci-text-2)} .rr-ci .ci-exp-bar b{color:#127a4b;font-weight:800}
@@ -7511,10 +7512,10 @@ function renderReporteRepartos(){
     return '<div class="ci-rowwrap" data-search="'+sk+'" data-gi="'+i+'">'+
       '<div class="ci-row st-'+st+'">'+
         '<span class="ci-row__bar"></span>'+
-        '<div class="ci-row__main"><div class="ci-row__ttl"><span class="ci-row__name">'+_escp(g.ts)+'</span></div>'+
+        '<div class="ci-row__main"><div class="ci-row__ttl"><span class="ci-row__name" title="'+_escp(g.ts)+'">'+_escp(g.ts)+'</span><span class="ci-row__segs">'+segChip+'</span></div>'+
           '<div class="ci-row__meta">'+
             '<span class="ci-pill">'+IC.truckMin+'<span>'+cam+' camion'+(cam===1?'':'es')+'</span></span>'+
-            perPill+segChip+
+            perPill+
           '</div></div>'+
         '<span class="ci-row__amt" title="Flete del período">'+_gs(g.flete)+'</span>'+
         '<span class="ci-badge-st st-'+st+'">'+(facd?IC.chk+'Facturado':'<i class="ci-bdot"></i>Pendiente')+'</span>'+
