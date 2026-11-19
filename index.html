@@ -631,7 +631,7 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 /* ===== Carrusel 3D (coverflow) ===== */
 .ts-3d{position:relative;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;perspective:2600px;perspective-origin:50% 46%;overflow:hidden;background:radial-gradient(120% 90% at 50% 8%,var(--accent-soft) 0%,transparent 55%)}
 .ts-3d__stage{position:relative;width:100%;height:100%;transform-style:preserve-3d}
-.ts-3d__card{position:absolute;top:50%;left:50%;width:460px;max-width:86vw;height:86%;max-height:620px;transform-style:preserve-3d;background:#fff;border:1.5px solid var(--gray-200);border-radius:18px;box-shadow:0 30px 70px -24px rgba(15,23,42,.42);display:flex;flex-direction:column;overflow:hidden;cursor:pointer;will-change:transform,opacity;-webkit-backface-visibility:hidden;backface-visibility:hidden}
+.ts-3d__card{position:absolute;top:50%;left:50%;width:620px;max-width:88vw;height:auto;max-height:86%;min-height:300px;transform-style:preserve-3d;background:#fff;border:1.5px solid var(--gray-200);border-radius:18px;box-shadow:0 30px 70px -24px rgba(15,23,42,.42);display:flex;flex-direction:column;overflow:hidden;cursor:pointer;will-change:transform,opacity;-webkit-backface-visibility:hidden;backface-visibility:hidden}
 .ts-3d__card,.ts-3d__card *{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
 .ts-3d__card.is-active{cursor:default;border-color:var(--accent);box-shadow:0 34px 80px -26px rgba(11,95,141,.5)}
 .ts-3d__card.is-active .ts-3d__hd{background:linear-gradient(135deg,var(--primary),#1769a3)}
@@ -1397,9 +1397,6 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.9"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
       Exportar Excel
     </button>
-    <button class="btn btn-outline cp-btn cp-btn--txt" type="button" id="btnTsCopyAll" title="Copiar todo el padrón para pegarlo en una planilla">
-      <span class="cp-ico"></span><span class="cp-lbl">Copiar todo</span>
-    </button>
     <button class="btn btn-primary" type="button" id="btnAddTs">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
       Agregar transportista
@@ -1416,8 +1413,18 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
           <button type="button" class="ts-bar__clr" id="tsSearchClr" title="Limpiar" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
         </div>
         <span class="ts-bar__n" id="tsBarN"></span>
+        <div style="flex:1"></div>
+        <span class="ts-bar__kbd"><kbd>←</kbd><kbd>→</kbd> navegar · <kbd>C</kbd> copiar camiones · <kbd>Enter</kbd> ver detalles</span>
       </div>
-      <div class="ts-board" id="tsList"></div>
+      <div class="ts-3d" id="ts3d">
+        <button class="ts-3d__nav ts-3d__nav--prev" type="button" id="ts3dPrev" aria-label="Anterior"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg></button>
+        <div class="ts-3d__stage" id="ts3dStage"></div>
+        <button class="ts-3d__nav ts-3d__nav--next" type="button" id="ts3dNext" aria-label="Siguiente"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg></button>
+        <div class="ts-3d__bottom">
+          <span class="ts-3d__pos" id="ts3dPos"></span>
+          <div class="ts-3d__dots" id="ts3dDots"></div>
+        </div>
+      </div>
     </div>
     <!-- Estado DETALLE (al entrar a un transportista) -->
     <div class="ts-detail-state" id="tsDetailState" style="display:none">
@@ -1432,8 +1439,8 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
         <button class="icon-btn" type="button" id="detailRenameTs" title="Cambiar el nombre del transportista">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
         </button>
-        <button class="btn btn-sm btn-outline cp-btn cp-btn--txt" type="button" id="detailCopy" title="Copiar la ficha completa">
-          <span class="cp-ico"></span><span class="cp-lbl">Copiar ficha</span>
+        <button class="btn btn-sm btn-outline cp-btn cp-btn--txt" type="button" id="detailCopy" title="Copiar los nombres de los camiones">
+          <span class="cp-ico"></span><span class="cp-lbl">Copiar camiones</span>
         </button>
         <button class="btn btn-sm btn-outline" type="button" id="detailAddTr">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
@@ -2007,27 +2014,6 @@ function _tsPrecioTxt(tr){
   if(lp&&lp.precio)return 'Gs. '+formatMoney(lp.precio)+(tr.tipo==='km'?' /km':'');
   if(tr.precio)return 'Gs. '+formatMoney(tr.precio)+(tr.tipo==='km'?' /km':'');
   return 'sin precio';
-}
-// Ficha de un transportista, en texto plano para mandar por chat.
-function _tsTextoFicha(ts){
-  if(!ts)return '';
-  const L=[ts.n+' · '+(ts.trucks||[]).length+' '+_camLbl((ts.trucks||[]).length)];
-  (ts.trucks||[]).forEach(function(tr,i){
-    L.push((i+1)+'. '+tr.d+'  —  '+(_TSSEG[tr.seg||'local'])+' · '+(tr.tipo==='km'?'KM':'FIJO')+'  —  '+_tsPrecioTxt(tr));
-  });
-  return L.join('\n');
-}
-// Todo el padrón separado por tabulaciones: se pega directo en una planilla.
-function _tsTextoTodo(){
-  const L=['Transportista\tCamión\tSegmento\tTipo\tÚltimo precio\tFecha'];
-  (transportistas||[]).forEach(function(ts){
-    (ts.trucks||[]).forEach(function(tr){
-      const lp=(typeof lastPriceForTruck==='function')?lastPriceForTruck(tr.id):null;
-      L.push([ts.n,tr.d,_TSSEG[tr.seg||'local'],tr.tipo==='km'?'KM':'FIJO',
-        (lp&&lp.precio)?formatMoney(lp.precio):'',(lp&&lp.fecha)?isoToDisplay(lp.fecha):''].join('\t'));
-    });
-  });
-  return L.join('\n');
 }
 // Ícono de copiar + tilde. El CSS cambia cuál se ve según .is-ok
 function _cpIco(){
@@ -3239,7 +3225,7 @@ function loadForEdit(id){
 
 /* ════════ VIEW 2 — TRANSPORTISTAS ══════════════════ */
 const tsSearchEl=document.getElementById('tsSearch');
-const tsListEl=document.getElementById('tsList');
+const tsListEl=document.getElementById('ts3dStage');
 
 // Último precio usado por camión (del historial de repartos)
 function lastPriceForTruck(trId){
@@ -3282,83 +3268,202 @@ function tsLastUsed(ts){
   repartos.forEach(r=>{ const has=r.tsId===ts.id||(r.clientes||[]).some(c=>c.tsId===ts.id); if(has&&r.fechaISO&&r.fechaISO>best)best=r.fechaISO; });
   return best;
 }
-function renderTsList(){
-  const q=_tsNorm(search), terms=q?q.split(/\s+/).filter(Boolean):[];
-  const coincide=(txt)=>{const n=_tsNorm(txt);return terms.every(t=>n.indexOf(t)>=0);};
-  document.getElementById('tsCountBadge').textContent=transportistas.length;
-  const grid=document.getElementById('tsList');
-  if(!grid)return;
+/* ════════ Carrusel 3D (coverflow) ════════ */
+let ts3dIndex=0, ts3dList=[], _ts3dDragged=false, _ts3dDown=false, _ts3dHoverTmr=0;
 
-  // Una transportadora entra si coincide su nombre o alguno de sus camiones.
-  // Si el que coincide es el camión, se muestran sólo los camiones que coinciden.
-  const lista=[];
+// Qué transportadoras entran y, dentro de cada una, qué camiones.
+// Si lo buscado coincide con un camión, la tarjeta muestra sólo esos camiones.
+function _tsFiltrar(){
+  const q=_tsNorm(search), terms=q?q.split(/\s+/).filter(Boolean):[];
+  const coincide=txt=>{const n=_tsNorm(txt);return terms.every(t=>n.indexOf(t)>=0);};
+  const out=[];
   (transportistas||[]).forEach(t=>{
     const porNombre=!terms.length||coincide(t.n);
     const cams=(t.trucks||[]).filter(tr=>porNombre||coincide(t.n+' '+(tr.d||'')));
-    if(porNombre||cams.length)lista.push({t:t,cams:porNombre?(t.trucks||[]):cams,parcial:!porNombre});
+    if(porNombre||cams.length)out.push({t:t,cams:porNombre?(t.trucks||[]):cams,terms:terms});
   });
+  return {lista:out,terms:terms};
+}
 
+function renderTsList(){
+  const r=_tsFiltrar();
+  ts3dList=r.lista;
+  document.getElementById('tsCountBadge').textContent=transportistas.length;
   const nEl=document.getElementById('tsBarN');
-  if(nEl)nEl.textContent=terms.length?(lista.length+' de '+transportistas.length):(transportistas.length+' transportista'+(transportistas.length===1?'':'s'));
+  if(nEl)nEl.textContent=r.terms.length?(r.lista.length+' de '+transportistas.length):(transportistas.length+' transportista'+(transportistas.length===1?'':'s'));
   const clr=document.getElementById('tsSearchClr'); if(clr)clr.hidden=!search;
+  renderTs3D(r.terms);
+}
 
-  if(!lista.length){
-    grid.innerHTML='<div class="ts-nores"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>'+
-      '<b>'+(terms.length?'Ninguna coincide con la búsqueda':'Todavía no hay transportistas')+'</b>'+
-      '<span>'+(terms.length?'Probá con otro nombre o con la patente del camión.':'Agregá la primera con el botón de arriba.')+'</span></div>';
+function renderTs3D(terms){
+  const stage=document.getElementById('ts3dStage'); if(!stage)return;
+  const pos=document.getElementById('ts3dPos');
+  if(!ts3dList.length){
+    stage.innerHTML='<div class="ts-3d__empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>'+
+      '<b>'+((terms&&terms.length)?'Ninguna coincide con la búsqueda':'Todavía no hay transportistas')+'</b>'+
+      '<span>'+((terms&&terms.length)?'Probá con otro nombre o con la patente del camión.':'Agregá la primera con el botón de arriba.')+'</span></div>';
+    const d=document.getElementById('ts3dDots'); if(d)d.innerHTML='';
+    if(pos)pos.textContent='';
     return;
   }
+  if(ts3dIndex>ts3dList.length-1)ts3dIndex=ts3dList.length-1;
+  if(ts3dIndex<0)ts3dIndex=0;
 
-  grid.innerHTML=lista.map(function(it,idx){
+  stage.innerHTML=ts3dList.map(function(it,i){
     const t=it.t, last=tsLastUsed(t), ocultos=(t.trucks||[]).length-it.cams.length;
     const filas=it.cams.length?it.cams.map(function(tr){
       const seg=tr.seg||'local';
-      return '<div class="tsc__tr" data-trid="'+tr.id+'">'+
-        '<span class="tsc__trseg s-'+seg+'" title="'+esc(_TSSEG[seg])+'"></span>'+
-        '<span class="tsc__trn">'+_tsHl(tr.d||'—',terms)+'</span>'+
-        '<span class="tsc__trp">'+esc(_tsPrecioTxt(tr))+'</span>'+
+      // Sin precio: acá sólo se identifica el camión. El precio se ve al abrir el detalle.
+      return '<div class="ts3c__tr">'+
+        '<span class="ts3c__seg s-'+seg+'" title="'+esc(_TSSEG[seg])+'"></span>'+
+        '<span class="ts3c__nm">'+_tsHl(tr.d||'—',terms)+'</span>'+
+        '<span class="ts3c__sg">'+esc(_TSSEG[seg])+'</span>'+
         '<button type="button" class="cp-btn cp-btn--xs" data-cptr="'+tr.id+'" title="Copiar el nombre del camión">'+_cpIco()+'</button>'+
       '</div>';
-    }).join(''):'<div class="tsc__vacio">Sin camiones cargados</div>';
-    return '<div class="tsc cf-rowin" style="--i:'+Math.min(idx,14)+'">'+
-      '<div class="tsc__hd" data-abrir="'+t.id+'">'+
-        '<span class="tsc__ini">'+esc(initials(t.n))+'</span>'+
-        '<div class="tsc__meta"><div class="tsc__name">'+_tsHl(t.n,terms)+'</div>'+
-          '<div class="tsc__sub">'+(last?('Último reparto '+esc(isoToDisplay(last))):'Sin repartos')+'</div></div>'+
-        '<span class="tsc__n">'+(t.trucks||[]).length+'</span>'+
+    }).join(''):'<div class="ts3c__vacio">Sin camiones cargados</div>';
+    return '<div class="ts-3d__card" data-idx="'+i+'" data-tsid="'+t.id+'">'+
+      '<div class="ts-3d__hd">'+
+        '<span class="ts-3d__hdico">'+esc(initials(t.n))+'</span>'+
+        '<div class="ts-3d__hdmeta"><div class="ts-3d__hdname">'+_tsHl(t.n,terms)+'</div>'+
+          '<div class="ts-3d__hdsub">'+(last?('Último reparto '+esc(isoToDisplay(last))):'Sin repartos')+'</div></div>'+
+        '<span class="ts-3d__hdchip">'+(t.trucks||[]).length+'</span>'+
       '</div>'+
-      '<div class="tsc__trucks">'+filas+(ocultos>0?('<div class="tsc__mas">+'+ocultos+' '+_camLbl(ocultos)+' más</div>'):'')+'</div>'+
-      '<div class="tsc__ft">'+
-        '<button type="button" class="cp-btn cp-btn--txt" data-cpts="'+t.id+'" title="Copiar la ficha completa"><span class="cp-ico"></span><span class="cp-lbl">Copiar ficha</span></button>'+
-        '<button type="button" class="tsc__open" data-abrir="'+t.id+'">Abrir<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>'+
+      '<div class="ts-3d__body">'+filas+(ocultos>0?('<div class="ts3c__mas">+'+ocultos+' '+_camLbl(ocultos)+' más</div>'):'')+'</div>'+
+      '<div class="ts-3d__foot">'+
+        '<button type="button" class="cp-btn cp-btn--txt cp-btn--hero" data-cpts="'+t.id+'"><span class="cp-ico"></span><span class="cp-lbl">Copiar camiones</span><kbd>C</kbd></button>'+
+        '<button type="button" class="ts3c__open" data-abrir="'+t.id+'">Ver detalles<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>'+
       '</div>'+
     '</div>';
   }).join('');
-  // El ícono de copiar se inyecta acá para no repetir el SVG en cada tarjeta del string.
-  grid.querySelectorAll('.cp-ico:empty').forEach(function(e){ e.innerHTML=_cpIco(); });
+  stage.querySelectorAll('.cp-ico:empty').forEach(function(e){ e.innerHTML=_cpIco(); });
+  layout3D(false);
+  renderTs3DDots();
+  // Entrada: las tarjetas aparecen y la del centro da un pequeño salto.
+  if(window.gsap&&!(typeof reduce==='function'&&reduce())){
+    gsap.from(stage.children,{opacity:0,duration:.38,stagger:.025,ease:'power2.out'});
+    const act=stage.querySelector('.ts-3d__card.is-active');
+    if(act){
+      gsap.from(act,{scale:.86,duration:.6,ease:'back.out(1.7)'});
+      gsap.from(act.querySelectorAll('.ts3c__tr,.ts-3d__foot>*'),{opacity:0,y:10,duration:.4,stagger:.045,delay:.14,ease:'power2.out',clearProps:'opacity,transform'});
+    }
+  }
 }
-tsListEl.addEventListener('click',e=>{
-  // Los botones de copiar van primero: están dentro de la tarjeta que abre el detalle.
-  const cpTr=e.target.closest('[data-cptr]');
-  if(cpTr){ e.stopPropagation();
-    const tr=(transportistas||[]).reduce((a,t)=>a||(t.trucks||[]).find(x=>x.id===+cpTr.dataset.cptr),null);
-    if(tr)_cfCopiarCon(cpTr,tr.d,'Copié el camión'); return; }
-  const cpTs=e.target.closest('[data-cpts]');
-  if(cpTs){ e.stopPropagation();
-    const t=(transportistas||[]).find(x=>x.id===+cpTs.dataset.cpts);
-    if(t)_cfCopiarCon(cpTs,_tsTextoFicha(t),'Copié la ficha de '+t.n); return; }
-  const ab=e.target.closest('[data-abrir]');
-  if(ab)selectTs(+ab.dataset.abrir);
-});
-tsSearchEl.addEventListener('input',e=>{search=e.target.value;renderTsList();});
+
+function renderTs3DDots(){
+  const d=document.getElementById('ts3dDots'); if(d)
+    d.innerHTML=ts3dList.map(function(x,i){return '<button type="button" class="ts-3d__dot'+(i===ts3dIndex?' on':'')+'" data-idx="'+i+'" title="'+esc(x.t.n)+'"></button>';}).join('');
+  const p=document.getElementById('ts3dPos');
+  if(p)p.textContent=ts3dList.length?((ts3dIndex+1)+' / '+ts3dList.length):'';
+}
+
+function layout3D(animate){
+  const stage=document.getElementById('ts3dStage'); if(!stage)return;
+  const cards=[].slice.call(stage.querySelectorAll('.ts-3d__card'));
+  cards.forEach(function(el,i){
+    const off=i-ts3dIndex, a=Math.abs(off), sign=off<0?-1:1;
+    let x,rotY,z,scale,opacity,zi,pe;
+    if(off===0){x=0;rotY=0;z=0;scale=1;opacity=1;zi=200;pe='auto';}
+    else{x=sign*(318+(a-1)*62+40);rotY=sign*-42;z=-180-(a-1)*96;scale=Math.max(.6,.84-(a-1)*.055);opacity=a>4?0:1;zi=200-a;pe=a>4?'none':'auto';}
+    el.style.zIndex=zi; el.style.pointerEvents=pe;
+    el.classList.toggle('is-active',off===0);
+    const props={xPercent:-50,yPercent:-50,x:x,z:z,rotationY:rotY,scale:scale,opacity:opacity,force3D:true};
+    if(animate&&window.gsap)gsap.to(el,Object.assign({duration:.55,ease:'power3.out'},props));
+    else if(window.gsap)gsap.set(el,props);
+    else{el.style.opacity=opacity;el.style.transform='translate(-50%,-50%) translateX('+x+'px) translateZ('+z+'px) rotateY('+rotY+'deg) scale('+scale+')';}
+  });
+}
+
+function go3D(idx,animate){
+  const n=ts3dList.length; if(!n)return;
+  ts3dIndex=Math.max(0,Math.min(n-1,idx));
+  layout3D(animate!==false);
+  renderTs3DDots();
+}
+
+/* ── Navegación del carrusel ── */
+(function(){
+  const prev=document.getElementById('ts3dPrev'), next=document.getElementById('ts3dNext'),
+        dots=document.getElementById('ts3dDots'), stage=document.getElementById('ts3dStage'), wrap=document.getElementById('ts3d');
+  if(!stage)return;
+  if(prev)prev.addEventListener('click',()=>go3D(ts3dIndex-1));
+  if(next)next.addEventListener('click',()=>go3D(ts3dIndex+1));
+  if(dots)dots.addEventListener('click',e=>{const d=e.target.closest('[data-idx]');if(d)go3D(+d.dataset.idx);});
+
+  stage.addEventListener('click',e=>{
+    // Copiar nunca debe girar el carrusel ni abrir el detalle.
+    const cpTr=e.target.closest('[data-cptr]');
+    if(cpTr){ e.stopPropagation();
+      const tr=(transportistas||[]).reduce((a,t)=>a||(t.trucks||[]).find(x=>x.id===+cpTr.dataset.cptr),null);
+      if(tr)_cfCopiarCon(cpTr,tr.d,'Copié el camión'); return; }
+    const cpTs=e.target.closest('[data-cpts]');
+    if(cpTs){ e.stopPropagation(); _tsCopiarCamiones(+cpTs.dataset.cpts,cpTs); return; }
+    if(_ts3dDragged){_ts3dDragged=false;return;}
+    const card=e.target.closest('.ts-3d__card'); if(!card)return;
+    const i=+card.dataset.idx;
+    // La tarjeta del centro abre; las de los costados sólo traen esa al frente.
+    if(i===ts3dIndex)selectTs(+card.dataset.tsid); else go3D(i);
+  });
+
+  // Pasar el mouse por una tarjeta lateral la trae al frente, con un retardo
+  // corto para que no cambie sola mientras el mouse apenas cruza.
+  stage.addEventListener('pointerover',e=>{
+    if(_ts3dDown)return;
+    const card=e.target.closest('.ts-3d__card'); if(!card)return;
+    const i=+card.dataset.idx; if(i===ts3dIndex)return;
+    clearTimeout(_ts3dHoverTmr);
+    _ts3dHoverTmr=setTimeout(()=>{ if(!_ts3dDown)go3D(i); },110);
+  });
+  stage.addEventListener('pointerout',e=>{
+    if(!e.relatedTarget||!e.relatedTarget.closest||!e.relatedTarget.closest('.ts-3d__card'))clearTimeout(_ts3dHoverTmr);
+  });
+
+  let _wheelLock=0;
+  wrap.addEventListener('wheel',e=>{
+    const d=Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY;
+    if(!d)return; e.preventDefault();
+    const now=Date.now(); if(now<_wheelLock)return;
+    _wheelLock=now+360; go3D(ts3dIndex+(d>0?1:-1));
+  },{passive:false});
+
+  let down=false,sx=0;
+  stage.addEventListener('pointerdown',e=>{ if(e.target.closest('.cp-btn')||e.target.closest('.ts3c__open'))return;
+    down=true;_ts3dDown=true;_ts3dDragged=false;sx=e.clientX; });
+  stage.addEventListener('pointermove',e=>{ if(!down)return; const dx=e.clientX-sx;
+    if(Math.abs(dx)>8)_ts3dDragged=true;
+    if(Math.abs(dx)>70){ go3D(ts3dIndex+(dx<0?1:-1)); sx=e.clientX; } });
+  const fin=()=>{ if(!down)return; down=false;_ts3dDown=false; };
+  stage.addEventListener('pointerup',fin); stage.addEventListener('pointerleave',fin); stage.addEventListener('pointercancel',fin);
+
+  document.addEventListener('keydown',e=>{
+    const d3=document.getElementById('ts3d'); if(!d3||!d3.offsetParent)return;
+    if(/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName||''))return;
+    if(e.key==='ArrowRight'){e.preventDefault();go3D(ts3dIndex+1);}
+    else if(e.key==='ArrowLeft'){e.preventDefault();go3D(ts3dIndex-1);}
+    else if(e.key==='Home'){e.preventDefault();go3D(0);}
+    else if(e.key==='End'){e.preventDefault();go3D(ts3dList.length-1);}
+    else if(e.key==='Enter'&&ts3dList[ts3dIndex]){e.preventDefault();selectTs(ts3dList[ts3dIndex].t.id);}
+    // C copia los camiones de la tarjeta que está al frente.
+    else if((e.key==='c'||e.key==='C')&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&ts3dList[ts3dIndex]){
+      e.preventDefault();
+      const act=stage.querySelector('.ts-3d__card.is-active [data-cpts]');
+      _tsCopiarCamiones(ts3dList[ts3dIndex].t.id,act);
+    }
+  });
+})();
+
+// Copia los nombres de los camiones, uno por línea: es lo que se pega en otro lado.
+function _tsCopiarCamiones(tsId,btn){
+  const t=(transportistas||[]).find(x=>x.id===+tsId); if(!t)return;
+  const cams=(t.trucks||[]).map(tr=>tr.d).filter(Boolean);
+  if(!cams.length){showToast(t.n+' no tiene camiones cargados');return;}
+  _cfCopiarCon(btn,cams.join('\n'),'Copié '+cams.length+' '+_camLbl(cams.length)+' de '+t.n);
+}
+
+/* El escenario del carrusel ya maneja copiar y abrir (ver más arriba). */
+tsSearchEl.addEventListener('input',e=>{search=e.target.value;ts3dIndex=0;renderTsList();});
 const _tsClr=document.getElementById('tsSearchClr');
-if(_tsClr)_tsClr.addEventListener('click',()=>{search='';tsSearchEl.value='';renderTsList();tsSearchEl.focus();});
-const _tsCpAll=document.getElementById('btnTsCopyAll');
-if(_tsCpAll){ _tsCpAll.querySelector('.cp-ico').innerHTML=_cpIco();
-  _tsCpAll.addEventListener('click',()=>{
-    const n=(transportistas||[]).reduce((a,t)=>a+(t.trucks||[]).length,0);
-    _cfCopiarCon(_tsCpAll,_tsTextoTodo(),'Copié '+n+' '+_camLbl(n)+' listos para pegar en una planilla');
-  }); }
+if(_tsClr)_tsClr.addEventListener('click',()=>{search='';tsSearchEl.value='';ts3dIndex=0;renderTsList();tsSearchEl.focus();});
+/* El padrón completo se sigue bajando con "Exportar Excel". */
 
 /* El carrusel 3D se reemplazó por la grilla de tarjetas (.ts-board). */
 
@@ -3374,7 +3479,8 @@ function tsBackToGrid(){
   document.getElementById('tsDetailState').style.display='none';
   document.getElementById('tsGridState').style.display='';
   renderTsList();
-  if(window.gsap)gsap.from('#tsList .ts-col',{opacity:0,x:16,duration:.34,stagger:.03,ease:'power3.out',clearProps:'all'});
+  if(window.gsap){const a=document.querySelector('.ts-3d__card.is-active');
+    if(a)gsap.from(a,{scale:.88,duration:.5,ease:'back.out(1.8)'});}
 }
 document.getElementById('tsBack').addEventListener('click',tsBackToGrid);
 
@@ -3382,8 +3488,7 @@ document.getElementById('tsBack').addEventListener('click',tsBackToGrid);
 (function(){
   const cp=document.getElementById('detailCopy');
   if(cp){ cp.querySelector('.cp-ico').innerHTML=_cpIco();
-    cp.addEventListener('click',()=>{ const ts=transportistas.find(t=>t.id===selectedTsId);
-      if(ts)_cfCopiarCon(cp,_tsTextoFicha(ts),'Copié la ficha de '+ts.n); }); }
+    cp.addEventListener('click',()=>{ if(selectedTsId!=null)_tsCopiarCamiones(selectedTsId,cp); }); }
   const rn=document.getElementById('detailRenameTs');
   if(rn)rn.addEventListener('click',()=>{ const ts=transportistas.find(t=>t.id===selectedTsId); if(ts)_tsRenombrar(ts); });
   const body=document.getElementById('detailBody');
@@ -6571,39 +6676,47 @@ function showSaveAnim(text){
   .ts-bar__clr:hover{background:#ef4444;color:#fff}
   .ts-bar__clr[hidden]{display:none}
   .ts-bar__n{font-size:12px;font-weight:800;color:var(--gray-400,#94a3b8);white-space:nowrap}
-  /* Grilla de tarjetas */
-  /* Pisa la regla vieja del carrusel: era flex horizontal con overflow-y:hidden,
-     que recortaba las tarjetas y encimaba el pie. */
-  .ts-board{display:flex;flex-wrap:wrap;align-items:flex-start;align-content:flex-start;gap:14px;flex:1;min-height:0;overflow-x:hidden;overflow-y:auto;padding:2px 4px 20px;scroll-snap-type:none}
-  .tsc{flex:1 1 330px;max-width:560px;display:flex;flex-direction:column;background:#fff;border:1px solid var(--gray-200,#e2e8f0);border-radius:16px;overflow:hidden;box-shadow:0 1px 2px rgba(19,36,55,.06);transition:transform .18s,box-shadow .18s,border-color .18s}
-  .tsc:hover{transform:translateY(-2px);border-color:#cfe4fb;box-shadow:0 12px 28px rgba(19,36,55,.1)}
-  .tsc__hd{display:flex;align-items:center;gap:11px;padding:13px 15px;cursor:pointer;border-bottom:1px solid var(--gray-100,#f1f5f9)}
-  .tsc__ini{flex-shrink:0;width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,#0A4578,#1472BE);color:#fff;display:flex;align-items:center;justify-content:center;font-family:Sora,Inter,sans-serif;font-size:13px;font-weight:800;letter-spacing:.4px}
-  .tsc__meta{flex:1;min-width:0}
-  .tsc__name{font-family:Sora,Inter,sans-serif;font-size:14.5px;font-weight:800;color:var(--gray-800,#1e293b);line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .tsc__sub{font-size:11px;font-weight:600;color:var(--gray-400,#94a3b8);margin-top:2px}
-  .tsc__n{flex-shrink:0;min-width:26px;height:24px;padding:0 8px;border-radius:999px;background:var(--gray-100,#f1f5f9);color:var(--gray-600,#475569);font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center}
-  /* flex:1 deja basis en 0 y la tarjeta no aporta su alto real a la fila de la grilla:
-     todas quedaban del mismo alto y el pie se encimaba con el último camión. */
-  .tsc__trucks{flex:1 1 auto;padding:6px 8px 8px}
-  .tsc__tr{display:flex;align-items:center;gap:9px;padding:7px 7px;border-radius:9px;transition:background .14s}
-  .tsc__tr:hover{background:var(--gray-50,#f8fafc)}
-  .tsc__trseg{flex-shrink:0;width:7px;height:7px;border-radius:50%;background:var(--gray-300,#cbd5e1)}
-  .tsc__trseg.s-local{background:#0B5F8D} .tsc__trseg.s-interior{background:#F97316}
-  .tsc__trseg.s-servicios{background:#10B981} .tsc__trseg.s-transportadora{background:#7c3aed}
-  .tsc__trn{flex:1;min-width:0;font-size:12.5px;font-weight:700;color:var(--gray-700,#334155);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .tsc__trp{font-size:11.5px;font-weight:800;color:var(--gray-400,#94a3b8);white-space:nowrap;font-variant-numeric:tabular-nums}
-  .tsc__tr mark,.tsc__name mark{background:#fde68a;color:inherit;border-radius:2px;padding:0 1px}
-  .tsc__vacio,.tsc__mas{padding:9px 8px;font-size:11.5px;font-weight:700;color:var(--gray-400,#94a3b8)}
-  .tsc__ft{display:flex;align-items:center;gap:8px;padding:10px 12px;border-top:1px solid var(--gray-100,#f1f5f9);background:var(--gray-50,#f8fafc)}
-  .tsc__ft .cp-btn--txt{flex:1;height:32px}
-  .tsc__open{display:inline-flex;align-items:center;gap:5px;height:32px;padding:0 13px;border:none;border-radius:9px;background:linear-gradient(180deg,#1a7cb0,#0B5F8D);color:#fff;font:inherit;font-size:12.5px;font-weight:800;cursor:pointer;transition:transform .16s,box-shadow .16s}
-  .tsc__open svg{width:13px;height:13px}
-  .tsc__open:hover{transform:translateY(-1px);box-shadow:0 5px 14px rgba(11,95,141,.3)}
-  .ts-nores{flex:1 1 100%;display:flex;flex-direction:column;align-items:center;padding:52px 20px;text-align:center}
-  .ts-nores svg{width:40px;height:40px;color:var(--gray-300,#cbd5e1);margin-bottom:12px}
-  .ts-nores b{font-size:15px;color:var(--gray-700,#334155);margin-bottom:4px}
-  .ts-nores span{font-size:12.5px;font-weight:600;color:var(--gray-400,#94a3b8)}
+  /* ── Tarjeta del carrusel ── */
+  .ts-3d__hdico{font-family:Sora,Inter,sans-serif;font-size:14px;font-weight:800;letter-spacing:.5px}
+  .ts-3d__card.is-active{box-shadow:0 34px 80px -26px rgba(11,95,141,.5),0 0 0 3px rgba(37,120,184,.16)}
+  /* Las de los costados quedan apagadas para que la del frente resalte. */
+  .ts-3d__card:not(.is-active){filter:saturate(.72) brightness(.99)}
+  .ts-3d__card:not(.is-active) .cp-btn,.ts-3d__card:not(.is-active) .ts3c__open{pointer-events:none}
+  .ts-3d__body{padding:12px 14px;gap:4px}
+  .ts3c__tr{display:flex;align-items:center;gap:11px;padding:10px 11px;border-radius:11px;background:#fff;border:1px solid var(--gray-200,#e2e8f0);transition:border-color .16s,box-shadow .16s,transform .16s}
+  .ts3c__tr:hover{border-color:var(--accent,#3B82F6);box-shadow:0 5px 14px rgba(11,95,141,.12);transform:translateY(-1px)}
+  .ts3c__seg{flex-shrink:0;width:9px;height:9px;border-radius:50%;background:var(--gray-300,#cbd5e1)}
+  .ts3c__seg.s-local{background:#0B5F8D} .ts3c__seg.s-interior{background:#F97316}
+  .ts3c__seg.s-servicios{background:#10B981} .ts3c__seg.s-transportadora{background:#7c3aed}
+  .ts3c__nm{flex:1;min-width:0;font-size:13px;font-weight:700;color:var(--gray-800,#1e293b);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .ts3c__sg{flex-shrink:0;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--gray-400,#94a3b8)}
+  .ts3c__tr mark,.ts-3d__hdname mark{background:#fde68a;color:inherit;border-radius:2px;padding:0 1px}
+  .ts-3d__hdname mark{background:rgba(255,255,255,.3);color:#fff}
+  .ts3c__vacio,.ts3c__mas{padding:10px 4px;font-size:12px;font-weight:700;color:var(--gray-400,#94a3b8);text-align:center}
+  .ts-3d__foot{gap:9px;padding:12px 14px}
+  /* Copiar es la acción principal de la vista: va en primer plano. */
+  .cp-btn--hero{flex:1;height:40px;border:none;background:linear-gradient(180deg,#1a7cb0,#0B5F8D);color:#fff;font-size:13px;box-shadow:0 5px 14px rgba(11,95,141,.3)}
+  .cp-btn--hero:hover{background:linear-gradient(180deg,#1c86bf,#0c6b9c);color:#fff;border:none;box-shadow:0 9px 22px rgba(11,95,141,.38)}
+  .cp-btn--hero .cp-lbl{color:#fff}
+  .cp-btn--hero kbd{margin-left:2px;font-family:inherit;font-size:10.5px;font-weight:800;line-height:1;padding:3px 6px;border-radius:5px;background:rgba(255,255,255,.22);color:#fff}
+  .cp-btn--hero.is-ok{background:linear-gradient(180deg,#22c55e,#15803d);color:#fff;box-shadow:0 7px 18px rgba(21,128,61,.35)}
+  .cp-btn--hero.is-ok .cp-lbl,.cp-btn--hero.is-ok kbd{color:#fff}
+  .ts3c__open{display:inline-flex;align-items:center;gap:6px;height:40px;padding:0 16px;border:1.5px solid var(--gray-200,#e2e8f0);border-radius:10px;background:#fff;color:var(--gray-600,#475569);font:inherit;font-size:13px;font-weight:800;cursor:pointer;transition:color .16s,border-color .16s,background .16s,transform .16s}
+  .ts3c__open svg{width:14px;height:14px}
+  .ts3c__open:hover{color:var(--primary,#0B5F8D);border-color:var(--accent,#3B82F6);background:#f2f8fd;transform:translateY(-1px)}
+  /* Pie del escenario: posición y puntos */
+  .ts-3d__bottom{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);z-index:60;display:flex;align-items:center;gap:12px;max-width:80%}
+  .ts-3d__pos{font-size:11.5px;font-weight:800;color:var(--gray-400,#94a3b8);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .ts-3d__dots{position:static;transform:none;display:flex;gap:7px;align-items:center;flex-wrap:nowrap;overflow:hidden}
+  .ts-3d__dot{border:none;padding:0}
+  .ts-3d__empty{margin:auto;display:flex;flex-direction:column;align-items:center;text-align:center;padding:40px 20px}
+  .ts-3d__empty svg{width:40px;height:40px;color:var(--gray-300,#cbd5e1);margin-bottom:12px}
+  .ts-3d__empty b{font-size:15px;color:var(--gray-700,#334155);margin-bottom:4px}
+  .ts-3d__empty span{font-size:12.5px;font-weight:600;color:var(--gray-400,#94a3b8)}
+  /* Ayuda de teclado */
+  .ts-bar__kbd{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;color:var(--gray-400,#94a3b8);white-space:nowrap}
+  .ts-bar__kbd kbd{font-family:inherit;font-size:10.5px;font-weight:800;line-height:1;padding:3px 6px;border-radius:5px;background:var(--gray-100,#f1f5f9);border:1px solid var(--gray-200,#e2e8f0);color:var(--gray-600,#475569)}
+
   /* Acciones por fila en el detalle */
   .tr-row__acts{display:inline-flex;align-items:center;gap:6px;justify-content:flex-end}
   /* ─── Vista Facturas ─── */
