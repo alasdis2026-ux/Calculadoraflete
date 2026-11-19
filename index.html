@@ -6455,8 +6455,44 @@ function showSaveAnim(text){
   .cf-empty b{display:block;font-size:15px;color:var(--gray-700,#334155);margin-bottom:3px}
   .modal-input.is-err{border-color:#e0707a !important;box-shadow:0 0 0 3px rgba(224,112,122,.13)}
   .fac-ts{font-weight:700;color:var(--gray-800,#1e293b)}
-  .fac-sem{font-size:12.5px;color:var(--gray-500,#64748b);font-weight:600;white-space:nowrap}
   .fac-acts{white-space:nowrap}
+  /* Celda de dos líneas: el dato principal arriba y el contexto abajo, en vez de
+     una columna aparte que repetía el mismo texto en todas las filas. */
+  .fac-cell{display:inline-flex;flex-direction:column;vertical-align:middle;min-width:0}
+  .fac-cell b{font-size:13.5px;font-weight:800;color:var(--gray-800,#1e293b);line-height:1.2;font-variant-numeric:tabular-nums;letter-spacing:.2px}
+  .fac-cell>span{font-size:11px;font-weight:600;color:var(--gray-400,#94a3b8);margin-top:3px;white-space:nowrap;font-variant-numeric:tabular-nums}
+  #factHost .cf-table td{padding:10px 12px}
+  #factHost .cf-table th{padding:11px 12px}
+  /* Estado y diferencia en una sola columna. */
+  .fac-est{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .fac-est svg{width:13px;height:13px;flex-shrink:0}
+  .fac-est--ok{color:#15803d}
+  .fac-est--dif{color:#C0392B}
+  .fac-est--sin{color:var(--gray-400,#94a3b8);font-weight:700}
+  .fac-mot__no{color:var(--gray-300,#cbd5e1);font-weight:800}
+  /* Confirmación antes de registrar */
+  .fcr-hd{display:flex;align-items:flex-start;gap:13px;margin-bottom:15px}
+  .fcr-hd h3{margin:0;font-family:Sora,Inter,sans-serif;font-size:17px;font-weight:800;color:var(--gray-800,#1e293b);line-height:1.25}
+  .fcr-hd .cf-msub{margin:4px 0 0}
+  .fcr-ic{flex-shrink:0;width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center}
+  .fcr-ic svg{width:21px;height:21px}
+  .fcr-hd.ok .fcr-ic{background:var(--success-soft,#D1FAE5);color:#15803d}
+  .fcr-hd.dif .fcr-ic{background:#FEF3C7;color:#b45309}
+  .fcr-box{background:var(--gray-50,#f8fafc);border:1px solid var(--gray-200,#e2e8f0);border-radius:13px;padding:6px 14px;margin-bottom:14px}
+  .fcr-row{display:flex;align-items:baseline;justify-content:space-between;gap:14px;padding:9px 0}
+  .fcr-row+.fcr-row{border-top:1px solid var(--gray-100,#f1f5f9)}
+  .fcr-row span{font-size:12px;font-weight:700;color:var(--gray-500,#64748b)}
+  .fcr-row b{font-family:Sora,Inter,sans-serif;font-size:15px;font-weight:800;color:var(--gray-800,#1e293b);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .fcr-row.ok b{color:#15803d}
+  .fcr-row.dif b{color:#C0392B}
+  .fcr-row.dif span{color:#C0392B}
+  .fac-mot__n{margin-left:6px;font-size:10.5px;font-weight:800;color:var(--gray-400,#94a3b8);font-variant-numeric:tabular-nums}
+  /* Barra de estado al costado de la fila: reemplaza al chip de Estado. */
+  .fac-row>td:first-child{position:relative}
+  .fac-row>td:first-child::before{content:'';position:absolute;left:0;top:7px;bottom:7px;width:3px;border-radius:0 3px 3px 0;background:transparent}
+  .fac-row.st-ok>td:first-child::before{background:var(--success,#10B981)}
+  .fac-row.st-diff>td:first-child::before{background:var(--danger,#EF4444)}
+  .fac-row.st-sin>td:first-child::before{background:var(--gray-300,#cbd5e1)}
   .fac-editbtn,.fac-del{border:1px solid var(--gray-200,#e2e8f0);cursor:pointer;padding:0;width:32px;height:32px;border-radius:9px;opacity:1;display:inline-flex;align-items:center;justify-content:center;transition:opacity .15s,color .15s,background .15s,border-color .15s,transform .12s;vertical-align:middle}
   .fac-editbtn{background:var(--accent-soft,#eaf2fe);color:var(--primary,#0B5F8D)}
   .fac-del{background:#fdeded;color:#dc2626;border-color:#f6d0d0}
@@ -7432,12 +7468,61 @@ function _facDetailHtml(f){
     '<div class="facd-tblwrap"><table class="facd-tbl"><thead><tr><th>#</th><th>Fecha</th><th>Camión</th><th>Segmento</th><th>Repartidor · Zona</th><th class="r">Flete</th></tr></thead><tbody>'+rowsH+'</tbody></table></div>'+
   '</div>';
 }
-// Marca en la lista: esta factura fue cambiada al menos una vez.
-function _facChgBadge(f){
-  const cs=_facCambios(f); if(!cs.length)return '';
+/* Paso de confirmación al registrar una factura nueva: se muestra el cotejo contra la
+   planilla y se elige entre dejarla como corresponde o volver a corregirla. Si no coincide
+   hay que indicar el motivo, que queda guardado igual que un cambio posterior. */
+function _facConfirmarRegistro(info,onRegistrar){
+  const dif=Math.round((+info.monto||0)-(+info.flete||0)), coincide=dif===0;
+  const fila=(l,v,cls)=>'<div class="fcr-row'+(cls?' '+cls:'')+'"><span>'+l+'</span><b>'+v+'</b></div>';
+  const m=_cfModalOpen('<div class="cf-mbox cf-mbox--form fcr">'+
+    '<div class="fcr-hd'+(coincide?' ok':' dif')+'">'+
+      '<span class="fcr-ic">'+(coincide
+        ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>'
+        : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v5M12 17.5v.01"/><path d="M10.3 3.9L2.4 18a2 2 0 001.7 3h15.8a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg>')+'</span>'+
+      '<div><h3>'+(coincide?'La factura coincide con la planilla':'La factura no coincide con la planilla')+'</h3>'+
+        '<p class="cf-msub">'+_escp(info.ts)+' · '+_escp(info.periodo)+'</p></div>'+
+    '</div>'+
+    '<div class="fcr-box">'+
+      fila('Flete de los repartos',_gs(info.flete))+
+      fila('Monto de la factura '+(info.nro?('Nº '+_escp(info.nro)):''),_gs(info.monto))+
+      fila('Diferencia',(dif>0?'+':(dif<0?'−':''))+_gs(Math.abs(dif)),coincide?'ok':'dif')+
+    '</div>'+
+    (coincide?'':'<div class="cf-sec cf-sec--mot is-active" id="fcr_motsec"><div class="cf-sec__t">'+_ic('doc')+'Motivo de la diferencia</div>'+
+      '<div class="cf-mothint">Queda registrado en el historial de la factura.</div>'+
+      '<div class="cf-mots" id="fcr_mots">'+CF_MOTIVOS.map(function(mm){return '<button type="button" class="cf-mot" data-fmot="'+mm.k+'">'+
+        '<span class="cf-mot__chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></span>'+
+        '<span class="cf-mot__tx"><b>'+mm.l+'</b><span>'+mm.d+'</span></span></button>';}).join('')+'</div>'+
+      '<div class="cf-fld" data-fld id="fcr_motfld"><input id="fcr_motnota" placeholder="Nota (opcional): contá en una línea qué pasó" autocomplete="off" maxlength="180"><span class="cf-fld__err"></span></div></div>')+
+    '<div class="cf-mfoot"><button class="cancel">Hacer cambios</button>'+
+      '<button class="ok">'+(coincide?'Registrar como corresponde':'Registrar con observación')+'</button></div></div>');
+  let sel=null;
+  const host=m.$('#fcr_mots');
+  if(host)host.querySelectorAll('[data-fmot]').forEach(function(b){ b.addEventListener('click',function(){
+    sel=b.dataset.fmot;
+    host.querySelectorAll('[data-fmot]').forEach(function(x){x.classList.toggle('on',x===b);});
+    _cfClearVal(m.$('#fcr_motfld'));
+    const sc=m.$('#fcr_motsec'); if(sc)sc.classList.remove('is-err');
+  }); });
+  m.$('.cancel').addEventListener('click',()=>m.close());   // vuelve al formulario, que sigue abierto
+  m.$('button.ok').addEventListener('click',()=>{
+    if(!coincide&&!sel){
+      const sc=m.$('#fcr_motsec'); if(sc)sc.classList.add('is-err');
+      _cfSetErr(m.$('#fcr_motfld'),'Elegí uno de los motivos de arriba.');
+      showToast('Falta el motivo de la diferencia 👀'); return;
+    }
+    const nota=(m.$('#fcr_motnota')&&m.$('#fcr_motnota').value.trim())||'';
+    m.close();
+    onRegistrar(coincide?null:{motivo:sel,nota:nota,flete:info.flete,monto:info.monto});
+  });
+}
+// Columna "Motivo del cambio": el último motivo registrado, o un guión si nunca se tocó.
+function _facMotivoCell(f){
+  const cs=_facCambios(f);
+  if(!cs.length)return '<span class="fac-mot__no">—</span>';
   const u=cs[cs.length-1],mt=_cfMotivo(u&&u.motivo);
-  return '<span class="fac-chg" title="'+_escp((mt?mt.l:'Cambio')+' · '+(u&&u.usuario||'—')+' · '+_cfFechaHora(u&&u.ts))+'">'+
-    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M3 12a9 9 0 0115-6.7L21 8M21 3v5h-5"/><path d="M21 12a9 9 0 01-15 6.7L3 16M3 21v-5h5"/></svg>'+cs.length+'</span>';
+  const det=(u.usuario||'—')+' · '+_cfFechaHora(u.ts)+(u.nota?(' · '+u.nota):'');
+  return '<span class="facd-mot facd-mot--'+_escp(u.motivo||'otro')+'" title="'+_escp(det)+'">'+_escp(mt?mt.l:'Cambio')+'</span>'+
+    (cs.length>1?'<span class="fac-mot__n" title="'+cs.length+' cambios">×'+cs.length+'</span>':'');
 }
 // Historial de cambios de la factura: qué se cambió, quién y por qué.
 function _facHistHtml(f){
@@ -7466,7 +7551,7 @@ function _facToggle(tr){
   if(wasOpen)return; // estaba abierto → toggle off
   const f=_facById(+tr.dataset.facid);if(!f)return;
   const er=document.createElement('tr');er.className='fac-exp';
-  er.innerHTML='<td colspan="8" class="fac-exp-td"><div class="fac-exp-in">'+_facDetailHtml(f)+'</div></td>';
+  er.innerHTML='<td colspan="6" class="fac-exp-td"><div class="fac-exp-in">'+_facDetailHtml(f)+'</div></td>';
   tr.after(er);tr.classList.add('is-open');
   const cb=er.querySelector('[data-cerrarfac]');
   if(cb)cb.addEventListener('click',e=>{e.stopPropagation();const ff=_facById(+cb.dataset.cerrarfac);if(ff)_cerrarFactura(ff);});
@@ -7560,11 +7645,20 @@ async function renderFacturas(){
   if(!view.length&&(_facEst||_q)){table='<div class="cf-card"><div class="cf-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><b>Ninguna factura coincide con el filtro</b><span>Probá con otro texto o tocá «Registradas» para ver todas.</span></div></div>';}
   else if(!shown.length){table='<div class="cf-card"><div class="cf-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 3h14a1 1 0 011 1v17l-3-2-3 2-3-2-3 2-3-2V4a1 1 0 011-1z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><b>No hay facturas en este período</b><span>Registrá una y elegí la planilla del transportista que corresponde.</span></div></div>';}
   else{const rows=view.map((f,i)=>{const sd=f._sd,hasta=f.semana_hasta||(sd?_wkHasta(sd):null);
-      const sem=sd?(_dispD(sd)+' al '+_dispD(hasta)):'—';
-      const chip=f._st==='ok'?'<span class="cf-chip ok">✓ Conciliada</span>':f._st==='diff'?'<span class="cf-chip diff">▲ Con diferencia</span>':'<span class="cf-chip proc">Sin planilla</span>';
-      return '<tr data-facid="'+f.id+'" class="fac-row cf-rowin" style="--i:'+Math.min(i,22)+'"><td class="fac-nro"><span class="fac-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 9l6 6 6-6"/></svg></span>'+_escp(f.nro||'—')+_facChgBadge(f)+'</td><td>'+(f.fecha?f.fecha.split('-').reverse().join('/'):'—')+'</td><td class="fac-ts">'+_escp(f.transportadora_nombre||'—')+'</td><td class="fac-sem">'+sem+'</td><td>'+chip+'</td><td class="r fac-dif '+(f._st==='sin'?'':('fac-dif--'+(Math.round(f.monto-f._flete)===0?'ok':(f.monto>f._flete?'over':'under'))))+'">'+(f._st==='sin'?'—':((f.monto-f._flete>0?'+':'')+_gs(f.monto-f._flete)))+'</td><td class="r fac-monto">'+_gs(f.monto)+'</td>'+
+      const sem=sd?(_shD(sd)+' – '+_shD(hasta)):'—';
+      // La fecha va bajo el Nº y el período bajo el transportista: eran dos columnas que
+      // repetían el mismo texto en todas las filas. El estado se fusiona con la diferencia.
+      const dif=Math.round((+f.monto||0)-(+f._flete||0));
+      const est=f._st==='sin'?'<span class="fac-est fac-est--sin">Sin planilla</span>'
+        :(dif===0?'<span class="fac-est fac-est--ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Conciliada</span>'
+                 :'<span class="fac-est fac-est--dif">'+(dif>0?'+':'−')+_gs(Math.abs(dif))+'</span>');
+      return '<tr data-facid="'+f.id+'" class="fac-row cf-rowin st-'+f._st+'" style="--i:'+Math.min(i,22)+'">'+
+        '<td class="fac-nro"><span class="fac-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 9l6 6 6-6"/></svg></span><span class="fac-cell"><b>'+_escp(f.nro||'—')+'</b><span>'+(f.fecha?f.fecha.split('-').reverse().join('/'):'—')+'</span></span></td>'+
+        '<td class="fac-ts"><span class="fac-cell"><b>'+_escp(f.transportadora_nombre||'—')+'</b><span>'+sem+'</span></span></td>'+
+        '<td class="fac-mot">'+_facMotivoCell(f)+'</td>'+
+        '<td class="r fac-dif">'+est+'</td><td class="r fac-monto">'+_gs(f.monto)+'</td>'+
         '<td class="r fac-acts"><button class="fac-editbtn" data-editfac="'+f.id+'" title="Editar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 4H4a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-7M18.5 2.5a2.1 2.1 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="fac-del" data-delfac="'+f.id+'" title="Eliminar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg></button></td></tr>';}).join('');
-    table='<div class="cf-card cf-card--flush"><table class="cf-table cf-table--hover"><thead><tr><th>Nº Factura</th><th>Fecha</th><th>Transportista</th><th>Semana</th><th>Estado</th><th class="r">Diferencia</th><th class="r">Monto</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div>';}
+    table='<div class="cf-card cf-card--flush"><table class="cf-table cf-table--hover"><thead><tr><th>Nº Factura</th><th>Transportista</th><th>Motivo del cambio</th><th class="r">Diferencia</th><th class="r">Monto</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div>';}
   const buscador='<div class="cf-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>'+
     '<input type="text" id="facQ" placeholder="Buscar Nº o transportadora…" autocomplete="off" value="'+_escp(_facQ)+'">'+
     '<button type="button" class="cf-search__clr" id="facQClr" title="Limpiar"'+(_facQ?'':' hidden')+'><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>';
@@ -7847,6 +7941,7 @@ function _cfOpenFacturaModal(existing,preset){
       :'Se habilita cuando modificás el Nº, el monto o la fecha.';
     if(!ch.length&&sec)sec.classList.remove('is-err');
   }
+  let _obsAlta=null;   // confirmación del alta: null = todavía no se preguntó
   const motsHost=m.$('#cf_mots');
   if(motsHost)motsHost.querySelectorAll('[data-mot]').forEach(function(b){
     b.addEventListener('click',function(){
@@ -7873,15 +7968,13 @@ function _cfOpenFacturaModal(existing,preset){
     // captureOnly: solo devolver Nº+monto (no persiste; la conciliación se hace aprobando líneas después)
     if(preset&&preset.captureOnly){m.close();if(typeof preset.onCapture==='function')preset.onCapture(nro,monto,fecha);return;}
     if(repsList&&repSel.size===0){showToast('Elegí al menos un reparto para facturar 👀');return;}
-    // Al REGISTRAR una factura nueva, el monto debe coincidir con el flete de los repartos elegidos.
-    // Al EDITAR (monto fijo) no se valida: se permite cambiar el Nº/datos sin bloquear.
+    // Al registrar una factura nueva se pregunta antes: dejarla como corresponde o volver
+    // a corregirla. Si no coincide con la planilla hay que indicar el motivo.
     const _flete=repFlete();
-    if(!editing && monto!==_flete){
-      const dif=Math.abs(monto-_flete);
-      live.className='cf-live diff';
-      live.innerHTML='▲ No se puede registrar: la factura no coincide con los repartos asignados.<br>Repartos <b>'+_gs(_flete)+'</b> · Factura <b>'+_gs(monto)+'</b> · Diferencia <b>'+_gs(dif)+'</b>';
-      _cfSetErr(moF,'Debe coincidir con los repartos ('+_gs(_flete)+').');
-      showToast('No se puede registrar: no coincide con los repartos asignados 🚫');
+    if(!editing && !_obsAlta){
+      _facConfirmarRegistro(
+        {ts:sel.ts,periodo:_dispD(sel.semDesde)+' al '+_dispD(sel.semHasta),flete:_flete,monto:monto,nro:nro},
+        function(obs){ _obsAlta=obs||{ok:true}; m.$('button.ok').click(); });
       return;
     }
     // Al editar, cualquier cambio de Nº / monto / fecha exige motivo.
@@ -7903,6 +7996,13 @@ function _cfOpenFacturaModal(existing,preset){
     const okB=m.$('button.ok'),okTxt=editing?'Guardar cambios':'Guardar factura';if(okB){okB.disabled=true;okB.classList.add('is-loading');okB.innerHTML='<span class="cf-spin"></span>Guardando…';}
     const row={nro:nro,fecha:fecha,monto:monto,transportadora_nombre:sel.ts,semana_desde:sel.semDesde,semana_hasta:sel.semHasta};
     if(_hist)Object.assign(row,_hist);
+    // Registrada con diferencia aceptada: queda como primera entrada del historial.
+    if(!editing&&_obsAlta&&_obsAlta.motivo){
+      const ts0=new Date().toISOString();
+      Object.assign(row,{motivo_cambio:_obsAlta.motivo,motivo_nota:_obsAlta.nota,cambiada_at:ts0,
+        cambios:[{ts:ts0,usuario:_cfUsuario(),motivo:_obsAlta.motivo,nota:_obsAlta.nota,
+          campos:[{k:'alta',l:'Registrada con diferencia',de:_gs(_obsAlta.flete)+' de repartos',a:_gs(_obsAlta.monto)+' facturado'}]}]});
+    }
     let _newFacId=null;
     try{
       if(editing){let up=await Promise.race([sb.from('fact_facturas').update(row).eq('id',existing.id).select('id'),new Promise(function(_,rej){setTimeout(function(){rej(new Error('La base no respondió (timeout)'));},9000);})]);
@@ -7914,7 +8014,11 @@ function _cfOpenFacturaModal(existing,preset){
           if(!up.error)showToast('Guardé el cambio, pero no el motivo: falta correr facturas-motivo.sql');
         }
         if(up.error)throw up.error;if(!up.data||!up.data.length){showToast('No pude actualizar la factura (no se encontró o sin permisos).');if(okB){okB.disabled=false;okB.classList.remove('is-loading');okB.textContent=okTxt;}return;}m.close();try{_cfCheckBurst('Registrado',true);}catch(_){}}
-      else{const ins=await sb.from('fact_facturas').insert(row).select('id').single();if(ins.error)throw ins.error;const facId=ins.data&&ins.data.id;_newFacId=facId;if(repsList&&facId!=null){const _aff=new Set();for(const rp of repsList){if(!repSel.has(rp.id))continue;if(rp.cl){rp.cl.factura_id=facId;if(rp.repId!=null)_aff.add(rp.repId);}else{try{await dbSetRepartoFactura(rp.id,facId);const rr=repartos.find(x=>x.id===rp.id);if(rr)rr.factura_id=facId;}catch(_){}}}for(const rid of _aff){const rr=repartos.find(x=>x.id===rid);if(rr){try{await dbUpdateClientes(rid,rr.clientes);}catch(_){}}}}else if(facId!=null&&sel){await _claimLineasFactura(sel.ts,sel.semDesde,facId);}m.close();_cfCheckBurst('Registrado',true);}
+      else{let ins=await sb.from('fact_facturas').insert(row).select('id').single();
+        if(ins.error&&row.cambios){ const base={};Object.keys(row).forEach(function(k){if(k!=='motivo_cambio'&&k!=='motivo_nota'&&k!=='cambiada_at'&&k!=='cambios')base[k]=row[k];});
+          ins=await sb.from('fact_facturas').insert(base).select('id').single();
+          if(!ins.error)showToast('Registré la factura, pero no el motivo: falta correr facturas-motivo.sql'); }
+        if(ins.error)throw ins.error;const facId=ins.data&&ins.data.id;_newFacId=facId;if(repsList&&facId!=null){const _aff=new Set();for(const rp of repsList){if(!repSel.has(rp.id))continue;if(rp.cl){rp.cl.factura_id=facId;if(rp.repId!=null)_aff.add(rp.repId);}else{try{await dbSetRepartoFactura(rp.id,facId);const rr=repartos.find(x=>x.id===rp.id);if(rr)rr.factura_id=facId;}catch(_){}}}for(const rid of _aff){const rr=repartos.find(x=>x.id===rid);if(rr){try{await dbUpdateClientes(rid,rr.clientes);}catch(_){}}}}else if(facId!=null&&sel){await _claimLineasFactura(sel.ts,sel.semDesde,facId);}m.close();_cfCheckBurst('Registrado',true);}
       // Recarga facturas para refrescar chips/estado antes de volver a la vista.
       try{const fr=await sb.from('fact_facturas').select('*');window.__cfFac=fr.data||[];}catch(_){window.__cfFac=null;}
       // Al registrar desde una planilla se QUEDA en la planilla (ya facturada) para imprimir
