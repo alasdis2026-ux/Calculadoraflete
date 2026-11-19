@@ -54,6 +54,7 @@ body{min-height:100vh;overflow:hidden;font-family:Inter,system-ui,-apple-system,
 .sidebar:hover{width:216px}
 .sidebar-inner{width:100%;display:flex;flex-direction:column;gap:4px}
 .sidebar-spacer{flex:1}
+.sidebar-item[hidden]{display:none}
 .sidebar-item{width:100%;height:48px;border-radius:10px;display:flex;align-items:center;gap:13px;padding:0 12px;color:rgba(255,255,255,.5);white-space:nowrap;overflow:hidden;flex-shrink:0;transition:background var(--alas-dur-normal) var(--alas-ease),color var(--alas-dur-normal) var(--alas-ease),transform var(--alas-dur-fast) var(--alas-ease)}
 .sidebar-item svg{width:21px;height:21px;stroke-width:1.6;flex-shrink:0}
 .sidebar-item:hover{color:#fff;background:rgba(255,255,255,.12);transform:translateX(2px)}
@@ -1948,8 +1949,23 @@ function initials(name){
 }
 
 /* ════════ NAVIGATION ════════════════════════════════ */
+/* El rol "registro" entra a la Calculadora sólo para consultar transportistas:
+   se le ocultan las demás secciones y cualquier intento de navegar vuelve acá. */
+const CF_ROL_SOLO_TRANS='registro';
+function _cfAplicarRol(role){
+  window._alasRole=String(role||'').toLowerCase();
+  if(window._alasRole!==CF_ROL_SOLO_TRANS)return;
+  document.body.classList.add('cf-solo-trans');
+  document.querySelectorAll('.sidebar-item[data-nav]').forEach(function(b){
+    if(b.dataset.nav!==CF_ROL_SOLO_TRANS_VIEW)b.hidden=true;
+  });
+  showView(CF_ROL_SOLO_TRANS_VIEW);
+}
+const CF_ROL_SOLO_TRANS_VIEW='trans';
 let _lastView=null;
 function showView(v){
+  // Red de seguridad: aunque se llame a showView desde otro lado, no se sale de Transportistas.
+  if(window._alasRole===CF_ROL_SOLO_TRANS&&v!==CF_ROL_SOLO_TRANS_VIEW)v=CF_ROL_SOLO_TRANS_VIEW;
   ['calc','trans','hist','dash','fact','rrep','stats','meta'].forEach(x=>{
     document.getElementById('view'+x.charAt(0).toUpperCase()+x.slice(1)).classList.toggle('is-active',x===v);
   });
@@ -4573,6 +4589,7 @@ async function initApp(){
   }
   window._alasIsAdmin=(ssoUser.role==='admin');
   applyPriceRestrictions();
+  _cfAplicarRol(ssoUser.role);
   const nameEl=document.getElementById('ssoUserName');
   const chipEl=document.getElementById('ssoUserChip');
   if(nameEl)nameEl.textContent=ssoUser.name||ssoUser.email||'Usuario';
