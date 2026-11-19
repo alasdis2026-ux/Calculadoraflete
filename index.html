@@ -5360,8 +5360,8 @@ function showSaveAnim(text){
   /* Entrada de las tarjetas de planilla y de los eventos del calendario, también en CSS. */
   @keyframes rrRowIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
   @keyframes rrEvIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:none}}
-  .ci-rowwrap.rr-in{animation:rrRowIn .36s cubic-bezier(.2,.7,.3,1) backwards;animation-delay:calc(260ms + var(--i,0)*35ms)}
-  .ci-ev.rr-in{animation:rrEvIn .26s ease-out backwards;animation-delay:calc(200ms + var(--i,0)*6ms)}
+  .ci-rowwrap.rr-in{animation:rrRowIn .34s cubic-bezier(.2,.7,.3,1) backwards;animation-delay:calc(170ms + var(--i,0)*26ms)}
+  .ci-ev.rr-in{animation:rrEvIn .24s ease-out backwards;animation-delay:calc(140ms + var(--i,0)*5ms)}
   @keyframes rrFadeLeft{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:none}}
   @keyframes rrFadeDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
   @keyframes rrFadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
@@ -5780,6 +5780,14 @@ function showSaveAnim(text){
   .rre-close:hover{background:var(--gray-100,#f1f5f9);color:var(--gray-700,#334155)}
   /* Detalle de planilla como sub-vista (no modal) */
   .rr-detail{display:block}
+  /* El detalle de la planilla entraba de golpe mientras que salir sí tenía transición.
+     Se anima en CSS: no cuesta JS y no fuerza layout como lo haría gsap.from(). */
+  @keyframes rrdIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+  .rr-detail>*{animation:rrdIn .36s cubic-bezier(.2,.7,.3,1) backwards}
+  .rr-detail>*:nth-child(2){animation-delay:55ms}
+  .rr-detail>*:nth-child(3){animation-delay:100ms}
+  .rr-detail>*:nth-child(n+4){animation-delay:140ms}
+  @media(prefers-reduced-motion:reduce){.rr-detail>*{animation:none}}
   .rrd-topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;background:#fff;padding:12px 0;margin-bottom:8px;border-bottom:1px solid var(--gray-100,#f1f5f9)}
   /* KPIs en la línea del topbar (centrados entre título y botones) */
   .rrd-topbar--kpi{flex-wrap:wrap;gap:16px}
@@ -8465,7 +8473,7 @@ function renderReporteRepartos(){
   // que leer el estilo computado de cada elemento justo después del innerHTML y eso dispara
   // un recálculo sincrónico por elemento (era el grueso del tiempo de esta vista).
   const _rrStagger=(sel,max)=>{let i=0;host.querySelectorAll(sel).forEach(el=>{el.style.setProperty('--i',Math.min(i++,max));el.classList.add('rr-in');});};
-  _rrStagger('.ci-rowwrap',24);
+  _rrStagger('.ci-rowwrap',16);
   _rrStagger('.ci-ev',40);
   // Al cambiar de segmento sólo se re-anima el control y la lista, no la cabecera ni el calendario.
   if(!_rrSegAnim){ _rrStagger('.rr-brand',0); _rrStagger('.ci-phead',8); _rrStagger('.ci-wrow',8); }
