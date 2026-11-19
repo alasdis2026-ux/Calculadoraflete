@@ -1414,7 +1414,7 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
         </div>
         <span class="ts-bar__n" id="tsBarN"></span>
         <div style="flex:1"></div>
-        <span class="ts-bar__kbd"><kbd>←</kbd><kbd>→</kbd> navegar · <kbd>C</kbd> copiar camiones · <kbd>Enter</kbd> ver detalles</span>
+        <span class="ts-bar__kbd"><kbd>←</kbd><kbd>→</kbd> transportadora · <kbd>↑</kbd><kbd>↓</kbd> camión · <kbd>C</kbd> copiar · <kbd>Enter</kbd> ver detalles</span>
       </div>
       <div class="ts-3d" id="ts3d">
         <button class="ts-3d__nav ts-3d__nav--prev" type="button" id="ts3dPrev" aria-label="Anterior"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg></button>
@@ -3270,6 +3270,27 @@ function tsLastUsed(ts){
 }
 /* ════════ Carrusel 3D (coverflow) ════════ */
 let ts3dIndex=0, ts3dList=[], _ts3dDragged=false, _ts3dDown=false, _ts3dHoverTmr=0;
+let _ts3dRow=0;   // camión elegido dentro de la tarjeta del frente (↑ ↓)
+
+// Marca el camión elegido y lo deja a la vista. Sólo aplica a la tarjeta del frente.
+function _tsMarcarFila(){
+  const stage=document.getElementById('ts3dStage'); if(!stage)return null;
+  stage.querySelectorAll('.ts3c__tr.sel').forEach(function(x){x.classList.remove('sel');});
+  const act=stage.querySelector('.ts-3d__card.is-active'); if(!act)return null;
+  const filas=[].slice.call(act.querySelectorAll('.ts3c__tr'));
+  if(!filas.length){_ts3dRow=0;return null;}
+  if(_ts3dRow<0)_ts3dRow=0;
+  if(_ts3dRow>filas.length-1)_ts3dRow=filas.length-1;
+  const f=filas[_ts3dRow];
+  f.classList.add('sel');
+  try{f.scrollIntoView({block:'nearest'});}catch(_){}
+  return f;
+}
+// Camión elegido ahora mismo (el que copia la tecla C).
+function _tsFilaActual(){
+  const it=ts3dList[ts3dIndex]; if(!it)return null;
+  return it.cams[Math.max(0,Math.min(it.cams.length-1,_ts3dRow))]||null;
+}
 
 // Qué transportadoras entran y, dentro de cada una, qué camiones.
 // Si lo buscado coincide con un camión, la tarjeta muestra sólo esos camiones.
@@ -3330,7 +3351,6 @@ function renderTs3D(terms){
       '</div>'+
       '<div class="ts-3d__body">'+filas+(ocultos>0?('<div class="ts3c__mas">+'+ocultos+' '+_camLbl(ocultos)+' más</div>'):'')+'</div>'+
       '<div class="ts-3d__foot">'+
-        '<button type="button" class="cp-btn cp-btn--txt cp-btn--hero" data-cpts="'+t.id+'"><span class="cp-ico"></span><span class="cp-lbl">Copiar camiones</span><kbd>C</kbd></button>'+
         '<button type="button" class="ts3c__open" data-abrir="'+t.id+'">Ver detalles<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>'+
       '</div>'+
     '</div>';
@@ -3338,6 +3358,7 @@ function renderTs3D(terms){
   stage.querySelectorAll('.cp-ico:empty').forEach(function(e){ e.innerHTML=_cpIco(); });
   layout3D(false);
   renderTs3DDots();
+  _tsMarcarFila();
   // Entrada: las tarjetas aparecen y la del centro da un pequeño salto.
   if(window.gsap&&!(typeof reduce==='function'&&reduce())){
     gsap.from(stage.children,{opacity:0,duration:.38,stagger:.025,ease:'power2.out'});
@@ -3375,9 +3396,12 @@ function layout3D(animate){
 
 function go3D(idx,animate){
   const n=ts3dList.length; if(!n)return;
+  const antes=ts3dIndex;
   ts3dIndex=Math.max(0,Math.min(n-1,idx));
+  if(ts3dIndex!==antes)_ts3dRow=0;   // al cambiar de tarjeta se arranca por el primer camión
   layout3D(animate!==false);
   renderTs3DDots();
+  _tsMarcarFila();
 }
 
 /* ── Navegación del carrusel ── */
@@ -3408,6 +3432,12 @@ function go3D(idx,animate){
   // corto para que no cambie sola mientras el mouse apenas cruza.
   stage.addEventListener('pointerover',e=>{
     if(_ts3dDown)return;
+    const fila=e.target.closest('.ts3c__tr');
+    if(fila&&fila.closest('.ts-3d__card.is-active')){
+      const fs=[].slice.call(fila.closest('.ts-3d__card').querySelectorAll('.ts3c__tr'));
+      const i=fs.indexOf(fila);
+      if(i>=0&&i!==_ts3dRow){_ts3dRow=i;_tsMarcarFila();}
+    }
     const card=e.target.closest('.ts-3d__card'); if(!card)return;
     const i=+card.dataset.idx; if(i===ts3dIndex)return;
     clearTimeout(_ts3dHoverTmr);
@@ -3439,14 +3469,18 @@ function go3D(idx,animate){
     if(/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName||''))return;
     if(e.key==='ArrowRight'){e.preventDefault();go3D(ts3dIndex+1);}
     else if(e.key==='ArrowLeft'){e.preventDefault();go3D(ts3dIndex-1);}
+    else if(e.key==='ArrowDown'){e.preventDefault();_ts3dRow++;_tsMarcarFila();}
+    else if(e.key==='ArrowUp'){e.preventDefault();_ts3dRow--;_tsMarcarFila();}
     else if(e.key==='Home'){e.preventDefault();go3D(0);}
     else if(e.key==='End'){e.preventDefault();go3D(ts3dList.length-1);}
     else if(e.key==='Enter'&&ts3dList[ts3dIndex]){e.preventDefault();selectTs(ts3dList[ts3dIndex].t.id);}
-    // C copia los camiones de la tarjeta que está al frente.
-    else if((e.key==='c'||e.key==='C')&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&ts3dList[ts3dIndex]){
+    // C copia el camión elegido con ↑ ↓.
+    else if((e.key==='c'||e.key==='C')&&!e.ctrlKey&&!e.metaKey&&!e.altKey){
       e.preventDefault();
-      const act=stage.querySelector('.ts-3d__card.is-active [data-cpts]');
-      _tsCopiarCamiones(ts3dList[ts3dIndex].t.id,act);
+      const tr=_tsFilaActual();
+      if(!tr){showToast('Esta transportadora no tiene camiones cargados');return;}
+      const fila=_tsMarcarFila();
+      _cfCopiarCon(fila?fila.querySelector('.cp-btn'):null,tr.d,'Copié '+tr.d);
     }
   });
 })();
@@ -6685,6 +6719,11 @@ function showSaveAnim(text){
   .ts-3d__body{padding:12px 14px;gap:4px}
   .ts3c__tr{display:flex;align-items:center;gap:11px;padding:10px 11px;border-radius:11px;background:#fff;border:1px solid var(--gray-200,#e2e8f0);transition:border-color .16s,box-shadow .16s,transform .16s}
   .ts3c__tr:hover{border-color:var(--accent,#3B82F6);box-shadow:0 5px 14px rgba(11,95,141,.12);transform:translateY(-1px)}
+  /* El camión elegido con ↑ ↓: es el que copia la tecla C. */
+  .ts-3d__card.is-active .ts3c__tr.sel{border-color:var(--primary,#0B5F8D);background:#f2f8fd;box-shadow:0 0 0 2px rgba(11,95,141,.18),0 6px 16px rgba(11,95,141,.14)}
+  .ts3c__tr.sel .cp-btn{border-color:var(--primary,#0B5F8D);color:var(--primary,#0B5F8D);background:#fff}
+  .ts3c__tr.sel .cp-btn::after{content:'C';margin-left:0;font-size:9.5px;font-weight:800}
+  .ts3c__tr.sel .cp-btn{width:auto;padding:0 8px;gap:5px}
   .ts3c__seg{flex-shrink:0;width:9px;height:9px;border-radius:50%;background:var(--gray-300,#cbd5e1)}
   .ts3c__seg.s-local{background:#0B5F8D} .ts3c__seg.s-interior{background:#F97316}
   .ts3c__seg.s-servicios{background:#10B981} .ts3c__seg.s-transportadora{background:#7c3aed}
@@ -6694,13 +6733,6 @@ function showSaveAnim(text){
   .ts-3d__hdname mark{background:rgba(255,255,255,.3);color:#fff}
   .ts3c__vacio,.ts3c__mas{padding:10px 4px;font-size:12px;font-weight:700;color:var(--gray-400,#94a3b8);text-align:center}
   .ts-3d__foot{gap:9px;padding:12px 14px}
-  /* Copiar es la acción principal de la vista: va en primer plano. */
-  .cp-btn--hero{flex:1;height:40px;border:none;background:linear-gradient(180deg,#1a7cb0,#0B5F8D);color:#fff;font-size:13px;box-shadow:0 5px 14px rgba(11,95,141,.3)}
-  .cp-btn--hero:hover{background:linear-gradient(180deg,#1c86bf,#0c6b9c);color:#fff;border:none;box-shadow:0 9px 22px rgba(11,95,141,.38)}
-  .cp-btn--hero .cp-lbl{color:#fff}
-  .cp-btn--hero kbd{margin-left:2px;font-family:inherit;font-size:10.5px;font-weight:800;line-height:1;padding:3px 6px;border-radius:5px;background:rgba(255,255,255,.22);color:#fff}
-  .cp-btn--hero.is-ok{background:linear-gradient(180deg,#22c55e,#15803d);color:#fff;box-shadow:0 7px 18px rgba(21,128,61,.35)}
-  .cp-btn--hero.is-ok .cp-lbl,.cp-btn--hero.is-ok kbd{color:#fff}
   .ts3c__open{display:inline-flex;align-items:center;gap:6px;height:40px;padding:0 16px;border:1.5px solid var(--gray-200,#e2e8f0);border-radius:10px;background:#fff;color:var(--gray-600,#475569);font:inherit;font-size:13px;font-weight:800;cursor:pointer;transition:color .16s,border-color .16s,background .16s,transform .16s}
   .ts3c__open svg{width:14px;height:14px}
   .ts3c__open:hover{color:var(--primary,#0B5F8D);border-color:var(--accent,#3B82F6);background:#f2f8fd;transform:translateY(-1px)}
