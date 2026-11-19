@@ -1993,15 +1993,36 @@ async function _cfCopiar(txt){
     const ok=document.execCommand('copy'); ta.remove(); return ok;
   }catch(_){ return false; }
 }
+// Cartelito "¡Copiado!" que sale del botón, sube y se desvanece.
+function _cpFlotante(btn,txt){
+  try{
+    if(!btn||typeof btn.getBoundingClientRect!=='function')return;
+    if(typeof reduce==='function'&&reduce())return;
+    const r=btn.getBoundingClientRect();
+    if(!r.width&&!r.height)return;
+    const el=document.createElement('div');
+    el.className='cp-fly';
+    el.textContent=txt||'¡Copiado!';
+    el.style.left=Math.round(r.left+r.width/2)+'px';
+    el.style.top=Math.round(r.top)+'px';
+    document.body.appendChild(el);
+    setTimeout(function(){ if(el.parentNode)el.remove(); },950);
+  }catch(_){}
+}
 // El botón se convierte en tilde un instante: confirma sin tapar la pantalla con un toast.
 function _cfCopiarCon(btn,txt,msg){
   _cfCopiar(txt).then(function(ok){
     if(!ok){ showToast('No pude copiar. Probá de nuevo 😕'); return; }
     if(btn){
-      btn.classList.add('is-ok');
+      // Se quita y se vuelve a poner para que el anillo se reinicie si se copia dos veces seguidas.
+      btn.classList.remove('is-ok'); void btn.offsetWidth; btn.classList.add('is-ok');
       const g=window.gsap;
-      if(g&&!(typeof reduce==='function'&&reduce()))g.fromTo(btn,{scale:.8},{scale:1,duration:.45,ease:'back.out(3.2)',clearProps:'transform'});
+      if(g&&!(typeof reduce==='function'&&reduce()))g.fromTo(btn,{scale:.78},{scale:1,duration:.5,ease:'back.out(3.4)',clearProps:'transform'});
       clearTimeout(btn._cpT); btn._cpT=setTimeout(function(){ btn.classList.remove('is-ok'); },1500);
+      const fila=btn.closest?btn.closest('.ts3c__tr'):null;
+      if(fila){ fila.classList.remove('cp-flash'); void fila.offsetWidth; fila.classList.add('cp-flash');
+        clearTimeout(fila._cpT); fila._cpT=setTimeout(function(){ fila.classList.remove('cp-flash'); },900); }
+      _cpFlotante(btn);
     }
     if(msg)showToast(msg);
   });
@@ -6722,8 +6743,15 @@ function showSaveAnim(text){
   /* El camión elegido con ↑ ↓: es el que copia la tecla C. */
   .ts-3d__card.is-active .ts3c__tr.sel{border-color:var(--primary,#0B5F8D);background:#f2f8fd;box-shadow:0 0 0 2px rgba(11,95,141,.18),0 6px 16px rgba(11,95,141,.14)}
   .ts3c__tr.sel .cp-btn{border-color:var(--primary,#0B5F8D);color:var(--primary,#0B5F8D);background:#fff}
-  .ts3c__tr.sel .cp-btn::after{content:'C';margin-left:0;font-size:9.5px;font-weight:800}
-  .ts3c__tr.sel .cp-btn{width:auto;padding:0 8px;gap:5px}
+  /* Efecto al copiar: un anillo que sale del botón y un destello en la fila. */
+  @keyframes cpRing{from{opacity:.6;transform:scale(.55)}to{opacity:0;transform:scale(2.2)}}
+  .cp-btn.is-ok::after{content:'';position:absolute;inset:-2px;border-radius:inherit;border:2px solid #22c55e;animation:cpRing .62s cubic-bezier(.2,.7,.3,1) forwards;pointer-events:none}
+  @keyframes cpFlash{from{box-shadow:0 0 0 3px rgba(34,197,94,.5),0 10px 24px rgba(34,197,94,.3)}to{box-shadow:0 0 0 0 rgba(34,197,94,0),0 0 0 0 rgba(34,197,94,0)}}
+  .ts3c__tr.cp-flash{animation:cpFlash .8s ease-out}
+  /* Cartelito que sube y se desvanece sobre el botón. */
+  @keyframes cpFly{0%{opacity:0;transform:translate(-50%,4px) scale(.82)}20%{opacity:1;transform:translate(-50%,-12px) scale(1)}100%{opacity:0;transform:translate(-50%,-38px) scale(1)}}
+  .cp-fly{position:fixed;z-index:99999;padding:4px 11px;border-radius:999px;background:linear-gradient(180deg,#22c55e,#15803d);color:#fff;font-family:Inter,sans-serif;font-size:11px;font-weight:800;white-space:nowrap;pointer-events:none;box-shadow:0 7px 18px rgba(21,128,61,.4);animation:cpFly .92s cubic-bezier(.2,.7,.3,1) forwards}
+  @media(prefers-reduced-motion:reduce){.cp-btn.is-ok::after,.ts3c__tr.cp-flash,.cp-fly{animation:none}.cp-fly{display:none}}
   .ts3c__seg{flex-shrink:0;width:9px;height:9px;border-radius:50%;background:var(--gray-300,#cbd5e1)}
   .ts3c__seg.s-local{background:#0B5F8D} .ts3c__seg.s-interior{background:#F97316}
   .ts3c__seg.s-servicios{background:#10B981} .ts3c__seg.s-transportadora{background:#7c3aed}
