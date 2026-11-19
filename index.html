@@ -5191,26 +5191,32 @@ function showSaveAnim(text){
   .cf-kpi__l{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--gray-400,#94a3b8)}
   .cf-kpi__v{font-family:Sora,Inter,sans-serif;font-size:23px;font-weight:800;color:var(--gray-800,#1e293b);line-height:1.05;font-variant-numeric:tabular-nums}
   .cf-kpi__s{font-size:11px;font-weight:600;color:var(--gray-400,#94a3b8);margin-top:2px}
-  /* Facturas registradas: tarjetas azules a todo el ancho, como las de Estadísticas. */
-  #factHost .cf-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(206px,1fr));gap:12px;margin-bottom:15px}
-  #factHost .cf-kpi{position:relative;overflow:hidden;display:block;width:auto;text-align:left;padding:15px 20px 14px;border:none;border-radius:16px;color:#fff;background:linear-gradient(135deg,#0A4578 0%,#0B5F8D 54%,#1472BE 100%);box-shadow:0 8px 24px rgba(11,79,138,.22)}
-  #factHost .cf-kpi::after{content:'';position:absolute;right:-60px;top:-78px;width:210px;height:210px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.15),transparent 68%);pointer-events:none}
-  #factHost .cf-kpi::before{width:4px;background:#9FD3FF}
-  #factHost .cf-kpi.k1::before{background:#FBB360}
-  #factHost .cf-kpi.k2::before{background:#7EE0B0}
-  #factHost .cf-kpi.k3::before{background:#9FD3FF}
-  #factHost .cf-kpi.k4::before{background:#C4B5FD}
-  #factHost .cf-kpi.k5::before{background:rgba(255,255,255,.55)}
-  #factHost .cf-kpi__l{font-size:10px;font-weight:800;letter-spacing:.9px;color:rgba(255,255,255,.64)}
-  #factHost .cf-kpi__v{font-family:Sora,Inter,sans-serif;font-size:27px;font-weight:800;letter-spacing:-.8px;line-height:1.05;color:#fff;margin-top:7px}
-  #factHost .cf-kpi__s{font-size:10.5px;font-weight:700;color:rgba(255,255,255,.66);margin-top:6px}
-  #factHost .cf-kpi--btn{cursor:pointer;transition:transform .18s,box-shadow .18s}
-  #factHost .cf-kpi--btn:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgba(11,79,138,.32)}
-  /* El filtro activo se marca con un aro blanco: el borde no sirve sobre el degradé. */
-  #factHost .cf-kpi--btn.is-on{box-shadow:0 0 0 2.5px #fff,0 0 0 5px rgba(11,95,141,.4),0 12px 28px rgba(11,79,138,.3)}
-  #factHost .cf-kpi--btn.is-on .cf-kpi__v{color:#fff}
-  @media(max-width:620px){#factHost .cf-kpis{grid-template-columns:1fr 1fr}}
-  @media(max-width:760px){#factHost .cf-kpi{width:auto}}
+  /* Facturas registradas: una sola tira blanca dividida, sin cajas ni colores de fondo. */
+  #factHost .cf-kpis{display:flex;flex-wrap:wrap;gap:0;padding:4px;margin-bottom:15px;background:#fff;border:1px solid var(--gray-200,#e2e8f0);border-radius:16px;box-shadow:0 1px 2px rgba(19,36,55,.05)}
+  #factHost .cf-kpi{position:relative;overflow:visible;flex:1 1 0;min-width:148px;display:block;width:auto;text-align:left;padding:13px 18px 15px;border:none;border-radius:12px;background:transparent;box-shadow:none;color:inherit}
+  /* Línea divisoria entre columnas (no en la primera). */
+  #factHost .cf-kpi+.cf-kpi::after{content:'';position:absolute;left:0;top:15px;bottom:15px;width:1px;background:var(--gray-100,#f1f5f9)}
+  /* El ::before deja de ser la barra lateral y pasa a ser el subrayado del filtro activo. */
+  #factHost .cf-kpi::before{left:18px;right:18px;bottom:7px;top:auto;width:auto;height:2px;border-radius:2px;background:transparent;transition:background .18s}
+  #factHost .cf-kpi__l{font-size:9.5px;font-weight:800;letter-spacing:.8px;color:var(--gray-400,#94a3b8)}
+  #factHost .cf-kpi__v{font-family:Sora,Inter,sans-serif;font-size:24px;font-weight:800;letter-spacing:-.7px;line-height:1.05;color:var(--gray-800,#1e293b);margin-top:6px}
+  #factHost .cf-kpi__s{font-size:10.5px;font-weight:700;color:var(--gray-400,#94a3b8);margin-top:5px}
+  #factHost .cf-kpi--btn{cursor:pointer;transition:background .16s}
+  #factHost .cf-kpi--btn:hover{background:var(--gray-50,#f8fafc)}
+  #factHost .cf-kpi--btn.is-on{background:#f2f8fd}
+  #factHost .cf-kpi--btn.is-on .cf-kpi__v{color:var(--primary)}
+  #factHost .cf-kpi--btn.is-on .cf-kpi__l{color:var(--primary)}
+  #factHost .cf-kpi--btn.is-on.k1::before{background:var(--orange,#F97316)}
+  #factHost .cf-kpi--btn.is-on.k2::before{background:var(--success,#10B981)}
+  #factHost .cf-kpi--btn.is-on.k4::before{background:var(--primary)}
+  #factHost .cf-kpi--btn.is-on.k5::before{background:#94a3b8}
+  @media(max-width:760px){#factHost .cf-kpi{flex:1 1 44%;min-width:0}#factHost .cf-kpi+.cf-kpi::after{display:none}}
+  /* Chips de semana más grandes y con el activo bien marcado. */
+  #factHost .rr-chips{gap:7px;margin-bottom:14px}
+  #factHost .rr-chip{border-width:1.5px;border-radius:11px;padding:9px 15px;font-size:13px;font-weight:800;color:var(--gray-700,#334155);transition:background .16s,color .16s,border-color .16s,transform .16s,box-shadow .16s}
+  #factHost .rr-chip:hover{background:#f0f7ff;border-color:var(--accent);color:var(--primary);transform:translateY(-1px);box-shadow:0 4px 12px rgba(11,95,141,.12)}
+  #factHost .rr-chip.on{background:linear-gradient(180deg,#1a7cb0,#0B5F8D);border-color:transparent;color:#fff;box-shadow:0 5px 14px rgba(11,95,141,.32)}
+  #factHost .rr-chip.on:hover{transform:translateY(-1px);background:linear-gradient(180deg,#1c86bf,#0c6b9c);color:#fff}
   /* ── Facturas: buscador en la cabecera ── */
   .cf-search{position:relative;flex:0 0 268px;margin-right:10px}
   .cf-search>svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--gray-400);pointer-events:none}
