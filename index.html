@@ -679,8 +679,8 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .ts-back:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
 .ts-detail-body{flex:1;min-height:0;overflow:auto;padding:14px 16px 18px}
 /* Lista compacta de camiones (ancho acotado, no se estira en pantallas grandes) */
-.tr-list{max-width:1000px;margin:0 auto}
-.tr-list__hd,.tr-row{display:grid;grid-template-columns:28px minmax(0,1fr) 74px 170px 34px;align-items:center;gap:16px}
+.tr-list{max-width:1120px;margin:0 auto}
+.tr-list__hd,.tr-row{display:grid;grid-template-columns:28px minmax(0,1fr) 74px 170px 112px;align-items:center;gap:16px}
 .tr-list__hd{padding:4px 14px 10px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--gray-400);border-bottom:1.5px solid var(--gray-100)}
 .tr-list__hd .r{text-align:right}
 .tr-row{padding:11px 14px;border-radius:12px;border:1px solid transparent;transition:background var(--fast),border-color var(--fast)}
@@ -1397,6 +1397,9 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.9"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
       Exportar Excel
     </button>
+    <button class="btn btn-outline cp-btn cp-btn--txt" type="button" id="btnTsCopyAll" title="Copiar todo el padrón para pegarlo en una planilla">
+      <span class="cp-ico"></span><span class="cp-lbl">Copiar todo</span>
+    </button>
     <button class="btn btn-primary" type="button" id="btnAddTs">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
       Agregar transportista
@@ -1406,20 +1409,15 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
   <div class="ts-wrap">
     <!-- Estado GRILLA -->
     <div class="ts-grid-state" id="tsGridState">
-      <div class="ts-grid-search" style="display:flex;justify-content:center">
-        <div class="ts-3d-search">
-          <svg class="md-search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-          <input class="md-search" type="search" id="tsSearch" placeholder="Buscar transportista...">
+      <div class="ts-bar">
+        <div class="ts-bar__srch">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+          <input type="text" id="tsSearch" placeholder="Buscar transportista o camión…" autocomplete="off">
+          <button type="button" class="ts-bar__clr" id="tsSearchClr" title="Limpiar" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
         </div>
+        <span class="ts-bar__n" id="tsBarN"></span>
       </div>
-      <div class="ts-board" id="tsList" style="display:none"></div>
-      <div class="ts-3d" id="ts3d" style="display:flex">
-        <div class="ts-3d__hint"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 6l-6 6 6 6M15 6l6 6-6 6"/></svg>Girá con las flechas, la rueda o arrastrando · click al centro para abrir</div>
-        <button class="ts-3d__nav ts-3d__nav--prev" type="button" id="ts3dPrev" aria-label="Anterior"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 18l-6-6 6-6"/></svg></button>
-        <div class="ts-3d__stage" id="ts3dStage"></div>
-        <button class="ts-3d__nav ts-3d__nav--next" type="button" id="ts3dNext" aria-label="Siguiente"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 18l6-6-6-6"/></svg></button>
-        <div class="ts-3d__dots" id="ts3dDots"></div>
-      </div>
+      <div class="ts-board" id="tsList"></div>
     </div>
     <!-- Estado DETALLE (al entrar a un transportista) -->
     <div class="ts-detail-state" id="tsDetailState" style="display:none">
@@ -1431,6 +1429,12 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
           <span class="name-chip" id="detailChip"></span>
         </div>
         <div style="flex:1"></div>
+        <button class="icon-btn" type="button" id="detailRenameTs" title="Cambiar el nombre del transportista">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+        <button class="btn btn-sm btn-outline cp-btn cp-btn--txt" type="button" id="detailCopy" title="Copiar la ficha completa">
+          <span class="cp-ico"></span><span class="cp-lbl">Copiar ficha</span>
+        </button>
         <button class="btn btn-sm btn-outline" type="button" id="detailAddTr">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
           Camión
@@ -1745,6 +1749,10 @@ async function dbAddTs(nombre){
   const{data,error}=await sb.from('transportistas').insert({nombre}).select('id').single();
   if(error)throw error;return data.id;
 }
+async function dbUpdateTs(id,fields){
+  const{error}=await sb.from('transportistas').update(fields).eq('id',id);
+  if(error)throw error;
+}
 async function dbDeleteTs(id){
   const{error}=await sb.from('transportistas').delete().eq('id',id);
   if(error)throw error;
@@ -1964,6 +1972,83 @@ document.querySelectorAll('[data-nav]').forEach(b=>b.addEventListener('click',()
 // cada fila de la tabla es un camión. Estas funciones se conservan como no-op /
 // refresco porque VIEW 2 (admin de transportistas) las sigue llamando al editar.
 function populateTsSelect(){}
+
+/* ════════ Copiar al portapapeles ════════ */
+// navigator.clipboard sólo existe en contexto seguro; el textarea oculto cubre el resto.
+async function _cfCopiar(txt){
+  if(!txt)return false;
+  try{ if(navigator.clipboard&&window.isSecureContext){ await navigator.clipboard.writeText(txt); return true; } }catch(_){}
+  try{
+    const ta=document.createElement('textarea');
+    ta.value=txt; ta.setAttribute('readonly','');
+    ta.style.cssText='position:fixed;top:0;left:-9999px;opacity:0';
+    document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0,txt.length);
+    const ok=document.execCommand('copy'); ta.remove(); return ok;
+  }catch(_){ return false; }
+}
+// El botón se convierte en tilde un instante: confirma sin tapar la pantalla con un toast.
+function _cfCopiarCon(btn,txt,msg){
+  _cfCopiar(txt).then(function(ok){
+    if(!ok){ showToast('No pude copiar. Probá de nuevo 😕'); return; }
+    if(btn){
+      btn.classList.add('is-ok');
+      const g=window.gsap;
+      if(g&&!(typeof reduce==='function'&&reduce()))g.fromTo(btn,{scale:.8},{scale:1,duration:.45,ease:'back.out(3.2)',clearProps:'transform'});
+      clearTimeout(btn._cpT); btn._cpT=setTimeout(function(){ btn.classList.remove('is-ok'); },1500);
+    }
+    if(msg)showToast(msg);
+  });
+}
+const _TSSEG={local:'Local',interior:'Interior',servicios:'Servicios',transportadora:'Transportadora'};
+// El plural de camión no lleva tilde: antes se armaba como camión+es y salía "camiónes".
+function _camLbl(n){return (+n===1)?'camión':'camiones';}
+function _tsPrecioTxt(tr){
+  const lp=(typeof lastPriceForTruck==='function')?lastPriceForTruck(tr.id):null;
+  if(lp&&lp.precio)return 'Gs. '+formatMoney(lp.precio)+(tr.tipo==='km'?' /km':'');
+  if(tr.precio)return 'Gs. '+formatMoney(tr.precio)+(tr.tipo==='km'?' /km':'');
+  return 'sin precio';
+}
+// Ficha de un transportista, en texto plano para mandar por chat.
+function _tsTextoFicha(ts){
+  if(!ts)return '';
+  const L=[ts.n+' · '+(ts.trucks||[]).length+' '+_camLbl((ts.trucks||[]).length)];
+  (ts.trucks||[]).forEach(function(tr,i){
+    L.push((i+1)+'. '+tr.d+'  —  '+(_TSSEG[tr.seg||'local'])+' · '+(tr.tipo==='km'?'KM':'FIJO')+'  —  '+_tsPrecioTxt(tr));
+  });
+  return L.join('\n');
+}
+// Todo el padrón separado por tabulaciones: se pega directo en una planilla.
+function _tsTextoTodo(){
+  const L=['Transportista\tCamión\tSegmento\tTipo\tÚltimo precio\tFecha'];
+  (transportistas||[]).forEach(function(ts){
+    (ts.trucks||[]).forEach(function(tr){
+      const lp=(typeof lastPriceForTruck==='function')?lastPriceForTruck(tr.id):null;
+      L.push([ts.n,tr.d,_TSSEG[tr.seg||'local'],tr.tipo==='km'?'KM':'FIJO',
+        (lp&&lp.precio)?formatMoney(lp.precio):'',(lp&&lp.fecha)?isoToDisplay(lp.fecha):''].join('\t'));
+    });
+  });
+  return L.join('\n');
+}
+// Ícono de copiar + tilde. El CSS cambia cuál se ve según .is-ok
+function _cpIco(){
+  return '<svg class="cp-c" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2.2"/><path d="M5.5 15H4.4A1.4 1.4 0 013 13.6V4.4A1.4 1.4 0 014.4 3h9.2A1.4 1.4 0 0115 4.4v1.1"/></svg>'+
+    '<svg class="cp-k" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
+}
+function _tsNorm(t){return String(t==null?'':t).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');}
+// Resalta los términos buscados sin romper el HTML escapado.
+function _tsHl(txt,terms){
+  const e=esc(txt); if(!terms||!terms.length)return e;
+  const n=_tsNorm(txt); const marcas=new Array(txt.length).fill(false);
+  terms.forEach(function(t){ let i=n.indexOf(t); while(i>=0){ for(let k=i;k<i+t.length&&k<marcas.length;k++)marcas[k]=true; i=n.indexOf(t,i+1); } });
+  let out='',abierto=false;
+  for(let i=0;i<txt.length;i++){
+    if(marcas[i]&&!abierto){out+='<mark>';abierto=true;}
+    else if(!marcas[i]&&abierto){out+='</mark>';abierto=false;}
+    out+=esc(txt[i]);
+  }
+  if(abierto)out+='</mark>';
+  return out;
+}
 function populateTrSelect(){ if(document.getElementById('clientesTbody'))renderClientesTable(); }
 // Devuelve el transportista dueño de un camión
 /* ════════ Índices de búsqueda ════════
@@ -2853,7 +2938,7 @@ function openDesgloseModal(){
       '<div class="rb-modal__hd">'+
         '<span class="rb-modal__ic"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V10M10 19V5M16 19v-6M22 19H2"/></svg></span>'+
         '<div><div class="rb-modal__t">Desglose por camión</div>'+
-        '<div class="rb-modal__s">'+n+' camión'+(n===1?'':'es')+' en el reparto</div></div>'+
+        '<div class="rb-modal__s">'+n+' '+_camLbl(n)+' en el reparto</div></div>'+
         '<button type="button" class="rb-modal__x" data-rbx aria-label="Cerrar"><svg fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>'+
       '</div>'+
       '<div class="rb-modal__body"></div>'+
@@ -3198,142 +3283,84 @@ function tsLastUsed(ts){
   return best;
 }
 function renderTsList(){
-  const q=search.trim().toLowerCase();
-  const list=q?transportistas.filter(t=>t.n.toLowerCase().includes(q)):transportistas;
+  const q=_tsNorm(search), terms=q?q.split(/\s+/).filter(Boolean):[];
+  const coincide=(txt)=>{const n=_tsNorm(txt);return terms.every(t=>n.indexOf(t)>=0);};
   document.getElementById('tsCountBadge').textContent=transportistas.length;
   const grid=document.getElementById('tsList');
-  if(!list.length){grid.innerHTML=`<div class="md-empty">${q?'Sin resultados':'Sin transportistas'}</div>`;return;}
-  grid.innerHTML=list.map(t=>{
-    const last=tsLastUsed(t);
-    const trucks=q?(t.trucks||[]).filter(tr=>t.n.toLowerCase().includes(q)||(tr.d||'').toLowerCase().includes(q)):(t.trucks||[]);
-    const cards=trucks.length?trucks.map(tr=>{
-      const p=truckPrices(tr.id);
-      const prow=(cls,lbl,val)=>`<div class="ts-tprow"><span class="ts-tprow__l ${cls}">${lbl}</span><span class="ts-tprow__v">${val}</span></div>`;
-      let priceRows='';
-      if(p.localFijo)priceRows+=prow('ts-l--local','Local · fijo','Gs. '+formatMoney(p.localFijo.precio));
-      if(p.interiorFijo)priceRows+=prow('ts-l--int','Interior · fijo','Gs. '+formatMoney(p.interiorFijo.precio));
-      if(p.interiorKm)priceRows+=prow('ts-l--int','Interior · km','Gs. '+formatMoney(p.interiorKm.precio)+' /km');
-      if(!priceRows)priceRows='<div class="ts-tprow ts-tprow--none">Sin usar</div>';
-      return`<div class="ts-tcard" data-tsid="${t.id}" data-trid="${tr.id}">
-        <div class="ts-tcard__top"><span class="ts-tcard__ico">${getTrIco(tr.d,15)}</span><span class="ts-tcard__name">${esc(tr.d)}</span></div>
-        <div class="ts-tcard__prices">${priceRows}</div>
-      </div>`;
-    }).join(''):`<div class="ts-col__empty">Sin camiones</div>`;
-    return`<div class="ts-col">
-      <div class="ts-col__hd" data-tsid="${t.id}">
-        <span class="ts-col__ico">${getTrIco('',18)}</span>
-        <div class="ts-col__meta"><div class="ts-col__name">${esc(t.n)}</div><div class="ts-col__sub${last?' has':''}">${last?'Último '+isoToDisplay(last):'Sin repartos'}</div></div>
-        <span class="ts-col__chip">${t.trucks.length}</span>
-      </div>
-      <div class="ts-col__body">${cards}</div>
-    </div>`;
-  }).join('');
-  if(tsView==='3d')renderTs3D();
-}
-tsListEl.addEventListener('click',e=>{const item=e.target.closest('[data-tsid]');if(item)selectTs(+item.dataset.tsid);});
-tsSearchEl.addEventListener('input',e=>{search=e.target.value;ts3dIndex=0;renderTsList();});
+  if(!grid)return;
 
-/* ===== Carrusel 3D (coverflow) — única vista ===== */
-let tsView='3d',ts3dIndex=0,ts3dList=[],_ts3dDragged=false,_ts3dDown=false,_ts3dHoverTmr=0;
-function layout3D(animate){
-  const stage=document.getElementById('ts3dStage');if(!stage)return;
-  const cards=[...stage.querySelectorAll('.ts-3d__card')];
-  cards.forEach((el,i)=>{
-    const off=i-ts3dIndex,a=Math.abs(off),sign=off<0?-1:1;
-    let x,rotY,z,scale,opacity,zi,pe;
-    if(off===0){x=0;rotY=0;z=0;scale=1;opacity=1;zi=200;pe='auto';}
-    else{x=sign*(230+(a-1)*54+40);rotY=sign*-44;z=-150-(a-1)*90;scale=Math.max(.6,.84-(a-1)*.055);opacity=a>4?0:1;zi=200-a;pe=a>4?'none':'auto';}
-    el.style.zIndex=zi;el.style.pointerEvents=pe;
-    el.classList.toggle('is-active',off===0);
-    const props={xPercent:-50,yPercent:-50,x,z,rotationY:rotY,scale,opacity,force3D:off!==0};
-    if(animate&&window.gsap)gsap.to(el,{...props,duration:.55,ease:'power3.out'});
-    else if(window.gsap)gsap.set(el,props);
-    else{el.style.opacity=opacity;el.style.transform=`translate(-50%,-50%) translateX(${x}px) translateZ(${z}px) rotateY(${rotY}deg) scale(${scale})`;}
+  // Una transportadora entra si coincide su nombre o alguno de sus camiones.
+  // Si el que coincide es el camión, se muestran sólo los camiones que coinciden.
+  const lista=[];
+  (transportistas||[]).forEach(t=>{
+    const porNombre=!terms.length||coincide(t.n);
+    const cams=(t.trucks||[]).filter(tr=>porNombre||coincide(t.n+' '+(tr.d||'')));
+    if(porNombre||cams.length)lista.push({t:t,cams:porNombre?(t.trucks||[]):cams,parcial:!porNombre});
   });
-}
-function renderTs3DDots(){
-  const d=document.getElementById('ts3dDots');if(!d)return;
-  d.innerHTML=ts3dList.map((_,i)=>`<span class="ts-3d__dot${i===ts3dIndex?' on':''}" data-idx="${i}"></span>`).join('');
-}
-function renderTs3D(intro){
-  const stage=document.getElementById('ts3dStage');if(!stage)return;
-  const q=search.trim().toLowerCase();
-  const list=q?transportistas.filter(t=>t.n.toLowerCase().includes(q)):transportistas;
-  ts3dList=list;
-  document.getElementById('tsCountBadge').textContent=transportistas.length;
-  if(!list.length){stage.innerHTML='<div class="ts-3d__empty">'+(q?'Sin resultados':'Sin transportistas')+'</div>';document.getElementById('ts3dDots').innerHTML='';return;}
-  if(ts3dIndex>list.length-1)ts3dIndex=list.length-1;if(ts3dIndex<0)ts3dIndex=0;
-  stage.innerHTML=list.map((t,i)=>{
-    const last=tsLastUsed(t),trucks=t.trucks||[];
-    const body=trucks.length?trucks.map(tr=>{
-      const p=truckPrices(tr.id);
-      const prow=(cls,lbl,val)=>`<div class="ts-tprow"><span class="ts-tprow__l ${cls}">${lbl}</span><span class="ts-tprow__v">${val}</span></div>`;
-      let pr='';
-      if(p.localFijo)pr+=prow('ts-l--local','Local · fijo','Gs. '+formatMoney(p.localFijo.precio));
-      if(p.interiorFijo)pr+=prow('ts-l--int','Interior · fijo','Gs. '+formatMoney(p.interiorFijo.precio));
-      if(p.interiorKm)pr+=prow('ts-l--int','Interior · km','Gs. '+formatMoney(p.interiorKm.precio)+' /km');
-      if(!pr)pr='<div class="ts-tprow ts-tprow--none">Sin usar</div>';
-      return`<div class="ts-tcard"><div class="ts-tcard__top"><span class="ts-tcard__ico">${getTrIco(tr.d,15)}</span><span class="ts-tcard__name">${esc(tr.d)}</span></div><div class="ts-tcard__prices">${pr}</div></div>`;
-    }).join(''):'<div class="ts-col__empty">Sin camiones</div>';
-    return`<div class="ts-3d__card" data-idx="${i}" data-tsid="${t.id}">
-      <div class="ts-3d__hd"><span class="ts-3d__hdico">${getTrIco('',20)}</span><div class="ts-3d__hdmeta"><div class="ts-3d__hdname">${esc(t.n)}</div><div class="ts-3d__hdsub">${last?'Último '+isoToDisplay(last):'Sin repartos'}</div></div><span class="ts-3d__hdchip">${trucks.length}</span></div>
-      <div class="ts-3d__body">${body}</div>
-      <div class="ts-3d__foot"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5-5 5M6 12h12"/></svg>Ver detalle completo</div>
-    </div>`;
-  }).join('');
-  layout3D(false);
-  renderTs3DDots();
-  if(intro&&window.gsap){
-    gsap.from(stage.children,{opacity:0,duration:.4,stagger:.02,ease:'power2.out'});
-    const active=stage.querySelector('.ts-3d__card.is-active');
-    if(active)gsap.from(active,{scale:.82,duration:.55,ease:'back.out(1.6)'});
+
+  const nEl=document.getElementById('tsBarN');
+  if(nEl)nEl.textContent=terms.length?(lista.length+' de '+transportistas.length):(transportistas.length+' transportista'+(transportistas.length===1?'':'s'));
+  const clr=document.getElementById('tsSearchClr'); if(clr)clr.hidden=!search;
+
+  if(!lista.length){
+    grid.innerHTML='<div class="ts-nores"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>'+
+      '<b>'+(terms.length?'Ninguna coincide con la búsqueda':'Todavía no hay transportistas')+'</b>'+
+      '<span>'+(terms.length?'Probá con otro nombre o con la patente del camión.':'Agregá la primera con el botón de arriba.')+'</span></div>';
+    return;
   }
+
+  grid.innerHTML=lista.map(function(it,idx){
+    const t=it.t, last=tsLastUsed(t), ocultos=(t.trucks||[]).length-it.cams.length;
+    const filas=it.cams.length?it.cams.map(function(tr){
+      const seg=tr.seg||'local';
+      return '<div class="tsc__tr" data-trid="'+tr.id+'">'+
+        '<span class="tsc__trseg s-'+seg+'" title="'+esc(_TSSEG[seg])+'"></span>'+
+        '<span class="tsc__trn">'+_tsHl(tr.d||'—',terms)+'</span>'+
+        '<span class="tsc__trp">'+esc(_tsPrecioTxt(tr))+'</span>'+
+        '<button type="button" class="cp-btn cp-btn--xs" data-cptr="'+tr.id+'" title="Copiar el nombre del camión">'+_cpIco()+'</button>'+
+      '</div>';
+    }).join(''):'<div class="tsc__vacio">Sin camiones cargados</div>';
+    return '<div class="tsc cf-rowin" style="--i:'+Math.min(idx,14)+'">'+
+      '<div class="tsc__hd" data-abrir="'+t.id+'">'+
+        '<span class="tsc__ini">'+esc(initials(t.n))+'</span>'+
+        '<div class="tsc__meta"><div class="tsc__name">'+_tsHl(t.n,terms)+'</div>'+
+          '<div class="tsc__sub">'+(last?('Último reparto '+esc(isoToDisplay(last))):'Sin repartos')+'</div></div>'+
+        '<span class="tsc__n">'+(t.trucks||[]).length+'</span>'+
+      '</div>'+
+      '<div class="tsc__trucks">'+filas+(ocultos>0?('<div class="tsc__mas">+'+ocultos+' '+_camLbl(ocultos)+' más</div>'):'')+'</div>'+
+      '<div class="tsc__ft">'+
+        '<button type="button" class="cp-btn cp-btn--txt" data-cpts="'+t.id+'" title="Copiar la ficha completa"><span class="cp-ico"></span><span class="cp-lbl">Copiar ficha</span></button>'+
+        '<button type="button" class="tsc__open" data-abrir="'+t.id+'">Abrir<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+  // El ícono de copiar se inyecta acá para no repetir el SVG en cada tarjeta del string.
+  grid.querySelectorAll('.cp-ico:empty').forEach(function(e){ e.innerHTML=_cpIco(); });
 }
-function go3D(idx,animate=true){
-  const n=ts3dList.length;if(!n)return;
-  ts3dIndex=Math.max(0,Math.min(n-1,idx));
-  layout3D(animate!==false);renderTs3DDots();
-}
-document.getElementById('ts3dPrev').addEventListener('click',()=>go3D(ts3dIndex-1));
-document.getElementById('ts3dNext').addEventListener('click',()=>go3D(ts3dIndex+1));
-document.getElementById('ts3dDots').addEventListener('click',e=>{const dt=e.target.closest('[data-idx]');if(dt)go3D(+dt.dataset.idx);});
-document.getElementById('ts3dStage').addEventListener('click',e=>{
-  if(_ts3dDragged){_ts3dDragged=false;return;}
-  const card=e.target.closest('.ts-3d__card');if(!card)return;
-  const idx=+card.dataset.idx;
-  if(idx===ts3dIndex)selectTs(+card.dataset.tsid);else go3D(idx);
+tsListEl.addEventListener('click',e=>{
+  // Los botones de copiar van primero: están dentro de la tarjeta que abre el detalle.
+  const cpTr=e.target.closest('[data-cptr]');
+  if(cpTr){ e.stopPropagation();
+    const tr=(transportistas||[]).reduce((a,t)=>a||(t.trucks||[]).find(x=>x.id===+cpTr.dataset.cptr),null);
+    if(tr)_cfCopiarCon(cpTr,tr.d,'Copié el camión'); return; }
+  const cpTs=e.target.closest('[data-cpts]');
+  if(cpTs){ e.stopPropagation();
+    const t=(transportistas||[]).find(x=>x.id===+cpTs.dataset.cpts);
+    if(t)_cfCopiarCon(cpTs,_tsTextoFicha(t),'Copié la ficha de '+t.n); return; }
+  const ab=e.target.closest('[data-abrir]');
+  if(ab)selectTs(+ab.dataset.abrir);
 });
-/* Hover: al mantener el cursor sobre un panel lateral, gira y lo trae al frente */
-document.getElementById('ts3dStage').addEventListener('pointerover',e=>{
-  if(_ts3dDown)return;
-  const card=e.target.closest('.ts-3d__card');if(!card)return;
-  const idx=+card.dataset.idx;if(idx===ts3dIndex)return;
-  clearTimeout(_ts3dHoverTmr);
-  _ts3dHoverTmr=setTimeout(()=>{ if(!_ts3dDown)go3D(idx); },110);
-});
-document.getElementById('ts3dStage').addEventListener('pointerout',e=>{
-  if(!e.relatedTarget||!e.relatedTarget.closest||!e.relatedTarget.closest('.ts-3d__card'))clearTimeout(_ts3dHoverTmr);
-});
-let _ts3dWheelLock=0;
-document.getElementById('ts3d').addEventListener('wheel',e=>{
-  e.preventDefault();const now=Date.now();if(now<_ts3dWheelLock)return;
-  const d=(Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY)>0?1:-1;
-  _ts3dWheelLock=now+360;go3D(ts3dIndex+d);
-},{passive:false});
-(function(){
-  const el=document.getElementById('ts3d');let down=false,sx=0,startIdx=0;
-  el.addEventListener('pointerdown',e=>{if(e.target.closest('.ts-3d__nav')||e.target.closest('.ts-3d__dot'))return;down=true;_ts3dDown=true;_ts3dDragged=false;clearTimeout(_ts3dHoverTmr);sx=e.clientX;startIdx=ts3dIndex;});
-  el.addEventListener('pointermove',e=>{if(!down)return;const dx=e.clientX-sx;if(Math.abs(dx)>8)_ts3dDragged=true;go3D(startIdx+Math.round(-dx/130),false);});
-  const end=()=>{if(!down)return;down=false;_ts3dDown=false;go3D(ts3dIndex,true);};
-  el.addEventListener('pointerup',end);el.addEventListener('pointercancel',end);window.addEventListener('pointerup',end);
-})();
-document.addEventListener('keydown',e=>{
-  if(tsView!=='3d')return;
-  const d3=document.getElementById('ts3d');if(!d3||d3.style.display==='none')return;
-  if(/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName||''))return;
-  if(e.key==='ArrowRight'){e.preventDefault();go3D(ts3dIndex+1);}
-  else if(e.key==='ArrowLeft'){e.preventDefault();go3D(ts3dIndex-1);}
-});
+tsSearchEl.addEventListener('input',e=>{search=e.target.value;renderTsList();});
+const _tsClr=document.getElementById('tsSearchClr');
+if(_tsClr)_tsClr.addEventListener('click',()=>{search='';tsSearchEl.value='';renderTsList();tsSearchEl.focus();});
+const _tsCpAll=document.getElementById('btnTsCopyAll');
+if(_tsCpAll){ _tsCpAll.querySelector('.cp-ico').innerHTML=_cpIco();
+  _tsCpAll.addEventListener('click',()=>{
+    const n=(transportistas||[]).reduce((a,t)=>a+(t.trucks||[]).length,0);
+    _cfCopiarCon(_tsCpAll,_tsTextoTodo(),'Copié '+n+' '+_camLbl(n)+' listos para pegar en una planilla');
+  }); }
+
+/* El carrusel 3D se reemplazó por la grilla de tarjetas (.ts-board). */
 
 function selectTs(tsId){
   selectedTsId=tsId;
@@ -3351,12 +3378,75 @@ function tsBackToGrid(){
 }
 document.getElementById('tsBack').addEventListener('click',tsBackToGrid);
 
+/* ── Copiar y renombrar dentro del detalle ── */
+(function(){
+  const cp=document.getElementById('detailCopy');
+  if(cp){ cp.querySelector('.cp-ico').innerHTML=_cpIco();
+    cp.addEventListener('click',()=>{ const ts=transportistas.find(t=>t.id===selectedTsId);
+      if(ts)_cfCopiarCon(cp,_tsTextoFicha(ts),'Copié la ficha de '+ts.n); }); }
+  const rn=document.getElementById('detailRenameTs');
+  if(rn)rn.addEventListener('click',()=>{ const ts=transportistas.find(t=>t.id===selectedTsId); if(ts)_tsRenombrar(ts); });
+  const body=document.getElementById('detailBody');
+  if(body)body.addEventListener('click',e=>{
+    const c=e.target.closest('[data-cptr2]');
+    if(c){ e.stopPropagation(); const ts=transportistas.find(t=>t.id===selectedTsId);
+      const tr=ts&&(ts.trucks||[]).find(x=>x.id===+c.dataset.cptr2);
+      if(tr)_cfCopiarCon(c,tr.d,'Copié el camión'); return; }
+    const r=e.target.closest('[data-rentr]');
+    if(r){ e.stopPropagation(); const ts=transportistas.find(t=>t.id===selectedTsId);
+      const tr=ts&&(ts.trucks||[]).find(x=>x.id===+r.dataset.rentr);
+      if(tr)_trRenombrar(ts,tr); }
+  });
+})();
+
+/* Renombrar: un modal chico con el valor actual y validación de duplicados. */
+function _tsPedirNombre(titulo,sub,valor,etiqueta,onOk){
+  const m=_cfModalOpen('<div class="cf-mbox cf-mbox--form" style="max-width:460px">'+
+    '<div class="cf-fhead"><div class="cf-fhead__l"><h3>'+esc(titulo)+'</h3><p class="cf-msub">'+esc(sub)+'</p></div></div>'+
+    '<div class="cf-sec"><div class="cf-fld" data-fld><label for="ren_nom">'+esc(etiqueta)+'</label>'+
+      '<input id="ren_nom" autocomplete="off" maxlength="120"><span class="cf-fld__err"></span></div></div>'+
+    '<div class="cf-mfoot"><button class="cancel">Cancelar</button><button class="ok">Guardar</button></div></div>');
+  const inp=m.$('#ren_nom'), fld=inp.closest('[data-fld]');
+  inp.value=valor||'';
+  setTimeout(()=>{inp.focus();inp.select();},80);
+  const guardar=()=>{
+    const v=inp.value.trim();
+    if(!v){_cfSetErr(fld,'Escribí un nombre.');return;}
+    if(v===valor){m.close();return;}
+    const err=onOk(v,m);
+    if(err){_cfSetErr(fld,err);return;}
+  };
+  inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();guardar();}});
+  m.$('.cancel').addEventListener('click',()=>m.close());
+  m.$('button.ok').addEventListener('click',guardar);
+}
+function _tsRenombrar(ts){
+  _tsPedirNombre('Cambiar el nombre','Se actualiza en toda la aplicación.',ts.n,'Nombre del transportista',function(v,m){
+    if((transportistas||[]).some(t=>t.id!==ts.id&&_tsNorm(t.n)===_tsNorm(v)))return 'Ya existe otro transportista con ese nombre.';
+    const antes=ts.n; ts.n=v;
+    renderDetail(); renderTsList(); m.close();
+    dbUpdateTs(ts.id,{nombre:v}).then(()=>showToast('Listo, ahora se llama '+v))
+      .catch(()=>{ ts.n=antes; renderDetail(); renderTsList(); showToast('No pude guardar el nombre nuevo'); });
+    return null;
+  });
+}
+function _trRenombrar(ts,tr){
+  _tsPedirNombre('Cambiar el nombre del camión','Es el texto que aparece en los repartos y en los buscadores.',tr.d,'Descripción del camión',function(v,m){
+    if((ts.trucks||[]).some(x=>x.id!==tr.id&&_tsNorm(x.d)===_tsNorm(v)))return 'Este transportista ya tiene un camión con ese nombre.';
+    const antes=tr.d; tr.d=v;
+    renderDetail(); renderTsList(); m.close();
+    dbUpdateTruck(tr.id,{descripcion:v}).then(()=>showToast('Listo, camión renombrado'))
+      .catch(()=>{ tr.d=antes; renderDetail(); renderTsList(); showToast('No pude guardar el nombre nuevo'); });
+    return null;
+  });
+}
+
 function renderDetail(){
   const ts=transportistas.find(t=>t.id===selectedTsId);
   if(!ts){ tsBackToGrid(); return; }
   document.getElementById('detailBadge').textContent=initials(ts.n);
   document.querySelector('#detailName .md-detail__name-text').textContent=ts.n;
-  document.getElementById('detailChip').textContent=ts.trucks.length+' camión'+(ts.trucks.length!==1?'es':'');
+  document.getElementById('detailChip').textContent=ts.trucks.length+' '+_camLbl(ts.trucks.length);
   renderDetailBody(ts);
 }
 
@@ -3375,7 +3465,11 @@ function renderDetailBody(ts){
         <span class="tr-row__desc"><span class="tr-row__name">${esc(tr.d)}</span><div class="seg-ctrl" data-trid="${tr.id}" data-tsid="${ts.id}">${[['local','Local'],['interior','Interior'],['servicios','Servicios'],['transportadora','Transportadora']].map(s=>`<button type="button" class="seg-ctrl__b seg-${s[0]}${(tr.seg||'local')===s[0]?' on':''}" data-seg="${s[0]}">${s[1]}</button>`).join('')}</div></span>
         <button class="tipo-badge ${tr.tipo==='fijo'?'is-fijo':'is-km'}" type="button" data-toggle-tipo data-trid="${tr.id}" data-tsid="${ts.id}" title="Cambiar tipo">${tr.tipo==='fijo'?'FIJO':'KM'}</button>
         <span class="tr-row__price">${lp.precio?`<span class="tr-lp-val">Gs. ${formatMoney(lp.precio)}</span>${lp.fecha?`<span class="tr-lp-date">${isoToDisplay(lp.fecha)}</span>`:''}`:'<span class="tr-lp-none">Sin usar</span>'}</span>
-        <button class="del-btn" type="button" data-deltr="${tr.id}" data-tsid="${ts.id}"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg></button>
+        <span class="tr-row__acts">
+          <button class="cp-btn cp-btn--xs" type="button" data-cptr2="${tr.id}" title="Copiar el nombre del camión">${_cpIco()}</button>
+          <button class="cp-btn cp-btn--xs" type="button" data-rentr="${tr.id}" title="Cambiar el nombre del camión"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+          <button class="del-btn" type="button" data-deltr="${tr.id}" data-tsid="${ts.id}"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg></button>
+        </span>
       </div>`;
     }).join('')}
   </div>`;
@@ -3443,7 +3537,7 @@ document.getElementById('detailBody').addEventListener('click',e=>{
   dbDeleteTruck(trId).catch(()=>showToast('Error al eliminar camión'));
   ts.trucks=ts.trucks.filter(t=>t.id!==trId);
   renderTsList();renderDetailBody(ts);
-  document.getElementById('detailChip').textContent=ts.trucks.length+' camión'+(ts.trucks.length!==1?'es':'');
+  document.getElementById('detailChip').textContent=ts.trucks.length+' '+_camLbl(ts.trucks.length);
   populateTrSelect(tsId);
 });
 
@@ -3483,7 +3577,7 @@ function _tsExportExcel(){
     items.sort((a,b)=>(a.t||'').localeCompare(b.t||'','es')||((a.tr.d||'').localeCompare(b.tr.d||'','es')));
     count+=items.length;
     // banda de título del segmento
-    body+='<tr><td colspan="'+NCOL+'" style="background:'+sg.c+';color:#fff;font-weight:bold;font-size:12pt;padding:10px 12px;border:1px solid rgba(0,0,0,.15)">'+sg.n+'  ·  '+items.length+' camión'+(items.length===1?'':'es')+'</td></tr>';
+    body+='<tr><td colspan="'+NCOL+'" style="background:'+sg.c+';color:#fff;font-weight:bold;font-size:12pt;padding:10px 12px;border:1px solid rgba(0,0,0,.15)">'+sg.n+'  ·  '+items.length+' '+_camLbl(items.length)+'</td></tr>';
     // encabezado de columnas del bloque
     body+='<tr>'
       +'<th style="'+th(sg.c)+'">Transportadora</th>'
@@ -3587,7 +3681,7 @@ document.getElementById('mTrConfirm').addEventListener('click',async()=>{
     _mbHide(modalTr);renderTsList();
     if(selectedTsId===pendingTsId){
       renderDetailBody(ts);
-      document.getElementById('detailChip').textContent=ts.trucks.length+' camión'+(ts.trucks.length!==1?'es':'');
+      document.getElementById('detailChip').textContent=ts.trucks.length+' '+_camLbl(ts.trucks.length);
     }
     populateTsSelect();
     showToast('¡Listo! Sumé el camión 🚚');
@@ -6449,6 +6543,69 @@ function showSaveAnim(text){
   .cf-live.neutral{background:var(--gray-100,#f1f5f9);color:var(--gray-500,#64748b)}
   .cf-mfoot .ok:disabled{opacity:.5;cursor:not-allowed}
   .cf-mfoot .ok.danger{background:var(--danger,#EF4444)}
+  /* ════════ Transportistas ════════ */
+  /* Botón de copiar: el ícono cambia a un tilde por un momento al copiar. */
+  .cp-btn{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px solid var(--gray-200,#e2e8f0);background:#fff;color:var(--gray-500,#64748b);border-radius:9px;cursor:pointer;padding:0;font:inherit;transition:color .16s,border-color .16s,background .16s,transform .16s,box-shadow .16s}
+  .cp-btn svg{width:15px;height:15px;flex-shrink:0}
+  .cp-btn .cp-k{display:none}
+  .cp-btn:hover{color:var(--primary,#0B5F8D);border-color:var(--accent,#3B82F6);background:#f2f8fd;transform:translateY(-1px);box-shadow:0 4px 12px rgba(11,95,141,.12)}
+  .cp-btn:active{transform:translateY(0)}
+  .cp-btn.is-ok{color:#15803d;border-color:#86efac;background:#f0fdf4}
+  .cp-btn.is-ok .cp-c{display:none}
+  .cp-btn.is-ok .cp-k{display:block}
+  .cp-btn.is-ok .cp-lbl{color:#15803d}
+  .cp-btn--xs{width:30px;height:30px;border-radius:8px;flex-shrink:0}
+  .cp-btn--xs svg{width:14px;height:14px}
+  .cp-btn--txt{padding:0 13px;height:34px;font-size:12.5px;font-weight:800;color:var(--gray-600,#475569)}
+  .cp-ico{display:inline-flex;align-items:center}
+  .cp-btn--txt .cp-lbl{line-height:1}
+  .ts-topbar .cp-btn--txt{height:auto;align-self:stretch;padding:0 16px}
+  /* Barra de búsqueda */
+  .ts-bar{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+  .ts-bar__srch{position:relative;flex:1 1 auto;max-width:460px}
+  .ts-bar__srch>svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--gray-400,#94a3b8);pointer-events:none}
+  .ts-bar__srch input{width:100%;height:42px;border:1.5px solid var(--gray-200,#e2e8f0);border-radius:12px;padding:0 36px 0 38px;font:inherit;font-size:13.5px;font-weight:600;color:var(--gray-800,#1e293b);background:#fff;outline:none;transition:border-color .15s,box-shadow .15s}
+  .ts-bar__srch input:focus{border-color:var(--accent,#3B82F6);box-shadow:0 0 0 4px rgba(37,120,184,.12)}
+  .ts-bar__clr{position:absolute;right:9px;top:50%;transform:translateY(-50%);width:21px;height:21px;border:none;border-radius:50%;background:var(--gray-200,#e2e8f0);color:var(--gray-500,#64748b);display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;transition:background .15s,color .15s}
+  .ts-bar__clr svg{width:11px;height:11px}
+  .ts-bar__clr:hover{background:#ef4444;color:#fff}
+  .ts-bar__clr[hidden]{display:none}
+  .ts-bar__n{font-size:12px;font-weight:800;color:var(--gray-400,#94a3b8);white-space:nowrap}
+  /* Grilla de tarjetas */
+  /* Pisa la regla vieja del carrusel: era flex horizontal con overflow-y:hidden,
+     que recortaba las tarjetas y encimaba el pie. */
+  .ts-board{display:flex;flex-wrap:wrap;align-items:flex-start;align-content:flex-start;gap:14px;flex:1;min-height:0;overflow-x:hidden;overflow-y:auto;padding:2px 4px 20px;scroll-snap-type:none}
+  .tsc{flex:1 1 330px;max-width:560px;display:flex;flex-direction:column;background:#fff;border:1px solid var(--gray-200,#e2e8f0);border-radius:16px;overflow:hidden;box-shadow:0 1px 2px rgba(19,36,55,.06);transition:transform .18s,box-shadow .18s,border-color .18s}
+  .tsc:hover{transform:translateY(-2px);border-color:#cfe4fb;box-shadow:0 12px 28px rgba(19,36,55,.1)}
+  .tsc__hd{display:flex;align-items:center;gap:11px;padding:13px 15px;cursor:pointer;border-bottom:1px solid var(--gray-100,#f1f5f9)}
+  .tsc__ini{flex-shrink:0;width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,#0A4578,#1472BE);color:#fff;display:flex;align-items:center;justify-content:center;font-family:Sora,Inter,sans-serif;font-size:13px;font-weight:800;letter-spacing:.4px}
+  .tsc__meta{flex:1;min-width:0}
+  .tsc__name{font-family:Sora,Inter,sans-serif;font-size:14.5px;font-weight:800;color:var(--gray-800,#1e293b);line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .tsc__sub{font-size:11px;font-weight:600;color:var(--gray-400,#94a3b8);margin-top:2px}
+  .tsc__n{flex-shrink:0;min-width:26px;height:24px;padding:0 8px;border-radius:999px;background:var(--gray-100,#f1f5f9);color:var(--gray-600,#475569);font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center}
+  /* flex:1 deja basis en 0 y la tarjeta no aporta su alto real a la fila de la grilla:
+     todas quedaban del mismo alto y el pie se encimaba con el último camión. */
+  .tsc__trucks{flex:1 1 auto;padding:6px 8px 8px}
+  .tsc__tr{display:flex;align-items:center;gap:9px;padding:7px 7px;border-radius:9px;transition:background .14s}
+  .tsc__tr:hover{background:var(--gray-50,#f8fafc)}
+  .tsc__trseg{flex-shrink:0;width:7px;height:7px;border-radius:50%;background:var(--gray-300,#cbd5e1)}
+  .tsc__trseg.s-local{background:#0B5F8D} .tsc__trseg.s-interior{background:#F97316}
+  .tsc__trseg.s-servicios{background:#10B981} .tsc__trseg.s-transportadora{background:#7c3aed}
+  .tsc__trn{flex:1;min-width:0;font-size:12.5px;font-weight:700;color:var(--gray-700,#334155);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .tsc__trp{font-size:11.5px;font-weight:800;color:var(--gray-400,#94a3b8);white-space:nowrap;font-variant-numeric:tabular-nums}
+  .tsc__tr mark,.tsc__name mark{background:#fde68a;color:inherit;border-radius:2px;padding:0 1px}
+  .tsc__vacio,.tsc__mas{padding:9px 8px;font-size:11.5px;font-weight:700;color:var(--gray-400,#94a3b8)}
+  .tsc__ft{display:flex;align-items:center;gap:8px;padding:10px 12px;border-top:1px solid var(--gray-100,#f1f5f9);background:var(--gray-50,#f8fafc)}
+  .tsc__ft .cp-btn--txt{flex:1;height:32px}
+  .tsc__open{display:inline-flex;align-items:center;gap:5px;height:32px;padding:0 13px;border:none;border-radius:9px;background:linear-gradient(180deg,#1a7cb0,#0B5F8D);color:#fff;font:inherit;font-size:12.5px;font-weight:800;cursor:pointer;transition:transform .16s,box-shadow .16s}
+  .tsc__open svg{width:13px;height:13px}
+  .tsc__open:hover{transform:translateY(-1px);box-shadow:0 5px 14px rgba(11,95,141,.3)}
+  .ts-nores{flex:1 1 100%;display:flex;flex-direction:column;align-items:center;padding:52px 20px;text-align:center}
+  .ts-nores svg{width:40px;height:40px;color:var(--gray-300,#cbd5e1);margin-bottom:12px}
+  .ts-nores b{font-size:15px;color:var(--gray-700,#334155);margin-bottom:4px}
+  .ts-nores span{font-size:12.5px;font-weight:600;color:var(--gray-400,#94a3b8)}
+  /* Acciones por fila en el detalle */
+  .tr-row__acts{display:inline-flex;align-items:center;gap:6px;justify-content:flex-end}
   /* ─── Vista Facturas ─── */
   .cf-card--flush{padding:0;overflow:hidden}
   .cf-table--hover tbody tr{transition:background .12s}
@@ -7454,7 +7611,7 @@ function _facDetailHtml(f){
   const monto=+f.monto||0,diff=monto-flTot;
   const dCls=Math.round(diff)===0?'ok':(diff>0?'over':'under');
   const rowsH=lines.length?lines.map((l,i)=>{const cl=l.cl,seg=cl.seg||'local';
-    const cam=(seg==='transportadora')?((+cl.cant||0)+' camión'+((+cl.cant||0)===1?'':'es')):_escp(cl.trDesc||'—');
+    const cam=(seg==='transportadora')?((+cl.cant||0)+' '+_camLbl((+cl.cant||0))):_escp(cl.trDesc||'—');
     const rz=[cl.rep,cl.zona].filter(Boolean).map(_escp).join(' · ')||'—';
     return '<tr><td class="c">'+(i+1)+'</td><td>'+_dmy(l.fecha)+'</td><td class="facd-cam">'+cam+'</td><td><span class="facd-seg facd-seg--'+seg+'">'+(SN[seg]||seg)+'</span></td><td class="facd-rz">'+rz+'</td><td class="r facd-fl">'+_gs(_cfFleteVal(cl))+'</td></tr>';
   }).join(''):'<tr><td colspan="6" class="facd-empty">No hay líneas vinculadas a esta factura todavía.</td></tr>';
@@ -8382,7 +8539,7 @@ function renderReporteRepartos(){
 
   // Desglose
   function bdHTML(g){
-    const rows=g.lines.map((cl)=>{const seg=cl.seg||'local';const cam=(seg==='transportadora')?((+cl.cant||0)+' camión'+((+cl.cant||0)===1?'':'es')):_escp(cl.trDesc||'—');const zona=_escp(cl.zona||'—');const f=String(cl._fecha||'');const fe=f.length>=10?(f.slice(8,10)+'/'+f.slice(5,7)+'/'+f.slice(0,4)):'—';
+    const rows=g.lines.map((cl)=>{const seg=cl.seg||'local';const cam=(seg==='transportadora')?((+cl.cant||0)+' '+_camLbl((+cl.cant||0))):_escp(cl.trDesc||'—');const zona=_escp(cl.zona||'—');const f=String(cl._fecha||'');const fe=f.length>=10?(f.slice(8,10)+'/'+f.slice(5,7)+'/'+f.slice(0,4)):'—';
       return '<tr><td class="b-fecha">'+fe+'</td><td class="b-cam" title="'+_escp(cl.trDesc||'')+'">'+cam+'</td><td class="b-rz" title="'+zona+'">'+zona+'</td><td class="r">'+_gs(_cfFleteVal(cl))+'</td></tr>';}).join('');
     return '<div class="ci-exp-in"><div class="ci-exp-bar"><span>'+g.lines.length+' línea'+(g.lines.length===1?'':'s')+' · <b>'+_gs(g.flete)+'</b> de flete</span><button class="ci-ver" type="button" data-rrver>'+IC.list+' Ver resumen</button></div>'+
       '<div class="ci-btbl-wrap"><table class="ci-btbl"><thead><tr><th class="col-fecha">Fecha</th><th class="col-cam">Camión</th><th class="col-zona">Zona</th><th class="r">Monto</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
@@ -8413,7 +8570,7 @@ function renderReporteRepartos(){
     if(window.gsap)gsap.to(t,{opacity:0,duration:.12,ease:'power2.in',onComplete:()=>t.remove()});else t.remove();}
   function showTip(id,rect){const x=window.__rrEvMap[id];if(!x)return;killTips();tipEl=document.createElement('div');tipEl.className='ci-tip';
     tipEl.innerHTML='<div class="ci-tip__h"><div class="t">'+_escp(x.ts)+'</div><div class="s">'+_dispD(x.iso)+'</div></div>'+
-      '<div class="ci-tip__b"><div class="ci-tip__row">'+IC.truck+'<span><b>'+x.cam+'</b> camión'+(x.cam===1?'':'es')+'</span></div>'+
+      '<div class="ci-tip__b"><div class="ci-tip__row">'+IC.truck+'<span><b>'+x.cam+'</b> '+_camLbl(x.cam)+'</span></div>'+
       '<div class="ci-tip__row">'+IC.money+'<span>Flete: <b>'+_gs(x.flete)+'</b></span></div>'+
       '<span class="ci-tip__st st-'+x.st+'">'+(x.st==='realizado'?IC.chk+'Facturado':IC.cal+'Pendiente')+'</span></div>';
     document.body.appendChild(tipEl);const W=250,left=Math.max(8,Math.min(rect.left+rect.width/2-W/2,window.innerWidth-W-8));const below=rect.top<240;tipEl.style.left=left+'px';if(below)tipEl.style.top=(rect.bottom+8)+'px';else tipEl.style.bottom=(window.innerHeight-rect.top+8)+'px';
@@ -8598,7 +8755,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     let meta;
     if(isTr){meta=chip(IC.cal,fday)+'<span class="rrv-chip">Total transportadora</span>';}
     else{meta=chip(IC.cal,fday)+chip(IC.user,w.rep||'Tercerizado')+chip(IC.pin,w.zona)+(+w.peso>0?chip(IC.peso,_nnum(+w.peso)+' kg'):'')+(kmStr?chip(IC.road,kmStr):'')+((w.seg==='servicios'&&w.obs)?chip(IC.obs,w.obs):'');}
-    const trLbl=isTr?((+w.cant||0)+' camión'+((+w.cant||0)===1?'':'es')):(w.trId?(((trucks.find(t=>t.id===w.trId)||{}).d)||w.trDesc||'—'):'—');
+    const trLbl=isTr?((+w.cant||0)+' '+_camLbl((+w.cant||0))):(w.trId?(((trucks.find(t=>t.id===w.trId)||{}).d)||w.trDesc||'—'):'—');
     return '<div class="rrv-row'+(isTr?'':' rrv-drag')+'"'+(isTr?'':' draggable="true"')+' data-edituid="'+w.uid+'"><span class="rrv-i">'+(idx+1)+'</span><span class="rrv-tk">'+TRUCKICON+'</span><div class="rrv-nm"><div class="rrv-name" title="'+_escp(trLbl)+'">'+_escp(trLbl)+'</div><div class="rrv-meta">'+meta+'</div></div><div class="rrv-flete">'+_gs(fl)+'</div><button type="button" class="rrv-del" data-deluid="'+w.uid+'" title="Quitar camión" aria-label="Quitar camión"><svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M10 11v6M14 11v6"/></svg></button></div>';}
   // Tarjeta-formulario (solo para la línea en edición)
   function formHTML(w,idx){const isInt=w.seg==='interior';const isTr=w.seg==='transportadora';const trLbl=w.trId?(((trucks.find(t=>t.id===w.trId)||{}).d)||w.trDesc||'—'):'';
@@ -8698,7 +8855,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
   function _openSegModal(segs,isAdd){
     const SEGICON={local:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 15.4V7.6a1 1 0 0 1 1-1h8.1a1 1 0 0 1 1 1v7.8"/><path d="M12.6 9.6h3.3a2 2 0 0 1 1.5.68l2.1 2.4a2 2 0 0 1 .5 1.32v1.4"/><path d="M2.5 15.4h1.5M8.7 15.4h4.6M18.4 15.4h2.1"/><circle cx="6.4" cy="16.1" r="1.95"/><circle cx="16.2" cy="16.1" r="1.95"/></svg>',interior:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.55" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="5" width="12.5" height="10" rx="1"/><path d="M14 8.2h3.7a2 2 0 0 1 1.55.75l2.05 2.55a2 2 0 0 1 .45 1.25V15H14z"/><path d="M4.2 17.4h1M8.6 17.4h7.1M19.7 17.4h1"/><circle cx="6.3" cy="17.4" r="2"/><circle cx="18" cy="17.4" r="2"/><path d="M4.4 8.4h7M4.4 11.6h7"/></svg>',servicios:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14.9 6.1a3.9 3.9 0 0 0-5 5l-5.85 5.85a2.05 2.05 0 1 0 2.9 2.9L11.8 14a3.9 3.9 0 0 0 5-5l-2.55 2.55-2.3-.6-.6-2.3z"/></svg>',transportadora:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.55" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 15.3V6.9a1 1 0 0 1 1-1h9.3a1 1 0 0 1 1 1v8.4"/><path d="M12.8 9.4h3.5a2 2 0 0 1 1.52.7l2.28 2.7a2 2 0 0 1 .42 1.24v1.26"/><path d="M1.5 15.3h1.1M8 15.3h5.6M19.2 15.3h1.8"/><circle cx="5.4" cy="16.1" r="1.9"/><circle cx="16.6" cy="16.1" r="1.9"/></svg>'};
     const ov=document.createElement('div');ov.className='segmodal-ov';
-    ov.innerHTML='<div class="segmodal"><button class="segmodal-x" aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button><div class="segmodal-hd"><h3>Elegir segmento</h3><p>'+(isAdd?'¿Dónde querés añadir?':'¿Qué segmento editás?')+'</p></div><div class="segmodal-grid">'+segs.map(sk=>{const n=work.filter(w=>!w.del&&w.seg===sk).reduce((a,w)=>a+camCount(w),0);return '<button class="segmodal-card" data-seg="'+sk+'"><span class="segmodal-ic">'+SEGICON[sk]+'</span><span class="segmodal-nm">'+SEGN[sk]+'</span><span class="segmodal-cnt">'+n+' camión'+(n===1?'':'es')+'</span></button>';}).join('')+'</div></div>';
+    ov.innerHTML='<div class="segmodal"><button class="segmodal-x" aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button><div class="segmodal-hd"><h3>Elegir segmento</h3><p>'+(isAdd?'¿Dónde querés añadir?':'¿Qué segmento editás?')+'</p></div><div class="segmodal-grid">'+segs.map(sk=>{const n=work.filter(w=>!w.del&&w.seg===sk).reduce((a,w)=>a+camCount(w),0);return '<button class="segmodal-card" data-seg="'+sk+'"><span class="segmodal-ic">'+SEGICON[sk]+'</span><span class="segmodal-nm">'+SEGN[sk]+'</span><span class="segmodal-cnt">'+n+' '+_camLbl(n)+'</span></button>';}).join('')+'</div></div>';
     document.body.appendChild(ov);
     const gs=window.gsap;
     const close=cb=>{const done=()=>{ov.remove();if(typeof cb==='function')cb();};if(gs&&!reduce()){const box=ov.querySelector('.segmodal');gs.killTweensOf([ov,box]);gs.to(box,{scale:.965,y:10,opacity:0,duration:.26,ease:'power2.in'});gs.to(ov,{opacity:0,duration:.3,ease:'power2.in',onComplete:done});}else done();};
@@ -8718,7 +8875,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     }
   }
   // Aplica una línea del draft a un work item según el segmento destino (tseg)
-  function _applyLineToWork(w,d,tseg){const isTr=tseg==='transportadora',isInt=tseg==='interior',isServ=tseg==='servicios';w.seg=tseg;if(isTr){w.cant=+d.cant||1;w.precio=+d.precio||0;w.trId=null;w.trDesc=((+d.cant||1)+' camión'+((+d.cant||1)===1?'':'es'));w.rep=null;w.zona=null;w.km=0;w.precioKm=0;w.fijo=false;w.obs=null;w.fecha=d.fecha;return;}const km2=isInt&&_dfKm(d);w.trId=d.trId;w.trDesc=d.trDesc;w.tsId=d.tsId||w.tsId;w.tsNombre=d.tsNombre||w.tsNombre;w.rep=(d.rep||'').trim();w.zona=isServ?'':(d.zona||'').trim();w.fecha=d.fecha;w.obs=isServ?((d.obs||d.zona||'').trim()):'';w.fijo=isInt?!km2:false;w.cant=1;if(km2){w.km=d.km;w.precioKm=d.precioKm;w.precio=Math.round(d.km*d.precioKm);}else{w.km=0;w.precioKm=0;w.precio=(+d.precio||0)||Math.round((+d.km||0)*(+d.precioKm||0));}}
+  function _applyLineToWork(w,d,tseg){const isTr=tseg==='transportadora',isInt=tseg==='interior',isServ=tseg==='servicios';w.seg=tseg;if(isTr){w.cant=+d.cant||1;w.precio=+d.precio||0;w.trId=null;w.trDesc=((+d.cant||1)+' '+_camLbl((+d.cant||1)));w.rep=null;w.zona=null;w.km=0;w.precioKm=0;w.fijo=false;w.obs=null;w.fecha=d.fecha;return;}const km2=isInt&&_dfKm(d);w.trId=d.trId;w.trDesc=d.trDesc;w.tsId=d.tsId||w.tsId;w.tsNombre=d.tsNombre||w.tsNombre;w.rep=(d.rep||'').trim();w.zona=isServ?'':(d.zona||'').trim();w.fecha=d.fecha;w.obs=isServ?((d.obs||d.zona||'').trim()):'';w.fijo=isInt?!km2:false;w.cant=1;if(km2){w.km=d.km;w.precioKm=d.precioKm;w.precio=Math.round(d.km*d.precioKm);}else{w.km=0;w.precioKm=0;w.precio=(+d.precio||0)||Math.round((+d.km||0)*(+d.precioKm||0));}}
   async function _dashSaveEdit(){const sk=_dashSeg;const alive=(_dashDraft||[]).filter(d=>!d.del);const tseg=d=>d.seg||sk;
     for(const d of alive){const ts=tseg(d);if(ts==='transportadora'){if(!(+d.cant>0)){showToast('Cargá la cantidad de camiones 👀');return;}}else if(!d.trId){showToast('Elegí el camión en todas las filas 👀');return;}if(!(_dfFlete(d)>0)){showToast('Cargá el flete en todas las filas 👀');return;}}
     const sbtn=bd.querySelector('[data-dashsave]');if(sbtn){sbtn.disabled=true;sbtn.classList.add('is-loading');sbtn.innerHTML='<span class="rrd-spin"></span>Guardando…';}
@@ -8786,7 +8943,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     const _facRowCls=w=>(_facMode&&!_facSel.has(w.uid))?' class="rrd-row-out"':'';
     if(_dashSeg==='todos'){
       const allItems=[];SEGL.forEach(s=>{_dashSort(work.filter(w=>!w.del&&w.seg===s&&(!_camFilter||camLbl(w)===_camFilter)),s).forEach(w=>allItems.push(w));});
-      const rows=allItems.map(w=>{const isTr=w.seg==='transportadora';const cam=isTr?((+w.cant||0)+' camión'+((+w.cant||0)===1?'':'es')):camLbl(w);const zn=isTr?'—':(w.zona||(w.seg==='servicios'&&w.obs)||'—');const km=(w.seg==='interior'&&+w.km>0)?(_kmFmt(+w.km)+' km × '+_gs(+w.precioKm||0)):'<span class="rrd-mut">—</span>';return '<tr'+_facRowCls(w)+(_facMode?' data-facrow="'+w.uid+'" style="cursor:pointer"':'')+'>'+dfec(w)+'<td class="rrd-cam"><span class="rrd-cam__ic">'+TRUCKICON+'</span><span class="rrd-cam__t">'+_escp(cam)+'</span></td><td><span class="rrd-segtag rrd-segtag--'+w.seg+'">'+SEGN[w.seg]+'</span></td><td>'+(isTr?'<span class="rrd-mut">—</span>':_escp(w.rep||'Tercerizado'))+'</td><td class="rrd-grow">'+(zn&&zn!=='—'?dchip(zn):'<span class="rrd-mut">—</span>')+'</td><td class="r rrd-det">'+km+'</td><td class="r rrd-flete">'+_gs(+w.precio||0)+'</td>'+_facActs(w)+'</tr>';}).join('')||'<tr><td colspan="8" class="rrd-empty">Sin líneas</td></tr>';
+      const rows=allItems.map(w=>{const isTr=w.seg==='transportadora';const cam=isTr?((+w.cant||0)+' '+_camLbl((+w.cant||0))):camLbl(w);const zn=isTr?'—':(w.zona||(w.seg==='servicios'&&w.obs)||'—');const km=(w.seg==='interior'&&+w.km>0)?(_kmFmt(+w.km)+' km × '+_gs(+w.precioKm||0)):'<span class="rrd-mut">—</span>';return '<tr'+_facRowCls(w)+(_facMode?' data-facrow="'+w.uid+'" style="cursor:pointer"':'')+'>'+dfec(w)+'<td class="rrd-cam"><span class="rrd-cam__ic">'+TRUCKICON+'</span><span class="rrd-cam__t">'+_escp(cam)+'</span></td><td><span class="rrd-segtag rrd-segtag--'+w.seg+'">'+SEGN[w.seg]+'</span></td><td>'+(isTr?'<span class="rrd-mut">—</span>':_escp(w.rep||'Tercerizado'))+'</td><td class="rrd-grow">'+(zn&&zn!=='—'?dchip(zn):'<span class="rrd-mut">—</span>')+'</td><td class="r rrd-det">'+km+'</td><td class="r rrd-flete">'+_gs(+w.precio||0)+'</td>'+_facActs(w)+'</tr>';}).join('')||'<tr><td colspan="8" class="rrd-empty">Sin líneas</td></tr>';
       const table='<div class="rrd-tablecard">'+'<div class="rrd-tablehd"><div class="rrd-tablehd__t"><span class="rrd-tablehd__dot" style="background:linear-gradient(135deg,#2578b8,#0B5F8D)"></span>Todos los pedidos</div>'+(_facMode?'':'<div class="rrd-cardseg">'+dashTabs()+'</div>')+((!_facMode&&!_facDeGrupo(g))?'<div class="rrd-tablehd__acts"><button class="rrd-hdbtn" data-todosadd="1"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg> Añadir</button>'+(work.some(w=>!w.del&&!w.isNew)?'<button class="rrd-hdbtn rrd-hdbtn--edit" data-todosedit="1"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4z"/></svg> Editar</button>':'')+'</div>':'')+'</div><div class="rrd-tablewrap"><table class="rrd-tbl"><thead><tr><th>Fecha</th><th>Camión</th><th>Segmento</th><th>Repartidor</th><th class="rrd-grow">Zona</th><th class="r">Km · Precio/km</th><th class="r">Flete</th><th class="rrd-facth r">'+(_facMode?'¿Entra?':'Factura')+'</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
       const nCam=allItems.reduce((a,w)=>a+camCount(w),0),sub=allItems.reduce((a,w)=>a+(+w.precio||0),0);
       return '<div class="rrd-dash">'+table+'</div>';
@@ -8822,7 +8979,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
       // salvo que la planilla ya esté facturada (bloqueada).
       const acts=w=>facReadReg?'':'<td class="rrd-facc rrd-facc--slim"><button class="rrd-facdel" data-dashdel="'+w.uid+'" data-tip="Eliminar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M10 11v6M14 11v6"/></svg></button></td>';
       const rowCls=w=>'';
-      if(isTr)rowsHtml=items.map(w=>'<tr'+rowCls(w)+' data-dashrow="'+w.uid+'">'+dfec(w)+'<td class="rrd-cam rrd-grow"><span class="rrd-cam__ic">'+TRUCKICON+'</span><span class="rrd-cam__t">'+((+w.cant||0)+' camión'+((+w.cant||0)===1?'':'es'))+'</span></td><td class="r">'+(+w.cant||0)+'</td><td class="r rrd-flete">'+_gs(+w.precio||0)+'</td>'+acts(w)+'</tr>').join('');
+      if(isTr)rowsHtml=items.map(w=>'<tr'+rowCls(w)+' data-dashrow="'+w.uid+'">'+dfec(w)+'<td class="rrd-cam rrd-grow"><span class="rrd-cam__ic">'+TRUCKICON+'</span><span class="rrd-cam__t">'+((+w.cant||0)+' '+_camLbl((+w.cant||0)))+'</span></td><td class="r">'+(+w.cant||0)+'</td><td class="r rrd-flete">'+_gs(+w.precio||0)+'</td>'+acts(w)+'</tr>').join('');
       else rowsHtml=items.map(w=>{const km=(isInt&&+w.km>0)?(_kmFmt(+w.km)+' km × '+_gs(+w.precioKm||0)):'—';return '<tr'+rowCls(w)+' data-dashrow="'+w.uid+'">'+dfec(w)+'<td class="rrd-cam"><span class="rrd-cam__ic">'+TRUCKICON+'</span><span class="rrd-cam__t">'+_escp(camLbl(w))+'</span></td><td>'+_escp(w.rep||'Tercerizado')+'</td><td class="rrd-grow">'+(w.zona?dchip(w.zona):(isServ&&w.obs?dchip(w.obs):'<span class="rrd-mut">—</span>'))+'</td>'+(isInt?'<td class="r rrd-det">'+km+'</td>':'')+'<td class="r rrd-flete">'+_gs(+w.precio||0)+'</td>'+acts(w)+'</tr>';}).join('');
       if(!rowsHtml)rowsHtml='<tr><td colspan="9" class="rrd-empty">Sin líneas</td></tr>';
     }
@@ -8838,7 +8995,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     const resumen=_dashResumen(SEGN[sk],src.length,nCam,sub);
     return '<div class="rrd-dash">'+table+'</div>';
   }
-  function boardBody(){const activeSegs=SEGL.filter(segVisible);if(!activeSegs.length)return '<div class="rre-board"><div class="rre-board-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 3h13v13H1zm13 5h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg><b>'+(_camFilter?'Ese camión no está en la planilla':'Todavía no hay servicios cargados')+'</b><span>'+(_camFilter?'Probá con «Ver todos».':'Usá «+ Servicio de reparto» para empezar.')+'</span></div></div>';const cols=activeSegs.map(function(sk){const items=work.filter(w=>!w.del&&w.seg===sk&&(!_camFilter||w.isNew||w.edit||camLbl(w)===_camFilter)).slice().sort((a,b)=>{if(a.isNew!==b.isNew)return a.isNew?-1:1;const fa=a.fecha||'',fb=b.fecha||'';if(sk==='interior'){const pa=+a.precioKm||0,pb=+b.precioKm||0;if(pa!==pb)return pa-pb;return fa<fb?-1:(fa>fb?1:0);}const ca=camLbl(a)||'',cb=camLbl(b)||'';if(ca!==cb)return ca.localeCompare(cb,'es');return fa<fb?-1:(fa>fb?1:0);});let sF=0;items.forEach(w=>sF+=(+w.precio||0));const nCam=items.reduce((s,w)=>s+camCount(w),0);const inner=items.map(function(w,idx){return (w.edit||w.isNew)?formHTML(w,idx):rowHTML(w,idx);}).join('')||'<div class="rre-col-empty">Sin camiones</div>';return '<div class="rre-col rre-col--'+sk+'" data-seg="'+sk+'"><div class="rre-col-hd"><span class="rre-col-dot"></span>'+SEGN[sk]+'<span class="rre-col-n">'+nCam+'</span><div class="rre-col-hdacts">'+((sk!=='transportadora'&&items.some(w=>!w.isNew))?'<button class="rre-vedit" data-editseg="'+sk+'" type="button"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4z"/></svg> Editar</button>':'')+'<button class="rre-vadd" data-seg="'+sk+'" type="button"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg> Añadir</button></div></div><div class="rre-col-body">'+inner+'</div>'+(items.length?'<div class="rre-col-foot"><span class="rre-foot-n">'+nCam+' camión'+(nCam===1?'':'es')+'</span><span class="rre-foot-sub">Subtotal flete <b>'+_gs(sF)+'</b></span></div>':'')+'</div>';}).join('');
+  function boardBody(){const activeSegs=SEGL.filter(segVisible);if(!activeSegs.length)return '<div class="rre-board"><div class="rre-board-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 3h13v13H1zm13 5h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg><b>'+(_camFilter?'Ese camión no está en la planilla':'Todavía no hay servicios cargados')+'</b><span>'+(_camFilter?'Probá con «Ver todos».':'Usá «+ Servicio de reparto» para empezar.')+'</span></div></div>';const cols=activeSegs.map(function(sk){const items=work.filter(w=>!w.del&&w.seg===sk&&(!_camFilter||w.isNew||w.edit||camLbl(w)===_camFilter)).slice().sort((a,b)=>{if(a.isNew!==b.isNew)return a.isNew?-1:1;const fa=a.fecha||'',fb=b.fecha||'';if(sk==='interior'){const pa=+a.precioKm||0,pb=+b.precioKm||0;if(pa!==pb)return pa-pb;return fa<fb?-1:(fa>fb?1:0);}const ca=camLbl(a)||'',cb=camLbl(b)||'';if(ca!==cb)return ca.localeCompare(cb,'es');return fa<fb?-1:(fa>fb?1:0);});let sF=0;items.forEach(w=>sF+=(+w.precio||0));const nCam=items.reduce((s,w)=>s+camCount(w),0);const inner=items.map(function(w,idx){return (w.edit||w.isNew)?formHTML(w,idx):rowHTML(w,idx);}).join('')||'<div class="rre-col-empty">Sin camiones</div>';return '<div class="rre-col rre-col--'+sk+'" data-seg="'+sk+'"><div class="rre-col-hd"><span class="rre-col-dot"></span>'+SEGN[sk]+'<span class="rre-col-n">'+nCam+'</span><div class="rre-col-hdacts">'+((sk!=='transportadora'&&items.some(w=>!w.isNew))?'<button class="rre-vedit" data-editseg="'+sk+'" type="button"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4z"/></svg> Editar</button>':'')+'<button class="rre-vadd" data-seg="'+sk+'" type="button"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg> Añadir</button></div></div><div class="rre-col-body">'+inner+'</div>'+(items.length?'<div class="rre-col-foot"><span class="rre-foot-n">'+nCam+' '+_camLbl(nCam)+'</span><span class="rre-foot-sub">Subtotal flete <b>'+_gs(sF)+'</b></span></div>':'')+'</div>';}).join('');
     // Columnas "fantasma" para los segmentos que no están en pantalla: aparecen sólo al arrastrar.
     const DHINT='<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>';
     const ghosts=['local','interior','servicios'].filter(sk=>!activeSegs.includes(sk)).map(function(sk){return '<div class="rre-col rre-col--'+sk+' rre-col--ghost" data-seg="'+sk+'"><div class="rre-col-hd"><span class="rre-col-dot"></span>'+SEGN[sk]+'</div><div class="rre-col-body"><div class="rre-ghost-hint">'+DHINT+'Soltá acá para<br><b>'+SEGN[sk]+'</b></div></div></div>';}).join('');
@@ -8876,7 +9033,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
       repartos.push(r);return r;};
     work.filter(w=>w.del&&w.ref).forEach(w=>{const r=repartos.find(x=>x.id===w.repId);if(r){const idx=(r.clientes||[]).indexOf(w.ref);if(idx>=0)r.clientes.splice(idx,1);affected.add(r);}});
     rows.forEach(w=>{const tr=trucks.find(t=>t.id===w.trId);
-      const isTr=w.seg==='transportadora';const cant=isTr?(+w.cant||0):null;const trD=isTr?(cant+' camión'+(cant===1?'':'es')):(tr?tr.d:w.trDesc);
+      const isTr=w.seg==='transportadora';const cant=isTr?(+w.cant||0):null;const trD=isTr?(cant+' '+_camLbl(cant)):(tr?tr.d:w.trDesc);
       const isIntFijo=w.seg==='interior'&&!!w.fijo;
       const km=(w.seg==='interior'&&!isIntFijo)?(w.km||0):0,pkm=(w.seg==='interior'&&!isIntFijo)?(w.precioKm||0):0;
       const targetRep=w.fecha?repForDate(w.fecha):null;
@@ -8952,7 +9109,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
       '<div class="xls-foot"><button type="button" class="xls-addrow" id="xlsAdd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="14" height="14"><path d="M12 5v14M5 12h14"/></svg> Agregar línea</button><div class="xls-totals"></div><div class="xls-foot-sp"></div><button class="cancel xls-cancel">Cancelar</button><button class="ok xls-save"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" width="15" height="15"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg> Guardar cambios</button></div></div>');
     const body=m.$('#xlsBody');
     function updFlete(d){const fi=body.querySelector('.xls-flete[data-k="'+d.k+'"]');if(fi){if(kmMode(d)){fi.value=_nnum(Math.round(d.km*d.precioKm));fi.readOnly=true;fi.classList.add('is-auto');}else{fi.readOnly=false;fi.classList.remove('is-auto');fi.value=d.precio?_nnum(d.precio):'';}}updTotals();}
-    function updTotals(){const el=m.$('.xls-totals');if(!el)return;const a=draft.filter(d=>!d.del);const n=a.length,tf=a.reduce((s,d)=>s+fleteOf(d),0);el.innerHTML='<span class="xls-tot"><b>'+n+'</b> camión'+(n===1?'':'es')+'</span><span class="xls-tot"><small>Flete total</small> <b>'+_gs(tf)+'</b></span>';}
+    function updTotals(){const el=m.$('.xls-totals');if(!el)return;const a=draft.filter(d=>!d.del);const n=a.length,tf=a.reduce((s,d)=>s+fleteOf(d),0);el.innerHTML='<span class="xls-tot"><b>'+n+'</b> '+_camLbl(n)+'</span><span class="xls-tot"><small>Flete total</small> <b>'+_gs(tf)+'</b></span>';}
     function setT(btn,txt,ph){const s=btn.querySelector('span');if(s)s.textContent=txt;btn.classList.toggle('ph',!!ph);}
     function openCellPick(btn){const d=D(btn.dataset.k);if(!d)return;const kind=btn.dataset.pick;
       if(kind==='tr')openChipPop(btn,{value:d.trId?String(d.trId):'',search:true,options:(trucks||[]).map(t=>({v:String(t.id),label:t.d})),onPick:v=>{const t=(trucks||[]).find(x=>String(x.id)===v);d.trId=+v;d.trDesc=t?t.d:'';setT(btn,t?t.d:'—',false);}});
@@ -8974,7 +9131,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     m.$('.xls-cancel').addEventListener('click',m.close);
     m.$('.xls-save').addEventListener('click',()=>{
       const alive=draft.filter(d=>!d.del);
-      const trD=d=>((+d.cant||0)+' camión'+((+d.cant||0)===1?'':'es'));
+      const trD=d=>((+d.cant||0)+' '+_camLbl((+d.cant||0)));
       for(const d of alive){if(isTr){if(!(+d.cant>0)){showToast('Cargá la cantidad de camiones 👀');return;}}else if(!d.trId){showToast('Elegí el camión en todas las filas 👀');return;}if(!(fleteOf(d)>0)){showToast(isInt?'Cargá el flete, o los km y el precio/km, en todas las filas 👀':'Cargá el flete en todas las filas 👀');return;}}
       work.forEach(w=>{if(w.seg!==sk||w.del)return;const d=alive.find(x=>x.uid===w.uid);if(!d){if(!w.isNew)w.del=true;return;}
         if(isTr){w.cant=+d.cant||0;w.precio=+d.precio||0;w.trId=null;w.trDesc=trD(d);w.rep=null;w.zona=null;w.km=0;w.precioKm=0;w.fijo=false;w.obs=null;w.fecha=d.fecha;return;}
