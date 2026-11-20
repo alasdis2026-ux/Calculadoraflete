@@ -501,12 +501,6 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .qadd__it.on .qadd__ico{background:rgba(255,255,255,.18);color:#fff;transform:scale(1.06)}
 .qadd__it.on mark{background:rgba(255,255,255,.26);color:#fff}
 
-@keyframes qaddPop{from{opacity:0;transform:translateY(-9px) scale(.985)}to{opacity:1;transform:none}}
-@keyframes qaddItem{from{opacity:0;transform:translateY(-7px)}to{opacity:1;transform:none}}
-.qadd__pop.is-in{animation:qaddPop .28s cubic-bezier(.2,.9,.3,1.08)}
-.qadd__pop.is-in .qadd__it{animation:qaddItem .26s cubic-bezier(.2,.7,.3,1) backwards;animation-delay:calc(var(--qi,0)*18ms)}
-.qadd__pop.is-in .qadd__new{animation:qaddItem .3s cubic-bezier(.2,.7,.3,1) .12s backwards}
-@media(prefers-reduced-motion:reduce){.qadd__pop.is-in,.qadd__pop.is-in .qadd__it,.qadd__pop.is-in .qadd__new{animation:none}}
 .qadd__empty{padding:18px 12px;text-align:center;font-size:13px;font-weight:600;color:#8a99a8}
 .truck-pop__item.kb{background:var(--primary);color:#fff}
 .truck-pop__item.kb svg{color:#fff}
@@ -3315,7 +3309,7 @@ function _qRender(){
     // Lista plana: _qBuscar ya ordena por coincidencia y después por uso, así que
     // los más usados quedan arriba igual, sin necesidad de un grupo aparte.
     html=_qList.map(function(x,i){
-      return '<button type="button" class="qadd__it'+(i===_qIdx?' on':'')+'" data-qi="'+i+'" style="--qi:'+Math.min(i,12)+'">'+
+      return '<button type="button" class="qadd__it'+(i===_qIdx?' on':'')+'" data-qi="'+i+'">'+
         '<span class="qadd__ico">'+getTrIco(x.tr.d,16)+'</span>'+
         '<span class="qadd__nm">'+_qHl(x.tr.d,r.terms)+'</span></button>';
     }).join('');
@@ -3326,28 +3320,51 @@ function _qRender(){
   const act=pop.querySelector('.qadd__it.on');
   if(act)try{act.scrollIntoView({block:'nearest'});}catch(_){}
 }
+/* Mueve la marca sin rearmar la lista. Rehacer el innerHTML de 45 filas en
+   cada movimiento del mouse era lo que hacia parpadear todo. */
+function _qMarcar(n){
+  const pop=document.getElementById('qAddPop'); if(!pop)return;
+  const btns=pop.querySelectorAll('.qadd__it');
+  if(!btns.length)return;
+  _qIdx=((n%btns.length)+btns.length)%btns.length;
+  for(let i=0;i<btns.length;i++)btns[i].classList.toggle('on',i===_qIdx);
+  const act=btns[_qIdx];
+  if(act)try{act.scrollIntoView({block:'nearest'});}catch(_){}
+}
+
+/* Entrada con GSAP: el panel cae y las primeras filas entran escalonadas.
+   Solo las que se ven: animar las 60 obliga a recalcular layout por cada tween. */
+function _qEntrada(pop){
+  const g=window.gsap; if(!g)return;
+  g.fromTo(pop,{opacity:0,y:-10,scale:.985},
+    {opacity:1,y:0,scale:1,duration:.3,ease:'power3.out',clearProps:'opacity,transform'});
+  const filas=[].slice.call(pop.querySelectorAll('.qadd__it'),0,8);
+  if(filas.length)g.from(filas,{opacity:0,y:-9,duration:.28,stagger:.032,delay:.05,ease:'power2.out',clearProps:'opacity,transform'});
+  const nw=pop.querySelector('.qadd__new');
+  if(nw)g.from(nw,{opacity:0,y:4,duration:.3,delay:.14,ease:'power2.out',clearProps:'opacity,transform'});
+}
+
+/* Abrir es idempotente: si ya está abierto no hace nada. Un click en el campo
+   dispara focus Y click, y antes cada uno rearmaba la lista y el segundo
+   mataba la animación recién empezada. */
 function _qOpen(){
   const pop=document.getElementById('qAddPop');
-  if(!pop)return;
-  const venia=pop.hidden;
+  if(!pop||!pop.hidden)return;
   // Si venía cerrándose, se corta la salida: si no, queda a medio desvanecer.
   if(window.gsap)gsap.killTweensOf(pop);
   pop.hidden=false;
   _qRender();
   if(!window.gsap)return;
-  gsap.set(pop,{opacity:1,y:0,scale:1});
-  if(!venia)return;                       // ya estaba abierto: no re-animar en cada tecla
-  // La entrada va en CSS: un gsap.from sobre las filas recién hechas obliga a
-  // recalcular layout por cada tween, y acá pueden ser 60 filas.
-  pop.classList.remove('is-in'); void pop.offsetWidth; pop.classList.add('is-in');
-  clearTimeout(pop._qT); pop._qT=setTimeout(function(){ pop.classList.remove('is-in'); },620);
+  gsap.set(pop,{clearProps:'opacity,transform'});   // limpia lo que dejó la salida
+  if(typeof reduce==='function'&&reduce())return;
+  _qEntrada(pop);
 }
 function _qClose(){
   const pop=document.getElementById('qAddPop');
   if(!pop||pop.hidden)return;
-  if(!window.gsap){pop.hidden=true;return;}
+  if(!window.gsap||(typeof reduce==='function'&&reduce())){pop.hidden=true;return;}
   gsap.killTweensOf(pop);
-  gsap.to(pop,{opacity:0,y:-7,scale:.99,duration:.16,ease:'power2.in',
+  gsap.to(pop,{opacity:0,y:-7,scale:.99,duration:.15,ease:'power2.in',
     onComplete:()=>{pop.hidden=true;gsap.set(pop,{clearProps:'opacity,transform'});}});
 }
 function _qPick(i){
@@ -3377,14 +3394,15 @@ function _qPick(i){
   if(!inp||!pop)return;
   inp.addEventListener('focus',()=>{_qIdx=0;_qOpen();});
   inp.addEventListener('click',()=>{_qIdx=0;_qOpen();});
-  inp.addEventListener('input',()=>{_qIdx=0;_qOpen();_qRender();});
+  // _qOpen ya renderiza: llamar a _qRender de nuevo armaba la lista dos veces
+  // por cada tecla.
+  inp.addEventListener('input',()=>{_qIdx=0;if(pop.hidden)_qOpen();else _qRender();});
   inp.addEventListener('keydown',e=>{
     if(e.key==='ArrowDown'||e.key==='ArrowUp'){
       e.preventDefault();
       if(pop.hidden){_qOpen();return;}
       if(!_qList.length)return;
-      _qIdx=(_qIdx+(e.key==='ArrowDown'?1:-1)+_qList.length)%_qList.length;
-      _qRender();
+      _qMarcar(_qIdx+(e.key==='ArrowDown'?1:-1));
     }else if(e.key==='Enter'){
       e.preventDefault();
       if(pop.hidden)_qOpen();
@@ -3404,7 +3422,7 @@ function _qPick(i){
   });
   pop.addEventListener('mousemove',e=>{
     const it=e.target.closest('.qadd__it');
-    if(it&&+it.dataset.qi!==_qIdx){_qIdx=+it.dataset.qi;_qRender();}
+    if(it&&+it.dataset.qi!==_qIdx)_qMarcar(+it.dataset.qi);
   });
   document.addEventListener('click',e=>{if(!pop.hidden&&box&&!box.contains(e.target))_qClose();});
 })();
