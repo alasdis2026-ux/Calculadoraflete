@@ -2114,10 +2114,18 @@ function _cpFlotante(btn,txt){
     const el=document.createElement('div');
     el.className='cp-fly';
     el.textContent=txt||'¡Copiado!';
-    el.style.left=Math.round(r.left+r.width/2)+'px';
-    el.style.top=Math.round(r.top)+'px';
     document.body.appendChild(el);
-    setTimeout(function(){ if(el.parentNode)el.remove(); },950);
+    // Se centra sobre el botón, pero sin salirse de la tarjeta ni de la pantalla:
+    // pegado al borde derecho quedaba medio afuera y se veía cortada.
+    const w=el.offsetWidth;
+    const caja=(btn.closest&&btn.closest('.ts-3d__card,.ts-detail-state,.cf-mbox'))||null;
+    const lim=caja?caja.getBoundingClientRect():{left:0,right:window.innerWidth};
+    const minX=Math.max(8,lim.left+8)+w/2, maxX=Math.min(window.innerWidth-8,lim.right-8)-w/2;
+    let x=r.left+r.width/2;
+    if(maxX>minX)x=Math.max(minX,Math.min(maxX,x));
+    el.style.left=Math.round(x)+'px';
+    el.style.top=Math.round(Math.max(6,r.top-4))+'px';
+    setTimeout(function(){ if(el.parentNode)el.remove(); },820);
   }catch(_){}
 }
 // El botón se convierte en tilde un instante y sube una burbuja: alcanza como
@@ -2129,14 +2137,11 @@ function _cfCopiarCon(btn,txt,msg){
     // Si no vino botón (atajo C), la burbuja se ancla a la fila marcada.
     if(!btn)btn=document.querySelector('.ts3c__tr.sel');
     if(btn){
-      // Se quita y se vuelve a poner para que el anillo se reinicie si se copia dos veces seguidas.
+      // Se quita y se vuelve a poner para que el pulso se reinicie si se copia
+      // dos veces seguidas. Todo el efecto es CSS: antes había además un tween
+      // de GSAP sobre transform, que peleaba con la transición del botón.
       btn.classList.remove('is-ok'); void btn.offsetWidth; btn.classList.add('is-ok');
-      const g=window.gsap;
-      if(g&&!(typeof reduce==='function'&&reduce()))g.fromTo(btn,{scale:.78},{scale:1,duration:.5,ease:'back.out(3.4)',clearProps:'transform'});
-      clearTimeout(btn._cpT); btn._cpT=setTimeout(function(){ btn.classList.remove('is-ok'); },1500);
-      const fila=btn.closest?btn.closest('.ts3c__tr'):null;
-      if(fila){ fila.classList.remove('cp-flash'); void fila.offsetWidth; fila.classList.add('cp-flash');
-        clearTimeout(fila._cpT); fila._cpT=setTimeout(function(){ fila.classList.remove('cp-flash'); },900); }
+      clearTimeout(btn._cpT); btn._cpT=setTimeout(function(){ btn.classList.remove('is-ok'); },1400);
       _cpFlotante(btn,msg);
     }
   });
@@ -7010,17 +7015,26 @@ function showSaveAnim(text){
   /* Botón de copiar: el ícono cambia a un tilde por un momento al copiar. */
   .cp-btn{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px solid var(--gray-200,#e2e8f0);background:#fff;color:var(--gray-500,#64748b);border-radius:9px;cursor:pointer;padding:0;font:inherit;transition:color .16s,border-color .16s,background .16s,transform .16s,box-shadow .16s}
   .cp-btn svg{width:15px;height:15px;flex-shrink:0}
-  .cp-btn .cp-k{display:none}
+  /* Los dos íconos se apilan en la misma celda y se cruzan: el de copiar se va
+     achicándose y el tilde entra creciendo. Antes era un display:none seco. */
+  .cp-btn .cp-c,.cp-btn .cp-k{grid-area:1/1;transition:opacity .15s ease,scale .26s cubic-bezier(.2,.9,.3,1.35)}
+  .cp-btn .cp-k{opacity:0;scale:.4}
   .cp-btn:hover{color:var(--primary,#0B5F8D);border-color:var(--accent,#3B82F6);background:#f2f8fd;transform:translateY(-1px);box-shadow:0 4px 12px rgba(11,95,141,.12)}
   .cp-btn:active{transform:translateY(0)}
-  .cp-btn.is-ok{color:#15803d;border-color:#86efac;background:#f0fdf4}
-  .cp-btn.is-ok .cp-c{display:none}
-  .cp-btn.is-ok .cp-k{display:block}
+  .cp-btn.is-ok{color:#15803d;border-color:#86efac;background:#f0fdf4;animation:cpPop .4s cubic-bezier(.2,.9,.3,1.25)}
+  .cp-btn.is-ok .cp-c{opacity:0;scale:.4}
+  .cp-btn.is-ok .cp-k{opacity:1;scale:1}
   .cp-btn.is-ok .cp-lbl{color:#15803d}
-  .cp-btn--xs{width:30px;height:30px;border-radius:8px;flex-shrink:0}
+  /* El pulso va en la propiedad `scale`, no en transform: así se compone con el
+     translateY(-1px) del hover en vez de reemplazarlo y pegar un salto al final. */
+  @keyframes cpPop{0%{scale:.86}52%{scale:1.12}100%{scale:1}}
+  /* Anillo que se abre y se desvanece una sola vez. */
+  .cp-btn.is-ok::after{content:'';position:absolute;inset:-2px;border-radius:inherit;border:2px solid #4ade80;pointer-events:none;animation:cpRing .5s cubic-bezier(.2,.7,.3,1) forwards}
+  @keyframes cpRing{0%{opacity:.7;transform:scale(.85)}100%{opacity:0;transform:scale(1.45)}}
+  .cp-btn--xs{width:30px;height:30px;border-radius:8px;flex-shrink:0;display:grid;place-items:center}
   .cp-btn--xs svg{width:14px;height:14px}
   .cp-btn--txt{padding:0 13px;height:34px;font-size:12.5px;font-weight:800;color:var(--gray-600,#475569)}
-  .cp-ico{display:inline-flex;align-items:center}
+  .cp-ico{display:grid;place-items:center}
   .cp-btn--txt .cp-lbl{line-height:1}
   .ts-topbar .cp-btn--txt{height:auto;align-self:stretch;padding:0 16px}
   /* Barra de búsqueda */
@@ -7059,15 +7073,15 @@ function showSaveAnim(text){
   /* El camión elegido con ↑ ↓: es el que copia la tecla C. */
   .ts-3d__card.is-active .ts3c__tr.sel{border-color:var(--primary,#0B5F8D);background:#f2f8fd;box-shadow:0 0 0 2px rgba(11,95,141,.18),0 6px 16px rgba(11,95,141,.14)}
   .ts3c__tr.sel .cp-btn{border-color:var(--primary,#0B5F8D);color:var(--primary,#0B5F8D);background:#fff}
+  /* Sin esto, la regla de arriba le gana al estado copiado y el tilde salia azul. */
+  .ts3c__tr.sel .cp-btn.is-ok{border-color:#86efac;color:#15803d;background:#f0fdf4}
   /* Efecto al copiar: un anillo que sale del botón y un destello en la fila. */
   @keyframes cpRing{from{opacity:.6;transform:scale(.55)}to{opacity:0;transform:scale(2.2)}}
   .cp-btn.is-ok::after{content:'';position:absolute;inset:-2px;border-radius:inherit;border:2px solid #22c55e;animation:cpRing .62s cubic-bezier(.2,.7,.3,1) forwards;pointer-events:none}
-  @keyframes cpFlash{from{box-shadow:0 0 0 3px rgba(34,197,94,.5),0 10px 24px rgba(34,197,94,.3)}to{box-shadow:0 0 0 0 rgba(34,197,94,0),0 0 0 0 rgba(34,197,94,0)}}
-  .ts3c__tr.cp-flash{animation:cpFlash .8s ease-out}
   /* Cartelito que sube y se desvanece sobre el botón. */
-  @keyframes cpFly{0%{opacity:0;transform:translate(-50%,4px) scale(.82)}20%{opacity:1;transform:translate(-50%,-12px) scale(1)}100%{opacity:0;transform:translate(-50%,-38px) scale(1)}}
-  .cp-fly{position:fixed;z-index:99999;padding:4px 11px;border-radius:999px;background:linear-gradient(180deg,#22c55e,#15803d);color:#fff;font-family:Inter,sans-serif;font-size:11px;font-weight:800;white-space:nowrap;pointer-events:none;box-shadow:0 7px 18px rgba(21,128,61,.4);animation:cpFly .92s cubic-bezier(.2,.7,.3,1) forwards}
-  @media(prefers-reduced-motion:reduce){.cp-btn.is-ok::after,.ts3c__tr.cp-flash,.cp-fly{animation:none}.cp-fly{display:none}}
+  @keyframes cpFly{0%{opacity:0;transform:translate(-50%,2px) scale(.9)}22%{opacity:1;transform:translate(-50%,-14px) scale(1)}70%{opacity:1;transform:translate(-50%,-20px) scale(1)}100%{opacity:0;transform:translate(-50%,-28px) scale(1)}}
+  .cp-fly{position:fixed;z-index:99999;padding:4px 9px;border-radius:7px;background:#15803d;color:#fff;font-family:Inter,sans-serif;font-size:10.5px;font-weight:800;letter-spacing:.01em;white-space:nowrap;pointer-events:none;box-shadow:0 4px 12px rgba(21,128,61,.3);animation:cpFly .8s cubic-bezier(.2,.7,.3,1) forwards}
+  @media(prefers-reduced-motion:reduce){.cp-btn.is-ok,.cp-btn.is-ok::after,.cp-fly{animation:none}.cp-btn.is-ok::after,.cp-fly{display:none}.cp-btn .cp-c,.cp-btn .cp-k{transition:none}}
   .ts3c__seg{flex-shrink:0;width:9px;height:9px;border-radius:50%;background:var(--gray-300,#cbd5e1)}
   .ts3c__seg.s-local{background:#0B5F8D} .ts3c__seg.s-interior{background:#F97316}
   .ts3c__seg.s-servicios{background:#10B981} .ts3c__seg.s-transportadora{background:#7c3aed}
