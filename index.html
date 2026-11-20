@@ -456,16 +456,31 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .qadd__keys{position:absolute;right:14px;display:flex;gap:5px;pointer-events:none}
 .qadd__keys kbd{font-family:inherit;font-size:10px;font-weight:800;color:#94a3b8;background:#f1f5f9;border:1px solid #e2e8f0;border-bottom-width:2px;border-radius:4px;padding:2px 5px}
 .qadd:focus-within .qadd__keys kbd{color:var(--primary);background:#eaf3fb;border-color:#cfe1f0}
-.qadd__pop{position:absolute;left:0;right:0;top:calc(100% + 8px);z-index:60;max-height:360px;overflow-y:auto;background:#fff;border:1px solid #dce6f0;border-radius:8px;box-shadow:0 18px 40px -12px rgba(15,36,64,.3),0 2px 6px rgba(15,36,64,.08);padding:5px}
-.qadd__grp{padding:8px 11px 4px;font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:#94a3b8}
-.qadd__it{display:flex;align-items:center;gap:10px;width:100%;padding:8px 11px;border:0;border-radius:6px;background:transparent;text-align:left;font-family:inherit;font-size:13.5px;font-weight:600;color:var(--gray-700,#334155);cursor:pointer}
-.qadd__it svg{width:17px;height:17px;flex-shrink:0;color:#94a3b8}
-.qadd__it mark{background:#fde68a;color:inherit;border-radius:2px;padding:0 1px}
-.qadd__it .qadd__ts{margin-left:auto;font-size:11px;font-weight:700;color:#94a3b8;white-space:nowrap}
-.qadd__it.on,.qadd__it:hover{background:var(--primary);color:#fff}
-.qadd__it.on svg,.qadd__it:hover svg{color:#fff}
-.qadd__it.on .qadd__ts,.qadd__it:hover .qadd__ts{color:rgba(255,255,255,.75)}
-.qadd__it.on mark,.qadd__it:hover mark{background:rgba(255,255,255,.26);color:#fff}
+.qadd__pop{position:absolute;left:0;right:0;top:calc(100% + 9px);z-index:60;display:flex;flex-direction:column;background:#fff;border:1px solid #dbe6f1;border-radius:13px;box-shadow:0 24px 50px -16px rgba(15,36,64,.34),0 2px 8px rgba(15,36,64,.07);overflow:hidden}
+.qadd__list{max-height:336px;overflow-y:auto;padding:6px;scrollbar-width:thin;scrollbar-color:#dbe6f1 transparent}
+.qadd__list::-webkit-scrollbar{width:9px}
+.qadd__list::-webkit-scrollbar-thumb{background:#dbe6f1;border:3px solid #fff;border-radius:99px}
+.qadd__list::-webkit-scrollbar-thumb:hover{background:#c0d4e6}
+
+.qadd__it{display:flex;align-items:center;gap:11px;width:100%;padding:9px 11px;border:0;border-radius:10px;background:transparent;text-align:left;font-family:inherit;font-size:13.5px;font-weight:600;color:var(--gray-700,#334155);cursor:pointer;transition:background .14s ease,color .14s ease}
+/* El ícono va en su propia pastilla: ancla la fila y da aire sin ensancharla. */
+.qadd__ico{display:grid;place-items:center;width:28px;height:28px;flex-shrink:0;border-radius:8px;background:#f1f6fb;color:#8ca5bd;transition:background .14s ease,color .14s ease,transform .22s cubic-bezier(.2,.8,.2,1)}
+.qadd__it svg{width:16px;height:16px;flex-shrink:0}
+.qadd__nm{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.qadd__it mark{background:#fde68a;color:inherit;border-radius:3px;padding:0 1px}
+.qadd__it:hover{background:#f1f7fc;color:var(--primary,#0B5F8D)}
+.qadd__it:hover .qadd__ico{background:#dcebf7;color:var(--primary,#0B5F8D)}
+/* La fila elegida con ↑ ↓ se ve de lejos: es navegación por teclado. */
+.qadd__it.on{background:linear-gradient(180deg,#1273a9,#0b5f8d);color:#fff;box-shadow:0 7px 18px -9px rgba(11,95,141,.95)}
+.qadd__it.on .qadd__ico{background:rgba(255,255,255,.18);color:#fff;transform:scale(1.06)}
+.qadd__it.on mark{background:rgba(255,255,255,.26);color:#fff}
+
+@keyframes qaddPop{from{opacity:0;transform:translateY(-9px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes qaddItem{from{opacity:0;transform:translateY(-7px)}to{opacity:1;transform:none}}
+.qadd__pop.is-in{animation:qaddPop .28s cubic-bezier(.2,.9,.3,1.08)}
+.qadd__pop.is-in .qadd__it{animation:qaddItem .26s cubic-bezier(.2,.7,.3,1) backwards;animation-delay:calc(var(--qi,0)*18ms)}
+.qadd__pop.is-in .qadd__new{animation:qaddItem .3s cubic-bezier(.2,.7,.3,1) .12s backwards}
+@media(prefers-reduced-motion:reduce){.qadd__pop.is-in,.qadd__pop.is-in .qadd__it,.qadd__pop.is-in .qadd__new{animation:none}}
 .qadd__empty{padding:18px 12px;text-align:center;font-size:13px;font-weight:600;color:#8a99a8}
 .truck-pop__item.kb{background:var(--primary);color:#fff}
 .truck-pop__item.kb svg{color:#fff}
@@ -475,8 +490,9 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .truck-pop__ts{margin-left:auto;padding-left:10px;font-size:11px;font-weight:700;color:#94a3b8;white-space:nowrap;flex-shrink:0}
 .truck-pop__item.kb .truck-pop__ts,.truck-pop__item.on .truck-pop__ts{color:rgba(255,255,255,.75)}
 .truck-pop__item.kb .truck-pop__ico,.truck-pop__item.on .truck-pop__ico{background:rgba(255,255,255,.2);color:#fff}
-.qadd__new{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;margin-top:4px;padding:9px;border:0;border-top:1px solid #eef2f7;border-radius:0 0 6px 6px;background:transparent;font-family:inherit;font-size:12.5px;font-weight:800;color:var(--primary);cursor:pointer}
+.qadd__new{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;flex-shrink:0;padding:11px;border:0;border-top:1px solid #eaf0f6;background:#fbfdff;font-family:inherit;font-size:12.5px;font-weight:800;color:var(--primary);cursor:pointer;transition:background .14s ease}
 .qadd__new:hover{background:#eaf3fb}
+.qadd__empty{padding:26px 12px}
 @media(max-width:720px){.qadd__keys{display:none}.qadd input{padding-right:14px}}
 .clients-hd h3{font-size:15px;font-weight:800;color:var(--gray-700)}
 .cnt-badge{padding:3px 11px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-size:12px;font-weight:800}
@@ -3100,6 +3116,8 @@ function _qScore(d,tsN,terms,freq){
   return sc+Math.min(freq,40);
 }
 // Etiqueta del transportista, salvo que el nombre del camión ya empiece con ella.
+// Lo usa el selector de camión del editor diario (truck-pop); el desplegable de
+// "Agregá un camión" ya no muestra la transportadora.
 function _qTsLbl(d,n){return _qNorm(d).indexOf(_qNorm(n))===0?"":esc(n);}
 function _qBuscar(q){
   const terms=_qNorm(q).trim().split(/\s+/).filter(Boolean);
@@ -3135,17 +3153,17 @@ function _qRender(){
   let html='';
   if(!_qList.length)html='<div class="qadd__empty">Sin resultados</div>';
   else{
-    const sinQ=!r.terms.length;
-    const top=sinQ?_qList.filter(x=>x.fq>0).slice(0,6):[];
-    const resto=sinQ?_qList.filter(x=>top.indexOf(x)<0):_qList;
-    const fila=(x,i)=>'<button type="button" class="qadd__it'+(i===_qIdx?' on':'')+'" data-qi="'+i+'">'+
-      getTrIco(x.tr.d,17)+'<span>'+_qHl(x.tr.d,r.terms)+'</span><span class="qadd__ts">'+_qTsLbl(x.tr.d,x.ts.n)+'</span></button>';
-    const idx=x=>_qList.indexOf(x);
-    if(top.length)html+='<div class="qadd__grp">Más usados</div>'+top.map(x=>fila(x,idx(x))).join('');
-    if(resto.length)html+=(top.length?'<div class="qadd__grp">Todos</div>':'')+resto.map(x=>fila(x,idx(x))).join('');
+    // Lista plana: _qBuscar ya ordena por coincidencia y después por uso, así que
+    // los más usados quedan arriba igual, sin necesidad de un grupo aparte.
+    html=_qList.map(function(x,i){
+      return '<button type="button" class="qadd__it'+(i===_qIdx?' on':'')+'" data-qi="'+i+'" style="--qi:'+Math.min(i,12)+'">'+
+        '<span class="qadd__ico">'+getTrIco(x.tr.d,16)+'</span>'+
+        '<span class="qadd__nm">'+_qHl(x.tr.d,r.terms)+'</span></button>';
+    }).join('');
   }
-  html+='<button type="button" class="qadd__new" data-qnew><svg fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24" width="14" height="14" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Agregar camión nuevo</button>';
-  pop.innerHTML=html;
+  // La lista scrollea y la acción de agregar queda fija abajo, siempre a mano.
+  pop.innerHTML='<div class="qadd__list">'+html+'</div>'+
+    '<button type="button" class="qadd__new" data-qnew><svg fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24" width="14" height="14" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Agregar camión nuevo</button>';
   const act=pop.querySelector('.qadd__it.on');
   if(act)try{act.scrollIntoView({block:'nearest'});}catch(_){}
 }
@@ -3160,10 +3178,10 @@ function _qOpen(){
   if(!window.gsap)return;
   gsap.set(pop,{opacity:1,y:0,scale:1});
   if(!venia)return;                       // ya estaba abierto: no re-animar en cada tecla
-  gsap.fromTo(pop,{opacity:0,y:-9,scale:.985},{opacity:1,y:0,scale:1,duration:.3,ease:'back.out(1.7)',clearProps:'opacity,transform'});
-  gsap.from(pop.querySelectorAll('.qadd__it'),{opacity:0,y:-7,duration:.24,stagger:.02,ease:'power2.out',clearProps:'opacity,transform'});
-  const nw=pop.querySelector('.qadd__new');
-  if(nw)gsap.from(nw,{opacity:0,duration:.3,delay:.1,ease:'power2.out',clearProps:'opacity'});
+  // La entrada va en CSS: un gsap.from sobre las filas recién hechas obliga a
+  // recalcular layout por cada tween, y acá pueden ser 60 filas.
+  pop.classList.remove('is-in'); void pop.offsetWidth; pop.classList.add('is-in');
+  clearTimeout(pop._qT); pop._qT=setTimeout(function(){ pop.classList.remove('is-in'); },620);
 }
 function _qClose(){
   const pop=document.getElementById('qAddPop');
@@ -9378,7 +9396,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
   // Aplica una línea del draft a un work item según el segmento destino (tseg)
   function _applyLineToWork(w,d,tseg){const isTr=tseg==='transportadora',isInt=tseg==='interior',isServ=tseg==='servicios';w.seg=tseg;if(isTr){w.cant=+d.cant||1;w.precio=+d.precio||0;w.trId=null;w.trDesc=((+d.cant||1)+' '+_camLbl((+d.cant||1)));w.rep=null;w.zona=null;w.km=0;w.precioKm=0;w.fijo=false;w.obs=null;w.fecha=d.fecha;return;}const km2=isInt&&_dfKm(d);w.trId=d.trId;w.trDesc=d.trDesc;w.tsId=d.tsId||w.tsId;w.tsNombre=d.tsNombre||w.tsNombre;w.rep=(d.rep||'').trim();w.zona=isServ?'':(d.zona||'').trim();w.fecha=d.fecha;w.obs=isServ?((d.obs||d.zona||'').trim()):'';w.fijo=isInt?!km2:false;w.cant=1;if(km2){w.km=d.km;w.precioKm=d.precioKm;w.precio=Math.round(d.km*d.precioKm);}else{w.km=0;w.precioKm=0;w.precio=(+d.precio||0)||Math.round((+d.km||0)*(+d.precioKm||0));}}
   async function _dashSaveEdit(){const sk=_dashSeg;const alive=(_dashDraft||[]).filter(d=>!d.del);const tseg=d=>d.seg||sk;
-    for(const d of alive){const ts=tseg(d);if(ts==='transportadora'){if(!(+d.cant>0)){showToast('Cargá la cantidad de camiones 👀');return;}}else if(!d.trId){showToast('Elegí el camión en todas las filas 👀');return;}if(!(_dfFlete(d)>0)){showToast('Cargá el flete en todas las filas 👀');return;}}
+    for(const d of alive){const ts=tseg(d);if(ts==='transportadora'){if(!(+d.cant>0)){showToast('Cargá la cantidad de camiones 👀');return;}}else if(!d.trId){showToast('Elegí el camión en todas las filas 👀');return;}}
     const sbtn=bd.querySelector('[data-dashsave]');if(sbtn){sbtn.disabled=true;sbtn.classList.add('is-loading');sbtn.innerHTML='<span class="rrd-spin"></span>Guardando…';}
     // Actualiza / borra las líneas existentes del segmento en edición (su destino puede ser otro segmento)
     work.forEach(w=>{if(w.seg!==sk||w.del)return;const d=alive.find(x=>x.uid===w.uid);if(!d){if(!w.isNew)w.del=true;return;}_applyLineToWork(w,d,tseg(d));});
@@ -9523,8 +9541,8 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     const rows=work.filter(w=>!w.del);
     if(!rows.length&&!allowEmpty){showToast('La planilla quedaría sin camiones. Cancelá o agregá al menos uno.');return;}
     for(const w of rows){
-      if(w.seg==='transportadora'){if(!(+w.cant>0)){showToast('En Transportadora cargá la cantidad de camiones 👀');return;}if(!(w.precio>0)){showToast('En Transportadora cargá el flete total 👀');return;}continue;}
-      if(!w.trId){showToast('Elegí el camión en todas las filas 👀');return;}if(w.seg==='interior'&&!w.fijo&&w.km>0&&w.precioKm>0)w.precio=Math.round(w.km*w.precioKm);if(!(w.precio>0)){showToast((w.seg==='interior'&&!w.fijo)?'En Interior por km cargá los km y el precio/km 👀':'Ingresá el flete en todas las filas');return;}}
+      if(w.seg==='transportadora'){if(!(+w.cant>0)){showToast('En Transportadora cargá la cantidad de camiones 👀');return;}continue;}
+      if(!w.trId){showToast('Elegí el camión en todas las filas 👀');return;}if(w.seg==='interior'&&!w.fijo&&w.km>0&&w.precioKm>0)w.precio=Math.round(w.km*w.precioKm);}
     const affected=new Set();
     // Reparto (de esta transportadora) para una fecha dada; crea uno nuevo si no existe.
     const repForDate=(dISO)=>{ if(!dISO)return null;
@@ -9633,7 +9651,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     m.$('.xls-save').addEventListener('click',()=>{
       const alive=draft.filter(d=>!d.del);
       const trD=d=>((+d.cant||0)+' '+_camLbl((+d.cant||0)));
-      for(const d of alive){if(isTr){if(!(+d.cant>0)){showToast('Cargá la cantidad de camiones 👀');return;}}else if(!d.trId){showToast('Elegí el camión en todas las filas 👀');return;}if(!(fleteOf(d)>0)){showToast(isInt?'Cargá el flete, o los km y el precio/km, en todas las filas 👀':'Cargá el flete en todas las filas 👀');return;}}
+      for(const d of alive){if(isTr){if(!(+d.cant>0)){showToast('Cargá la cantidad de camiones 👀');return;}}else if(!d.trId){showToast('Elegí el camión en todas las filas 👀');return;}}
       work.forEach(w=>{if(w.seg!==sk||w.del)return;const d=alive.find(x=>x.uid===w.uid);if(!d){if(!w.isNew)w.del=true;return;}
         if(isTr){w.cant=+d.cant||0;w.precio=+d.precio||0;w.trId=null;w.trDesc=trD(d);w.rep=null;w.zona=null;w.km=0;w.precioKm=0;w.fijo=false;w.obs=null;w.fecha=d.fecha;return;}
         const km2=kmMode(d);w.trId=d.trId;w.trDesc=d.trDesc;w.tsId=d.tsId||w.tsId;w.tsNombre=d.tsNombre||w.tsNombre;w.rep=(d.rep||'').trim();w.zona=(d.zona||'').trim();w.fecha=d.fecha;w.obs=isServ?(d.obs||''):'';w.fijo=isInt?!km2:false;
