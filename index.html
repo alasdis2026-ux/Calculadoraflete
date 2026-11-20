@@ -631,8 +631,14 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .ts-3d-search .md-search::placeholder{color:var(--gray-400);font-weight:600}
 /* ===== Carrusel 3D (coverflow) ===== */
 .ts-3d{position:relative;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;perspective:2600px;perspective-origin:50% 46%;overflow:hidden;background:radial-gradient(120% 90% at 50% 8%,var(--accent-soft) 0%,transparent 55%)}
-.ts-3d__stage{position:relative;width:100%;height:100%;transform-style:preserve-3d}
-.ts-3d__card{position:absolute;top:50%;left:50%;width:620px;max-width:88vw;height:auto;max-height:86%;min-height:300px;transform-style:preserve-3d;background:#fff;border:1.5px solid var(--gray-200);border-radius:18px;box-shadow:0 30px 70px -24px rgba(15,23,42,.42);display:flex;flex-direction:column;overflow:hidden;cursor:pointer;will-change:transform,opacity;-webkit-backface-visibility:hidden;backface-visibility:hidden}
+.ts-3d__stage{position:relative;width:100%;height:100%;transform-style:preserve-3d;cursor:grab}
+.ts-3d__stage:active{cursor:grabbing}
+.ts-3d__card{position:absolute;top:50%;left:50%;width:620px;max-width:88vw;height:auto;max-height:86%;min-height:300px;background:#fff;border:1.5px solid var(--gray-200);border-radius:18px;box-shadow:0 30px 70px -24px rgba(15,23,42,.42);display:flex;flex-direction:column;overflow:hidden;cursor:pointer;transition:box-shadow .4s var(--alas-ease,cubic-bezier(.2,.7,.3,1)),border-color .4s var(--alas-ease,cubic-bezier(.2,.7,.3,1))}
+/* El velo de las tarjetas de atras va como capa, no como filter: un filter
+   obliga a una superficie aparte que se rasteriza a 1x y emborrona el texto. */
+.ts-3d__card::after{content:'';position:absolute;inset:0;z-index:5;border-radius:inherit;background:rgba(236,242,248,.26);pointer-events:none;transition:opacity .45s var(--alas-ease,cubic-bezier(.2,.7,.3,1))}
+.ts-3d__card.is-active::after{opacity:0}
+.ts-3d__card:not(.is-active):hover::after{opacity:.4}
 .ts-3d__card,.ts-3d__card *{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
 .ts-3d__card.is-active{cursor:default;border-color:var(--accent);box-shadow:0 34px 80px -26px rgba(11,95,141,.5)}
 .ts-3d__card.is-active .ts-3d__hd{background:linear-gradient(135deg,var(--primary),#1769a3)}
@@ -3488,12 +3494,30 @@ function layout3D(animate){
     const off=i-ts3dIndex, a=Math.abs(off), sign=off<0?-1:1;
     let x,rotY,z,scale,opacity,zi,pe;
     if(off===0){x=0;rotY=0;z=0;scale=1;opacity=1;zi=200;pe='auto';}
-    else{x=sign*(318+(a-1)*62+40);rotY=sign*-42;z=-180-(a-1)*96;scale=Math.max(.6,.84-(a-1)*.055);opacity=a>4?0:1;zi=200-a;pe=a>4?'none':'auto';}
+    else{x=sign*(318+(a-1)*62+40);rotY=sign*-37;z=-180-(a-1)*96;scale=Math.max(.6,.84-(a-1)*.055);opacity=a>4?0:1;zi=200-a;pe=a>4?'none':'auto';}
     el.style.zIndex=zi; el.style.pointerEvents=pe;
     el.classList.toggle('is-active',off===0);
     const props={xPercent:-50,yPercent:-50,x:x,z:z,rotationY:rotY,scale:scale,opacity:opacity,force3D:true};
-    if(animate&&window.gsap)gsap.to(el,Object.assign({duration:.55,ease:'power3.out'},props));
-    else if(window.gsap)gsap.set(el,props);
+    if(animate&&window.gsap){
+      // will-change solo durante el giro. Si queda puesto, Chrome congela la
+      // textura de la tarjeta y el texto se ve borroso al quedarse quieta.
+      el.style.willChange='transform';
+      gsap.to(el,Object.assign({
+        duration:.62,
+        ease:'power3.out',
+        // Las de mas afuera salen un toque despues: el movimiento se escalona
+        // en vez de moverse todo en bloque.
+        delay:Math.min(a,3)*0.022,
+        overwrite:'auto',
+        onComplete:function(){
+          el.style.willChange='auto';
+          // La del frente queda en transform 2D: dentro del contexto 3D Chrome
+          // apaga el antialiasing subpixel y el texto se ve blando.
+          if(off===0)gsap.set(el,{force3D:false});
+        }
+      },props));
+    }
+    else if(window.gsap){ el.style.willChange='auto'; gsap.set(el,props); }
     else{el.style.opacity=opacity;el.style.transform='translate(-50%,-50%) translateX('+x+'px) translateZ('+z+'px) rotateY('+rotY+'deg) scale('+scale+')';}
   });
 }
@@ -6938,8 +6962,7 @@ function showSaveAnim(text){
   /* ── Tarjeta del carrusel ── */
   .ts-3d__hdico{font-family:Sora,Inter,sans-serif;font-size:14px;font-weight:800;letter-spacing:.5px}
   .ts-3d__card.is-active{box-shadow:0 34px 80px -26px rgba(11,95,141,.5),0 0 0 3px rgba(37,120,184,.16)}
-  /* Las de los costados quedan apagadas para que la del frente resalte. */
-  .ts-3d__card:not(.is-active){filter:saturate(.72) brightness(.99)}
+  /* Las de los costados quedan apagadas con el velo de ::after, no con filter. */
   .ts-3d__card:not(.is-active) .cp-btn,.ts-3d__card:not(.is-active) .ts3c__open{pointer-events:none}
   .ts-3d__body{padding:12px 14px;gap:4px}
   .ts3c__tr{display:flex;align-items:center;gap:11px;padding:10px 11px;border-radius:11px;background:#fff;border:1px solid var(--gray-200,#e2e8f0);transition:border-color .16s,box-shadow .16s,transform .16s}
