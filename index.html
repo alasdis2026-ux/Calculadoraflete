@@ -3277,13 +3277,7 @@ function _qTsLbl(d,n){return _qNorm(d).indexOf(_qNorm(n))===0?"":esc(n);}
 function _qBuscar(q){
   const terms=_qNorm(q).trim().split(/\s+/).filter(Boolean);
   const freq=_qFreq(), out=[];
-  // Los que ya estan en el reparto no se vuelven a ofrecer: al agregar uno con
-  // Enter desaparece de la lista y se sigue buscando el siguiente sin volver a
-  // verlo.
-  const puestos={};
-  ((typeof currentReparto!=='undefined'&&currentReparto&&currentReparto.clientes)||[]).forEach(function(c){ if(c&&c.trId!=null)puestos[c.trId]=1; });
   (transportistas||[]).forEach(ts=>(ts.trucks||[]).forEach(tr=>{
-    if(puestos[tr.id])return;
     const sc=_qScore(tr.d,ts.n,terms,freq[tr.id]||0);
     if(sc>=0)out.push({tr:tr,ts:ts,sc:sc,fq:freq[tr.id]||0});
   }));
@@ -3328,16 +3322,12 @@ function _qRender(){
   const act=pop.querySelector('.qadd__it.on');
   if(act)try{act.scrollIntoView({block:'nearest'});}catch(_){}
 }
-// porUsuario: solo un gesto explicito (entrar al campo, escribir, flechas,
-// Enter) puede cancelar un cierre en curso. Una reapertura interna no.
-function _qOpen(porUsuario){
+function _qOpen(){
   const pop=document.getElementById('qAddPop');
   if(!pop)return;
   const venia=pop.hidden;
   // Si venía cerrándose, se corta la salida: si no, queda a medio desvanecer.
   if(window.gsap)gsap.killTweensOf(pop);
-  if(porUsuario){ delete pop.dataset.cerrando; clearTimeout(pop._qCT); }
-  else if(pop.dataset.cerrando) return;   // hay un cierre en curso: no reabrir
   pop.hidden=false;
   _qRender();
   if(!window.gsap)return;
@@ -3352,46 +3342,20 @@ function _qClose(){
   const pop=document.getElementById('qAddPop');
   if(!pop||pop.hidden)return;
   if(!window.gsap){pop.hidden=true;return;}
-  pop.dataset.cerrando='1';
-  const listo=function(){
-    if(!pop.dataset.cerrando)return;
-    delete pop.dataset.cerrando;
-    clearTimeout(pop._qCT);
-    pop.hidden=true;
-    gsap.set(pop,{clearProps:'opacity,transform'});
-  };
   gsap.killTweensOf(pop);
-  gsap.to(pop,{opacity:0,y:-7,scale:.99,duration:.16,ease:'power2.in',onComplete:listo});
-  // El cierre colgaba del onComplete del tween, y _qOpen hace killTweensOf:
-  // si algo reabria dentro de esos 160ms el tween moria sin correr onComplete,
-  // hidden nunca pasaba a true y la lista quedaba desplegada. Esto lo cierra
-  // igual. _qOpen limpia la marca cuando la reapertura es legitima.
-  clearTimeout(pop._qCT);
-  pop._qCT=setTimeout(listo,320);
+  gsap.to(pop,{opacity:0,y:-7,scale:.99,duration:.16,ease:'power2.in',
+    onComplete:()=>{pop.hidden=true;gsap.set(pop,{clearProps:'opacity,transform'});}});
 }
 function _qPick(i){
   const x=_qList[i];
   if(!x)return;
-  // El desplegable se cierra ANTES de tocar la tabla. Al reves, si
-  // renderClientesTable o updateResultCard tiraban un error, el camión quedaba
-  // agregado pero el cierre nunca llegaba a ejecutarse y la lista se quedaba
-  // desplegada. El foco sale del campo: dejándolo adentro, cualquier evento de
-  // foco vuelve a disparar _qOpen y la lista reaparece sola.
-  const inp=document.getElementById('qAddInp');
-  if(inp){inp.value='';inp.blur();}
-  _qIdx=0;
-  _qClose();
-
   const newCl={id:nextClienteId++,trId:x.tr.id,tsId:x.ts.id,monto:0,precio:0,seg:_truckSeg(x.tr.id),rep:null};
   currentReparto.clientes.push(newCl);
-  // Si el refresco falla, se avisa: antes la pantalla quedaba colgada sin que
-  // nada lo dijera.
-  try{ renderClientesTable(); updateResultCard(); }
-  catch(err){
-    console.error('[flete] fallo al refrescar la tabla después de agregar un camión',err);
-    if(typeof showToast==='function')showToast('Agregué el camión, pero algo falló al refrescar la tabla 😕');
-  }
-
+  renderClientesTable();updateResultCard();
+  const inp=document.getElementById('qAddInp');
+  if(inp){inp.value='';inp.focus();}
+  _qIdx=0;_qClose();
+  // Deja ver cuál entró sin sacarte del campo.
   const row=document.querySelector('[data-clid="'+newCl.id+'"]');
   if(row&&window.gsap){
     gsap.fromTo(row,{opacity:0,y:-12},{opacity:1,y:0,duration:.4,ease:'back.out(1.6)',clearProps:'opacity,transform'});
@@ -3407,19 +3371,19 @@ function _qPick(i){
 (function wireQAdd(){
   const inp=document.getElementById('qAddInp'),pop=document.getElementById('qAddPop'),box=document.getElementById('qAdd');
   if(!inp||!pop)return;
-  inp.addEventListener('focus',()=>{_qIdx=0;_qOpen(true);});
-  inp.addEventListener('click',()=>{_qIdx=0;_qOpen(true);});
-  inp.addEventListener('input',()=>{_qIdx=0;_qOpen(true);_qRender();});
+  inp.addEventListener('focus',()=>{_qIdx=0;_qOpen();});
+  inp.addEventListener('click',()=>{_qIdx=0;_qOpen();});
+  inp.addEventListener('input',()=>{_qIdx=0;_qOpen();_qRender();});
   inp.addEventListener('keydown',e=>{
     if(e.key==='ArrowDown'||e.key==='ArrowUp'){
       e.preventDefault();
-      if(pop.hidden){_qOpen(true);return;}
+      if(pop.hidden){_qOpen();return;}
       if(!_qList.length)return;
       _qIdx=(_qIdx+(e.key==='ArrowDown'?1:-1)+_qList.length)%_qList.length;
       _qRender();
     }else if(e.key==='Enter'){
       e.preventDefault();
-      if(pop.hidden)_qOpen(true);
+      if(pop.hidden)_qOpen();
       else _qPick(_qIdx);
     }else if(e.key==='Escape'){
       e.preventDefault();e.stopPropagation();
@@ -3430,10 +3394,6 @@ function _qPick(i){
   // Delegación: un solo listener, no uno por camión.
   pop.addEventListener('mousedown',e=>e.preventDefault());   // no perder el foco del campo
   pop.addEventListener('click',e=>{
-    // Sin esto, al agregar con el mouse la lista se rearma y saca la fila
-    // clickeada del DOM; el listener de 'click afuera' la ve fuera de #qAdd y
-    // cierra el desplegable.
-    e.stopPropagation();
     if(e.target.closest('[data-qnew]')){_qClose();openNCModal();return;}
     const it=e.target.closest('.qadd__it');
     if(it)_qPick(+it.dataset.qi);
