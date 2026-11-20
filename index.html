@@ -820,6 +820,14 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .chip-pop__search input:focus{border-color:var(--accent,#3B82F6)}
 .chip-pop__list{overflow:auto;max-height:290px;padding:5px}
 .chip-pop__item{display:flex;align-items:center;gap:9px;width:100%;padding:9px 11px;border:0;background:transparent;border-radius:9px;font:inherit;font-size:13px;font-weight:600;color:var(--gray-800,#334155);cursor:pointer;text-align:left;transition:background .12s}
+/* Multi: casilla en vez de marcar la fila entera, y el desplegable no se cierra. */
+.chip-pop__hint{padding:7px 11px 9px;font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--gray-400,#94a3b8)}
+.chip-pop__ck{display:grid;place-items:center;width:17px;height:17px;flex-shrink:0;border:1.6px solid var(--gray-300,#cbd5e1);border-radius:5px;background:#fff;transition:background .14s,border-color .14s}
+.chip-pop__ck svg{width:11px;height:11px;color:#fff;opacity:0;transform:scale(.5);transition:opacity .14s,transform .2s cubic-bezier(.2,.9,.3,1.4)}
+.chip-pop__item.on .chip-pop__ck{background:var(--primary,#0B5F8D);border-color:var(--primary,#0B5F8D)}
+.chip-pop__item.on .chip-pop__ck svg{opacity:1;transform:scale(1)}
+.chip-pop__done{display:block;width:100%;margin-top:5px;padding:9px;border:0;border-top:1px solid var(--gray-100,#f1f5f9);background:transparent;font:inherit;font-size:12.5px;font-weight:800;color:var(--primary,#0B5F8D);cursor:pointer;transition:background .14s}
+.chip-pop__done:hover{background:#eaf3fb}
 .chip-pop__item:hover{background:var(--gray-50,#f8fafc)}
 .chip-pop__item.on{background:var(--accent-soft,#DBEAFE);color:var(--primary);font-weight:700}
 .chip-pop__item .dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
@@ -1988,6 +1996,57 @@ const _ZONAS=[
 ];
 function _zonasFor(seg){return seg==='interior'?_ZONAS.filter(z=>z.cat==='interior'):seg==='local'?_ZONAS.filter(z=>z.cat==='local'):_ZONAS;}
 
+/* ── Zonas: Local admite varias, el resto una sola ──────────────────────
+   `zonas` es el dato real. `zona` se mantiene como el texto unido para que
+   los exportes, los detalles y los repartos viejos sigan funcionando igual. */
+const ZONA_SEP=' + ';
+function _multiZona(seg){ return (seg||'local')==='local'; }
+function _zonasDe(o){
+  if(!o)return [];
+  // El texto de "zona" manda y "zonas" es solo una caché: si no coinciden, gana el texto.
+  // Hay nueve lugares en el código que asignan .zona directo (importador, drag
+  // entre columnas, inputs sueltos); así ninguno deja el array viejo colgado.
+  const txt=String(o.zona==null?'':o.zona).trim();
+  if(Array.isArray(o.zonas)&&o.zonas.join(ZONA_SEP)===txt)return o.zonas.filter(Boolean);
+  return txt?txt.split(ZONA_SEP).map(x=>x.trim()).filter(Boolean):[];
+}
+function _zonaTxt(o){ return _zonasDe(o).join(ZONA_SEP); }
+// Etiqueta corta para los chips: "PR1 Asunción +2".
+function _zonaChip(o){
+  const z=_zonasDe(o);
+  return z.length<2?(z[0]||''):(z[0]+'  +'+(z.length-1));
+}
+function _setZonas(o,arr,seg){
+  const vistas={}, limpio=[];
+  (arr||[]).forEach(function(z){ z=String(z||'').trim(); if(z&&!vistas[z]){vistas[z]=1;limpio.push(z);} });
+  const fin=_multiZona(seg||o.seg)?limpio:limpio.slice(0,1);
+  o.zonas=fin;
+  o.zona=fin.join(ZONA_SEP)||null;
+  return fin;
+}
+/* Abre el selector de zona. onDone(enVivo): en vivo hay que actualizar sólo la
+   etiqueta, porque un re-render destruiría el botón que ancla el desplegable. */
+function _abrirZonas(btn,obj,onDone,opts){
+  opts=opts||{};
+  const seg=opts.seg||obj.seg||'local';
+  const base={ search:true, addLabel:opts.addLabel, onAdd:opts.onAdd, onDelete:opts.onDelete,
+    options:()=>_zonasFor(seg).map(z=>({v:z.n,label:z.n,del:opts.del!==false})) };
+  if(!_multiZona(seg)){
+    openChipPop(btn,Object.assign({},base,{
+      value:_zonasDe(obj)[0]||'',
+      onPick:v=>{ _setZonas(obj,[v],seg); onDone(false); }
+    }));
+    return;
+  }
+  openChipPop(btn,Object.assign({},base,{
+    multi:true,
+    hint:'Local puede cubrir varias zonas',
+    value:()=>_zonasDe(obj),
+    onToggle:v=>{ const z=_zonasDe(obj), i=z.indexOf(v); if(i>=0)z.splice(i,1); else z.push(v); _setZonas(obj,z,seg); onDone(true); },
+    onClose:()=>onDone(false)
+  }));
+}
+
 /* ── Persist (Supabase) ──────────────────────────── */
 async function loadData(){
   const[tsRes,camRes,repRes]=await Promise.all([
@@ -2440,7 +2499,7 @@ function renderClientesTable(){
         <button type="button" class="cl-chip cl-repbtn" data-clid="${cl.id}"><span class="cl-chip__lbl${cl.rep?'':' ph'}">${cl.rep?esc(cl.rep):'— Repartidor —'}</span><svg class="cl-chip__arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg></button>
       </td>
       <td style="padding:6px 8px">
-        <button type="button" class="cl-chip cl-zonabtn" data-clid="${cl.id}"><span class="cl-chip__lbl${cl.zona?'':' ph'}">${cl.zona?esc(cl.zona):'— Zona —'}</span><svg class="cl-chip__arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg></button>
+        <button type="button" class="cl-chip cl-zonabtn" data-clid="${cl.id}" title="${esc(_zonaTxt(cl))}"><span class="cl-chip__lbl${_zonaChip(cl)?'':' ph'}">${_zonaChip(cl)?esc(_zonaChip(cl)):'— Zona —'}</span><svg class="cl-chip__arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg></button>
       </td>
       <td style="padding:6px 10px;text-align:right"><input class="cl-peso-inp" type="text" value="${cl.peso>0?formatMoney(cl.peso):''}" placeholder="0" data-clid="${cl.id}" inputmode="numeric"></td>
       <td style="padding:6px 10px;text-align:right"><input class="cl-money-inp" type="text" value="${cl.monto>0?formatMoney(cl.monto):''}" placeholder="0" data-clid="${cl.id}" inputmode="numeric"></td>
@@ -2824,6 +2883,7 @@ function _ensureChipPop(){
 function _closeChipPop(){
   if(!_chipPop)return;const p=_chipPop;
   if(_chipAnchor)_chipAnchor.classList.remove('is-open');_chipAnchor=null;
+  const cb=_chipOnClose;_chipOnClose=null;if(cb)try{cb();}catch(_){}
   if(window.gsap)gsap.to(p,{opacity:0,y:-6,scale:.98,duration:.14,ease:'power2.in',onComplete:()=>{p.classList.remove('open');gsap.set(p,{clearProps:'all'});}});
   else p.classList.remove('open');
 }
@@ -2835,23 +2895,42 @@ function _positionChipPop(){
   if(up){p.style.top='auto';p.style.bottom=(window.innerHeight-r.top+6)+'px';}else{p.style.bottom='auto';p.style.top=(r.bottom+6)+'px';}
   return up;
 }
+let _chipOnClose=null;
 function openChipPop(anchor,opts){
   const p=_ensureChipPop();_chipAnchor=anchor;anchor.classList.add('is-open');
+  _chipOnClose=opts.onClose||null;
+  const esMulti=!!opts.multi;
+  const valor=()=>typeof opts.value==='function'?opts.value():opts.value;
   const searchWrap=p.querySelector('.chip-pop__search'),searchInp=searchWrap.querySelector('input'),list=p.querySelector('.chip-pop__list');
   searchWrap.style.display=opts.search?'':'none';searchInp.value='';
   const CHIP_TRASH='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M10 11v6M14 11v6"/></svg>';
   const getOpts=()=>typeof opts.options==='function'?(opts.options()||[]):(opts.options||[]);
   function render(q){
     q=(q||'').toLowerCase();
-    let html=getOpts().filter(o=>!q||o.label.toLowerCase().includes(q)).map(function(o){
-      const inner=(o.dot?'<span class="dot" style="background:'+o.dot+'"></span>':'')+'<span class="chip-pop__lbl">'+esc(o.label)+'</span>';
-      const item='<button type="button" class="chip-pop__item'+(o.v===opts.value?' on':'')+'" data-v="'+esc(o.v)+'">'+inner+'</button>';
+    const sel=esMulti?(valor()||[]):null;
+    let html=(esMulti&&opts.hint)?'<div class="chip-pop__hint">'+esc(opts.hint)+'</div>':'';
+    html+=getOpts().filter(o=>!q||o.label.toLowerCase().includes(q)).map(function(o){
+      const on=esMulti?(sel.indexOf(o.v)>=0):(o.v===valor());
+      const inner=(esMulti?'<span class="chip-pop__ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>':'')+
+        (o.dot?'<span class="dot" style="background:'+o.dot+'"></span>':'')+'<span class="chip-pop__lbl">'+esc(o.label)+'</span>';
+      const item='<button type="button" class="chip-pop__item'+(on?' on':'')+'" data-v="'+esc(o.v)+'">'+inner+'</button>';
       return (opts.onDelete&&o.del!==false)?'<div class="chip-pop__row">'+item+'<button type="button" class="chip-pop__del" data-del="'+esc(o.v)+'" title="Borrar">'+CHIP_TRASH+'</button></div>':item;
     }).join('');
-    if(!html)html='<div class="chip-pop__empty">Sin resultados</div>';
+    if(html===''||html===((esMulti&&opts.hint)?'<div class="chip-pop__hint">'+esc(opts.hint)+'</div>':''))html+='<div class="chip-pop__empty">Sin resultados</div>';
     if(opts.addLabel)html+='<button type="button" class="chip-pop__item chip-pop__add" data-add="1">＋ '+esc(opts.addLabel)+'</button>';
+    if(esMulti)html+='<button type="button" class="chip-pop__done" data-done="1">Listo</button>';
     list.innerHTML=html;
-    list.querySelectorAll('[data-v]').forEach(b=>b.addEventListener('click',()=>{const v=b.dataset.v;_closeChipPop();opts.onPick&&opts.onPick(v);}));
+    list.querySelectorAll('[data-v]').forEach(b=>b.addEventListener('click',function(ev){
+      const v=b.dataset.v;
+      // En multi el desplegable no se cierra: se sigue marcando y desmarcando.
+      // Se marca la fila en el lugar y NO se rearma la lista: un re-render saca
+      // el botón del DOM en medio del click, y el listener de 'click afuera'
+      // lo toma como afuera y cierra el desplegable.
+      if(esMulti){ ev.stopPropagation(); opts.onToggle&&opts.onToggle(v);
+        const vs=valor()||[]; b.classList.toggle('on',vs.indexOf(v)>=0); return; }
+      _closeChipPop();opts.onPick&&opts.onPick(v);
+    }));
+    const dn=list.querySelector('[data-done]');if(dn)dn.addEventListener('click',()=>_closeChipPop());
     const addb=list.querySelector('[data-add]');if(addb)addb.addEventListener('click',()=>{const q2=(searchInp.value||'').trim();_closeChipPop();opts.onAdd&&opts.onAdd(q2);});
     list.querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();if(opts.onDelete)opts.onDelete(b.dataset.del,()=>render(searchInp.value));}));
   }
@@ -2867,13 +2946,17 @@ function openChipPop(anchor,opts){
 document.getElementById('clientesTbody').addEventListener('click',e=>{
   const segb=e.target.closest('.cl-segbtn');
   if(segb){const cl=currentReparto.clientes.find(c=>c.id===+segb.dataset.clid);if(!cl)return;
-    openChipPop(segb,{value:cl.seg||'local',options:[{v:'local',label:'Local',dot:'#0B5F8D'},{v:'interior',label:'Interior',dot:'#F97316'},{v:'servicios',label:'Servicios',dot:'#10B981'},{v:'transportadora',label:'Transportadora',dot:'#7c3aed'}],onPick:v=>{cl.seg=v;if(cl.zona&&!_zonasFor(v).some(z=>z.n===cl.zona))cl.zona=null;renderClientesTable();}});return;}
+    openChipPop(segb,{value:cl.seg||'local',options:[{v:'local',label:'Local',dot:'#0B5F8D'},{v:'interior',label:'Interior',dot:'#F97316'},{v:'servicios',label:'Servicios',dot:'#10B981'},{v:'transportadora',label:'Transportadora',dot:'#7c3aed'}],onPick:v=>{cl.seg=v;_setZonas(cl,_zonasDe(cl).filter(z=>_zonasFor(v).some(x=>x.n===z)),v);renderClientesTable();}});return;}
   const repb=e.target.closest('.cl-repbtn');
   if(repb){const cl=currentReparto.clientes.find(c=>c.id===+repb.dataset.clid);if(!cl)return;
     openChipPop(repb,{value:cl.rep||'',search:true,addLabel:'Agregar repartidor nuevo',options:_repartidores.map(n=>({v:n,label:n})),onPick:v=>{cl.rep=v;renderClientesTable();},onAdd:()=>_openAddRepartidor(name=>{cl.rep=name;renderClientesTable();})});return;}
   const zonb=e.target.closest('.cl-zonabtn');
   if(zonb){const cl=currentReparto.clientes.find(c=>c.id===+zonb.dataset.clid);if(!cl)return;
-    openChipPop(zonb,{value:cl.zona||'',search:true,options:_zonasFor(cl.seg||'local').map(z=>({v:z.n,label:z.n})),onPick:v=>{cl.zona=v;renderClientesTable();}});return;}
+    _abrirZonas(zonb,cl,function(enVivo){
+      if(enVivo){ const l=zonb.querySelector('.cl-chip__lbl'); const t=_zonaChip(cl);
+        if(l){ l.textContent=t||'— Zona —'; l.classList.toggle('ph',!t); } return; }
+      renderClientesTable();
+    },{del:false});return;}
 });
 
 // Modal para agregar un repartidor nuevo a la tabla `repartidores`
@@ -4548,7 +4631,7 @@ function calRepEditHTML(r){
       '<td>'+segCell+'</td>'+
       '<td><button type="button" class="cal-e-pick cal-e-pick--tr'+(w.trId?'':' ph')+'" data-uid="'+w.uid+'" data-pick="tr"><span class="cal-e-pick__t">'+(w.trId?esc(w.trDesc||'—'):'Elegir camión')+'</span>'+CHEV+'</button></td>'+
       '<td><button type="button" class="cal-e-pick'+(w.rep?'':' ph')+'" data-uid="'+w.uid+'" data-pick="rep"><span class="cal-e-pick__t">'+(w.rep?esc(w.rep):'Tercerizado')+'</span>'+CHEV+'</button></td>'+
-      '<td><button type="button" class="cal-e-pick'+(w.zona?'':' ph')+'" data-uid="'+w.uid+'" data-pick="zona"><span class="cal-e-pick__t">'+(w.zona?esc(w.zona):'Elegir zona')+'</span>'+CHEV+'</button></td>'+
+      '<td><button type="button" class="cal-e-pick'+(_zonaChip(w)?'':' ph')+'" data-uid="'+w.uid+'" data-pick="zona" title="'+esc(_zonaTxt(w))+'"><span class="cal-e-pick__t">'+(_zonaChip(w)?esc(_zonaChip(w)):'Elegir zona')+'</span>'+CHEV+'</button></td>'+
       '<td class="r"><input class="cal-e-in cal-e-peso" data-uid="'+w.uid+'" inputmode="numeric" placeholder="0" value="'+(w.peso?_nnum(w.peso):'')+'"></td>'+
       (showKm?'<td class="r">'+((isInt&&!w.fijo)?('<input class="cal-e-in cal-e-km" data-uid="'+w.uid+'" inputmode="numeric" placeholder="0" value="'+(w.km?_nnum(w.km):'')+'">'):'<span class="cal-e-dash">—</span>')+'</td>':'')+
       '<td class="r"><input class="cal-e-in cal-e-monto" data-uid="'+w.uid+'" inputmode="numeric" placeholder="0" value="'+(w.monto?_nnum(w.monto):'')+'"></td>'+
@@ -4610,11 +4693,15 @@ function calOpenPick(btn){
       onPick:v=>{w.rep=v;rerender();},onAdd:()=>_openAddRepartidor(name=>{w.rep=name;rerender();}),
       onDelete:v=>{_closeChipPop();_cfConfirm('¿Borrar repartidor?','<b>'+esc(v)+'</b> se va a quitar de la lista.',()=>{if(w.rep===v)w.rep='';_deleteRepartidor(v);rerender();},'Sí, borrar');}});
   }else if(kind==='zona'){
-    openChipPop(btn,{value:w.zona||'',search:true,addLabel:'Usar otra zona',options:()=>_zonasFor(w.seg||'local').map(z=>({v:z.n,label:z.n,del:true})),
-      onPick:v=>{w.zona=v;rerender();},onAdd:q=>{if(q){w.zona=q;rerender();}},
-      onDelete:v=>{_closeChipPop();_cfConfirm('¿Quitar la zona?','<b>'+esc(v)+'</b> se quita de la lista (solo en esta sesión).',()=>{const i=_ZONAS.findIndex(z=>z.n===v);if(i>=0)_ZONAS.splice(i,1);if(w.zona===v)w.zona='';rerender();},'Sí, quitar');}});
+    _abrirZonas(btn,w,function(enVivo){
+      if(enVivo){ const l=btn.querySelector('.cal-e-pick__t'); const t=_zonaChip(w);
+        if(l)l.textContent=t||'Elegir zona'; btn.classList.toggle('ph',!t); return; }
+      rerender();
+    },{addLabel:'Usar otra zona',
+      onAdd:q=>{if(q){_setZonas(w,_zonasDe(w).concat([q]));rerender();}},
+      onDelete:v=>{_closeChipPop();_cfConfirm('¿Quitar la zona?','<b>'+esc(v)+'</b> se quita de la lista (solo en esta sesión).',()=>{const i=_ZONAS.findIndex(z=>z.n===v);if(i>=0)_ZONAS.splice(i,1);_setZonas(w,_zonasDe(w).filter(z=>z!==v));rerender();},'Sí, quitar');}});
   }else if(kind==='seg'){
-    openChipPop(btn,{value:w.seg||'local',options:[{v:'local',label:'Local',dot:'#0B5F8D'},{v:'interior',label:'Interior',dot:'#F97316'},{v:'servicios',label:'Servicios',dot:'#10B981'},{v:'transportadora',label:'Transportadora',dot:'#7c3aed'}],onPick:v=>{w.seg=v;if(v!=='interior')w.fijo=false;else if(w.fijo===undefined||w.fijo===null)w.fijo=!(+w.km>0&&+w.precioKm>0);if(w.zona&&!_zonasFor(v).some(z=>z.n===w.zona))w.zona=null;rerender();}});
+    openChipPop(btn,{value:w.seg||'local',options:[{v:'local',label:'Local',dot:'#0B5F8D'},{v:'interior',label:'Interior',dot:'#F97316'},{v:'servicios',label:'Servicios',dot:'#10B981'},{v:'transportadora',label:'Transportadora',dot:'#7c3aed'}],onPick:v=>{w.seg=v;if(v!=='interior')w.fijo=false;else if(w.fijo===undefined||w.fijo===null)w.fijo=!(+w.km>0&&+w.precioKm>0);_setZonas(w,_zonasDe(w).filter(z=>_zonasFor(v).some(x=>x.n===z)),v);rerender();}});
   }
 }
 // Une automáticamente todos los repartos del día en uno solo (sin render; devuelve true si unió)
@@ -7499,7 +7586,16 @@ function renderMetaRep(){
   }
 }
 // Monto e incidencia agrupados por zona (para el Reporte General)
-function _cfZonas(mk,seg){const map={};(repartos||[]).forEach(r=>{if(mk&&(r.fechaISO||'').slice(0,7)!==mk)return;(r.clientes||[]).forEach(c=>{if(!_clFacturado(c,r))return;if(seg&&seg!=='todos'&&(c.seg||'local')!==seg)return;const z=((c.zona||'').trim())||'Sin zona';const o=map[z]||(map[z]={zona:z,monto:0,flete:0,peso:0});o.monto+=+c.monto||0;o.flete+=_cfFleteVal(c);o.peso+=+c.peso||0;});});return Object.values(map).map(z=>({zona:z.zona,monto:z.monto,flete:z.flete,peso:z.peso,incidencia:z.monto>0?z.flete/z.monto:0})).sort((a,b)=>b.monto-a.monto);}
+function _cfZonas(mk,seg){const map={};(repartos||[]).forEach(r=>{if(mk&&(r.fechaISO||'').slice(0,7)!==mk)return;(r.clientes||[]).forEach(c=>{
+  if(!_clFacturado(c,r))return;
+  if(seg&&seg!=='todos'&&(c.seg||'local')!==seg)return;
+  // Una línea Local puede cubrir varias zonas. El monto, el flete y el peso se
+  // reparten en partes iguales para que el total del reporte siga cerrando con
+  // el total real en vez de inflarse.
+  const zs=_zonasDe(c), lista=zs.length?zs:['Sin zona'], n=lista.length;
+  const monto=(+c.monto||0)/n, flete=_cfFleteVal(c)/n, peso=(+c.peso||0)/n;
+  lista.forEach(function(z){ const o=map[z]||(map[z]={zona:z,monto:0,flete:0,peso:0}); o.monto+=monto; o.flete+=flete; o.peso+=peso; });
+});});return Object.values(map).map(z=>({zona:z.zona,monto:z.monto,flete:z.flete,peso:z.peso,incidencia:z.monto>0?z.flete/z.monto:0})).sort((a,b)=>b.monto-a.monto);}
 let _cfZonaSeg='todos';
 // HTML de la sección de zonas (con filtro de segmento). Se re-renderiza in-place al cambiar de tab.
 function _repZonaHTML(mk){
@@ -9617,10 +9713,10 @@ function _rrOpenDetail(g,periodLbl,wkObj){
         onAdd:()=>_openAddRepartidor(name=>{w.rep=name;setT(name,false);}),
         onDelete:v=>{_closeChipPop();_cfConfirm('¿Borrar repartidor?','<b>'+_escp(v)+'</b> se va a quitar de la lista.',()=>{if(w.rep===v){w.rep='';setT('Tercerizado',true);}_deleteRepartidor(v);},'Sí, borrar');}});
     }else if(kind==='zona'){
-      openChipPop(btn,{value:w.zona||'',search:true,addLabel:'Agregar zona nueva',options:()=>_zonasFor(w.seg||'local').map(z=>({v:z.n,label:z.n,del:true})),
-        onPick:v=>{w.zona=v;setT(v||'Elegir zona',!v);},
-        onAdd:q=>_openAddZona(w.seg||'local',q,name=>{w.zona=name;setT(name,false);}),
-        onDelete:v=>{_closeChipPop();_cfConfirm('¿Quitar la zona?','<b>'+_escp(v)+'</b> se quita de la lista (solo en esta sesión).',()=>{const i=_ZONAS.findIndex(z=>z.n===v);if(i>=0)_ZONAS.splice(i,1);if(w.zona===v){w.zona='';setT('Elegir zona',true);}},'Sí, quitar');}});
+      const pinta=()=>{const t=_zonaChip(w);setT(t||'Elegir zona',!t);};
+      _abrirZonas(btn,w,pinta,{addLabel:'Agregar zona nueva',
+        onAdd:q=>_openAddZona(w.seg||'local',q,name=>{_setZonas(w,_zonasDe(w).concat([name]));pinta();}),
+        onDelete:v=>{_closeChipPop();_cfConfirm('¿Quitar la zona?','<b>'+_escp(v)+'</b> se quita de la lista (solo en esta sesión).',()=>{const i=_ZONAS.findIndex(z=>z.n===v);if(i>=0)_ZONAS.splice(i,1);_setZonas(w,_zonasDe(w).filter(z=>z!==v));pinta();},'Sí, quitar');}});
     }
   }
   // Editor masivo tipo Excel de un segmento (edita todas las líneas y guarda al final)
@@ -9658,7 +9754,9 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     function openCellPick(btn){const d=D(btn.dataset.k);if(!d)return;const kind=btn.dataset.pick;
       if(kind==='tr')openChipPop(btn,{value:d.trId?String(d.trId):'',search:true,options:(trucks||[]).map(t=>({v:String(t.id),label:t.d})),onPick:v=>{const t=(trucks||[]).find(x=>String(x.id)===v);d.trId=+v;d.trDesc=t?t.d:'';setT(btn,t?t.d:'—',false);}});
       else if(kind==='rep')openChipPop(btn,{value:d.rep||'',search:true,addLabel:'Agregar repartidor nuevo',options:()=>(_repartidores||[]).map(n=>({v:n,label:n})),onPick:v=>{d.rep=v;setT(btn,v||'Tercerizado',!v);},onAdd:()=>_openAddRepartidor(name=>{d.rep=name;setT(btn,name,false);})});
-      else if(kind==='zona')openChipPop(btn,{value:d.zona||'',search:true,addLabel:'Agregar zona nueva',options:()=>_zonasFor(sk).map(z=>({v:z.n,label:z.n})),onPick:v=>{d.zona=v;setT(btn,v||'—',!v);},onAdd:q=>_openAddZona(sk,q,name=>{d.zona=name;setT(btn,name,false);})});}
+      else if(kind==='zona'){const pinta=()=>{const t=_zonaChip(d);setT(btn,t||'—',!t);};
+        _abrirZonas(btn,d,pinta,{seg:sk,del:false,addLabel:'Agregar zona nueva',
+          onAdd:q=>_openAddZona(sk,q,name=>{_setZonas(d,_zonasDe(d).concat([name]),sk);pinta();})});}}
     function wireRows(){
       body.querySelectorAll('.xls-date').forEach(i=>i.addEventListener('change',()=>{const d=D(i.dataset.k);if(d)d.fecha=i.value||null;}));
       body.querySelectorAll('.xls-km').forEach(i=>i.addEventListener('input',()=>{const d=D(i.dataset.k);if(d){d.km=_kmParse(i.value);updFlete(d);}}));
@@ -9792,7 +9890,9 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     bd.querySelectorAll('.rrd-tbl--edit .xls-pick:not(.rrd-segpick)').forEach(b=>b.addEventListener('click',()=>{const d=_DD(b.dataset.dk);if(!d)return;const kind=b.dataset.pick,setT=(t,ph)=>{const s=b.querySelector('span');if(s)s.textContent=t;b.classList.toggle('ph',!!ph);};
       if(kind==='tr')openChipPop(b,{value:d.trId?String(d.trId):'',search:true,options:(trucks||[]).map(t=>({v:String(t.id),label:t.d})),onPick:v=>{const t=(trucks||[]).find(x=>String(x.id)===v);d.trId=+v;d.trDesc=t?t.d:'';setT(t?t.d:'—',false);}});
       else if(kind==='rep')openChipPop(b,{value:d.rep||'',search:true,addLabel:'Agregar repartidor nuevo',options:()=>(_repartidores||[]).map(n=>({v:n,label:n})),onPick:v=>{d.rep=v;setT(v||'Tercerizado',!v);},onAdd:()=>_openAddRepartidor(name=>{d.rep=name;setT(name,false);})});
-      else if(kind==='zona'){const zseg=d.seg||_dashSeg;openChipPop(b,{value:d.zona||'',search:true,addLabel:'Agregar zona nueva',options:()=>_zonasFor(zseg).map(z=>({v:z.n,label:z.n})),onPick:v=>{d.zona=v;setT(v||'—',!v);},onAdd:q=>_openAddZona(zseg,q,name=>{d.zona=name;setT(name,false);})});}}));
+      else if(kind==='zona'){const zseg=d.seg||_dashSeg;const pinta=()=>{const t=_zonaChip(d);setT(t||'—',!t);};
+        _abrirZonas(b,d,pinta,{seg:zseg,del:false,addLabel:'Agregar zona nueva',
+          onAdd:q=>_openAddZona(zseg,q,name=>{_setZonas(d,_zonasDe(d).concat([name]),zseg);pinta();})});}}));
     // clic en la fila desglosa (edita) SOLO esa; el tacho borra con confirmación
     bd.querySelectorAll('.rrv-row').forEach(r=>r.addEventListener('click',e=>{if(e.target.closest('button'))return;openEdit(r.dataset.edituid);}));
     bd.querySelectorAll('.rrv-del').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();const w=W(b.dataset.deluid);if(w)confirmDelete(w);}));
