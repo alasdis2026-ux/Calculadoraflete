@@ -54,6 +54,10 @@ body{min-height:100vh;overflow:hidden;font-family:Inter,system-ui,-apple-system,
    (10.5 + 3 de margen + 19). Acá no hay número, así que se reserva ese mismo
    alto y la etiqueta queda centrada: la tira mide igual que el filtro. */
 .cf-tabs .ci-seg__col{min-height:32.5px;justify-content:center}
+/* En Reporte de repartos la tira lleva el ancho del filtro de abajo (ver
+   _cfAlinearTira), así que los gajos se reparten ese espacio. */
+#viewRrep>.cf-tabs .ci-seg__btn{flex:1 1 0;min-width:0}
+#viewRrep>.cf-tabs .ci-seg__lbl{overflow:hidden;text-overflow:ellipsis}
 @keyframes cfTabPop{0%{transform:scale(.95)}55%{transform:scale(1.03)}100%{transform:scale(1)}}
 .cf-tabs .ci-seg__btn.is-active.pop{animation:cfTabPop .34s cubic-bezier(.2,.9,.3,1.2)}
 @media(prefers-reduced-motion:reduce){.cf-tabs .ci-seg__btn.is-active.pop{animation:none}}
@@ -9335,7 +9339,29 @@ function renderReporteRepartos(){
   if(!_rrSegAnim){ _rrStagger('.rr-brand',0); _rrStagger('.ci-phead',8); _rrStagger('.ci-wrow',8); }
   _rrStagger('.ci-seg__btn',6);
   _rrSegAnim=false;
+  _cfAlinearTira();
 }
+
+/* La tira de apartados toma el ancho del filtro de segmentos que tiene debajo,
+   para que los bordes de los dos coincidan. Centrarlos no alcanza: el filtro
+   tiene 5 gajos y la tira 3, asi que miden distinto. El ancho del filtro
+   cambia con los números que muestra, por eso se recalcula en cada render. */
+function _cfAlinearTira(){
+  const vista=document.getElementById('viewRrep'); if(!vista)return;
+  const tira=vista.querySelector(':scope > .cf-tabs');
+  if(!tira)return;
+  const filtro=vista.querySelector('.rr-topbar > .ci-seg');
+  if(!filtro){ tira.style.width=''; return; }
+  const w=Math.round(filtro.getBoundingClientRect().width);
+  tira.style.width=(w>0)?(w+'px'):'';
+}
+/* Al cambiar el ancho de la ventana el filtro puede cambiar de medida. */
+(function(){
+  let t=0;
+  window.addEventListener('resize',function(){
+    clearTimeout(t); t=setTimeout(_cfAlinearTira,120);
+  });
+})();
 function _rrOpenDetail(g,periodLbl,wkObj){
   const SEGN={local:'Local',interior:'Interior',servicios:'Servicios',transportadora:'Transportadora'};
   const TRUCKICON='<svg viewBox="0 0 24 24"><rect x="2.5" y="7" width="11" height="8" rx="1"/><path d="M13.5 9.5H17l3.5 3.5V15h-7z"/><circle cx="7" cy="17.5" r="1.6"/><circle cx="17.5" cy="17.5" r="1.6"/></svg>';
