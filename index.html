@@ -267,40 +267,38 @@ body{min-height:100vh;overflow:hidden;font-family:Inter,system-ui,-apple-system,
 @media(prefers-reduced-motion:reduce){ .sv-monthnav,.sv-monthnav__pill,.sv-limpiar{animation:none} .sv-srch,.sv-srch:focus-within{transition:none} }
 
 .sv-table-scroll{max-height:min(68vh,calc(100vh - 330px));min-height:150px;overflow:auto;border:1px solid #dce5eb;border-radius:13px;background:#fff;box-shadow:0 2px 8px rgba(21,48,67,.045);scrollbar-color:#c8d5de #f4f7f9;scrollbar-width:thin}
-.sv-tbl{width:100%;min-width:920px;border-collapse:separate;border-spacing:0;table-layout:fixed}
-.sv-tbl col.sv-col-date{width:126px}.sv-tbl col.sv-col-carrier{width:184px}.sv-tbl col.sv-col-service{width:auto}.sv-tbl col.sv-col-invoice{width:205px}.sv-tbl col.sv-col-amount{width:158px}.sv-tbl col.sv-col-action{width:48px}
+.sv-tbl{width:100%;min-width:1120px;border-collapse:separate;border-spacing:0;table-layout:fixed}
+.sv-tbl col.sv-col-date{width:128px}.sv-tbl col.sv-col-carrier{width:195px}.sv-tbl col.sv-col-service{width:auto}.sv-tbl col.sv-col-invoice{width:205px}.sv-tbl col.sv-col-amount{width:155px}.sv-tbl col.sv-col-action{width:230px}
 .sv-tbl thead th{position:sticky;top:0;z-index:4;height:36px;padding:0 12px;background:#f3f7fa;border-bottom:1px solid #dce5eb;color:#7b8e9b;font-size:9px;font-weight:850;letter-spacing:.085em;text-align:left;text-transform:uppercase;white-space:nowrap}
+.sv-tbl thead th+th,.sv-tbl tbody td+td{border-left:1px solid #f0f4f6}
 .sv-tbl th.r,.sv-tbl td.r{text-align:right}
 .sv-tbl td{height:42px;padding:0 12px;border-bottom:1px solid #edf1f4;color:#516777;font-size:12px;white-space:nowrap}
 .sv-sheet-row{transition:background .16s ease,box-shadow .16s ease}
 .sv-sheet-row.is-alt{background:#fafcfd}
+.sv-sheet-row.is-group-start td:first-child{border-left:2px solid #9ac5db}
+.sv-sheet-row .sv-fecha{color:#607c8e;font-variant-numeric:tabular-nums}
+.sv-sheet-row.is-group-start td{border-top:1px solid #ccdce5}
 .sv-sheet-row:hover{background:#f0f7fb;box-shadow:inset 3px 0 #2584b8}
-.sv-sheet-group td{height:43px;padding:0 12px;border-top:1px solid #dce7ed;border-bottom:1px solid #dce7ed;background:#edf4f8}
-.sv-sheet-group__name{display:flex;align-items:center;gap:9px;min-width:0}
-.sv-sheet-group__badge{display:grid;place-items:center;width:25px;height:25px;flex:none;border:1px solid #d8e8f1;border-radius:8px;background:#fff;color:#0b6594;font-size:9px;font-weight:900}
-.sv-sheet-group__copy{display:flex;align-items:baseline;gap:9px;min-width:0;overflow:hidden}
-.sv-sheet-group__copy b{overflow:hidden;color:#28485d;font-size:11.5px;font-weight:850;text-overflow:ellipsis;white-space:nowrap}
-.sv-sheet-group__copy small{overflow:hidden;color:#738997;font-size:10px;font-weight:600;text-overflow:ellipsis;white-space:nowrap}
-.sv-sheet-group__actions{display:flex;align-items:center;justify-content:flex-end;gap:9px}
-.sv-sheet-group__total{display:flex;flex-direction:column;align-items:flex-end;margin-right:2px;white-space:nowrap}
-.sv-sheet-group__total span{color:#8295a2;font-size:8px;font-weight:850;letter-spacing:.08em;text-transform:uppercase}
-.sv-sheet-group__total b{color:#075984;font-size:12px;font-weight:900;font-variant-numeric:tabular-nums}
-.sv-g__fac{display:inline-flex;align-items:center;gap:5px;height:27px;padding:0 9px;margin:0;border:1px solid #bfe8d1;border-radius:8px;background:#edfbf3;color:#16754a;font:inherit;font-size:9px;font-weight:850;white-space:nowrap}
+.sv-sheet-carrier{overflow:hidden}
+.sv-carrier-chip{display:inline-flex;align-items:center;gap:6px;max-width:100%;padding:3px 8px 3px 4px;border:1px solid #e1edf3;border-radius:999px;background:#f5fafc;color:#31576e;font-size:10.5px;font-weight:800}
+.sv-carrier-chip i{display:grid;place-items:center;width:20px;height:20px;flex:none;border-radius:50%;background:#e4f1f8;color:#0b6594;font-size:8px;font-style:normal;font-weight:900}
+.sv-carrier-chip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sv-sheet-actions{display:flex;align-items:center;justify-content:flex-end;gap:7px}
+.sv-g__fac{display:inline-flex;align-items:center;gap:5px;height:29px;padding:0 9px;margin:0;border:1px solid #bfe8d1;border-radius:9px;background:#edfbf3;color:#16754a;font:inherit;font-size:9px;font-weight:850;white-space:nowrap}
 .sv-g__fac svg{width:12px;height:12px;flex:none}
-.sv-g__fac--btn{border-color:#cbdce6;background:#fff;color:#42677d;cursor:pointer;transition:transform .16s,border-color .16s,color .16s,background .16s,box-shadow .16s}
-.sv-g__fac--btn:hover{transform:translateY(-1px);border-color:#86b6cf;background:#f5fbfe;color:#075984;box-shadow:0 4px 10px rgba(11,95,141,.1)}
+.sv-g__fac--btn{border:1px solid #0b6594;background:linear-gradient(135deg,#1682c2,#075984);color:#fff;cursor:pointer;box-shadow:0 6px 13px -8px rgba(7,89,132,.8);transition:transform .18s,border-color .18s,filter .18s,box-shadow .18s}
+.sv-g__fac--btn:hover{transform:translateY(-2px);filter:brightness(1.07);box-shadow:0 9px 18px -8px rgba(7,89,132,.55)}
 .sv-g__print{display:inline-flex;align-items:center;justify-content:center;gap:5px;height:27px;padding:0 8px;border:1px solid #d5e0e7;border-radius:8px;background:#fff;color:#60798a;font:inherit;font-size:9px;font-weight:800;cursor:pointer;transition:transform .16s,border-color .16s,color .16s,background .16s}
 .sv-g__print svg{width:12px;height:12px}.sv-g__print:hover{transform:translateY(-1px);border-color:#9bbdd0;background:#f4f9fc;color:#075984}
-.sv-sheet-carrier{overflow:hidden;color:#31576e;font-size:11.5px;font-weight:750;text-overflow:ellipsis}
 .sv-sheet-service{overflow:hidden;color:#29495f;font-size:11.5px;font-weight:700;text-overflow:ellipsis}
 .sv-sheet-invoice{display:inline-flex;align-items:center;min-height:22px}
 .sv-sheet-amount{color:#24485f!important;font-weight:850!important;font-variant-numeric:tabular-nums}
 .sv-sheet-delete{display:inline-flex!important;width:27px!important;height:27px!important;opacity:.5!important}
 .sv-sheet-row:hover .sv-sheet-delete,.sv-sheet-delete:focus-visible{opacity:1!important}
-.sv-css-in .sv-sheet-group,.sv-css-in .sv-sheet-row{animation:svSheetIn .27s cubic-bezier(.2,.75,.25,1) backwards;animation-delay:calc(var(--i,0)*12ms)}
+.sv-css-in .sv-sheet-row{animation:svSheetIn .27s cubic-bezier(.2,.75,.25,1) backwards;animation-delay:calc(var(--i,0)*10ms)}
 @keyframes svSheetIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-@media(max-width:700px){.sv-monthnav{gap:5px;flex-wrap:wrap}.sv-monthnav__title{min-width:130px;font-size:14px}.sv-bar__r{width:100%}.sv-table-scroll{max-height:calc(100vh - 285px);border-radius:11px}.sv-tbl{min-width:920px}}
-@media(prefers-reduced-motion:reduce){.sv-sheet-row,.sv-g__fac--btn,.sv-g__print{transition:none}.sv-css-in .sv-sheet-group,.sv-css-in .sv-sheet-row{animation:none}}
+@media(max-width:700px){.sv-monthnav{gap:5px;flex-wrap:wrap}.sv-monthnav__title{min-width:130px;font-size:14px}.sv-bar__r{width:100%}.sv-table-scroll{max-height:calc(100vh - 285px);border-radius:11px}.sv-tbl{min-width:1120px}}
+@media(prefers-reduced-motion:reduce){.sv-sheet-row,.sv-g__fac--btn,.sv-g__print{transition:none}.sv-css-in .sv-sheet-row{animation:none}}
 
 /* La factura propia va en azul; la de la planilla, apagada y rotulada. */
 .sv-fact{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:800;padding:4px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent);white-space:nowrap}
@@ -10955,26 +10953,24 @@ function _svDatos(host,lin){
   let indiceAnimacion=0;
   host.innerHTML=barra+'<div class="sv-table-scroll'+(usarCss?' sv-css-in':'')+'" role="region" aria-label="Tabla de servicios adicionales" tabindex="0"><table class="sv-tbl sv-tbl--sheet" aria-label="Servicios adicionales registrados">'+
     '<colgroup><col class="sv-col-date"><col class="sv-col-carrier"><col class="sv-col-service"><col class="sv-col-invoice"><col class="sv-col-amount"><col class="sv-col-action"></colgroup>'+
-    '<thead><tr><th>Fecha</th><th>Transportadora</th><th>Servicio</th><th>Factura</th><th class="r">Monto</th><th></th></tr></thead><tbody>'+orden.map(function(k){
+    '<thead><tr><th>Fecha</th><th>Transportadora</th><th>Servicio</th><th>Factura</th><th class="r">Monto</th><th class="r">Acciones</th></tr></thead><tbody>'+orden.map(function(k){
     const g=gm[k];
-    const banda='<tr class="sv-sheet-group" style="--i:'+Math.min(indiceAnimacion++,24)+'">'+
-      '<td colspan="3"><div class="sv-sheet-group__name"><span class="sv-sheet-group__badge">'+esc(initials(g.ts))+'</span><span class="sv-sheet-group__copy"><b>'+esc(g.ts)+'</b><small>'+_svDM(g.desde)+' al '+_svDM(g.hasta)+' · '+g.filas.length+(g.filas.length===1?' servicio':' servicios')+'</small></span></div></td>'+
-      '<td colspan="3"><div class="sv-sheet-group__actions"><div class="sv-sheet-group__total"><span>Total del grupo</span><b>'+_svGs(g.total)+'</b></div>'+_svBotonFac(g,k)+
-        '<button type="button" class="sv-g__print" data-svprint="'+esc(k)+'" title="Imprimir este grupo">'+PRINT+'Imprimir</button></div></td></tr>';
     const filas=g.filas.map(function(x,j){
-      return '<tr class="sv-sheet-row'+(j%2?' is-alt':'')+'" style="--i:'+Math.min(indiceAnimacion++,24)+'">'+
+      const acciones=j===0?_svBotonFac(g,k)+
+        '<button type="button" class="sv-g__print" data-svprint="'+esc(k)+'" title="Imprimir este grupo" aria-label="Imprimir este grupo">'+PRINT+'</button>':'';
+      return '<tr class="sv-sheet-row'+(j===0?' is-group-start':'')+(j%2?' is-alt':'')+'" style="--i:'+Math.min(indiceAnimacion++,24)+'">'+
         '<td class="sv-fecha">'+_svDM(x.iso)+'</td>'+
-        '<td class="sv-sheet-carrier" title="'+esc(x.ts)+'">'+esc(x.ts)+'</td>'+
+        '<td class="sv-sheet-carrier"><span class="sv-carrier-chip" title="'+esc(x.ts)+'"><i>'+esc(initials(x.ts))+'</i><span>'+esc(x.ts)+'</span></span></td>'+
         '<td class="sv-sheet-service" title="'+esc(x.c.obs||'—')+'">'+esc(x.c.obs||'—')+'</td>'+
         '<td><span class="sv-sheet-invoice">'+_svChipFact(x)+'</span></td>'+
         '<td class="r sv-sheet-amount">'+_svGs(x.monto)+'</td>'+
-        '<td class="r"><button type="button" class="sv-del sv-sheet-delete" data-svdel="'+x.r.id+':'+x.c.id+'" title="Quitar este servicio" aria-label="Quitar este servicio">'+TACHO+'</button></td></tr>';
+        '<td class="r"><div class="sv-sheet-actions">'+acciones+'<button type="button" class="sv-del sv-sheet-delete" data-svdel="'+x.r.id+':'+x.c.id+'" title="Quitar este servicio" aria-label="Quitar este servicio">'+TACHO+'</button></div></td></tr>';
     }).join('');
-    return banda+filas;
+    return filas;
   }).join('')+'</tbody></table></div>';
 
   if(usarGsap){
-    try{ window.gsap.fromTo(Array.prototype.slice.call(host.querySelectorAll('.sv-sheet-group,.sv-sheet-row'),0,36),{opacity:0,y:7},{opacity:1,y:0,duration:.23,stagger:.012,ease:'power2.out',clearProps:'opacity,transform'}); }
+    try{ window.gsap.fromTo(Array.prototype.slice.call(host.querySelectorAll('.sv-sheet-row'),0,42),{opacity:0,y:7},{opacity:1,y:0,duration:.23,stagger:.01,ease:'power2.out',clearProps:'opacity,transform'}); }
     catch(_){ }
   }
 
@@ -10983,7 +10979,11 @@ function _svDatos(host,lin){
     b.addEventListener('click',function(){ _svPrint(gm[b.dataset.svprint]); });
   });
   host.querySelectorAll('[data-svfac]').forEach(function(b){
-    b.addEventListener('click',function(){ _svFacturar(gm[b.dataset.svfac]); });
+    b.addEventListener('click',function(){
+      const g=gm[b.dataset.svfac]; if(!g)return;
+      const filas=g.filas.filter(function(x){ return !_svFact(x); }); if(!filas.length)return;
+      _svFacturar({ts:g.ts,desde:g.desde,hasta:g.hasta,filas:filas,total:filas.reduce(function(s,x){ return s+x.monto; },0)});
+    });
   });
   host.querySelectorAll('[data-svdel]').forEach(function(b){
     b.addEventListener('click',function(){ _svBorrar(b.dataset.svdel); });
@@ -11039,18 +11039,12 @@ function _svBorrar(ref){
   },'Sí, quitar');
 }
 
-/* El grupo ya facturado muestra su número; si no, el botón para cargarla. */
+/* La acción de factura solo aparece cuando quedan servicios pendientes. */
 function _svBotonFac(g,k){
-  const nros={}; g.filas.forEach(function(x){ const f=_svFact(x); if(f)nros[f.nro]=1; });
-  const l=Object.keys(nros);
-  if(l.length&&g.filas.every(function(x){ return !!_svFact(x); })){
-    return '<span class="sv-g__fac" title="Todos los servicios del grupo están facturados">'+
-      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>'+
-      'Factura '+esc(l.join(', '))+'</span>';
-  }
-  return '<button type="button" class="sv-g__fac sv-g__fac--btn" data-svfac="'+esc(k)+'">'+
+  if(!g.filas.some(function(x){ return !_svFact(x); }))return '';
+  return '<button type="button" class="sv-g__fac sv-g__fac--btn" data-svfac="'+esc(k)+'" title="Registrar factura de los servicios de este grupo">'+
     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z"/><path d="M14 2v6h6M9 13h6M9 17h6"/></svg>'+
-    'Registrar factura'+(l.length?' ('+(g.filas.length-g.filas.filter(function(x){ return !!_svFact(x); }).length)+' sin)':'')+'</button>';
+    'Registrar factura</button>';
 }
 
 /* Registrar la factura de un grupo de servicios. Misma idea que la planilla de
