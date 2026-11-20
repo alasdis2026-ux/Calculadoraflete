@@ -3372,17 +3372,26 @@ function _qClose(){
 function _qPick(i){
   const x=_qList[i];
   if(!x)return;
-  const newCl={id:nextClienteId++,trId:x.tr.id,tsId:x.ts.id,monto:0,precio:0,seg:_truckSeg(x.tr.id),rep:null};
-  currentReparto.clientes.push(newCl);
-  renderClientesTable();updateResultCard();
+  // El desplegable se cierra ANTES de tocar la tabla. Al reves, si
+  // renderClientesTable o updateResultCard tiraban un error, el camión quedaba
+  // agregado pero el cierre nunca llegaba a ejecutarse y la lista se quedaba
+  // desplegada. El foco sale del campo: dejándolo adentro, cualquier evento de
+  // foco vuelve a disparar _qOpen y la lista reaparece sola.
   const inp=document.getElementById('qAddInp');
-  // Se suelta el foco a proposito: dejandolo adentro, cualquier evento de foco
-  // sobre el campo vuelve a disparar _qOpen y la lista reaparece sola. Para
-  // cargar el siguiente camion se vuelve a entrar al buscador.
   if(inp){inp.value='';inp.blur();}
   _qIdx=0;
   _qClose();
-  // Deja ver cuál entró sin sacarte del campo.
+
+  const newCl={id:nextClienteId++,trId:x.tr.id,tsId:x.ts.id,monto:0,precio:0,seg:_truckSeg(x.tr.id),rep:null};
+  currentReparto.clientes.push(newCl);
+  // Si el refresco falla, se avisa: antes la pantalla quedaba colgada sin que
+  // nada lo dijera.
+  try{ renderClientesTable(); updateResultCard(); }
+  catch(err){
+    console.error('[flete] fallo al refrescar la tabla después de agregar un camión',err);
+    if(typeof showToast==='function')showToast('Agregué el camión, pero algo falló al refrescar la tabla 😕');
+  }
+
   const row=document.querySelector('[data-clid="'+newCl.id+'"]');
   if(row&&window.gsap){
     gsap.fromTo(row,{opacity:0,y:-12},{opacity:1,y:0,duration:.4,ease:'back.out(1.6)',clearProps:'opacity,transform'});
