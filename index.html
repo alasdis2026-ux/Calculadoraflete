@@ -59,27 +59,59 @@ body{min-height:100vh;overflow:hidden;font-family:Inter,system-ui,-apple-system,
   .sv-hd>.sv-tabs{grid-column:1/-1;grid-row:2;justify-self:stretch}
 }
 
-/* ── Registro: una sola tarjeta, sin adornos ── */
-.sv-reg{max-width:760px;margin:0 auto}
-.sv-form{background:#fff;border:1.5px solid var(--gray-200);border-radius:18px;box-shadow:0 1px 3px rgba(15,36,64,.05);padding:26px 28px 24px}
-.sv-form__hd h3{font-family:Sora,Inter,sans-serif;font-size:17px;font-weight:800;color:var(--gray-800);letter-spacing:-.3px}
-.sv-form__hd p{margin-top:5px;font-size:12.5px;font-weight:600;color:var(--gray-400);line-height:1.5}
-.sv-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px 18px;padding:24px 0 22px}
-.sv-grid>label{display:flex;flex-direction:column;gap:7px;min-width:0}
-.sv-grid>label>span{font-size:10px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--gray-400)}
-.sv-grid__wide{grid-column:span 2}
-/* Campos sin caja: solo una línea abajo, que se pinta al enfocar. */
-.sv-grid input{height:40px;border:0;border-bottom:1.5px solid var(--gray-200);border-radius:0;padding:0 2px;font:inherit;font-size:15px;font-weight:700;color:var(--gray-800);background:transparent;outline:none;transition:border-color .2s ease}
-.sv-grid input::placeholder{color:var(--gray-300);font-weight:600}
-.sv-grid input:focus{border-bottom-color:var(--primary)}
-.sv-grid input.is-err{border-bottom-color:#e0707a}
-.sv-sel--blk{width:100%}
-.sv-sel--blk select{width:100%;height:40px;border:0;border-bottom:1.5px solid var(--gray-200);border-radius:0;padding:0 26px 0 2px;font-size:15px;font-weight:700;color:var(--gray-800);background:transparent}
-.sv-sel--blk select:focus{border-bottom-color:var(--primary);box-shadow:none}
-.sv-sel--blk.on select{color:var(--gray-800);border-bottom-color:var(--primary)}
-.sv-sel--blk .sv-sel__ch{right:4px}
-.sv-form__ft{display:flex;align-items:center;gap:12px;padding-top:4px;border-top:1.5px solid var(--gray-100);margin-top:2px}
-.sv-hint{margin-right:auto;font-size:12px;font-weight:700;color:#c9505c}
+/* ── Registro: planilla editable ── */
+.svr{max-width:900px;margin:0 auto;background:#fff;border:1.5px solid var(--gray-200);border-radius:18px;box-shadow:0 1px 3px rgba(15,36,64,.05);overflow:hidden}
+.svr__hd{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1.5px solid var(--gray-100)}
+.sv-sel--hd select{height:38px;border:1.5px solid var(--gray-200);border-radius:10px;padding:0 32px 0 14px;font-size:13.5px;font-weight:800;color:var(--gray-500);min-width:230px}
+.sv-sel--hd.on select{border-color:var(--primary);color:var(--gray-800)}
+.svr__fac{display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 15px;margin-left:auto;border:1.5px dashed var(--gray-300);border-radius:10px;background:#fff;font:inherit;font-size:12.5px;font-weight:800;color:var(--gray-400);cursor:pointer;white-space:nowrap;transition:border-color .18s,color .18s,background .18s}
+.svr__fac svg{width:15px;height:15px}
+.svr__fac:not(:disabled):hover{border-color:var(--primary);border-style:solid;color:var(--primary);background:#f3f9fd}
+.svr__fac:disabled{opacity:.55;cursor:default}
+
+.svr__tbl{padding:6px 10px 10px}
+.svr__th,.svr__tr{display:grid;grid-template-columns:150px minmax(0,1fr) 150px 34px;align-items:center;gap:10px}
+.svr__th{padding:10px 10px 8px}
+.svr__th span{font-size:9.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--gray-400)}
+.svr__th .r,.svr__tr .svr__monto{text-align:right}
+.svr__tr{padding:3px 10px;border-radius:10px;transition:background .15s;animation:svFldIn .34s cubic-bezier(.2,.7,.3,1) backwards;animation-delay:calc(var(--i,0)*35ms)}
+.svr__tr:hover{background:#f8fbff}
+.svr__tr input{height:40px;border:0;border-bottom:1.5px solid transparent;border-radius:0;padding:0 2px;font:inherit;font-size:14px;font-weight:700;color:var(--gray-800);background:transparent;outline:none;width:100%;transition:border-color .18s}
+.svr__tr input::placeholder{color:var(--gray-300);font-weight:600}
+.svr__tr input:hover:not(:disabled){border-bottom-color:var(--gray-200)}
+.svr__tr input:focus{border-bottom-color:var(--primary)}
+.svr__tr input:disabled{color:var(--gray-600);cursor:default}
+.svr__fecha{position:relative;display:flex;align-items:center;gap:7px;min-width:0}
+.svr__fecha .svr-ic{width:15px;height:15px;flex-shrink:0;color:var(--gray-300)}
+.svr__fecha input{font-size:13px;font-variant-numeric:tabular-nums;cursor:pointer}
+/* El indicador nativo del campo de fecha se metia en la columna de al lado.
+   Se oculta y el calendario lo abre el click en el campo. */
+.svr__fecha input::-webkit-calendar-picker-indicator{opacity:0;width:0;height:0;padding:0;margin:0}
+.svr__fecha:hover .svr-ic{color:var(--primary)}
+.svr__monto{font-variant-numeric:tabular-nums;color:var(--primary)!important}
+.svr__tr.is-ok{background:#f6fbf8}
+.svr__tr.is-ok .svr__monto{color:#15803d!important}
+.svr__x{display:grid;place-items:center;width:28px;height:28px;border:0;border-radius:8px;background:transparent;color:var(--gray-300);cursor:pointer;opacity:0;transition:opacity .15s,background .15s,color .15s}
+.svr__x svg{width:14px;height:14px}
+.svr__tr:hover .svr__x{opacity:1}
+.svr__x:hover{background:var(--danger-soft);color:var(--danger-dark)}
+.svr__add{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:8px;height:42px;border:1.6px dashed var(--gray-200);border-radius:11px;background:transparent;font:inherit;font-size:12.5px;font-weight:800;color:var(--gray-400);cursor:pointer;transition:border-color .15s,color .15s,background .15s}
+.svr__add svg{width:15px;height:15px}
+.svr__add:hover{border-color:var(--primary);color:var(--primary);background:#f3f9fd}
+
+.svr__ft{display:flex;align-items:center;gap:14px;padding:14px 20px 18px;border-top:1.5px solid var(--gray-100)}
+.svr__tot{display:flex;align-items:baseline;gap:9px}
+.svr__tot span{font-size:9.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--gray-400)}
+.svr__tot b{font-size:20px;font-weight:800;color:var(--primary);font-variant-numeric:tabular-nums;letter-spacing:-.3px}
+.svr__ok{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:800;color:#15803d}
+.svr__ok svg{width:14px;height:14px}
+.svr__ft .sv-btn{margin-left:auto;margin-top:0}
+@media(max-width:760px){
+  .svr__th{display:none}
+  .svr__tr{grid-template-columns:1fr 34px;gap:4px 10px;padding:10px;border:1px solid var(--gray-100);border-radius:12px;margin-bottom:8px}
+  .svr__fecha,.svr__obs,.svr__monto{grid-column:1}
+  .svr__x{grid-row:1;grid-column:2}
+}
 .sv-btn{display:inline-flex;align-items:center;gap:8px;height:44px;padding:0 22px;margin-top:18px;border:0;border-radius:12px;background:linear-gradient(135deg,#1478b8,var(--primary));color:#fff;font:inherit;font-size:13.5px;font-weight:800;cursor:pointer;box-shadow:0 10px 24px -12px rgba(11,95,141,.95);transition:transform .18s cubic-bezier(.2,.8,.2,1),box-shadow .18s}
 .sv-btn svg{width:16px;height:16px}
 .sv-btn:hover{transform:translateY(-1px);box-shadow:0 14px 28px -12px rgba(11,95,141,1)}
@@ -10347,7 +10379,8 @@ let _svUlt={fecha:'',tsId:'',trId:''};
 
 const _svHOY=function(){ try{ return (typeof todayISO==='function')?todayISO():new Date().toISOString().slice(0,10); }catch(_){ return new Date().toISOString().slice(0,10); } };
 const _svDM=function(iso){ return iso?String(iso).slice(0,10).split('-').reverse().join('/'):'—'; };
-const _svGs=function(n){ return 'Gs. '+formatMoney(Math.round(+n||0)); };
+// formatMoney devuelve vacio para 0, y un total en cero tiene que verse.
+const _svGs=function(n){ const v=Math.round(+n||0); return 'Gs. '+(formatMoney(v)||'0'); };
 
 /* Un servicio puede estar facturado de dos maneras: con su propio número, o
    por la factura de la planilla en la que está. Antes solo se miraba lo
@@ -10404,103 +10437,206 @@ function renderServicios(){
 }
 
 /* ── Pestaña: Registro ───────────────────────────────────── */
+/* El registro es una planilla: se eligen transportadora y se van agregando
+   filas, se guarda, y arriba se registra la factura con la conciliacion. */
+let _svDraft={tsId:'',filas:[]};
+let _svUid=1;
+
+function _svFilaNueva(){
+  const ult=_svDraft.filas[_svDraft.filas.length-1];
+  return {uid:_svUid++,fecha:(ult&&ult.fecha)||_svUlt.fecha||_svHOY(),obs:'',monto:0,cl:null,r:null};
+}
+function _svTotalDraft(){ return _svDraft.filas.reduce(function(a,f){ return a+(+f.monto||0); },0); }
+function _svGuardadas(){ return _svDraft.filas.filter(function(f){ return !!f.cl; }); }
+function _svPendientes(){ return _svDraft.filas.filter(function(f){ return !f.cl && (f.obs||'').trim() && +f.monto>0; }); }
+
 function _svReg(host){
   const ts=(transportistas||[]).slice().sort(function(a,b){ return String(a.n||'').localeCompare(String(b.n||''),'es'); });
-  host.innerHTML='<div class="sv-reg">'+
-    '<div class="sv-form">'+
-      '<div class="sv-form__hd sv-f" style="--i:0"><h3>Registrar servicio adicional</h3>'+
-      '<p>Se suma a la planilla de esa transportadora, bajo «Servicios adicionales». Después podés registrarle la factura desde «Datos registrados».</p></div>'+
-      '<div class="sv-grid">'+
-        '<label class="sv-f" style="--i:1"><span>Fecha</span><input type="date" id="svFecha" value="'+(_svUlt.fecha||_svHOY())+'"></label>'+
-        '<label class="sv-f sv-grid__wide" style="--i:2"><span>Transportadora</span>'+
-          '<div class="sv-sel sv-sel--blk"><select id="svTs"><option value="">— Elegir transportadora —</option>'+
-          ts.map(function(t){ return '<option value="'+t.id+'"'+(String(t.id)===_svUlt.tsId?' selected':'')+'>'+esc(t.n)+'</option>'; }).join('')+'</select>'+
-          '<svg class="sv-sel__ch" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></div></label>'+
-        '<label class="sv-f sv-grid__wide" style="--i:3"><span>Servicio</span><input type="text" id="svObs" placeholder="Ej: Grúa por desperfecto en ruta" maxlength="160" autocomplete="off"></label>'+
-        '<label class="sv-f" style="--i:4"><span>Monto (Gs.)</span><input type="text" id="svMonto" inputmode="numeric" placeholder="0" autocomplete="off"></label>'+
-      '</div>'+
-      '<div class="sv-form__ft sv-f" style="--i:5"><span class="sv-hint" id="svHint"></span>'+
-        '<button class="sv-btn" type="button" id="svSave">'+
-        '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Registrar servicio</button></div>'+
+  if(!_svDraft.filas.length)_svDraft.filas=[_svFilaNueva()];
+  const tsel=_svDraft.tsId||_svUlt.tsId||'';
+  _svDraft.tsId=tsel;
+  const guardadas=_svGuardadas().length, pend=_svPendientes().length;
+  const CAL='<svg class="svr-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>';
+
+  host.innerHTML='<div class="svr">'+
+    '<div class="svr__hd">'+
+      '<div class="sv-sel sv-sel--hd'+(tsel?' on':'')+'"><select id="svTs">'+
+        '<option value="">Transportadora</option>'+
+        ts.map(function(t){ return '<option value="'+t.id+'"'+(String(t.id)===tsel?' selected':'')+'>'+esc(t.n)+'</option>'; }).join('')+
+      '</select><svg class="sv-sel__ch" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></div>'+
+      '<button type="button" class="svr__fac" id="svRegFac"'+(guardadas?'':' disabled title="Guardá los servicios primero"')+'>'+
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z"/><path d="M14 2v6h6M9 13h6M9 17h6"/></svg>'+
+        'Registrar factura</button>'+
+    '</div>'+
+    '<div class="svr__tbl">'+
+      '<div class="svr__th"><span>Fecha</span><span>Servicio</span><span class="r">Monto</span><span></span></div>'+
+      _svDraft.filas.map(function(f,i){
+        const ok=!!f.cl;
+        return '<div class="svr__tr'+(ok?' is-ok':'')+'" data-uid="'+f.uid+'" style="--i:'+Math.min(i,12)+'">'+
+          '<label class="svr__fecha">'+CAL+'<input type="date" data-k="fecha" value="'+esc(f.fecha||'')+'"'+(ok?' disabled':'')+'></label>'+
+          '<input class="svr__obs" type="text" data-k="obs" value="'+esc(f.obs||'')+'" placeholder="Servicio" maxlength="160" autocomplete="off"'+(ok?' disabled':'')+'>'+
+          '<input class="svr__monto" type="text" data-k="monto" value="'+(+f.monto>0?formatMoney(f.monto):'')+'" placeholder="0" inputmode="numeric" autocomplete="off"'+(ok?' disabled':'')+'>'+
+          '<button type="button" class="svr__x" data-del="'+f.uid+'" title="'+(ok?'Quitar el servicio':'Quitar la fila')+'">'+
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M18 6L6 18M6 6l12 12"/></svg></button>'+
+        '</div>';
+      }).join('')+
+      '<button type="button" class="svr__add" id="svAdd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Agregar servicio</button>'+
+    '</div>'+
+    '<div class="svr__ft">'+
+      '<span class="svr__tot"><span>Total</span><b>'+_svGs(_svTotalDraft())+'</b></span>'+
+      (guardadas?'<span class="svr__ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>'+guardadas+(guardadas===1?' guardado':' guardados')+'</span>':'')+
+      '<button type="button" class="sv-btn" id="svSave"'+(pend?'':' disabled')+'>Guardar</button>'+
     '</div>'+
   '</div>';
 
-  // El monto se escribe con separador de miles mientras se tipea.
-  const mi=document.getElementById('svMonto');
-  mi.addEventListener('input',function(){
-    const n=parseMoney(mi.value);
-    mi.value=n>0?formatMoney(n):'';
-    try{ mi.setSelectionRange(mi.value.length,mi.value.length); }catch(_){}
-  });
   const sel=document.getElementById('svTs');
-  const pintaSel=function(){ sel.parentNode.classList.toggle('on',!!sel.value); };
-  sel.addEventListener('change',pintaSel); pintaSel();
-  document.getElementById('svSave').addEventListener('click',_svGuardar);
-  document.getElementById('svObs').addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); mi.focus(); } });
-  mi.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); _svGuardar(); } });
+  sel.addEventListener('change',function(){
+    _svDraft.tsId=sel.value; _svUlt.tsId=sel.value;
+    sel.parentNode.classList.toggle('on',!!sel.value);
+    _svReg(host);
+  });
+
+  host.querySelectorAll('.svr__tr').forEach(function(tr){
+    const f=_svDraft.filas.find(function(x){ return x.uid===+tr.dataset.uid; });
+    if(!f)return;
+    tr.querySelectorAll('[data-k]').forEach(function(inp){
+      const k=inp.dataset.k;
+      inp.addEventListener('input',function(){
+        if(k==='monto'){
+          const n=parseMoney(inp.value);
+          inp.value=n>0?formatMoney(n):'';
+          try{ inp.setSelectionRange(inp.value.length,inp.value.length); }catch(_){}
+          f.monto=n;
+        }else f[k]=inp.value;
+        _svRefrescarFt(host);
+      });
+      inp.addEventListener('change',function(){ if(k==='fecha')f.fecha=inp.value; });
+      if(k==='fecha')inp.addEventListener('click',function(){ try{ inp.showPicker(); }catch(_){} });
+      inp.addEventListener('keydown',function(e){
+        if(e.key!=='Enter')return;
+        e.preventDefault();
+        if(k==='obs'){ const m=tr.querySelector('.svr__monto'); if(m)m.focus(); return; }
+        if(k==='monto'){ _svAgregarFila(host,tr); }
+      });
+    });
+  });
+
+  host.querySelectorAll('[data-del]').forEach(function(b){
+    b.addEventListener('click',function(){ _svQuitarFila(host,+b.dataset.del); });
+  });
+  document.getElementById('svAdd').addEventListener('click',function(){ _svAgregarFila(host); });
+  document.getElementById('svSave').addEventListener('click',function(){ _svGuardar(host); });
+  const bf=document.getElementById('svRegFac');
+  if(bf&&!bf.disabled)bf.addEventListener('click',function(){ _svFacturarDraft(); });
 }
 
-async function _svGuardar(){
-  const $=function(id){ return document.getElementById(id); };
-  const fecha=($('svFecha')||{}).value||'';
-  const tsId=+(($('svTs')||{}).value||0);
-  const obs=((($('svObs')||{}).value)||'').trim();
-  const monto=parseMoney((($('svMonto')||{}).value)||'');
-  const hint=$('svHint');
-  const marca=function(el,msg){ if(el){ el.classList.add('is-err'); el.focus(); el.addEventListener('input',function(){ el.classList.remove('is-err'); },{once:true}); } if(hint)hint.textContent=msg; showToast(msg); };
-  if(hint)hint.textContent='';
-  if(!fecha) return marca($('svFecha'),'Elegí la fecha del servicio');
-  if(!tsId)  return marca($('svTs'),'Elegí la transportadora');
-  if(!obs)   return marca($('svObs'),'Escribí qué servicio fue');
-  if(!(monto>0)) return marca($('svMonto'),'Cargá el monto del servicio');
+/* El pie se actualiza solo: rearmar la planilla en cada tecla perderia el foco. */
+function _svRefrescarFt(host){
+  const t=host.querySelector('.svr__tot b'); if(t)t.textContent=_svGs(_svTotalDraft());
+  const s=document.getElementById('svSave'); if(s)s.disabled=!_svPendientes().length;
+}
 
-  const t=(transportistas||[]).find(function(x){ return x.id===tsId; });
-  if(!t) return showToast('No encuentro esa transportadora');
+function _svAgregarFila(host,tras){
+  const f=_svFilaNueva();
+  if(tras){
+    const i=_svDraft.filas.findIndex(function(x){ return x.uid===+tras.dataset.uid; });
+    _svDraft.filas.splice(i+1,0,f);
+  }else _svDraft.filas.push(f);
+  _svReg(host);
+  const n=host.querySelector('.svr__tr[data-uid="'+f.uid+'"] .svr__obs');
+  if(n)n.focus();
+}
 
-  // Se busca el reparto de esa transportadora y fecha; si no existe, se crea.
-  let r=(repartos||[]).find(function(x){ return x.fechaISO===fecha && x.tsId===tsId; });
-  const creado=!r;
-  if(!r){
-    r={id:null,fecha:(typeof isoToDisplay==='function'?isoToDisplay(fecha):fecha),fechaISO:fecha,
-       tsId:tsId,tsNombre:t.n,trId:null,trDesc:'',km:0,precio:0,tipo:'km',
-       totalFlete:0,totalMonto:0,incTotal:null,gastoPermitido:0,diferencia:0,zona:'',clientes:[]};
-    repartos.push(r);
-  }
-  if(!r.clientes)r.clientes=[];
-  const cl={id:nextClienteId++,trId:null,tsId:tsId,tsNombre:t.n,
-            trDesc:'',seg:'servicios',rep:null,zona:null,
-            obs:obs,cant:null,km:0,precioKm:0,fijo:false,
-            monto:0,precio:monto,gasto:monto,pct:0,inc:null,
-            factNro:null};   // la factura se registra después, desde «Datos registrados»
-  r.clientes.push(cl);
+function _svQuitarFila(host,uid){
+  const f=_svDraft.filas.find(function(x){ return x.uid===uid; }); if(!f)return;
+  const sacar=function(){
+    _svDraft.filas=_svDraft.filas.filter(function(x){ return x.uid!==uid; });
+    if(!_svDraft.filas.length)_svDraft.filas=[_svFilaNueva()];
+    _svReg(host);
+  };
+  if(!f.cl){ sacar(); return; }
+  // Ya guardado: hay que sacarlo tambien de la planilla.
+  _cfConfirm('¿Quitar el servicio?','<b>'+esc(f.obs||'—')+'</b> por '+_svGs(f.monto)+' se quita de la planilla.',async function(){
+    const r=f.r, cl=f.cl;
+    const i=(r.clientes||[]).indexOf(cl); if(i>=0)r.clientes.splice(i,1);
+    sacar();
+    try{ await _svPersistir([r]); showToast('Servicio quitado'); }
+    catch(err){ console.error('[flete] no pude quitar el servicio',err); showToast('No pude quitarlo. Probá de nuevo 😕'); }
+  },'Sí, quitar');
+}
 
-  const btn=$('svSave'); const txt=btn?btn.innerHTML:'';
-  if(btn){ btn.disabled=true; btn.innerHTML='<span class="cf-spin"></span>Guardando…'; }
-  try{
-    const tM=(r.clientes||[]).reduce(function(s,c){ return s+(+c.monto||0); },0);
-    const tF=(r.clientes||[]).reduce(function(s,c){ return s+(+c.precio||0); },0);
-    const id=await dbSaveReparto({id:r.id,fechaISO:r.fechaISO,tsId:r.tsId,tsNombre:r.tsNombre,
-      trId:r.trId,trDesc:r.trDesc,km:r.km,precio:r.precio,tipo:r.tipo,
-      totalFlete:tF,totalMonto:tM,incTotal:tM>0?tF/tM*100:null,
+async function _svPersistir(reps){
+  for(const r of reps){
+    if(!r)continue;
+    if(!(r.clientes||[]).length){
+      if(r.id!=null)await dbDeleteReparto(r.id);
+      const j=repartos.indexOf(r); if(j>=0)repartos.splice(j,1);
+      continue;
+    }
+    const tM=(r.clientes||[]).reduce(function(a,c){ return a+(+c.monto||0); },0);
+    const tF=(r.clientes||[]).reduce(function(a,c){ return a+(+c.precio||0); },0);
+    const id=await dbSaveReparto({id:r.id,fechaISO:r.fechaISO,tsId:r.tsId,tsNombre:r.tsNombre,trId:r.trId,trDesc:r.trDesc,
+      km:r.km,precio:r.precio,tipo:r.tipo,totalFlete:tF,totalMonto:tM,incTotal:tM>0?tF/tM*100:null,
       gastoPermitido:r.gastoPermitido,diferencia:r.diferencia,zona:r.zona,clientes:r.clientes});
     if(r.id==null)r.id=id;
-    // Se recuerda para el siguiente: fecha, transportadora y camion.
-    _svUlt={fecha:fecha,tsId:String(tsId),trId:''};
-    if(typeof _cfCheckBurst==='function')_cfCheckBurst('Servicio registrado',true);
-    else showToast('Servicio registrado');
-    // Se deja listo para cargar el siguiente, conservando fecha y transportadora.
-    $('svObs').value=''; $('svMonto').value='';
+  }
+}
+
+async function _svGuardar(host){
+  const tsId=+(_svDraft.tsId||0);
+  if(!tsId){ showToast('Elegí la transportadora'); const s=document.getElementById('svTs'); if(s)s.focus(); return; }
+  const t=(transportistas||[]).find(function(x){ return x.id===tsId; });
+  if(!t){ showToast('No encuentro esa transportadora'); return; }
+  const nuevas=_svPendientes();
+  if(!nuevas.length){ showToast('Cargá al menos un servicio con su monto'); return; }
+
+  const btn=document.getElementById('svSave'); const txt=btn?btn.innerHTML:'';
+  if(btn){ btn.disabled=true; btn.innerHTML='<span class="cf-spin"></span>Guardando…'; }
+  const tocados=[], creados=[], puestas=[];
+  try{
+    nuevas.forEach(function(f){
+      let r=(repartos||[]).find(function(x){ return x.fechaISO===f.fecha && x.tsId===tsId; });
+      if(!r){
+        r={id:null,fecha:(typeof isoToDisplay==='function'?isoToDisplay(f.fecha):f.fecha),fechaISO:f.fecha,
+           tsId:tsId,tsNombre:t.n,trId:null,trDesc:'',km:0,precio:0,tipo:'km',
+           totalFlete:0,totalMonto:0,incTotal:null,gastoPermitido:0,diferencia:0,zona:'',clientes:[]};
+        repartos.push(r); creados.push(r);
+      }
+      if(!r.clientes)r.clientes=[];
+      const cl={id:nextClienteId++,trId:null,tsId:tsId,tsNombre:t.n,trDesc:'',seg:'servicios',
+                rep:null,zona:null,obs:(f.obs||'').trim(),cant:null,km:0,precioKm:0,fijo:false,
+                monto:0,precio:+f.monto||0,gasto:+f.monto||0,pct:0,inc:null,factNro:null};
+      r.clientes.push(cl);
+      puestas.push({f:f,r:r,cl:cl});
+      if(tocados.indexOf(r)<0)tocados.push(r);
+    });
+    await _svPersistir(tocados);
+    puestas.forEach(function(p){ p.f.cl=p.cl; p.f.r=p.r; });
+    _svUlt={fecha:nuevas[nuevas.length-1].fecha,tsId:String(tsId),trId:''};
+    if(typeof _cfCheckBurst==='function')_cfCheckBurst(nuevas.length===1?'Servicio guardado':(nuevas.length+' servicios guardados'),true);
+    else showToast('Guardado');
     renderServicios();
-    setTimeout(function(){ const o=document.getElementById('svObs'); if(o)o.focus(); },60);
   }catch(err){
-    // Rollback: si no se guardó, no puede quedar en pantalla como si sí.
-    const i=r.clientes.indexOf(cl); if(i>=0)r.clientes.splice(i,1);
-    if(creado){ const j=repartos.indexOf(r); if(j>=0)repartos.splice(j,1); }
-    console.error('[flete] no pude guardar el servicio adicional',err);
-    showToast('No pude guardar el servicio. Probá de nuevo 😕');
-  }finally{
+    puestas.forEach(function(p){ const i=(p.r.clientes||[]).indexOf(p.cl); if(i>=0)p.r.clientes.splice(i,1); });
+    creados.forEach(function(r){ const j=repartos.indexOf(r); if(j>=0)repartos.splice(j,1); });
+    console.error('[flete] no pude guardar los servicios',err);
+    showToast('No pude guardar. Probá de nuevo 😕');
     if(btn){ btn.disabled=false; btn.innerHTML=txt; }
   }
+}
+
+/* Registrar la factura de lo que se acaba de cargar. */
+function _svFacturarDraft(){
+  const g=_svGuardadas();
+  if(!g.length){ showToast('Guardá los servicios primero'); return; }
+  const isos=g.map(function(f){ return f.fecha; }).sort();
+  const t=(transportistas||[]).find(function(x){ return x.id===+_svDraft.tsId; });
+  _svFacturar({
+    ts:(t&&t.n)||'—',
+    desde:isos[0], hasta:isos[isos.length-1],
+    total:g.reduce(function(a,f){ return a+(+f.monto||0); },0),
+    filas:g.map(function(f){ return {c:f.cl,r:f.r,iso:f.fecha}; })
+  },function(){ _svDraft={tsId:_svDraft.tsId,filas:[]}; renderServicios(); });
 }
 
 /* ── Pestaña: Datos registrados ──────────────────────────── */
@@ -10668,7 +10804,7 @@ function _svBotonFac(g,k){
 /* Registrar la factura de un grupo de servicios. Misma idea que la planilla de
    repartos: se carga el número y el monto, y se ve en vivo si el monto coincide
    con el total de los servicios antes de confirmar. */
-function _svFacturar(g){
+function _svFacturar(g,alTerminar){
   if(!g||!g.filas.length)return;
   const tot=Math.round(g.total);
   const m=_cfModalOpen('<div class="cf-mbox cf-mbox--form" style="max-width:520px">'+
@@ -10720,7 +10856,7 @@ function _svFacturar(g){
       m.close();
       if(typeof _cfCheckBurst==='function')_cfCheckBurst('Factura registrada',true);
       else showToast('Factura registrada');
-      renderServicios();
+      if(alTerminar)alTerminar(); else renderServicios();
     }catch(err){
       g.filas.forEach(function(x,i){ x.c.factNro=antes[i]; });
       console.error('[flete] no pude registrar la factura del grupo',err);
