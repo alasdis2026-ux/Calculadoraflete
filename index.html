@@ -3356,7 +3356,12 @@ function _qPick(i){
   renderClientesTable();updateResultCard();
   const inp=document.getElementById('qAddInp');
   if(inp){inp.value='';inp.focus();}
-  _qIdx=0;_qClose();
+  _qIdx=0;
+  // Queda ABIERTO a proposito: lo normal es cargar varios camiones seguidos y
+  // el recien agregado ya no aparece en la lista. Cerrandolo, el Enter
+  // siguiente caia en la rama "if(pop.hidden)_qOpen()" y solo lo reabria en
+  // vez de agregar: se sentia trabado. Se cierra con Escape o clickeando afuera.
+  _qOpen();
   // Deja ver cuál entró sin sacarte del campo.
   const row=document.querySelector('[data-clid="'+newCl.id+'"]');
   if(row&&window.gsap){
@@ -3396,6 +3401,10 @@ function _qPick(i){
   // Delegación: un solo listener, no uno por camión.
   pop.addEventListener('mousedown',e=>e.preventDefault());   // no perder el foco del campo
   pop.addEventListener('click',e=>{
+    // Sin esto, al agregar con el mouse la lista se rearma y saca la fila
+    // clickeada del DOM; el listener de 'click afuera' la ve fuera de #qAdd y
+    // cierra el desplegable.
+    e.stopPropagation();
     if(e.target.closest('[data-qnew]')){_qClose();openNCModal();return;}
     const it=e.target.closest('.qadd__it');
     if(it)_qPick(+it.dataset.qi);
