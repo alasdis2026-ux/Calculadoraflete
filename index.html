@@ -678,27 +678,81 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .ts-detail-hd{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1.5px solid var(--gray-100);background:linear-gradient(135deg,#f8fbff,#fff);flex-shrink:0}
 .ts-back{display:inline-flex;align-items:center;gap:5px;height:36px;padding:0 13px;border-radius:10px;border:1.5px solid var(--gray-200);background:#fff;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700;color:var(--gray-600);transition:all var(--fast)}
 .ts-back:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
-.ts-detail-body{flex:1;min-height:0;overflow:auto;padding:14px 16px 18px}
+.ts-detail-body{flex:1;min-height:0;overflow:auto;padding:16px 22px 24px}
 /* Lista compacta de camiones (ancho acotado, no se estira en pantallas grandes) */
-.tr-list{max-width:1120px;margin:0 auto}
-.tr-list__hd,.tr-row{display:grid;grid-template-columns:28px minmax(0,1fr) 74px 170px 112px;align-items:center;gap:16px}
-.tr-list__hd{padding:4px 14px 10px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--gray-400);border-bottom:1.5px solid var(--gray-100)}
+.tr-list{max-width:1020px;margin:0 auto}
+.tr-list__hd,.tr-row{display:grid;grid-template-columns:34px minmax(170px,1fr) 170px 86px 176px 80px;align-items:center;gap:14px}
+.tr-list__hd{padding:4px 12px 9px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--gray-400);border-bottom:1.5px solid var(--gray-100)}
 .tr-list__hd .r{text-align:right}
-.tr-row{padding:11px 14px;border-radius:12px;border:1px solid transparent;transition:background var(--fast),border-color var(--fast)}
+.tr-row{padding:9px 12px;border-radius:12px;border:1px solid transparent;transition:background var(--fast),border-color var(--fast);animation:tdRowIn .3s cubic-bezier(.2,.7,.3,1) backwards;animation-delay:calc(var(--i,0)*18ms)}
+@keyframes tdRowIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
 .tr-row:hover{background:#f8fbff;border-color:var(--gray-100)}
 .tr-row__n{font-size:12px;font-weight:800;color:var(--gray-300)}
-.tr-row__desc{font-size:14.5px;font-weight:700;color:var(--gray-800);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.tr-row .tipo-badge{justify-self:start}
-.tr-row__desc{display:flex;flex-direction:column;gap:7px;align-items:flex-start;min-width:0}
-.tr-row__name{font-weight:600;color:var(--gray-800)}
-.seg-ctrl{display:inline-flex;background:var(--gray-100);border:1px solid var(--gray-200);border-radius:9px;padding:2px;gap:2px}
-.seg-ctrl__b{border:0;background:transparent;border-radius:7px;padding:5px 12px;font:inherit;font-size:11px;font-weight:700;color:var(--gray-500);cursor:pointer;transition:background .15s,color .15s;white-space:nowrap}
-.seg-ctrl__b:hover{color:var(--gray-800)}
-.seg-ctrl__b.on{color:#fff}
-.seg-ctrl__b.on.seg-local{background:var(--primary)}
-.seg-ctrl__b.on.seg-interior{background:var(--orange)}
-.seg-ctrl__b.on.seg-servicios{background:var(--success)}
-.seg-ctrl__b.on.seg-transportadora{background:#7c3aed}
+.tr-row .tipo-badge{justify-self:start;padding:6px 13px;font-size:11px}
+
+/* ── Cabecera del detalle ── */
+.tsd-id{display:flex;align-items:center;gap:13px;min-width:0;flex:1}
+.tsd-ava{display:grid;place-items:center;width:46px;height:46px;flex-shrink:0;border-radius:14px;background:linear-gradient(135deg,var(--primary),#1a7cb0);color:#fff;font-family:Sora,Inter,sans-serif;font-size:15px;font-weight:800;letter-spacing:.5px;box-shadow:0 7px 18px -7px rgba(11,95,141,.65)}
+.tsd-id__tx{min-width:0;display:flex;flex-direction:column;gap:4px}
+.ts-detail-hd .md-detail__name{flex:none;gap:10px}
+.ts-detail-hd .md-detail__name-text{font-size:23px;line-height:1.15}
+.tsd-sub{display:flex;align-items:center;gap:9px;min-width:0}
+.tsd-sub .name-chip{font-size:11px;font-weight:800;padding:4px 11px}
+.tsd-sub #detailSub{font-size:11.5px;font-weight:700;color:var(--gray-400);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tsd-acts{display:flex;align-items:center;gap:9px;flex-shrink:0}
+.tsd-acts .tsd-add svg{width:15px;height:15px}
+/* Renombrar y eliminar van apagados y con texto: se entienden sin adivinar el ícono. */
+.tsd-acts__min{display:flex;align-items:center;gap:3px;padding-left:10px;margin-left:2px;border-left:1.5px solid var(--gray-200)}
+.tsd-mini{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 11px;border:none;background:transparent;border-radius:9px;font:inherit;font-size:11.5px;font-weight:800;color:var(--gray-400);cursor:pointer;white-space:nowrap;transition:background .15s,color .15s}
+.tsd-mini svg{width:14px;height:14px;flex-shrink:0}
+.tsd-mini:hover{background:var(--gray-100);color:var(--gray-700)}
+.tsd-mini--del:hover{background:var(--danger-soft);color:var(--danger-dark)}
+
+/* ── Filtros por segmento ── */
+.td-bar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+.td-chips{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.td-chip{display:inline-flex;align-items:center;gap:8px;height:33px;padding:0 7px 0 13px;border:1.5px solid var(--gray-200);background:#fff;border-radius:999px;font:inherit;font-size:12px;font-weight:800;color:var(--gray-500);cursor:pointer;transition:border-color .15s,color .15s,background .15s}
+.td-chip__n{display:inline-grid;place-items:center;min-width:21px;height:21px;padding:0 6px;border-radius:999px;background:var(--gray-100);color:var(--gray-500);font-size:11px;font-weight:800}
+.td-chip:hover{border-color:var(--gray-300);color:var(--gray-700)}
+.td-chip.on{color:#fff;border-color:transparent;background:var(--gray-700)}
+.td-chip.on .td-chip__n{background:rgba(255,255,255,.24);color:#fff}
+.td-chip.on.s-local{background:var(--primary)}
+.td-chip.on.s-interior{background:var(--orange)}
+.td-chip.on.s-servicios{background:var(--success)}
+.td-chip.on.s-transportadora{background:#7c3aed}
+.td-srch{position:relative;margin-left:auto;width:240px}
+.td-srch>svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--gray-400);pointer-events:none}
+.td-srch input{width:100%;height:36px;border:1.5px solid var(--gray-200);border-radius:10px;padding:0 12px 0 34px;font:inherit;font-size:13px;font-weight:600;color:var(--gray-800);background:#fff;outline:none;transition:border-color .15s,box-shadow .15s}
+.td-srch input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(11,95,141,.12)}
+
+/* ── Nombre del camión: el propio texto es el botón de renombrar ── */
+.tr-name{display:flex;align-items:center;gap:8px;min-width:0;max-width:100%;justify-self:start;border:none;background:transparent;padding:5px 8px;margin-left:-8px;border-radius:9px;font:inherit;font-size:14px;font-weight:700;color:var(--gray-800);text-align:left;cursor:pointer;transition:background .15s,color .15s}
+.tr-name__t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tr-name__p{width:13px;height:13px;flex-shrink:0;opacity:0;transition:opacity .15s}
+.tr-name:hover{background:#eef6fc;color:var(--primary)}
+.tr-name:hover .tr-name__p{opacity:.75}
+
+/* ── Segmento: chip de color que abre el menú ── */
+.td-seg{display:inline-flex;align-items:center;gap:7px;height:31px;padding:0 8px 0 11px;border:1.5px solid var(--gray-200);background:#fff;border-radius:10px;font:inherit;font-size:11.5px;font-weight:800;color:var(--gray-600);cursor:pointer;justify-self:start;white-space:nowrap;transition:border-color .15s,box-shadow .15s,color .15s}
+.td-seg i{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.td-seg__c{width:13px;height:13px;flex-shrink:0;color:var(--gray-300)}
+.td-seg:hover{border-color:var(--primary);color:var(--gray-800);box-shadow:0 0 0 3px rgba(11,95,141,.09)}
+.td-seg.s-local i,.td-pop__b.s-local i{background:var(--primary)}
+.td-seg.s-interior i,.td-pop__b.s-interior i{background:var(--orange)}
+.td-seg.s-servicios i,.td-pop__b.s-servicios i{background:var(--success)}
+.td-seg.s-transportadora i,.td-pop__b.s-transportadora i{background:#7c3aed}
+.td-pop{position:fixed;z-index:9999;min-width:196px;padding:6px;border-radius:14px;background:#fff;border:1.5px solid var(--gray-200);box-shadow:0 20px 46px -16px rgba(15,23,42,.34)}
+.td-pop__b{display:flex;align-items:center;gap:10px;width:100%;padding:9px 11px;border:none;background:transparent;border-radius:9px;font:inherit;font-size:12.5px;font-weight:700;color:var(--gray-600);cursor:pointer;text-align:left;transition:background .13s,color .13s}
+.td-pop__b i{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.td-pop__b:hover{background:var(--gray-100);color:var(--gray-800)}
+.td-pop__b.on{background:var(--gray-100);color:var(--gray-800)}
+.td-pop__b.on::after{content:'✓';margin-left:auto;font-weight:800;color:var(--primary)}
+
+/* ── Agregar: fila fantasma al final de la lista ── */
+.td-add{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;margin-top:12px;height:48px;border:1.6px dashed var(--gray-300);border-radius:12px;background:transparent;font:inherit;font-size:12.5px;font-weight:800;color:var(--gray-400);cursor:pointer;transition:border-color .15s,color .15s,background .15s}
+.td-add svg{width:16px;height:16px}
+.td-add:hover{border-color:var(--primary);color:var(--primary);background:#f3f9fd}
+.td-nores{padding:34px 10px;text-align:center;font-size:13px;font-weight:700;color:var(--gray-400)}
 /* Chips animados (Segmento / Repartidor en la tabla de camiones) */
 .cl-chip{display:flex;align-items:center;gap:7px;width:100%;padding:8px 9px;border:1px solid var(--gray-200,#d1d5db);border-radius:9px;background:#fff;font:inherit;font-size:12px;font-weight:700;color:var(--gray-800,#334155);cursor:pointer;transition:border-color var(--fast),box-shadow var(--fast);text-align:left}
 .cl-chip:hover{border-color:var(--gray-400,#94a3b8)}
@@ -729,8 +783,12 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .chip-pop__del svg{width:15px;height:15px}
 .rb-item-meta{display:flex;justify-content:space-between;gap:10px;font-size:11px;font-weight:600;color:var(--gray-400,#94a3b8);margin-top:5px}
 .rb-item-meta b{color:var(--gray-600,#475569);font-weight:800}
-.tr-row__price{text-align:right;white-space:nowrap}
-.tr-row .del-btn{justify-self:end}
+.tr-row__price{display:flex;flex-direction:column;align-items:flex-end;gap:1px;text-align:right;white-space:nowrap}
+.tr-row__acts{display:flex;align-items:center;gap:5px;justify-content:flex-end}
+/* El borrar aparece al pasar por la fila: no compite con el copiar, que es lo que más se usa. */
+.tr-row .del-btn{justify-self:end;opacity:0;transition:opacity .15s,background var(--fast),color var(--fast)}
+.tr-row:hover .del-btn,.tr-row .del-btn:focus-visible{opacity:1}
+.tr-row .del-btn:hover{background:var(--danger-soft);color:var(--danger-dark)}
 .tr-lp-val{display:inline-block;font-weight:800;color:var(--primary);font-variant-numeric:tabular-nums;font-size:14px}
 .tr-lp-date{display:block;font-size:10.5px;font-weight:600;color:var(--gray-400)}
 .tr-lp-none{font-size:12.5px;font-weight:600;color:var(--gray-300)}
@@ -1408,13 +1466,12 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
     <!-- Estado GRILLA -->
     <div class="ts-grid-state" id="tsGridState">
       <div class="ts-bar">
+        <span class="ts-bar__n" id="tsBarN"></span>
         <div class="ts-bar__srch">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
           <input type="text" id="tsSearch" placeholder="Buscar transportista o camión…" autocomplete="off">
           <button type="button" class="ts-bar__clr" id="tsSearchClr" title="Limpiar" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
         </div>
-        <span class="ts-bar__n" id="tsBarN"></span>
-        <div style="flex:1"></div>
         <span class="ts-bar__kbd"><kbd>←</kbd><kbd>→</kbd> transportadora · <kbd>↑</kbd><kbd>↓</kbd> camión · <kbd>C</kbd> copiar · <kbd>Enter</kbd> ver detalles</span>
       </div>
       <div class="ts-3d" id="ts3d">
@@ -1431,25 +1488,32 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
     <div class="ts-detail-state" id="tsDetailState" style="display:none">
       <div class="ts-detail-hd" id="detailHd">
         <button class="ts-back" type="button" id="tsBack"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16"><path stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" d="M15 18l-6-6 6-6"/></svg>Volver</button>
-        <div class="md-detail__badge" id="detailBadge">—</div>
-        <div class="md-detail__name" id="detailName">
-          <span class="md-detail__name-text"></span>
-          <span class="name-chip" id="detailChip"></span>
+        <div class="tsd-id">
+          <div class="tsd-ava" id="detailBadge">—</div>
+          <div class="tsd-id__tx">
+            <div class="md-detail__name" id="detailName"><span class="md-detail__name-text"></span></div>
+            <div class="tsd-sub"><span class="name-chip" id="detailChip"></span><span id="detailSub"></span></div>
+          </div>
         </div>
-        <div style="flex:1"></div>
-        <button class="icon-btn" type="button" id="detailRenameTs" title="Cambiar el nombre del transportista">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-        </button>
-        <button class="btn btn-sm btn-outline cp-btn cp-btn--txt" type="button" id="detailCopy" title="Copiar los nombres de los camiones">
-          <span class="cp-ico"></span><span class="cp-lbl">Copiar camiones</span>
-        </button>
-        <button class="btn btn-sm btn-outline" type="button" id="detailAddTr">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
-          Camión
-        </button>
-        <button class="icon-btn" type="button" id="detailDelTs" title="Eliminar transportista">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-        </button>
+        <div class="tsd-acts">
+          <button class="btn btn-sm btn-outline cp-btn cp-btn--txt" type="button" id="detailCopy" title="Copia los nombres de todos los camiones, uno por línea">
+            <span class="cp-ico"></span><span class="cp-lbl">Copiar camiones</span>
+          </button>
+          <button class="btn btn-sm btn-primary tsd-add" type="button" id="detailAddTr">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
+            Agregar camión
+          </button>
+          <div class="tsd-acts__min">
+            <button class="tsd-mini" type="button" id="detailRenameTs" title="Cambiar el nombre del transportista">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              Renombrar
+            </button>
+            <button class="tsd-mini tsd-mini--del" type="button" id="detailDelTs" title="Eliminar el transportista y todos sus camiones">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+              Eliminar
+            </button>
+          </div>
+        </div>
       </div>
       <div class="ts-detail-body" id="detailBody"></div>
     </div>
@@ -2025,10 +2089,14 @@ function _cpFlotante(btn,txt){
     setTimeout(function(){ if(el.parentNode)el.remove(); },950);
   }catch(_){}
 }
-// El botón se convierte en tilde un instante: confirma sin tapar la pantalla con un toast.
+// El botón se convierte en tilde un instante y sube una burbuja: alcanza como
+// confirmación, así que no se dispara ningún toast abajo. El toast queda sólo
+// para el error, que sí hay que leer.
 function _cfCopiarCon(btn,txt,msg){
   _cfCopiar(txt).then(function(ok){
     if(!ok){ showToast('No pude copiar. Probá de nuevo 😕'); return; }
+    // Si no vino botón (atajo C), la burbuja se ancla a la fila marcada.
+    if(!btn)btn=document.querySelector('.ts3c__tr.sel');
     if(btn){
       // Se quita y se vuelve a poner para que el anillo se reinicie si se copia dos veces seguidas.
       btn.classList.remove('is-ok'); void btn.offsetWidth; btn.classList.add('is-ok');
@@ -2038,9 +2106,8 @@ function _cfCopiarCon(btn,txt,msg){
       const fila=btn.closest?btn.closest('.ts3c__tr'):null;
       if(fila){ fila.classList.remove('cp-flash'); void fila.offsetWidth; fila.classList.add('cp-flash');
         clearTimeout(fila._cpT); fila._cpT=setTimeout(function(){ fila.classList.remove('cp-flash'); },900); }
-      _cpFlotante(btn);
+      _cpFlotante(btn,msg);
     }
-    if(msg)showToast(msg);
   });
 }
 const _TSSEG={local:'Local',interior:'Interior',servicios:'Servicios',transportadora:'Transportadora'};
@@ -3455,7 +3522,7 @@ function go3D(idx,animate){
     const cpTr=e.target.closest('[data-cptr]');
     if(cpTr){ e.stopPropagation();
       const tr=(transportistas||[]).reduce((a,t)=>a||(t.trucks||[]).find(x=>x.id===+cpTr.dataset.cptr),null);
-      if(tr)_cfCopiarCon(cpTr,tr.d,'Copié el camión'); return; }
+      if(tr)_cfCopiarCon(cpTr,tr.d); return; }
     const cpTs=e.target.closest('[data-cpts]');
     if(cpTs){ e.stopPropagation(); _tsCopiarCamiones(+cpTs.dataset.cpts,cpTs); return; }
     if(_ts3dDragged){_ts3dDragged=false;return;}
@@ -3517,7 +3584,7 @@ function go3D(idx,animate){
       const tr=_tsFilaActual();
       if(!tr){showToast('Esta transportadora no tiene camiones cargados');return;}
       const fila=_tsMarcarFila();
-      _cfCopiarCon(fila?fila.querySelector('.cp-btn'):null,tr.d,'Copié '+tr.d);
+      _cfCopiarCon(fila?fila.querySelector('.cp-btn'):null,tr.d);
     }
   });
 })();
@@ -3527,7 +3594,7 @@ function _tsCopiarCamiones(tsId,btn){
   const t=(transportistas||[]).find(x=>x.id===+tsId); if(!t)return;
   const cams=(t.trucks||[]).map(tr=>tr.d).filter(Boolean);
   if(!cams.length){showToast(t.n+' no tiene camiones cargados');return;}
-  _cfCopiarCon(btn,cams.join('\n'),'Copié '+cams.length+' '+_camLbl(cams.length)+' de '+t.n);
+  _cfCopiarCon(btn,cams.join('\n'),cams.length+' '+_camLbl(cams.length));
 }
 
 /* El escenario del carrusel ya maneja copiar y abrir (ver más arriba). */
@@ -3540,6 +3607,7 @@ if(_tsClr)_tsClr.addEventListener('click',()=>{search='';tsSearchEl.value='';ts3
 
 function selectTs(tsId){
   selectedTsId=tsId;
+  _tdSeg='todos'; _tdQ='';
   document.getElementById('tsGridState').style.display='none';
   document.getElementById('tsDetailState').style.display='';
   renderDetail();
@@ -3567,7 +3635,7 @@ document.getElementById('tsBack').addEventListener('click',tsBackToGrid);
     const c=e.target.closest('[data-cptr2]');
     if(c){ e.stopPropagation(); const ts=transportistas.find(t=>t.id===selectedTsId);
       const tr=ts&&(ts.trucks||[]).find(x=>x.id===+c.dataset.cptr2);
-      if(tr)_cfCopiarCon(c,tr.d,'Copié el camión'); return; }
+      if(tr)_cfCopiarCon(c,tr.d); return; }
     const r=e.target.closest('[data-rentr]');
     if(r){ e.stopPropagation(); const ts=transportistas.find(t=>t.id===selectedTsId);
       const tr=ts&&(ts.trucks||[]).find(x=>x.id===+r.dataset.rentr);
@@ -3617,41 +3685,140 @@ function _trRenombrar(ts,tr){
   });
 }
 
+/* Filtros del detalle. Viven mientras se mira un transportista; selectTs los limpia. */
+let _tdSeg='todos', _tdQ='';
+
 function renderDetail(){
   const ts=transportistas.find(t=>t.id===selectedTsId);
   if(!ts){ tsBackToGrid(); return; }
   document.getElementById('detailBadge').textContent=initials(ts.n);
   document.querySelector('#detailName .md-detail__name-text').textContent=ts.n;
-  document.getElementById('detailChip').textContent=ts.trucks.length+' '+_camLbl(ts.trucks.length);
+  const n=(ts.trucks||[]).length;
+  document.getElementById('detailChip').textContent=n+' '+_camLbl(n);
+  const sub=document.getElementById('detailSub');
+  if(sub){ const last=tsLastUsed(ts); sub.textContent=last?('último reparto '+isoToDisplay(last)):'sin repartos registrados'; }
   renderDetailBody(ts);
+}
+
+/* Menú del segmento. Se abre desde el chip de la fila; se cierra con Escape,
+   con un click afuera o al elegir. */
+function _tdSegMenu(btn,ts,tr){
+  document.querySelectorAll('.td-pop').forEach(function(e){e.remove();});
+  const pop=document.createElement('div');
+  pop.className='td-pop';
+  pop.innerHTML=Object.keys(_TSSEG).map(function(k){
+    return '<button type="button" class="td-pop__b s-'+k+((tr.seg||'local')===k?' on':'')+'" data-k="'+k+'"><i></i>'+esc(_TSSEG[k])+'</button>';
+  }).join('');
+  document.body.appendChild(pop);
+  const r=btn.getBoundingClientRect();
+  let l=r.left, t=r.bottom+6;
+  if(l+pop.offsetWidth>window.innerWidth-12)l=window.innerWidth-12-pop.offsetWidth;
+  if(t+pop.offsetHeight>window.innerHeight-12)t=r.top-6-pop.offsetHeight;
+  pop.style.left=Math.max(12,Math.round(l))+'px';
+  pop.style.top=Math.max(12,Math.round(t))+'px';
+  if(window.gsap&&!(typeof reduce==='function'&&reduce()))
+    gsap.from(pop,{opacity:0,y:-6,scale:.97,duration:.18,ease:'power2.out',clearProps:'opacity,transform'});
+  function cerrar(){ pop.remove(); document.removeEventListener('mousedown',fuera,true); document.removeEventListener('keydown',tecla,true); }
+  function fuera(e){ if(!pop.contains(e.target))cerrar(); }
+  function tecla(e){ if(e.key==='Escape'){ e.preventDefault(); cerrar(); } }
+  setTimeout(function(){ document.addEventListener('mousedown',fuera,true); document.addEventListener('keydown',tecla,true); },0);
+  pop.addEventListener('click',function(e){
+    const b=e.target.closest('[data-k]'); if(!b)return;
+    const k=b.dataset.k; cerrar();
+    if((tr.seg||'local')===k)return;
+    const antes=tr.seg; tr.seg=k;
+    renderDetailBody(ts); renderTsList();
+    dbUpdateTruck(tr.id,{segmento:k}).catch(function(){
+      tr.seg=antes; renderDetailBody(ts); renderTsList(); showToast('No pude guardar el segmento');
+    });
+  });
 }
 
 function renderDetailBody(ts){
   const body=document.getElementById('detailBody');
-  if(!ts.trucks.length){
-    body.innerHTML=`<div class="detail-empty"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M1 3h15v13H1zm15 5h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg><p>Sin camiones</p><span>Usá "+ Camión" para agregar</span></div>`;
+  const total=(ts.trucks||[]).length;
+
+  if(!total){
+    body.innerHTML='<div class="detail-empty">'+
+      '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M1 3h15v13H1zm15 5h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>'+
+      '<p>'+esc(ts.n)+' todavía no tiene camiones</p>'+
+      '<span>Cargá el primero y ya va a aparecer para elegir en los repartos.</span>'+
+      '<button class="btn btn-primary" type="button" data-addtr><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>Agregar el primer camión</button>'+
+      '</div>';
     return;
   }
-  body.innerHTML=`<div class="tr-list">
-    <div class="tr-list__hd"><span></span><span>Camión</span><span>Tipo</span><span class="r">Último precio usado</span><span></span></div>
-    ${ts.trucks.map((tr,i)=>{
-      const lp=lastPriceForTruck(tr.id);
-      return`<div class="tr-row" data-trid="${tr.id}" data-tsid="${ts.id}">
-        <span class="tr-row__n">${i+1}</span>
-        <span class="tr-row__desc"><span class="tr-row__name">${esc(tr.d)}</span><div class="seg-ctrl" data-trid="${tr.id}" data-tsid="${ts.id}">${[['local','Local'],['interior','Interior'],['servicios','Servicios'],['transportadora','Transportadora']].map(s=>`<button type="button" class="seg-ctrl__b seg-${s[0]}${(tr.seg||'local')===s[0]?' on':''}" data-seg="${s[0]}">${s[1]}</button>`).join('')}</div></span>
-        <button class="tipo-badge ${tr.tipo==='fijo'?'is-fijo':'is-km'}" type="button" data-toggle-tipo data-trid="${tr.id}" data-tsid="${ts.id}" title="Cambiar tipo">${tr.tipo==='fijo'?'FIJO':'KM'}</button>
-        <span class="tr-row__price">${lp.precio?`<span class="tr-lp-val">Gs. ${formatMoney(lp.precio)}</span>${lp.fecha?`<span class="tr-lp-date">${isoToDisplay(lp.fecha)}</span>`:''}`:'<span class="tr-lp-none">Sin usar</span>'}</span>
-        <span class="tr-row__acts">
-          <button class="cp-btn cp-btn--xs" type="button" data-cptr2="${tr.id}" title="Copiar el nombre del camión">${_cpIco()}</button>
-          <button class="cp-btn cp-btn--xs" type="button" data-rentr="${tr.id}" title="Cambiar el nombre del camión"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
-          <button class="del-btn" type="button" data-deltr="${tr.id}" data-tsid="${ts.id}"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg></button>
-        </span>
-      </div>`;
-    }).join('')}
-  </div>`;
+
+  // Conteo por segmento: es lo que alimenta los chips de filtro.
+  const cnt={local:0,interior:0,servicios:0,transportadora:0};
+  (ts.trucks||[]).forEach(function(tr){ const k=tr.seg||'local'; if(cnt[k]!=null)cnt[k]++; });
+  if(_tdSeg!=='todos'&&!cnt[_tdSeg])_tdSeg='todos';
+
+  const q=_tsNorm(_tdQ);
+  const vis=(ts.trucks||[]).map(function(tr,i){return {tr:tr,i:i};}).filter(function(o){
+    return (_tdSeg==='todos'||(o.tr.seg||'local')===_tdSeg)&&(!q||_tsNorm(o.tr.d||'').indexOf(q)>=0);
+  });
+
+  function chip(k,lbl,n){
+    return '<button type="button" class="td-chip'+(_tdSeg===k?' on':'')+(k!=='todos'?' s-'+k:'')+'" data-tdseg="'+k+'">'+
+      esc(lbl)+'<span class="td-chip__n">'+n+'</span></button>';
+  }
+  const filtros='<div class="td-bar"><div class="td-chips">'+
+      chip('todos','Todos',total)+
+      (cnt.local?chip('local','Local',cnt.local):'')+
+      (cnt.interior?chip('interior','Interior',cnt.interior):'')+
+      (cnt.servicios?chip('servicios','Servicios',cnt.servicios):'')+
+      (cnt.transportadora?chip('transportadora','Transportadora',cnt.transportadora):'')+
+    '</div>'+
+    // El filtro de texto sólo aparece cuando la lista es larga de verdad.
+    (total>8?('<div class="td-srch"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>'+
+      '<input type="text" id="tdSearch" placeholder="Filtrar camión…" autocomplete="off" value="'+esc(_tdQ)+'"></div>'):'')+
+  '</div>';
+
+  const LAPIZ='<svg class="tr-name__p" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
+  const TACHO='<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>';
+  const CARET='<svg class="td-seg__c" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>';
+
+  const filas=vis.length?vis.map(function(o,n){
+    const tr=o.tr, seg=tr.seg||'local', lp=lastPriceForTruck(tr.id);
+    return '<div class="tr-row" data-trid="'+tr.id+'" data-tsid="'+ts.id+'" style="--i:'+Math.min(n,18)+'">'+
+      '<span class="tr-row__n">'+(o.i+1)+'</span>'+
+      '<button type="button" class="tr-name" data-rentr="'+tr.id+'" title="Tocá el nombre para cambiarlo">'+
+        '<span class="tr-name__t">'+esc(tr.d||'—')+'</span>'+LAPIZ+
+      '</button>'+
+      '<button type="button" class="td-seg s-'+seg+'" data-segbtn="'+tr.id+'" title="Cambiar el segmento del camión">'+
+        '<i></i>'+esc(_TSSEG[seg])+CARET+
+      '</button>'+
+      '<button class="tipo-badge '+(tr.tipo==='fijo'?'is-fijo':'is-km')+'" type="button" data-toggle-tipo data-trid="'+tr.id+'" data-tsid="'+ts.id+'" title="Cambiar entre precio fijo y precio por kilómetro">'+(tr.tipo==='fijo'?'FIJO':'KM')+'</button>'+
+      '<span class="tr-row__price">'+(lp.precio
+        ?('<span class="tr-lp-val">Gs. '+formatMoney(lp.precio)+'</span>'+(lp.fecha?('<span class="tr-lp-date">'+isoToDisplay(lp.fecha)+'</span>'):''))
+        :'<span class="tr-lp-none">Sin usar</span>')+'</span>'+
+      '<span class="tr-row__acts">'+
+        '<button class="cp-btn cp-btn--xs" type="button" data-cptr2="'+tr.id+'" title="Copiar el nombre del camión">'+_cpIco()+'</button>'+
+        '<button class="del-btn" type="button" data-deltr="'+tr.id+'" data-tsid="'+ts.id+'" title="Eliminar el camión">'+TACHO+'</button>'+
+      '</span>'+
+    '</div>';
+  }).join(''):'<div class="td-nores">Ningún camión coincide con el filtro.</div>';
+
+  // Si el filtro tenía el foco hay que devolvérselo: el innerHTML lo pierde.
+  const tenia=document.activeElement&&document.activeElement.id==='tdSearch';
+
+  body.innerHTML='<div class="tr-list">'+filtros+
+    '<div class="tr-list__hd"><span>#</span><span>Camión</span><span>Segmento</span><span>Tipo</span><span class="r">Último precio usado</span><span></span></div>'+
+    filas+
+    '<button type="button" class="td-add" data-addtr><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.4" stroke-linecap="round"><path d="M12 4v16m8-8H4"/></svg>Agregar camión a '+esc(ts.n)+'</button>'+
+  '</div>';
+
+  if(tenia){ const si=document.getElementById('tdSearch');
+    if(si){ si.focus(); si.setSelectionRange(si.value.length,si.value.length); } }
 }
 
-
+/* Filtro de texto del detalle */
+document.getElementById('detailBody').addEventListener('input',function(e){
+  if(!e.target||e.target.id!=='tdSearch')return;
+  _tdQ=e.target.value;
+  const ts=transportistas.find(function(t){return t.id===selectedTsId;});
+  if(ts)renderDetailBody(ts);
+});
 
 /* Precio input: save on blur, no re-render while typing */
 document.getElementById('detailBody').addEventListener('focusin',e=>{
@@ -3688,11 +3855,18 @@ document.getElementById('detailBody').addEventListener('input',e=>{
 
 /* Toggle tipo (FIJO/KM) + segmento predeterminado del camión */
 document.getElementById('detailBody').addEventListener('click',e=>{
-  const sbtn=e.target.closest('.seg-ctrl__b');
+  // Chips de filtro por segmento
+  const fch=e.target.closest('[data-tdseg]');
+  if(fch){ _tdSeg=fch.dataset.tdseg;
+    const t0=transportistas.find(t=>t.id===selectedTsId); if(t0)renderDetailBody(t0); return; }
+  // Agregar camión: la fila fantasma del final y el botón del estado vacío
+  if(e.target.closest('[data-addtr]')){ if(selectedTsId!==null)openModalTr(selectedTsId); return; }
+  // Segmento: el chip abre el menú
+  const sbtn=e.target.closest('[data-segbtn]');
   if(sbtn){
-    const ctrl=sbtn.closest('[data-trid]');const trId=+ctrl.dataset.trid,tsId=+ctrl.dataset.tsid,seg=sbtn.dataset.seg;
-    const ts=transportistas.find(t=>t.id===tsId);const tr=ts?ts.trucks.find(t=>t.id===trId):null;
-    if(tr&&tr.seg!==seg){tr.seg=seg;dbUpdateTruck(trId,{segmento:seg}).catch(()=>showToast('Error al guardar segmento'));renderDetailBody(ts);}
+    const t1=transportistas.find(t=>t.id===selectedTsId);
+    const tr1=t1&&(t1.trucks||[]).find(x=>x.id===+sbtn.dataset.segbtn);
+    if(tr1)_tdSegMenu(sbtn,t1,tr1);
     return;
   }
   const tb=e.target.closest('[data-toggle-tipo]');
@@ -6738,12 +6912,25 @@ function showSaveAnim(text){
   .cp-btn--txt .cp-lbl{line-height:1}
   .ts-topbar .cp-btn--txt{height:auto;align-self:stretch;padding:0 16px}
   /* Barra de búsqueda */
-  .ts-bar{display:flex;align-items:center;gap:12px;margin-bottom:14px}
-  .ts-bar__srch{position:relative;flex:1 1 auto;max-width:460px}
-  .ts-bar__srch>svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--gray-400,#94a3b8);pointer-events:none}
-  .ts-bar__srch input{width:100%;height:42px;border:1.5px solid var(--gray-200,#e2e8f0);border-radius:12px;padding:0 36px 0 38px;font:inherit;font-size:13.5px;font-weight:600;color:var(--gray-800,#1e293b);background:#fff;outline:none;transition:border-color .15s,box-shadow .15s}
-  .ts-bar__srch input:focus{border-color:var(--accent,#3B82F6);box-shadow:0 0 0 4px rgba(37,120,184,.12)}
-  .ts-bar__clr{position:absolute;right:9px;top:50%;transform:translateY(-50%);width:21px;height:21px;border:none;border-radius:50%;background:var(--gray-200,#e2e8f0);color:var(--gray-500,#64748b);display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;transition:background .15s,color .15s}
+  /* Tres columnas para que el buscador quede centrado de verdad: el conteo y
+     los atajos ocupan 1fr cada uno aunque midan distinto. */
+  .ts-bar{display:grid;grid-template-columns:1fr minmax(260px,560px) 1fr;align-items:center;gap:14px;margin-bottom:16px}
+  .ts-bar__srch{position:relative;width:100%}
+  .ts-bar__srch>svg{position:absolute;left:17px;top:50%;transform:translateY(-50%);width:18px;height:18px;color:var(--gray-400,#94a3b8);pointer-events:none;transition:color .15s}
+  .ts-bar__srch input{width:100%;height:50px;border:1.5px solid var(--gray-200,#e2e8f0);border-radius:14px;padding:0 40px 0 48px;font:inherit;font-size:14.5px;font-weight:600;color:var(--gray-800,#1e293b);background:#fff;outline:none;box-shadow:0 10px 26px -18px rgba(11,95,141,.75),0 1px 2px rgba(15,23,42,.05);transition:border-color .15s,box-shadow .15s}
+  .ts-bar__srch input::placeholder{color:var(--gray-400,#94a3b8);font-weight:600}
+  .ts-bar__srch input:focus{border-color:var(--primary,#0B5F8D);box-shadow:0 0 0 4px rgba(11,95,141,.13),0 14px 32px -18px rgba(11,95,141,.85)}
+  .ts-bar__srch:focus-within>svg{color:var(--primary,#0B5F8D)}
+  .ts-bar__n{justify-self:start}
+  .ts-bar__kbd{justify-self:end}
+  /* Angosto: el buscador pasa arriba y los atajos se esconden. */
+  @media (max-width:1180px){
+    .ts-bar{grid-template-columns:1fr auto}
+    .ts-bar__srch{grid-column:1/-1;grid-row:1;width:100%}
+    .ts-bar__n{grid-row:2}
+    .ts-bar__kbd{display:none}
+  }
+  .ts-bar__clr{position:absolute;right:12px;top:50%;transform:translateY(-50%);width:21px;height:21px;border:none;border-radius:50%;background:var(--gray-200,#e2e8f0);color:var(--gray-500,#64748b);display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;transition:background .15s,color .15s}
   .ts-bar__clr svg{width:11px;height:11px}
   .ts-bar__clr:hover{background:#ef4444;color:#fff}
   .ts-bar__clr[hidden]{display:none}
