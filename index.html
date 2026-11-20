@@ -1486,7 +1486,7 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
           <input type="text" id="tsSearch" placeholder="Buscar transportista o camión…" autocomplete="off">
           <button type="button" class="ts-bar__clr" id="tsSearchClr" title="Limpiar" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
         </div>
-        <span class="ts-bar__kbd"><kbd>←</kbd><kbd>→</kbd> transportadora · <kbd>↑</kbd><kbd>↓</kbd> camión · <kbd>C</kbd> copiar · <kbd>Enter</kbd> ver detalles</span>
+        <span class="ts-bar__kbd"><kbd>↓</kbd> lista · <kbd>←</kbd><kbd>→</kbd> transportadora · <kbd>↑</kbd><kbd>↓</kbd> camión · <kbd>C</kbd> copiar · <kbd>/</kbd> buscar</span>
       </div>
       <div class="ts-3d" id="ts3d">
         <button class="ts-3d__nav ts-3d__nav--prev" type="button" id="ts3dPrev" aria-label="Anterior"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg></button>
@@ -2156,20 +2156,6 @@ function _cpIco(){
     '<svg class="cp-k" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
 }
 function _tsNorm(t){return String(t==null?'':t).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');}
-// Resalta los términos buscados sin romper el HTML escapado.
-function _tsHl(txt,terms){
-  const e=esc(txt); if(!terms||!terms.length)return e;
-  const n=_tsNorm(txt); const marcas=new Array(txt.length).fill(false);
-  terms.forEach(function(t){ let i=n.indexOf(t); while(i>=0){ for(let k=i;k<i+t.length&&k<marcas.length;k++)marcas[k]=true; i=n.indexOf(t,i+1); } });
-  let out='',abierto=false;
-  for(let i=0;i<txt.length;i++){
-    if(marcas[i]&&!abierto){out+='<mark>';abierto=true;}
-    else if(!marcas[i]&&abierto){out+='</mark>';abierto=false;}
-    out+=esc(txt[i]);
-  }
-  if(abierto)out+='</mark>';
-  return out;
-}
 function populateTrSelect(){ if(document.getElementById('clientesTbody'))renderClientesTable(); }
 // Devuelve el transportista dueño de un camión
 /* ════════ Índices de búsqueda ════════
@@ -3464,7 +3450,7 @@ function _ts3dCuerpo(it,terms){
     // Sin precio: acá sólo se identifica el camión. El precio se ve al abrir el detalle.
     return '<div class="ts3c__tr">'+
       '<span class="ts3c__seg s-'+seg+'" title="'+esc(_TSSEG[seg])+'"></span>'+
-      '<span class="ts3c__nm">'+_tsHl(tr.d||'—',terms)+'</span>'+
+      '<span class="ts3c__nm">'+esc(tr.d||'—')+'</span>'+
       '<span class="ts3c__sg">'+esc(_TSSEG[seg])+'</span>'+
       '<button type="button" class="cp-btn cp-btn--xs" data-cptr="'+tr.id+'" title="Copiar el nombre del camión">'+_cpIco()+'</button>'+
     '</div>';
@@ -3519,7 +3505,7 @@ function renderTs3D(terms){
     return '<div class="ts-3d__card'+(filas?'':' is-vacia')+'" data-idx="'+i+'" data-tsid="'+t.id+'">'+
       '<div class="ts-3d__hd">'+
         '<span class="ts-3d__hdico">'+esc(initials(t.n))+'</span>'+
-        '<div class="ts-3d__hdmeta"><div class="ts-3d__hdname">'+_tsHl(t.n,terms)+'</div>'+
+        '<div class="ts-3d__hdmeta"><div class="ts-3d__hdname">'+esc(t.n)+'</div>'+
           '<div class="ts-3d__hdsub">'+(last?('Último reparto '+esc(isoToDisplay(last))):'Sin repartos')+'</div></div>'+
         '<span class="ts-3d__hdchip">'+(t.trucks||[]).length+'</span>'+
       '</div>'+
@@ -3677,6 +3663,11 @@ function go3D(idx,animate){
     else if(e.key==='End'){e.preventDefault();go3D(ts3dList.length-1);}
     else if(e.key==='Enter'&&ts3dList[ts3dIndex]){e.preventDefault();selectTs(ts3dList[ts3dIndex].t.id);}
     // C copia el camión elegido con ↑ ↓.
+    // Vuelta al buscador sin el mouse.
+    else if(e.key==='/'||e.key==='Escape'){
+      if(e.key==='Escape'&&!tsSearchEl.value)return;
+      e.preventDefault(); tsSearchEl.focus(); tsSearchEl.select();
+    }
     else if((e.key==='c'||e.key==='C')&&!e.ctrlKey&&!e.metaKey&&!e.altKey){
       e.preventDefault();
       const tr=_tsFilaActual();
@@ -3697,6 +3688,29 @@ function _tsCopiarCamiones(tsId,btn){
 
 /* El escenario del carrusel ya maneja copiar y abrir (ver más arriba). */
 tsSearchEl.addEventListener('input',e=>{search=e.target.value;ts3dIndex=0;renderTsList();});
+
+/* Teclas mientras se escribe en el buscador.
+   ↓ entra a la lista, y recién ahí andan ← → para cambiar de transportadora y
+   la C para copiar: C es una letra y no puede ser atajo mientras se escribe.
+   ← → se dejan libres a propósito, para poder mover el cursor y corregir. */
+tsSearchEl.addEventListener('keydown',function(e){
+  if(e.key==='ArrowDown'||e.key==='ArrowUp'){
+    if(!ts3dList.length)return;
+    e.preventDefault();
+    const cams=(ts3dList[ts3dIndex]||{}).cams||[];
+    _ts3dRow=(e.key==='ArrowDown')?0:Math.max(0,cams.length-1);
+    tsSearchEl.blur();
+    _tsMarcarFila();
+    return;
+  }
+  if(e.key==='Enter'){
+    if(!ts3dList[ts3dIndex])return;
+    e.preventDefault(); tsSearchEl.blur(); selectTs(ts3dList[ts3dIndex].t.id); return;
+  }
+  if(e.key==='Escape'&&tsSearchEl.value){
+    e.preventDefault(); search=''; tsSearchEl.value=''; ts3dIndex=0; renderTsList(); return;
+  }
+});
 const _tsClr=document.getElementById('tsSearchClr');
 if(_tsClr)_tsClr.addEventListener('click',()=>{search='';tsSearchEl.value='';ts3dIndex=0;renderTsList();tsSearchEl.focus();});
 /* El padrón completo se sigue bajando con "Exportar Excel". */
@@ -7012,7 +7026,7 @@ function showSaveAnim(text){
   /* Barra de búsqueda */
   /* Tres columnas para que el buscador quede centrado de verdad: el conteo y
      los atajos ocupan 1fr cada uno aunque midan distinto. */
-  .ts-bar{display:grid;grid-template-columns:1fr minmax(260px,560px) 1fr;align-items:center;gap:14px;margin-bottom:16px}
+  .ts-bar{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,560px) minmax(0,1fr);align-items:center;gap:14px;margin-bottom:16px}
   .ts-bar__srch{position:relative;width:100%}
   .ts-bar__srch>svg{position:absolute;left:17px;top:50%;transform:translateY(-50%);width:18px;height:18px;color:var(--gray-400,#94a3b8);pointer-events:none;transition:color .15s}
   .ts-bar__srch input{width:100%;height:50px;border:1.5px solid var(--gray-200,#e2e8f0);border-radius:14px;padding:0 40px 0 48px;font:inherit;font-size:14.5px;font-weight:600;color:var(--gray-800,#1e293b);background:#fff;outline:none;box-shadow:0 10px 26px -18px rgba(11,95,141,.75),0 1px 2px rgba(15,23,42,.05);transition:border-color .15s,box-shadow .15s}
@@ -7022,8 +7036,9 @@ function showSaveAnim(text){
   .ts-bar__n{justify-self:start}
   .ts-bar__kbd{justify-self:end}
   /* Angosto: el buscador pasa arriba y los atajos se esconden. */
+  @media (max-width:1400px){ .ts-bar__kbd{display:none} }
   @media (max-width:1180px){
-    .ts-bar{grid-template-columns:1fr auto}
+    .ts-bar{grid-template-columns:minmax(0,1fr) auto}
     .ts-bar__srch{grid-column:1/-1;grid-row:1;width:100%}
     .ts-bar__n{grid-row:2}
     .ts-bar__kbd{display:none}
@@ -7058,8 +7073,6 @@ function showSaveAnim(text){
   .ts3c__seg.s-servicios{background:#10B981} .ts3c__seg.s-transportadora{background:#7c3aed}
   .ts3c__nm{flex:1;min-width:0;font-size:13px;font-weight:700;color:var(--gray-800,#1e293b);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .ts3c__sg{flex-shrink:0;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--gray-400,#94a3b8)}
-  .ts3c__tr mark,.ts-3d__hdname mark{background:#fde68a;color:inherit;border-radius:2px;padding:0 1px}
-  .ts-3d__hdname mark{background:rgba(255,255,255,.3);color:#fff}
   .ts3c__vacio,.ts3c__mas{padding:10px 4px;font-size:12px;font-weight:700;color:var(--gray-400,#94a3b8);text-align:center}
   .ts-3d__foot{gap:9px;padding:12px 14px}
   .ts3c__open{display:inline-flex;align-items:center;gap:6px;height:40px;padding:0 16px;border:1.5px solid var(--gray-200,#e2e8f0);border-radius:10px;background:#fff;color:var(--gray-600,#475569);font:inherit;font-size:13px;font-weight:800;cursor:pointer;transition:color .16s,border-color .16s,background .16s,transform .16s}
@@ -7075,7 +7088,7 @@ function showSaveAnim(text){
   .ts-3d__empty b{font-size:15px;color:var(--gray-700,#334155);margin-bottom:4px}
   .ts-3d__empty span{font-size:12.5px;font-weight:600;color:var(--gray-400,#94a3b8)}
   /* Ayuda de teclado */
-  .ts-bar__kbd{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;color:var(--gray-400,#94a3b8);white-space:nowrap}
+  .ts-bar__kbd{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;color:var(--gray-400,#94a3b8);white-space:nowrap;overflow:hidden}
   .ts-bar__kbd kbd{font-family:inherit;font-size:10.5px;font-weight:800;line-height:1;padding:3px 6px;border-radius:5px;background:var(--gray-100,#f1f5f9);border:1px solid var(--gray-200,#e2e8f0);color:var(--gray-600,#475569)}
 
   /* Acciones por fila en el detalle */
