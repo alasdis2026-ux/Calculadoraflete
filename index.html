@@ -46,27 +46,14 @@ body{min-height:100vh;overflow:hidden;font-family:Inter,system-ui,-apple-system,
 /* ── Layout ── */
 .layout{min-height:100vh;padding:16px;display:flex;align-items:stretch;overflow:hidden}
 .system-shell{position:relative;flex:1;display:flex;height:calc(100vh - 32px);max-height:calc(100vh - 32px);overflow:hidden;background:var(--white);border-radius:var(--radius-xl);box-shadow:0 12px 50px rgba(0,0,0,.14)}
-.cf-main{flex:1;min-width:0;margin-left:60px;display:flex;flex-direction:column;overflow:hidden}
-.stage{flex:1;min-height:0;padding:24px 32px 26px;display:none;flex-direction:column;gap:16px;overflow-y:auto;overflow-x:hidden}
-
-/* Tira de apartados. Una sola pastilla con tres gajos, como el filtro por segmento. */
-.cf-tabs{flex-shrink:0;display:flex;align-self:center;margin:16px 32px 0;background:#fff;border:1.5px solid var(--gray-200);border-radius:14px;box-shadow:0 10px 26px -18px rgba(11,95,141,.7),0 1px 2px rgba(15,23,42,.04);overflow:hidden}
-.cf-tab{position:relative;display:flex;align-items:center;gap:9px;padding:11px 22px;border:0;border-left:1px solid var(--gray-100);background:transparent;font:inherit;font-size:12.5px;font-weight:800;letter-spacing:.02em;color:var(--gray-500);cursor:pointer;white-space:nowrap;transition:color .18s ease,background .18s ease}
-.cf-tab:first-child{border-left:0}
-.cf-tab svg{width:17px;height:17px;flex-shrink:0;stroke-width:2;transition:transform .3s cubic-bezier(.2,.8,.2,1)}
-.cf-tab:hover:not(.is-active){background:#f4f9fd;color:var(--gray-700)}
-.cf-tab.is-active{background:linear-gradient(135deg,#1478b8,var(--primary));color:#fff;box-shadow:0 8px 20px -12px rgba(11,95,141,.95)}
-.cf-tab.is-active svg{transform:scale(1.08)}
-/* Al entrar a una pestaña, el gajo elegido da un salto corto. */
-@keyframes cfTabPop{0%{transform:scale(.94)}55%{transform:scale(1.03)}100%{transform:scale(1)}}
-.cf-tab.is-active.pop{animation:cfTabPop .34s cubic-bezier(.2,.9,.3,1.2)}
-@media(prefers-reduced-motion:reduce){.cf-tab.is-active.pop{animation:none}}
-@media(max-width:1100px){
-  .cf-tabs{align-self:stretch;margin:12px 16px 0}
-  .cf-tab{flex:1;justify-content:center;padding:10px 10px;font-size:11.5px}
-  .cf-tab span{overflow:hidden;text-overflow:ellipsis}
-}
-@media(max-width:720px){ .cf-tab span{display:none} .cf-tab{padding:11px 0} }
+.stage{flex:1;margin-left:60px;padding:24px 32px 26px;display:none;flex-direction:column;gap:16px;overflow-y:auto;overflow-x:hidden}
+/* La tira de apartados se centra sola arriba de la Calculadora. El resto del
+   diseño lo hereda de .ci-seg, el filtro de segmentos de Registros del reparto. */
+.cf-tabs{flex-shrink:0;align-self:center}
+@keyframes cfTabPop{0%{transform:scale(.95)}55%{transform:scale(1.03)}100%{transform:scale(1)}}
+.cf-tabs .ci-seg__btn.is-active.pop{animation:cfTabPop .34s cubic-bezier(.2,.9,.3,1.2)}
+@media(prefers-reduced-motion:reduce){.cf-tabs .ci-seg__btn.is-active.pop{animation:none}}
+@media(max-width:1100px){ .cf-tabs{align-self:stretch} }
 .stage.is-active{display:flex}
 
 /* ── Sidebar ── */
@@ -1320,6 +1307,10 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 3v18h18"/><rect x="7" y="11" width="3" height="6" rx="1"/><rect x="12" y="7" width="3" height="10" rx="1"/><rect x="17" y="13" width="3" height="4" rx="1"/></svg>
       <span class="label">Estadísticas del gasto</span>
     </button>
+    <button class="sidebar-item is-active" type="button" data-nav="calc">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>
+      <span class="label">Calculadora</span>
+    </button>
     <button class="sidebar-item" type="button" data-nav="fact">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 3h14a1 1 0 011 1v17l-3-2-3 2-3-2-3 2-3-2V4a1 1 0 011-1z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
       <span class="label">Facturas</span>
@@ -1344,17 +1335,16 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
   </div>
 </nav>
 
-<div class="cf-main">
-  <!-- Las tres secciones del dia a dia. Vive fuera de los .stage para poder
-       volver a la Calculadora tambien desde Facturas, Metas o Transportistas. -->
-  <div class="cf-tabs" id="cfTabs" role="tablist">
-    <button class="cf-tab" type="button" data-nav="calc" role="tab"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg><span>Calculadora de flete</span></button>
-    <button class="cf-tab" type="button" data-nav="hist" role="tab"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span>Calendario</span></button>
-    <button class="cf-tab" type="button" data-nav="rrep" role="tab"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2M9 13l2 2 4-4"/></svg><span>Reporte de repartos</span></button>
-  </div>
-
 <!-- ═══ VIEW 1 — CALCULADORA ════════════════════════════ -->
 <section id="viewCalc" class="stage is-active">
+  <!-- Atajo a las otras dos secciones del dia a dia. Solo se ve aca dentro.
+       Mismo diseno que el filtro de segmentos de Registros del reparto: comparte
+       las reglas .ci-seg, no las copia. -->
+  <div class="cf-tabs ci-seg" id="cfTabs" role="tablist">
+    <button class="ci-seg__btn cf-tab" type="button" data-nav="calc" role="tab"><span class="ci-seg__ic"><svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg></span><span class="ci-seg__col"><span class="ci-seg__lbl">Calculadora de flete</span></span></button>
+    <button class="ci-seg__btn cf-tab" type="button" data-nav="hist" role="tab"><span class="ci-seg__ic"><svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span><span class="ci-seg__col"><span class="ci-seg__lbl">Calendario</span></span></button>
+    <button class="ci-seg__btn cf-tab" type="button" data-nav="rrep" role="tab"><span class="ci-seg__ic"><svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2M9 13l2 2 4-4"/></svg></span><span class="ci-seg__col"><span class="ci-seg__lbl">Reporte de repartos</span></span></button>
+  </div>
 
   <div class="edit-chip" id="editChip" style="display:none">
     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
@@ -1648,7 +1638,6 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
   <div id="metaHost" class="cf-host"></div>
 </section>
 
-</div><!-- /.cf-main -->
 </main>
 </div>
 
@@ -6137,7 +6126,7 @@ function showSaveAnim(text){
   .rr-card__monto b{color:var(--gray-800,#1e293b);font-weight:800}
   .rr-card__go{margin-top:8px;font-size:12.5px;font-weight:800;color:var(--primary)}
   /* ══ Reporte de Repartos · diseño Calendario de inventarios (portado) ══ */
-  .rr-ci{--ci-primary:#0877AF;--ci-primary-2:#0B5F8D;--ci-primary-soft:#eaf3fb;
+  .rr-ci,.cf-tabs{--ci-primary:#0877AF;--ci-primary-2:#0B5F8D;--ci-primary-soft:#eaf3fb;
     --ci-surface:#fff;--ci-border:#e4ecf3;--ci-border-2:#d6e3ef;
     --ci-text:#132437;--ci-text-2:#475569;--ci-muted:#8a99a8;
     --ci-prog:#2a78d6;--ci-proc:#eab308;--ci-real:#16a34a;--ci-pend:#ef4444;
@@ -6152,16 +6141,18 @@ function showSaveAnim(text){
   .rr-ci .rr-brand__t{display:flex;align-items:center;font-family:'Sora','Inter',sans-serif;font-weight:800;font-size:18px;line-height:1;color:var(--ci-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .rr-ci .ci-body{flex:1 1 auto;min-height:0;display:grid;grid-template-columns:minmax(0,1.38fr) minmax(0,1fr);gap:14px;align-items:stretch}
   /* Control segmentado (segmentos) — estilo depósitos de Inventario, compacto y centrado */
-  .rr-ci .ci-seg{display:flex;align-items:stretch;border:1px solid var(--ci-border-2);border-radius:16px;overflow:hidden;background:#fff;box-shadow:0 2px 12px rgba(15,36,64,.07);width:auto;justify-self:center}
-  .rr-ci .ci-seg__btn{flex:0 0 auto;min-width:104px;display:flex;align-items:center;justify-content:center;gap:9px;padding:8px 16px;border:0;border-left:1px solid var(--ci-border);background:transparent;cursor:pointer;transition:background .2s;color:var(--ci-text-2)}
-  .rr-ci .ci-seg__btn:first-child{border-left:0}
-  .rr-ci .ci-seg__btn:hover:not(.on){background:#f1f6fb}
-  .rr-ci .ci-seg__btn.on{background:linear-gradient(135deg,#1478b8,var(--ci-primary-2));color:#fff}
-  .rr-ci .ci-seg__btn.on .ci-seg__ic,.rr-ci .ci-seg__btn.on .ci-seg__n,.rr-ci .ci-seg__btn.on .ci-seg__lbl{color:#fff}
-  .rr-ci .ci-seg__ic{width:22px;height:22px;color:var(--ci-muted);flex-shrink:0;display:grid;place-items:center}
-  .rr-ci .ci-seg__ic svg{width:22px;height:22px}
-  .rr-ci .ci-seg__col{display:flex;flex-direction:column;align-items:center;line-height:1;min-width:0}
-  .rr-ci .ci-seg__lbl{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--ci-muted);white-space:nowrap}
+  /* La tira de apartados de la Calculadora usa este mismo diseño: por eso cada
+     regla lleva también .cf-tabs. Si se retoca el filtro, la tira lo sigue. */
+  .rr-ci .ci-seg,.cf-tabs{display:flex;align-items:stretch;border:1px solid var(--ci-border-2);border-radius:16px;overflow:hidden;background:#fff;box-shadow:0 2px 12px rgba(15,36,64,.07);width:auto;justify-self:center}
+  .rr-ci .ci-seg__btn,.cf-tabs .ci-seg__btn{flex:0 0 auto;min-width:104px;display:flex;align-items:center;justify-content:center;gap:9px;padding:8px 16px;border:0;border-left:1px solid var(--ci-border);background:transparent;cursor:pointer;transition:background .2s;color:var(--ci-text-2)}
+  .rr-ci .ci-seg__btn:first-child,.cf-tabs .ci-seg__btn:first-child{border-left:0}
+  .rr-ci .ci-seg__btn:hover:not(.on),.cf-tabs .ci-seg__btn:hover:not(.is-active){background:#f1f6fb}
+  .rr-ci .ci-seg__btn.on,.cf-tabs .ci-seg__btn.is-active{background:linear-gradient(135deg,#1478b8,var(--ci-primary-2));color:#fff}
+  .rr-ci .ci-seg__btn.on .ci-seg__ic,.rr-ci .ci-seg__btn.on .ci-seg__n,.rr-ci .ci-seg__btn.on .ci-seg__lbl,.cf-tabs .ci-seg__btn.is-active .ci-seg__ic,.cf-tabs .ci-seg__btn.is-active .ci-seg__lbl{color:#fff}
+  .rr-ci .ci-seg__ic,.cf-tabs .ci-seg__ic{width:22px;height:22px;color:var(--ci-muted);flex-shrink:0;display:grid;place-items:center}
+  .rr-ci .ci-seg__ic svg,.cf-tabs .ci-seg__ic svg{width:22px;height:22px}
+  .rr-ci .ci-seg__col,.cf-tabs .ci-seg__col{display:flex;flex-direction:column;align-items:center;line-height:1;min-width:0}
+  .rr-ci .ci-seg__lbl,.cf-tabs .ci-seg__lbl{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--ci-muted);white-space:nowrap}
   .rr-ci .ci-seg__n{font-size:19px;font-weight:800;margin-top:3px;color:var(--ci-text)}
   .rr-ci .ci-panel{background:var(--ci-surface);border:1px solid var(--ci-border);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;min-height:0;box-shadow:0 1px 10px rgba(15,36,64,.05)}
   /* Header azul de panel */
