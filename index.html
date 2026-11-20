@@ -631,6 +631,14 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .ts-3d-search .md-search::placeholder{color:var(--gray-400);font-weight:600}
 /* ===== Carrusel 3D (coverflow) ===== */
 .ts-3d{position:relative;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;perspective:2600px;perspective-origin:50% 46%;overflow:hidden;background:radial-gradient(120% 90% at 50% 8%,var(--accent-soft) 0%,transparent 55%)}
+/* Entradas en CSS: no bloquean el hilo como un gsap.from recién hecho el innerHTML. */
+@keyframes cfViewIn1{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes cfViewIn2{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.cf-viewin-1{animation:cfViewIn1 .42s cubic-bezier(.16,1,.3,1) backwards;animation-delay:calc(var(--vi,0)*50ms)}
+.cf-viewin-2{animation:cfViewIn2 .42s cubic-bezier(.16,1,.3,1) backwards;animation-delay:calc(var(--vi,0)*50ms)}
+@keyframes ts3cIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.ts3c-in{animation:ts3cIn .4s cubic-bezier(.2,.7,.3,1) backwards;animation-delay:calc(140ms + var(--i,0)*45ms)}
+@media (prefers-reduced-motion:reduce){.cf-viewin-1,.cf-viewin-2,.ts3c-in{animation:none}}
 .ts-3d__stage{position:relative;width:100%;height:100%;transform-style:preserve-3d;cursor:grab}
 .ts-3d__stage:active{cursor:grabbing}
 .ts-3d__card{position:absolute;top:50%;left:50%;width:620px;max-width:88vw;height:auto;max-height:86%;min-height:300px;background:#fff;border:1.5px solid var(--gray-200);border-radius:18px;box-shadow:0 30px 70px -24px rgba(15,23,42,.42);display:flex;flex-direction:column;overflow:hidden;cursor:pointer;transition:box-shadow .4s var(--alas-ease,cubic-bezier(.2,.7,.3,1)),border-color .4s var(--alas-ease,cubic-bezier(.2,.7,.3,1))}
@@ -2044,19 +2052,36 @@ function showView(v){
     b.classList.toggle('is-active',on);
     if(on&&!was&&window.gsap){const ic=b.querySelector('svg,i');if(ic)gsap.fromTo(ic,{scale:.7},{scale:1,duration:.4,ease:'back.out(2.2)',clearProps:'transform'});}
   });
-  // Entrada orquestada de la vista (patrón Control de Facturas): hijos directos en cascada
-  if(v!==_lastView&&window.gsap&&!(false/*anim siempre on*/)){
-    const st=document.getElementById('view'+v.charAt(0).toUpperCase()+v.slice(1));
-    if(st){const kids=Array.from(st.children).filter(k=>k.style.display!=='none').slice(0,8);if(kids.length){gsap.killTweensOf(kids);gsap.from(kids,{opacity:0,y:14,duration:.4,stagger:.05,ease:'power3.out',clearProps:'opacity,transform'});}}
-  }
+  const cambia=(v!==_lastView);
   _lastView=v;
-  if(v==='trans'){ selectedTsId=null; const gs=document.getElementById('tsGridState'),ds=document.getElementById('tsDetailState'); if(gs)gs.style.display=''; if(ds)ds.style.display='none'; renderTsList(); renderTs3D(true); }
+  // El render va ANTES de la animación. Al revés, la entrada arrancaba y a los
+  // pocos frames el hilo se bloqueaba armando la vista: eso es lo que se trababa.
+  // renderTsList ya termina llamando a renderTs3D, no hace falta repetirlo.
+  if(v==='trans'){ selectedTsId=null; const gs=document.getElementById('tsGridState'),ds=document.getElementById('tsDetailState'); if(gs)gs.style.display=''; if(ds)ds.style.display='none'; renderTsList(); }
   if(v==='hist'){setHistView(histViewMode);_cfLoadFac();}
   if(v==='dash')renderReporte();
   if(v==='fact')renderFacturas();
   if(v==='rrep')renderReporteRepartos();
   if(v==='stats')_cfOpenStats();
   if(v==='meta')renderMetaRep();
+  if(cambia)_cfEntradaVista(v);
+}
+
+let _cfViewFlip=0;
+/* Entrada en cascada de la vista. Va en CSS y no en gsap.from: un from() recién
+   hecho el innerHTML obliga a Chrome a calcular layout de nuevo por cada tween. */
+function _cfEntradaVista(v){
+  if(typeof reduce==='function'&&reduce())return;
+  const st=document.getElementById('view'+v.charAt(0).toUpperCase()+v.slice(1));
+  if(!st)return;
+  const kids=Array.from(st.children).filter(k=>k.style.display!=='none').slice(0,8);
+  if(!kids.length)return;
+  // Se alternan dos clases con el mismo efecto pero distinto animation-name:
+  // cambiar el nombre reinicia la animación sin tener que forzar un reflow,
+  // que sobre una vista recién armada cuesta decenas de ms.
+  const pon='cf-viewin-'+(_cfViewFlip?1:2), saca='cf-viewin-'+(_cfViewFlip?2:1);
+  _cfViewFlip=!_cfViewFlip;
+  kids.forEach(function(k,i){ k.classList.remove(saca); k.style.setProperty('--vi',i); k.classList.add(pon); });
 }
 document.querySelectorAll('[data-nav]').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.nav)));
 
@@ -3426,6 +3451,40 @@ function renderTsList(){
   renderTs3D(r.terms);
 }
 
+// Cuantas tarjetas a cada lado del centro se arman de verdad. Mas alla de 4
+// layout3D las pone en opacidad 0, asi que construirlas era trabajo tirado.
+const TS3D_VISIBLES=4;
+let _ts3dTerms=null;
+
+function _ts3dCuerpo(it,terms){
+  const t=it.t, ocultos=(t.trucks||[]).length-it.cams.length;
+  if(!it.cams.length)return '<div class="ts3c__vacio">Sin camiones cargados</div>';
+  return it.cams.map(function(tr){
+    const seg=tr.seg||'local';
+    // Sin precio: acá sólo se identifica el camión. El precio se ve al abrir el detalle.
+    return '<div class="ts3c__tr">'+
+      '<span class="ts3c__seg s-'+seg+'" title="'+esc(_TSSEG[seg])+'"></span>'+
+      '<span class="ts3c__nm">'+_tsHl(tr.d||'—',terms)+'</span>'+
+      '<span class="ts3c__sg">'+esc(_TSSEG[seg])+'</span>'+
+      '<button type="button" class="cp-btn cp-btn--xs" data-cptr="'+tr.id+'" title="Copiar el nombre del camión">'+_cpIco()+'</button>'+
+    '</div>';
+  }).join('')+(ocultos>0?('<div class="ts3c__mas">+'+ocultos+' '+_camLbl(ocultos)+' más</div>'):'');
+}
+
+// Llena las tarjetas que acaban de entrar en rango. Se llama al girar.
+function _ts3dLlenar(){
+  const stage=document.getElementById('ts3dStage'); if(!stage)return;
+  stage.querySelectorAll('.ts-3d__card.is-vacia').forEach(function(card){
+    const i=+card.dataset.idx;
+    if(Math.abs(i-ts3dIndex)>TS3D_VISIBLES)return;
+    const it=ts3dList[i]; if(!it)return;
+    const body=card.querySelector('.ts-3d__body');
+    if(body)body.innerHTML=_ts3dCuerpo(it,_ts3dTerms);
+    card.classList.remove('is-vacia');
+    card.querySelectorAll('.cp-ico:empty').forEach(function(e){ e.innerHTML=_cpIco(); });
+  });
+}
+
 function renderTs3D(terms){
   const stage=document.getElementById('ts3dStage'); if(!stage)return;
   const pos=document.getElementById('ts3dPos');
@@ -3440,26 +3499,31 @@ function renderTs3D(terms){
   if(ts3dIndex>ts3dList.length-1)ts3dIndex=ts3dList.length-1;
   if(ts3dIndex<0)ts3dIndex=0;
 
+  // Último reparto de cada transportadora en UNA pasada por el historial.
+  // tsLastUsed lo recorría entero una vez por tarjeta: con 24 transportistas y
+  // 320 repartos eran más de 60.000 vueltas en cada render.
+  const ultimo=new Map();
+  (repartos||[]).forEach(function(r){
+    const d=r.fechaISO||''; if(!d)return;
+    const marcar=function(id){ if(id==null)return; const p=ultimo.get(id); if(p===undefined||d>p)ultimo.set(id,d); };
+    marcar(r.tsId);
+    (r.clientes||[]).forEach(function(c){ marcar(c.tsId); });
+  });
+
+  _ts3dTerms=terms;
   stage.innerHTML=ts3dList.map(function(it,i){
-    const t=it.t, last=tsLastUsed(t), ocultos=(t.trucks||[]).length-it.cams.length;
-    const filas=it.cams.length?it.cams.map(function(tr){
-      const seg=tr.seg||'local';
-      // Sin precio: acá sólo se identifica el camión. El precio se ve al abrir el detalle.
-      return '<div class="ts3c__tr">'+
-        '<span class="ts3c__seg s-'+seg+'" title="'+esc(_TSSEG[seg])+'"></span>'+
-        '<span class="ts3c__nm">'+_tsHl(tr.d||'—',terms)+'</span>'+
-        '<span class="ts3c__sg">'+esc(_TSSEG[seg])+'</span>'+
-        '<button type="button" class="cp-btn cp-btn--xs" data-cptr="'+tr.id+'" title="Copiar el nombre del camión">'+_cpIco()+'</button>'+
-      '</div>';
-    }).join(''):'<div class="ts3c__vacio">Sin camiones cargados</div>';
-    return '<div class="ts-3d__card" data-idx="'+i+'" data-tsid="'+t.id+'">'+
+    const t=it.t, last=ultimo.get(t.id)||'';
+    // Las que caen fuera de rango van con el cuerpo vacío: layout3D las deja en
+    // opacidad 0 igual. Se llenan recién cuando se acercan al centro.
+    const filas=(Math.abs(i-ts3dIndex)<=TS3D_VISIBLES)?_ts3dCuerpo(it,terms):'';
+    return '<div class="ts-3d__card'+(filas?'':' is-vacia')+'" data-idx="'+i+'" data-tsid="'+t.id+'">'+
       '<div class="ts-3d__hd">'+
         '<span class="ts-3d__hdico">'+esc(initials(t.n))+'</span>'+
         '<div class="ts-3d__hdmeta"><div class="ts-3d__hdname">'+_tsHl(t.n,terms)+'</div>'+
           '<div class="ts-3d__hdsub">'+(last?('Último reparto '+esc(isoToDisplay(last))):'Sin repartos')+'</div></div>'+
         '<span class="ts-3d__hdchip">'+(t.trucks||[]).length+'</span>'+
       '</div>'+
-      '<div class="ts-3d__body">'+filas+(ocultos>0?('<div class="ts3c__mas">+'+ocultos+' '+_camLbl(ocultos)+' más</div>'):'')+'</div>'+
+      '<div class="ts-3d__body">'+filas+'</div>'+
       '<div class="ts-3d__foot">'+
         '<button type="button" class="ts3c__open" data-abrir="'+t.id+'">Ver detalles<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>'+
       '</div>'+
@@ -3469,13 +3533,19 @@ function renderTs3D(terms){
   layout3D(false);
   renderTs3DDots();
   _tsMarcarFila();
-  // Entrada: las tarjetas aparecen y la del centro da un pequeño salto.
-  if(window.gsap&&!(typeof reduce==='function'&&reduce())){
-    gsap.from(stage.children,{opacity:0,duration:.38,stagger:.025,ease:'power2.out'});
+  // Entrada: la del centro da un pequeño salto y sus filas entran en cascada.
+  // El fade de las 24 tarjetas se quitó: eran 24 tweens creados justo después
+  // del innerHTML, y cada uno obligaba a recalcular layout. Igual no se veía:
+  // layout3D ya las coloca y deja en cero las que quedan fuera de rango.
+  if(!(typeof reduce==='function'&&reduce())){
     const act=stage.querySelector('.ts-3d__card.is-active');
     if(act){
-      gsap.from(act,{scale:.86,duration:.6,ease:'back.out(1.7)'});
-      gsap.from(act.querySelectorAll('.ts3c__tr,.ts-3d__foot>*'),{opacity:0,y:10,duration:.4,stagger:.045,delay:.14,ease:'power2.out',clearProps:'opacity,transform'});
+      if(window.gsap)gsap.from(act,{scale:.86,duration:.6,ease:'back.out(1.7)'});
+      let i=0;
+      act.querySelectorAll('.ts3c__tr,.ts-3d__foot>*').forEach(function(e){
+        e.style.setProperty('--i',Math.min(i++,10));
+        e.classList.add('ts3c-in');
+      });
     }
   }
 }
@@ -3496,6 +3566,9 @@ function layout3D(animate){
     if(off===0){x=0;rotY=0;z=0;scale=1;opacity=1;zi=200;pe='auto';}
     else{x=sign*(318+(a-1)*62+40);rotY=sign*-37;z=-180-(a-1)*96;scale=Math.max(.6,.84-(a-1)*.055);opacity=a>4?0:1;zi=200-a;pe=a>4?'none':'auto';}
     el.style.zIndex=zi; el.style.pointerEvents=pe;
+    // Lo que queda bien afuera no se pinta: una tarjeta en opacidad 0 igual se
+    // rasteriza, y con 24 transportistas eso son 24 capas en el primer pintado.
+    el.style.visibility=(a>5)?'hidden':'visible';
     el.classList.toggle('is-active',off===0);
     const props={xPercent:-50,yPercent:-50,x:x,z:z,rotationY:rotY,scale:scale,opacity:opacity,force3D:true};
     if(animate&&window.gsap){
@@ -3527,6 +3600,7 @@ function go3D(idx,animate){
   const antes=ts3dIndex;
   ts3dIndex=Math.max(0,Math.min(n-1,idx));
   if(ts3dIndex!==antes)_ts3dRow=0;   // al cambiar de tarjeta se arranca por el primer camión
+  _ts3dLlenar();                     // las que recién entran en rango ya traen sus camiones
   layout3D(animate!==false);
   renderTs3DDots();
   _tsMarcarFila();
