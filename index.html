@@ -3357,11 +3357,10 @@ function _qPick(i){
   const inp=document.getElementById('qAddInp');
   if(inp){inp.value='';inp.focus();}
   _qIdx=0;
-  // Queda ABIERTO a proposito: lo normal es cargar varios camiones seguidos y
-  // el recien agregado ya no aparece en la lista. Cerrandolo, el Enter
-  // siguiente caia en la rama "if(pop.hidden)_qOpen()" y solo lo reabria en
-  // vez de agregar: se sentia trabado. Se cierra con Escape o clickeando afuera.
-  _qOpen();
+  // Al agregar, el desplegable se cierra y se queda cerrado. Para cargar el
+  // siguiente se escribe de nuevo: el evento input lo vuelve a abrir ya
+  // filtrado, y el camion recien cargado no aparece mas en la lista.
+  _qClose();
   // Deja ver cuál entró sin sacarte del campo.
   const row=document.querySelector('[data-clid="'+newCl.id+'"]');
   if(row&&window.gsap){
