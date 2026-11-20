@@ -305,6 +305,8 @@ body{min-height:100vh;overflow:hidden;font-family:Inter,system-ui,-apple-system,
 .sv-fact i{font-style:normal;font-size:9px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;opacity:.65}
 .sv-fact--pl{background:var(--gray-100);color:var(--gray-500)}
 .sv-fact--no{padding:3px 8px;border-radius:7px;background:#f3f6f8;color:#7f929e;font-size:9.5px;font-weight:750}
+.sv-fact--wait{padding:3px 8px;border-radius:7px;background:#fff7e8;color:#9b6b17;font-size:9.5px;font-weight:750}
+.sv-fact--link{padding:3px 8px;border-radius:7px;background:#fff0ed;color:#a34d3d;font-size:9.5px;font-weight:750}
 .sv-del{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border:0;border-radius:8px;background:transparent;color:var(--gray-300);cursor:pointer;opacity:0;transition:opacity .15s,background .15s,color .15s}
 .sv-del svg{width:15px;height:15px}
 .sv-tbl tr:hover .sv-del{opacity:1}
@@ -2458,7 +2460,7 @@ function showView(v){
   if(v==='rrep')renderReporteRepartos();
   if(v==='stats')_cfOpenStats();
   if(v==='meta')renderMetaRep();
-  if(v==='serv')renderServicios();
+  if(v==='serv'){renderServicios();_svAsegurarFacturas();}
   if(cambia)_cfEntradaVista(v);
 }
 
@@ -2630,7 +2632,7 @@ function _facIdx(){
     _ixFacRef=a;
   }
 }
-function _facById(id){ if(id==null)return null; _facIdx(); return _ixFacId.get(id)||null; }
+function _facById(id){ if(id==null)return null; _facIdx(); const f=_ixFacId.get(id); if(f)return f; const n=Number(id); return Number.isFinite(n)?(_ixFacId.get(n)||null):null; }
 function _facByTsSem(ts,sd){ if(!sd)return null; _facIdx(); return _ixFacTs.get((ts||'')+'|'+sd)||null; }
 // Segmento predeterminado configurado para un camión (Transportistas). Default: local.
 function _truckSeg(trId){ const t=tsOfTruck(trId); const tr=t?t.trucks.find(x=>x.id===trId):null; return (tr&&tr.seg)||'local'; }
@@ -10473,6 +10475,7 @@ function printPlanillaFlete(id){const r=(repartos||[]).find(x=>x.id===id);if(!r)
    número de factura (factNro). `clientes` es una columna JSONB, así que ese
    campo no necesita migración. */
 let _svTab='reg', _svMes=todayISO().slice(0,7), _svTs='', _svQ='';
+let _svFacturasListas=!!(Array.isArray(window.__cfFac)&&window.__cfFac.length),_svFacturasError=false,_svFacturasCargando=null;
 // Lo ultimo usado en el formulario: cargar varios servicios seguidos de la
 // misma transportadora es lo normal, y el re-render rehace el formulario.
 let _svUlt={fecha:'',tsId:'',trId:''};
@@ -10482,6 +10485,32 @@ const _svDM=function(iso){ return iso?String(iso).slice(0,10).split('-').reverse
 function _svMesMover(key,delta){const p=String(key||_svHOY().slice(0,7)).split('-').map(Number),d=new Date(p[0],(p[1]||1)-1+(+delta||0),1);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');}
 // formatMoney devuelve vacio para 0, y un total en cero tiene que verse.
 const _svGs=function(n){ const v=Math.round(+n||0); return 'Gs. '+(formatMoney(v)||'0'); };
+
+/* Servicios puede abrirse directamente, antes que cualquier vista cargue las
+   facturas. No mostrar «Sin factura» hasta terminar esta consulta. */
+function _svAsegurarFacturas(){
+  if(_svFacturasListas)return Promise.resolve(true);
+  if(_svFacturasCargando)return _svFacturasCargando;
+  _svFacturasError=false;
+  _svFacturasCargando=(async function(){
+    try{
+      const res=await sb.from('fact_facturas').select('*');
+      if(res.error)throw res.error;
+      window.__cfFac=res.data||[];
+      _svFacturasListas=true;
+      return true;
+    }catch(err){
+      _svFacturasError=true;
+      console.error('[servicios] no pude cargar facturas para los estados',err);
+      return false;
+    }finally{
+      _svFacturasCargando=null;
+      const v=document.getElementById('viewServ');
+      if(v&&v.classList.contains('is-active'))renderServicios();
+    }
+  })();
+  return _svFacturasCargando;
+}
 
 /* Un servicio puede estar facturado de dos maneras: con su propio número, o
    por la factura de la planilla en la que está. Antes solo se miraba lo
@@ -10500,7 +10529,12 @@ function _svFact(x){
 }
 function _svChipFact(x){
   const f=_svFact(x);
-  if(!f)return '<span class="sv-fact sv-fact--no">Sin factura</span>';
+  if(!f){
+    if(!_svFacturasListas)return '<span class="sv-fact sv-fact--wait" title="Consultando las facturas registradas">'+(_svFacturasError?'Sin verificar':'Verificando…')+'</span>';
+    const id=(x.c&&x.c.factura_id!=null)?x.c.factura_id:(x.r&&x.r.factura_id);
+    if(id!=null)return '<span class="sv-fact sv-fact--link" title="Esta línea tiene el vínculo interno '+esc(id)+', pero no se encontró su factura">Factura vinculada</span>';
+    return '<span class="sv-fact sv-fact--no" title="La línea no tiene una factura individual ni un vínculo de planilla reconocido">Sin factura</span>';
+  }
   return '<span class="sv-fact'+(f.propia?'':' sv-fact--pl')+'" title="'+
     (f.propia?'Factura cargada con el servicio':'Factura de la planilla de esa semana')+'">'+
     esc(f.nro)+(f.propia?'':'<i>planilla</i>')+'</span>';
