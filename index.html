@@ -60,14 +60,58 @@ body{min-height:100vh;overflow:hidden;font-family:Inter,system-ui,-apple-system,
 }
 
 /* ── Registro: planilla editable ── */
-.svr{max-width:900px;margin:0 auto;background:#fff;border:1.5px solid var(--gray-200);border-radius:18px;box-shadow:0 1px 3px rgba(15,36,64,.05);overflow:hidden}
-.svr__hd{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1.5px solid var(--gray-100)}
-.sv-sel--hd select{height:38px;border:1.5px solid var(--gray-200);border-radius:10px;padding:0 32px 0 14px;font-size:13.5px;font-weight:800;color:var(--gray-500);min-width:230px}
-.sv-sel--hd.on select{border-color:var(--primary);color:var(--gray-800)}
-.svr__fac{display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 15px;margin-left:auto;border:1.5px dashed var(--gray-300);border-radius:10px;background:#fff;font:inherit;font-size:12.5px;font-weight:800;color:var(--gray-400);cursor:pointer;white-space:nowrap;transition:border-color .18s,color .18s,background .18s}
+.svr{position:relative;max-width:900px;margin:0 auto;background:#fff;border:1.5px solid var(--gray-200);border-radius:18px;box-shadow:0 1px 3px rgba(15,36,64,.05);overflow:visible}
+.svr__hd{position:relative;z-index:5;display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1.5px solid var(--gray-100);border-radius:18px 18px 0 0}
+.sv-ts-picker{position:relative;flex:0 1 300px;min-width:230px}
+.sv-ts-trigger{display:flex;align-items:center;gap:10px;width:100%;height:42px;padding:0 12px;border:1.5px solid var(--gray-200);border-radius:12px;background:linear-gradient(180deg,#fff,#fbfdff);color:var(--gray-700);font:inherit;font-size:13px;font-weight:800;text-align:left;cursor:pointer;outline:none;transition:border-color .2s,box-shadow .2s,background .2s,transform .2s}
+.sv-ts-trigger:hover{border-color:#a9c5d8;background:#fff}
+.sv-ts-trigger.open,.sv-ts-trigger:focus-visible{border-color:var(--primary);box-shadow:0 0 0 4px rgba(11,95,141,.11);background:#fff}
+.sv-ts-trigger:active{transform:scale(.99)}
+.sv-ts-trigger__ic{display:grid;place-items:center;width:27px;height:27px;flex:none;border-radius:9px;background:#eaf4fb;color:var(--primary)}
+.sv-ts-trigger__ic svg{width:16px;height:16px}
+.sv-ts-trigger__name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sv-ts-trigger__name.is-placeholder{color:var(--gray-400)}
+.sv-ts-trigger__arrow{width:15px;height:15px;flex:none;color:var(--gray-400);transition:transform .24s cubic-bezier(.2,.8,.2,1),color .2s}
+.sv-ts-trigger.open .sv-ts-trigger__arrow{transform:rotate(180deg);color:var(--primary)}
+.sv-ts-pop{position:absolute;top:calc(100% + 9px);left:0;width:min(360px,calc(100vw - 36px));z-index:30;display:flex;flex-direction:column;max-height:min(390px,calc(100vh - 150px));overflow:hidden;border:1px solid #d8e5ef;border-radius:16px;background:#fff;box-shadow:0 22px 58px rgba(12,43,68,.2),0 4px 12px rgba(12,43,68,.07);transform-origin:top left}
+.sv-ts-pop[hidden]{display:none}
+.sv-ts-pop__search{display:flex;align-items:center;gap:9px;margin:10px 10px 0;padding:0 11px;height:42px;border:1.5px solid var(--gray-200);border-radius:11px;color:var(--gray-400);background:#fbfdff;transition:border-color .18s,box-shadow .18s,background .18s}
+.sv-ts-pop__search:focus-within{border-color:var(--primary);background:#fff;box-shadow:0 0 0 3px rgba(11,95,141,.1);color:var(--primary)}
+.sv-ts-pop__search svg{width:16px;height:16px;flex:none}
+.sv-ts-pop__search input{width:100%;min-width:0;border:0;outline:0;background:transparent;color:var(--gray-800);font:inherit;font-size:13px;font-weight:600}
+.sv-ts-pop__search input::placeholder{color:var(--gray-400);font-weight:500}
+.sv-ts-pop__meta{padding:10px 14px 5px;color:var(--gray-400);font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.sv-ts-list{min-height:42px;overflow:auto;padding:3px 7px 8px;overscroll-behavior:contain}
+.sv-ts-list::-webkit-scrollbar{width:5px}
+.sv-ts-list::-webkit-scrollbar-thumb{border:1px solid #fff;border-radius:9px;background:#dce6ed}
+.sv-ts-option{display:flex;align-items:center;gap:10px;width:100%;min-height:44px;padding:6px 9px;border:0;border-radius:10px;background:transparent;color:var(--gray-700);font:inherit;text-align:left;cursor:pointer;transition:background .16s,color .16s,transform .16s}
+.sv-ts-option:hover,.sv-ts-option.is-active{background:#f2f8fc;color:var(--primary)}
+.sv-ts-option:active{transform:scale(.99)}
+.sv-ts-option.is-selected{background:#edf6fb;color:var(--primary)}
+.sv-ts-option__avatar{display:grid;place-items:center;width:30px;height:30px;flex:none;border:1px solid #dcecf6;border-radius:10px;background:linear-gradient(145deg,#f5fbff,#e4f1f9);color:var(--primary);font-size:11px;font-weight:900}
+.sv-ts-option__name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12.5px;font-weight:750}
+.sv-ts-option__meta{flex:none;color:var(--gray-400);font-size:10.5px;font-weight:650}
+.sv-ts-option__check{width:15px;height:15px;flex:none;opacity:0;color:#12805c}
+.sv-ts-option.is-selected .sv-ts-option__check{opacity:1}
+.sv-ts-empty{padding:16px 12px;text-align:center;color:var(--gray-400);font-size:12px;font-weight:600}
+.sv-ts-create{padding:0 9px 9px}
+.sv-ts-create__btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:39px;border:1px dashed #b9d2e2;border-radius:10px;background:#f8fcff;color:var(--primary);font:inherit;font-size:11.5px;font-weight:850;cursor:pointer;transition:background .18s,border-color .18s,transform .18s}
+.sv-ts-create__btn:hover{border-style:solid;border-color:#84b4d0;background:#edf7fc}
+.sv-ts-create__btn svg{width:15px;height:15px;flex:none}
+.sv-ts-create__form{display:flex;gap:7px;padding-top:8px}
+.sv-ts-create__form input{flex:1;min-width:0;height:38px;padding:0 10px;border:1.5px solid var(--gray-200);border-radius:9px;outline:0;background:#fff;color:var(--gray-800);font:inherit;font-size:12px;font-weight:650}
+.sv-ts-create__form input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(11,95,141,.09)}
+.sv-ts-create__form button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-width:82px;padding:0 12px;border:0;border-radius:9px;background:linear-gradient(135deg,#1478b8,var(--primary));color:#fff;font:inherit;font-size:11.5px;font-weight:850;cursor:pointer;box-shadow:0 6px 14px -8px rgba(11,95,141,.8)}
+.sv-ts-create__form button:disabled{opacity:.55;cursor:wait}
+.sv-ts-create__form .cf-spin{width:14px;height:14px}
+.svr__tbl,.svr__ft{position:relative;z-index:1}
+@media(max-width:600px){.svr__hd{padding:13px 12px;gap:8px;flex-wrap:wrap}.sv-ts-picker{flex:1 1 100%;min-width:0}.svr__hd>.svr__fac{margin-left:0}.sv-ts-pop{width:min(390px,calc(100vw - 28px))}}
+.svr__fac{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 15px;margin-left:auto;border:1px solid #c9deeb;border-radius:11px;background:#f1f8fc;font:inherit;font-size:12px;font-weight:850;color:#0b5f8d;cursor:pointer;white-space:nowrap;transition:border-color .18s,color .18s,background .18s,transform .18s,box-shadow .18s}
 .svr__fac svg{width:15px;height:15px}
-.svr__fac:not(:disabled):hover{border-color:var(--primary);border-style:solid;color:var(--primary);background:#f3f9fd}
-.svr__fac:disabled{opacity:.55;cursor:default}
+.svr__fac-n{display:grid;place-items:center;min-width:21px;height:21px;padding:0 6px;border-radius:7px;background:rgba(11,95,141,.1);font-size:10px;font-weight:900;font-variant-numeric:tabular-nums}
+.svr__fac:not(:disabled):hover{border-color:#8dbbd4;color:#07496f;background:#e6f3fa;box-shadow:0 5px 14px rgba(11,95,141,.1);transform:translateY(-1px)}
+.svr__fac:focus-visible,.sv-btn:focus-visible{outline:3px solid rgba(20,120,184,.22);outline-offset:3px}
+.svr__fac:disabled{border-color:#e0e6eb;background:#f7f9fb;color:#9aa8b4;cursor:not-allowed}
 
 .svr__tbl{padding:6px 10px 10px}
 .svr__th,.svr__tr{display:grid;grid-template-columns:150px minmax(0,1fr) 150px 34px;align-items:center;gap:10px}
@@ -99,11 +143,11 @@ body{min-height:100vh;overflow:hidden;font-family:Inter,system-ui,-apple-system,
 .svr__add svg{width:15px;height:15px}
 .svr__add:hover{border-color:var(--primary);color:var(--primary);background:#f3f9fd}
 
-.svr__ft{display:flex;align-items:center;gap:14px;padding:14px 20px 18px;border-top:1.5px solid var(--gray-100)}
-.svr__tot{display:flex;align-items:baseline;gap:9px}
-.svr__tot span{font-size:9.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--gray-400)}
-.svr__tot b{font-size:20px;font-weight:800;color:var(--primary);font-variant-numeric:tabular-nums;letter-spacing:-.3px}
-.svr__ok{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:800;color:#15803d}
+.svr__ft{display:flex;align-items:center;gap:14px;padding:16px 20px;border-top:1px solid #eaf0f4;border-radius:0 0 18px 18px;background:linear-gradient(180deg,#fbfcfe,#f8fafc)}
+.svr__tot{display:flex;align-items:center;gap:11px}
+.svr__tot span{font-size:10px;font-weight:850;letter-spacing:.09em;text-transform:uppercase;color:var(--gray-400)}
+.svr__tot b{font-size:22px;font-weight:850;color:#075984;font-variant-numeric:tabular-nums;letter-spacing:-.45px}
+.svr__ok{display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border:1px solid #cdebd9;border-radius:999px;background:#effaf3;font-size:10.5px;font-weight:800;color:#16804b}
 .svr__ok svg{width:14px;height:14px}
 .svr__ft .sv-btn{margin-left:auto;margin-top:0}
 @media(max-width:760px){
@@ -116,7 +160,58 @@ body{min-height:100vh;overflow:hidden;font-family:Inter,system-ui,-apple-system,
 .sv-btn svg{width:16px;height:16px}
 .sv-btn:hover{transform:translateY(-1px);box-shadow:0 14px 28px -12px rgba(11,95,141,1)}
 .sv-btn:active{transform:translateY(0)}
-.sv-btn:disabled{opacity:.6;cursor:default;transform:none}
+.sv-btn:disabled{background:linear-gradient(135deg,#9ab9cc,#83a9bf);box-shadow:none;cursor:not-allowed;transform:none}
+.sv-btn{height:48px;min-width:174px;justify-content:center;padding:0 20px;border-radius:12px;background:linear-gradient(135deg,#1682c2,#075984);font-size:13px;font-weight:850;letter-spacing:.01em;box-shadow:0 9px 20px -10px rgba(7,89,132,.85),inset 0 1px 0 rgba(255,255,255,.16)}
+.sv-btn svg{width:17px;height:17px}
+.sv-btn:not(:disabled):hover{box-shadow:0 13px 24px -10px rgba(7,89,132,.8),inset 0 1px 0 rgba(255,255,255,.18)}
+.svr__add{border-color:#d4e4ee;background:#fbfdff;color:#557d96}
+.svr__add:hover{border-color:#9fc5db;background:#f0f8fc;color:#075984}
+@media(max-width:600px){.svr__ft{padding:14px 12px;gap:9px;flex-wrap:wrap}.svr__tot{flex:1 1 auto}.svr__tot b{font-size:20px}.svr__ok{order:3}.svr__ft .sv-btn{min-width:145px;padding:0 14px}}
+
+/* Factura de servicios: modal corto, claro y con una acción principal. */
+.cf-mbd .cf-mbox.sv-invoice{max-width:510px;width:min(510px,94vw);padding:23px;border:1px solid #e4ebf0;border-radius:20px;box-shadow:0 26px 70px rgba(12,37,57,.24)}
+.sv-invoice__head{display:flex;align-items:center;gap:13px;margin-bottom:18px}
+.sv-invoice__badge{display:grid;place-items:center;width:44px;height:44px;flex:none;border:1px solid #d2e7f3;border-radius:14px;background:linear-gradient(145deg,#f1f9fd,#e5f3fa);color:#0b6c9f}
+.sv-invoice__badge svg{width:21px;height:21px}
+.sv-invoice__headcopy{flex:1;min-width:0}
+.sv-invoice__eyebrow{display:block;margin-bottom:3px;color:#4381a2;font-size:9px;font-weight:900;letter-spacing:.11em;text-transform:uppercase}
+.cf-mbox.sv-invoice .sv-invoice__head h3{margin:0;color:#183447;font-size:20px;font-weight:850;letter-spacing:-.45px}
+.sv-invoice__head .cf-msub{margin:5px 0 0;color:#718292;font-size:11.5px;font-weight:600;line-height:1.45}
+.sv-invoice__close{display:grid;place-items:center;width:34px;height:34px;flex:none;border:1px solid #e7edf1;border-radius:10px;background:#fff;color:#7d8c98;cursor:pointer;transition:background .16s,color .16s,border-color .16s,transform .16s}
+.sv-invoice__close:hover{transform:rotate(4deg);border-color:#cfdde6;background:#f6f9fb;color:#29475b}
+.sv-invoice__close svg{width:16px;height:16px}
+.sv-invoice__summary{display:grid;grid-template-columns:1.2fr 1.1fr .7fr;gap:8px;padding:12px;border:1px solid #e3edf3;border-radius:14px;background:#f7fafc}
+.sv-invoice__summary-item{min-width:0;padding:1px 7px;border-right:1px solid #e2ebf1}
+.sv-invoice__summary-item:last-child{border-right:0}
+.sv-invoice__summary-item span{display:block;margin-bottom:5px;color:#8293a0;font-size:8.5px;font-weight:850;letter-spacing:.08em;text-transform:uppercase}
+.sv-invoice__summary-item b{display:block;overflow:hidden;color:#27475c;font-size:11px;font-weight:800;text-overflow:ellipsis;white-space:nowrap}
+.sv-invoice__summary-total{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:2px;padding:10px 8px 0;border-top:1px solid #e2ebf1}
+.sv-invoice__summary-total span{color:#657e8e;font-size:10px;font-weight:750}
+.sv-invoice__summary-total b{color:#075984;font-size:17px;font-weight:900;font-variant-numeric:tabular-nums}
+.sv-invoice__fields{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:17px 0 0}
+.sv-invoice__fields .cf-fld{margin:0;min-width:0}
+.sv-invoice__fields .cf-fld label{margin-bottom:1px;color:#526b7c;font-size:11px;font-weight:800}
+.sv-invoice__input{display:flex;align-items:center;height:44px;overflow:hidden;border:1.5px solid #dbe5eb;border-radius:11px;background:#fff;transition:border-color .16s,box-shadow .16s}
+.sv-invoice__input:focus-within{border-color:#1682b7;box-shadow:0 0 0 3px rgba(22,130,183,.1)}
+.sv-invoice__input>span{display:grid;place-items:center;align-self:stretch;min-width:38px;padding:0 9px;border-right:1px solid #e8eef2;background:#f7fafc;color:#7890a0;font-size:10px;font-weight:850}
+.sv-invoice__input input{width:100%;min-width:0;height:100%;padding:0 11px;border:0;border-radius:0;background:transparent;color:#203c4f;font:inherit;font-size:13px;font-weight:750;outline:0}
+.sv-invoice__input input::placeholder{color:#b0bdc7;font-weight:550}
+.sv-invoice__fields .cf-fld.is-err .sv-invoice__input{border-color:#e0707a;box-shadow:0 0 0 3px rgba(224,112,122,.1)}
+.sv-invoice__fields .cf-fld__err{display:block;margin-top:3px;font-size:10.5px}
+.sv-invoice__live{margin:12px 0 0!important;padding:10px 12px!important;border:1px solid transparent;border-radius:11px!important;font-size:11.5px!important;line-height:1.4}
+.cf-mbox.sv-invoice .cf-live.ok{flex-direction:row;justify-content:flex-start;text-align:left;gap:8px;padding:10px 12px;background:#eff9f3;color:#1a7b4a;border-color:#d0ebda;box-shadow:none}
+.cf-mbox.sv-invoice .cf-live.bad{background:#fff5f3;color:#b64c3f;border-color:#f3d9d4}
+.cf-mbox.sv-invoice .cf-live.neutral{background:#f5f8fa;color:#718292;border-color:#e5edf2}
+.sv-invoice__foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:18px;padding-top:15px;border-top:1px solid #edf1f4}
+.sv-invoice__hint{max-width:190px;color:#81909b;font-size:10px;font-weight:600;line-height:1.45}
+.sv-invoice__actions{display:flex;align-items:center;justify-content:flex-end;gap:8px}
+.cf-mbox.sv-invoice .sv-invoice__actions button{height:40px;padding:0 14px;border:1px solid transparent;border-radius:10px;font:inherit;font-size:11.5px;font-weight:850;cursor:pointer;transition:transform .16s,box-shadow .16s,background .16s}
+.cf-mbox.sv-invoice .sv-invoice__actions .cancel{border-color:#e1e8ed;background:#fff;color:#617383}
+.cf-mbox.sv-invoice .sv-invoice__actions .cancel:hover{background:#f7f9fa}
+.cf-mbox.sv-invoice .sv-invoice__actions .ok{display:inline-flex;align-items:center;gap:7px;background:linear-gradient(135deg,#1682c2,#075984);color:#fff;box-shadow:0 7px 16px -7px rgba(7,89,132,.85)}
+.cf-mbox.sv-invoice .sv-invoice__actions .ok:hover{transform:translateY(-1px);box-shadow:0 10px 20px -7px rgba(7,89,132,.8)}
+.cf-mbox.sv-invoice .sv-invoice__actions .ok:disabled{opacity:.68;cursor:wait;transform:none;box-shadow:none}
+@media(max-width:520px){.cf-mbd .cf-mbox.sv-invoice{padding:18px}.sv-invoice__summary{grid-template-columns:1fr 1fr}.sv-invoice__summary-item:nth-child(2){border-right:0}.sv-invoice__summary-item:nth-child(3){display:none}.sv-invoice__fields{grid-template-columns:1fr;gap:10px}.sv-invoice__foot{align-items:flex-end;flex-direction:column}.sv-invoice__hint{max-width:none}.sv-invoice__actions{width:100%}.sv-invoice__actions button{flex:1}}
 /* Entrada escalonada de cada parte del formulario. */
 @keyframes svFldIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 .sv-f{animation:svFldIn .4s cubic-bezier(.2,.7,.3,1) backwards;animation-delay:calc(var(--i,0)*55ms)}
@@ -10441,6 +10536,23 @@ function renderServicios(){
    filas, se guarda, y arriba se registra la factura con la conciliacion. */
 let _svDraft={tsId:'',filas:[]};
 let _svUid=1;
+let _svTsOutsideBound=false;
+
+function _svTsReduceMotion(){try{return window.matchMedia('(prefers-reduced-motion: reduce)').matches;}catch(_){return false;}}
+function _svCloseTsDropdown(instant){
+  const pop=document.getElementById('svTsPop'),btn=document.getElementById('svTsTrigger');
+  if(!pop||pop.hidden)return;
+  if(btn){btn.classList.remove('open');btn.setAttribute('aria-expanded','false');}
+  const search=document.getElementById('svTsSearch');if(search)search.setAttribute('aria-expanded','false');
+  const g=window.gsap,finish=function(){if(pop.isConnected){pop.hidden=true;if(g)g.set(pop,{clearProps:'opacity,transform'});}};
+  if(!instant&&g&&!_svTsReduceMotion()){g.killTweensOf(pop);g.to(pop,{opacity:0,y:-6,scale:.99,duration:.14,ease:'power2.in',onComplete:finish});}
+  else finish();
+}
+function _svBindTsOutside(){
+  if(_svTsOutsideBound)return;
+  document.addEventListener('pointerdown',function(e){const picker=document.getElementById('svTsPicker');if(picker&&!picker.contains(e.target))_svCloseTsDropdown(false);});
+  _svTsOutsideBound=true;
+}
 
 function _svFilaNueva(){
   const ult=_svDraft.filas[_svDraft.filas.length-1];
@@ -10457,16 +10569,26 @@ function _svReg(host){
   _svDraft.tsId=tsel;
   const guardadas=_svGuardadas().length, pend=_svPendientes().length;
   const CAL='<svg class="svr-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>';
+  const selectedTs=ts.find(function(t){ return String(t.id)===tsel; });
 
   host.innerHTML='<div class="svr">'+
     '<div class="svr__hd">'+
-      '<div class="sv-sel sv-sel--hd'+(tsel?' on':'')+'"><select id="svTs">'+
-        '<option value="">Transportadora</option>'+
-        ts.map(function(t){ return '<option value="'+t.id+'"'+(String(t.id)===tsel?' selected':'')+'>'+esc(t.n)+'</option>'; }).join('')+
-      '</select><svg class="sv-sel__ch" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></div>'+
+      '<div class="sv-ts-picker" id="svTsPicker">'+
+        '<button type="button" class="sv-ts-trigger" id="svTsTrigger" aria-haspopup="listbox" aria-expanded="false" aria-controls="svTsPop">'+
+          '<span class="sv-ts-trigger__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h11v11H3zM14 10h4l3 4v4h-7z"/><circle cx="7.5" cy="18" r="1.8"/><circle cx="17.5" cy="18" r="1.8"/></svg></span>'+
+          '<span class="sv-ts-trigger__name'+(selectedTs?'':' is-placeholder')+'">'+esc(selectedTs?selectedTs.n:'Elegí una transportadora')+'</span>'+
+          '<svg class="sv-ts-trigger__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>'+
+        '</button>'+
+        '<div class="sv-ts-pop" id="svTsPop" hidden>'+
+          '<label class="sv-ts-pop__search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input id="svTsSearch" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="svTsList" placeholder="Buscar transportadora…" autocomplete="off"></label>'+
+          '<div class="sv-ts-pop__meta" id="svTsMeta"></div>'+
+          '<div class="sv-ts-list" id="svTsList" role="listbox" aria-label="Transportadoras"></div>'+
+          '<div class="sv-ts-create" id="svTsCreate"></div>'+
+        '</div>'+
+      '</div>'+
       '<button type="button" class="svr__fac" id="svRegFac"'+(guardadas?'':' disabled title="Guardá los servicios primero"')+'>'+
         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z"/><path d="M14 2v6h6M9 13h6M9 17h6"/></svg>'+
-        'Registrar factura</button>'+
+        '<span>Registrar factura</span>'+(guardadas?'<span class="svr__fac-n">'+guardadas+'</span>':'')+'</button>'+
     '</div>'+
     '<div class="svr__tbl">'+
       '<div class="svr__th"><span>Fecha</span><span>Servicio</span><span class="r">Monto</span><span></span></div>'+
@@ -10485,16 +10607,104 @@ function _svReg(host){
     '<div class="svr__ft">'+
       '<span class="svr__tot"><span>Total</span><b>'+_svGs(_svTotalDraft())+'</b></span>'+
       (guardadas?'<span class="svr__ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>'+guardadas+(guardadas===1?' guardado':' guardados')+'</span>':'')+
-      '<button type="button" class="sv-btn" id="svSave"'+(pend?'':' disabled')+'>Guardar</button>'+
+      '<button type="button" class="sv-btn" id="svSave"'+(pend?'':' disabled')+'><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h12l3 3v13H4V4z"/><path d="M8 4v6h8V4M8 20v-6h8v6"/></svg><span>Guardar servicios</span></button>'+
     '</div>'+
   '</div>';
 
-  const sel=document.getElementById('svTs');
-  sel.addEventListener('change',function(){
-    _svDraft.tsId=sel.value; _svUlt.tsId=sel.value;
-    sel.parentNode.classList.toggle('on',!!sel.value);
-    _svReg(host);
+  _svBindTsOutside();
+  const trigger=document.getElementById('svTsTrigger'),pop=document.getElementById('svTsPop');
+  const search=document.getElementById('svTsSearch'),list=document.getElementById('svTsList');
+  const meta=document.getElementById('svTsMeta'),create=document.getElementById('svTsCreate');
+  let tsQuery='',tsCreateOpen=false,tsCreateValue='',tsActive=-1,tsSaving=false;
+  const filteredTs=function(){const q=_tsNorm(tsQuery).trim();return (transportistas||[]).slice().sort(function(a,b){return String(a.n||'').localeCompare(String(b.n||''),'es');}).filter(function(t){return !q||_tsNorm(t.n).indexOf(q)>=0;});};
+  const paintTs=function(animate){
+    const matches=filteredTs();
+    if(tsActive>=matches.length)tsActive=matches.length-1;
+    meta.textContent=matches.length+' transportadora'+(matches.length===1?'':'s')+(tsQuery.trim()?' encontrada'+(matches.length===1?'':'s'):' disponible'+(matches.length===1?'':'s'));
+    list.innerHTML=matches.length?matches.map(function(t,i){
+      const chosen=String(t.id)===String(_svDraft.tsId);
+      const count=(t.trucks||[]).length;
+      return '<button type="button" class="sv-ts-option'+(chosen?' is-selected':'')+(i===tsActive?' is-active':'')+'" role="option" id="svTsOption'+i+'" data-tsid="'+esc(t.id)+'" data-idx="'+i+'" aria-selected="'+chosen+'" tabindex="-1">'+
+        '<span class="sv-ts-option__avatar">'+esc(String(t.n||'T').trim().charAt(0).toUpperCase())+'</span>'+
+        '<span class="sv-ts-option__name">'+esc(t.n||'Sin nombre')+'</span>'+
+        '<span class="sv-ts-option__meta">'+(count?count+' camión'+(count===1?'':'es'):'Sin camiones')+'</span>'+
+        '<svg class="sv-ts-option__check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4L19 6"/></svg></button>';
+    }).join(''):'<div class="sv-ts-empty">No encontré transportadoras con ese nombre.</div>';
+    const q=tsQuery.trim();
+    if(tsCreateOpen){
+      create.innerHTML='<div class="sv-ts-create__form"><input id="svTsCreateName" type="text" maxlength="100" value="'+esc(tsCreateValue)+'" placeholder="Nombre de la transportadora" aria-label="Nombre de la nueva transportadora"'+(tsSaving?' disabled':'')+'><button type="button" id="svTsCreateSave"'+(tsSaving?' disabled':'')+'>'+(tsSaving?'<span class="cf-spin"></span>Guardando':'Agregar')+'</button></div>';
+      const name=document.getElementById('svTsCreateName'),save=document.getElementById('svTsCreateSave');
+      if(name){name.addEventListener('input',function(){tsCreateValue=name.value;});name.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();saveNewTs();}if(e.key==='Escape'){e.preventDefault();tsCreateOpen=false;paintTs(false);search.focus();}});}
+      if(save)save.addEventListener('click',saveNewTs);
+    }else{
+      create.innerHTML='<button type="button" class="sv-ts-create__btn" id="svTsCreateOpen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>'+(q?'Agregar «'+esc(q)+'» como nueva transportadora':'Agregar transportadora nueva')+'</button>';
+      document.getElementById('svTsCreateOpen').addEventListener('click',function(){tsCreateOpen=true;tsCreateValue=tsQuery.trim();paintTs(false);const name=document.getElementById('svTsCreateName');if(name){name.focus();name.select();}const g=window.gsap;if(g&&!_svTsReduceMotion())g.fromTo(create.querySelector('.sv-ts-create__form'),{opacity:0,y:6},{opacity:1,y:0,duration:.2,ease:'power2.out',clearProps:'all'});});
+    }
+    if(animate&&window.gsap&&!_svTsReduceMotion()){
+      const rows=list.querySelectorAll('.sv-ts-option');
+      if(rows.length){window.gsap.killTweensOf(rows);window.gsap.fromTo(rows,{opacity:0,y:6},{opacity:1,y:0,duration:.19,stagger:.014,ease:'power2.out',clearProps:'opacity,transform'});}
+    }
+    search.setAttribute('aria-activedescendant',tsActive>=0?'svTsOption'+tsActive:'');
+  };
+  const selectTs=function(t){
+    if(!t)return;
+    _svDraft.tsId=String(t.id);_svUlt.tsId=String(t.id);
+    _svCloseTsDropdown(true);_svReg(host);
+    setTimeout(function(){const b=document.getElementById('svTsTrigger');if(b)b.focus();},0);
+  };
+  async function saveNewTs(){
+    const raw=String(tsCreateValue||'').trim().replace(/\s+/g,' ');
+    const name=raw.toLocaleUpperCase('es-PY');
+    if(!name){showToast('Escribí el nombre de la transportadora');const inp=document.getElementById('svTsCreateName');if(inp)inp.focus();return;}
+    const duplicate=(transportistas||[]).find(function(t){return _tsNorm(t.n).trim()===_tsNorm(name).trim();});
+    if(duplicate){showToast('Esa transportadora ya existe; la seleccioné');selectTs(duplicate);return;}
+    tsSaving=true;paintTs(false);
+    try{
+      const id=await dbAddTs(name);
+      const item={id:id,n:name,trucks:[]};transportistas.push(item);
+      if(typeof renderTsList==='function')renderTsList();
+      showToast('Transportadora agregada');
+      selectTs(item);
+    }catch(err){
+      console.error('[flete] no pude agregar la transportadora',err);
+      tsSaving=false;paintTs(false);showToast('No pude agregarla. Probá de nuevo.');
+      const inp=document.getElementById('svTsCreateName');if(inp){inp.focus();inp.select();}
+    }
+  }
+  const openTsPicker=function(){
+    if(!pop.hidden){_svCloseTsDropdown(false);return;}
+    const g=window.gsap;if(g)g.killTweensOf(pop);
+    tsQuery='';tsActive=-1;tsCreateOpen=false;tsCreateValue='';search.value='';
+    pop.hidden=false;trigger.classList.add('open');trigger.setAttribute('aria-expanded','true');search.setAttribute('aria-expanded','true');paintTs(false);
+    if(g&&!_svTsReduceMotion()){
+      g.fromTo(pop,{opacity:0,y:-8,scale:.985},{opacity:1,y:0,scale:1,duration:.24,ease:'back.out(1.35)',clearProps:'opacity,transform'});
+      const rows=list.querySelectorAll('.sv-ts-option');if(rows.length)g.fromTo(rows,{opacity:0,y:6},{opacity:1,y:0,duration:.2,stagger:.018,delay:.04,ease:'power2.out',clearProps:'opacity,transform'});
+    }
+    setTimeout(function(){search.focus();},35);
+  };
+  trigger.addEventListener('click',openTsPicker);
+  search.addEventListener('input',function(){tsQuery=search.value;tsActive=-1;paintTs(true);});
+  search.addEventListener('keydown',function(e){
+    const matches=filteredTs();
+    if(e.key==='ArrowDown'||e.key==='ArrowUp'){
+      if(!matches.length)return;e.preventDefault();
+      const d=e.key==='ArrowDown'?1:-1;tsActive=tsActive<0?(d>0?0:matches.length-1):(tsActive+d+matches.length)%matches.length;
+      list.querySelectorAll('.sv-ts-option').forEach(function(b,i){b.classList.toggle('is-active',i===tsActive);});
+      search.setAttribute('aria-activedescendant',tsActive>=0?'svTsOption'+tsActive:'');
+      const row=document.getElementById('svTsOption'+tsActive);if(row)row.scrollIntoView({block:'nearest'});
+    }else if(e.key==='Enter'){
+      e.preventDefault();
+      if(tsActive>=0&&matches[tsActive]){selectTs(matches[tsActive]);return;}
+      const exact=matches.find(function(t){return _tsNorm(t.n).trim()===_tsNorm(tsQuery).trim();});
+      if(exact){selectTs(exact);return;}
+      if(matches.length){selectTs(matches[0]);return;}
+      if(tsQuery.trim()){tsCreateOpen=true;tsCreateValue=tsQuery.trim();paintTs(false);const inp=document.getElementById('svTsCreateName');if(inp){inp.focus();inp.select();}}
+    }else if(e.key==='Escape'){
+      e.preventDefault();_svCloseTsDropdown(false);trigger.focus();
+    }
   });
+  list.addEventListener('click',function(e){const b=e.target.closest('[data-tsid]');if(!b)return;const t=(transportistas||[]).find(function(x){return String(x.id)===b.dataset.tsid;});if(t)selectTs(t);});
+  paintTs(false);
 
   host.querySelectorAll('.svr__tr').forEach(function(tr){
     const f=_svDraft.filas.find(function(x){ return x.uid===+tr.dataset.uid; });
@@ -10807,22 +11017,33 @@ function _svBotonFac(g,k){
 function _svFacturar(g,alTerminar){
   if(!g||!g.filas.length)return;
   const tot=Math.round(g.total);
-  const m=_cfModalOpen('<div class="cf-mbox cf-mbox--form" style="max-width:520px">'+
-    '<div class="cf-fhead"><div class="cf-fhead__l"><h3>Registrar factura</h3>'+
-    '<p class="cf-msub">'+esc(g.ts)+' · '+_svDM(g.desde)+' al '+_svDM(g.hasta)+' · '+g.filas.length+(g.filas.length===1?' servicio':' servicios')+'</p></div></div>'+
-    '<div class="cf-sec">'+
-      '<div class="cf-fld" data-fnro><label for="svfNro">Nº de factura <span class="req">*</span></label>'+
-        '<input id="svfNro" autocomplete="off" maxlength="40" placeholder="Ej: 0087"><span class="cf-fld__err"></span></div>'+
-      '<div class="cf-fld"><label for="svfMonto">Monto de la factura (Gs.)</label>'+
-        '<input id="svfMonto" inputmode="numeric" autocomplete="off" value="'+formatMoney(tot)+'"></div>'+
-      '<div class="cf-live" id="svfLive"></div>'+
+  const m=_cfModalOpen('<div class="cf-mbox cf-mbox--form sv-invoice">'+
+    '<div class="sv-invoice__head">'+
+      '<span class="sv-invoice__badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg></span>'+
+      '<div class="sv-invoice__headcopy"><span class="sv-invoice__eyebrow">Servicios adicionales</span><h3>Registrar factura</h3>'+
+      '<p class="cf-msub">'+esc(g.ts)+' · '+_svDM(g.desde)+' al '+_svDM(g.hasta)+'</p></div>'+
+      '<button type="button" class="sv-invoice__close" aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>'+
     '</div>'+
-    '<div class="cf-mfoot"><button class="cancel">Cancelar</button><button class="ok">Registrar factura</button></div></div>');
+    '<div class="sv-invoice__summary">'+
+      '<div class="sv-invoice__summary-item"><span>Transportadora</span><b title="'+esc(g.ts)+'">'+esc(g.ts)+'</b></div>'+
+      '<div class="sv-invoice__summary-item"><span>Período</span><b>'+_svDM(g.desde)+' — '+_svDM(g.hasta)+'</b></div>'+
+      '<div class="sv-invoice__summary-item"><span>Servicios</span><b>'+g.filas.length+'</b></div>'+
+      '<div class="sv-invoice__summary-total"><span>Total de servicios</span><b>'+_svGs(tot)+'</b></div>'+
+    '</div>'+
+    '<div class="sv-invoice__fields">'+
+      '<div class="cf-fld" data-fnro><label for="svfNro">Número de factura <span class="req">*</span></label>'+
+        '<div class="sv-invoice__input"><span>N.º</span><input id="svfNro" autocomplete="off" maxlength="40" placeholder="Ej. 0087"></div><span class="cf-fld__err"></span></div>'+
+      '<div class="cf-fld"><label for="svfMonto">Monto de factura</label>'+
+        '<div class="sv-invoice__input"><span>Gs.</span><input id="svfMonto" inputmode="numeric" autocomplete="off" value="'+formatMoney(tot)+'" aria-label="Monto de la factura en guaraníes"></div></div>'+
+    '</div>'+
+    '<div class="cf-live sv-invoice__live" id="svfLive" aria-live="polite"></div>'+
+    '<div class="sv-invoice__foot"><span class="sv-invoice__hint">Compará el importe de la factura con el total de los servicios.</span><div class="sv-invoice__actions">'+
+      '<button type="button" class="cancel">Cancelar</button><button type="button" class="ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5 9.5 17 19 7"/></svg>Registrar factura</button></div></div></div>');
 
   const nro=m.$('#svfNro'), mon=m.$('#svfMonto'), live=m.$('#svfLive'), fld=nro.closest('[data-fnro]');
   const pinta=function(){
     const v=parseMoney(mon.value), d=v-tot;
-    live.className='cf-live'+(d===0?' ok':(v>0?' bad':''));
+    live.className='cf-live sv-invoice__live'+(d===0?' ok':(v>0?' bad':' neutral'));
     live.innerHTML=(d===0)
       ? '<b>Coincide</b> con el total de los servicios · '+_svGs(tot)
       : (v>0 ? ('<b>'+(d>0?'Sobra':'Falta')+' '+_svGs(Math.abs(d))+'</b> · servicios '+_svGs(tot))
@@ -10836,6 +11057,8 @@ function _svFacturar(g,alTerminar){
   });
   pinta();
   setTimeout(function(){ try{ nro.focus(); }catch(_){} },80);
+  m.$('.sv-invoice__close').addEventListener('click',m.close);
+  if(window.gsap&&!_svTsReduceMotion())window.gsap.fromTo(m.box.querySelectorAll('.sv-invoice__summary,.sv-invoice__fields,.sv-invoice__live,.sv-invoice__foot'),{opacity:0,y:9},{opacity:1,y:0,duration:.28,stagger:.045,delay:.08,ease:'power2.out',clearProps:'opacity,transform'});
 
   const guardar=async function(){
     const v=(nro.value||'').trim();
