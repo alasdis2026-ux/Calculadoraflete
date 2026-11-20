@@ -59,57 +59,120 @@ body{min-height:100vh;overflow:hidden;font-family:Inter,system-ui,-apple-system,
   .sv-hd>.sv-tabs{grid-column:1/-1;grid-row:2;justify-self:stretch}
 }
 
-/* ── Registro ── */
-.sv-reg{max-width:980px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
-.sv-card{background:#fff;border:1.5px solid var(--gray-200);border-radius:18px;box-shadow:0 2px 12px rgba(15,36,64,.06);overflow:hidden}
-.sv-card__hd{padding:18px 22px 14px;border-bottom:1.5px solid var(--gray-100);background:linear-gradient(135deg,#f8fbff,#fff)}
-.sv-card__hd h3{font-family:Sora,Inter,sans-serif;font-size:15px;font-weight:800;color:var(--primary)}
-.sv-card__hd p{margin-top:3px;font-size:12.5px;font-weight:600;color:var(--gray-400)}
-.sv-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px 16px;padding:18px 22px}
-.sv-grid .cf-fld{display:flex;flex-direction:column;gap:6px}
-.sv-grid .cf-fld>span{font-size:10.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--gray-400)}
-.sv-grid input,.sv-grid select{height:42px;border:1.5px solid var(--gray-200);border-radius:10px;padding:0 12px;font:inherit;font-size:14px;font-weight:600;color:var(--gray-800);background:#fff;outline:none;transition:border-color .15s,box-shadow .15s}
-.sv-grid input:focus,.sv-grid select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(11,95,141,.12)}
-.sv-grid input.is-err{border-color:#e0707a;box-shadow:0 0 0 3px rgba(224,112,122,.13)}
+/* ── Registro: una sola tarjeta, sin adornos ── */
+.sv-reg{max-width:760px;margin:0 auto}
+.sv-form{background:#fff;border:1.5px solid var(--gray-200);border-radius:18px;box-shadow:0 1px 3px rgba(15,36,64,.05);padding:26px 28px 24px}
+.sv-form__hd h3{font-family:Sora,Inter,sans-serif;font-size:17px;font-weight:800;color:var(--gray-800);letter-spacing:-.3px}
+.sv-form__hd p{margin-top:5px;font-size:12.5px;font-weight:600;color:var(--gray-400);line-height:1.5}
+.sv-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px 18px;padding:24px 0 22px}
+.sv-grid>label{display:flex;flex-direction:column;gap:7px;min-width:0}
+.sv-grid>label>span{font-size:10px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--gray-400)}
 .sv-grid__wide{grid-column:span 2}
-.sv-card__ft{display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:0 22px 20px}
-.sv-hint{margin-right:auto;font-size:12px;font-weight:600;color:var(--gray-400)}
+/* Campos sin caja: solo una línea abajo, que se pinta al enfocar. */
+.sv-grid input{height:40px;border:0;border-bottom:1.5px solid var(--gray-200);border-radius:0;padding:0 2px;font:inherit;font-size:15px;font-weight:700;color:var(--gray-800);background:transparent;outline:none;transition:border-color .2s ease}
+.sv-grid input::placeholder{color:var(--gray-300);font-weight:600}
+.sv-grid input:focus{border-bottom-color:var(--primary)}
+.sv-grid input.is-err{border-bottom-color:#e0707a}
+.sv-sel--blk{width:100%}
+.sv-sel--blk select{width:100%;height:40px;border:0;border-bottom:1.5px solid var(--gray-200);border-radius:0;padding:0 26px 0 2px;font-size:15px;font-weight:700;color:var(--gray-800);background:transparent}
+.sv-sel--blk select:focus{border-bottom-color:var(--primary);box-shadow:none}
+.sv-sel--blk.on select{color:var(--gray-800);border-bottom-color:var(--primary)}
+.sv-sel--blk .sv-sel__ch{right:4px}
+.sv-form__ft{display:flex;align-items:center;gap:12px;padding-top:4px;border-top:1.5px solid var(--gray-100);margin-top:2px}
+.sv-hint{margin-right:auto;font-size:12px;font-weight:700;color:#c9505c}
+.sv-btn{display:inline-flex;align-items:center;gap:8px;height:44px;padding:0 22px;margin-top:18px;border:0;border-radius:12px;background:linear-gradient(135deg,#1478b8,var(--primary));color:#fff;font:inherit;font-size:13.5px;font-weight:800;cursor:pointer;box-shadow:0 10px 24px -12px rgba(11,95,141,.95);transition:transform .18s cubic-bezier(.2,.8,.2,1),box-shadow .18s}
+.sv-btn svg{width:16px;height:16px}
+.sv-btn:hover{transform:translateY(-1px);box-shadow:0 14px 28px -12px rgba(11,95,141,1)}
+.sv-btn:active{transform:translateY(0)}
+.sv-btn:disabled{opacity:.6;cursor:default;transform:none}
+/* Entrada escalonada de cada parte del formulario. */
+@keyframes svFldIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.sv-f{animation:svFldIn .4s cubic-bezier(.2,.7,.3,1) backwards;animation-delay:calc(var(--i,0)*55ms)}
+@media(prefers-reduced-motion:reduce){.sv-f{animation:none}}
 @media(max-width:860px){.sv-grid{grid-template-columns:1fr}.sv-grid__wide{grid-column:span 1}}
 
+/* Chip y botón de factura del grupo */
+.sv-g__fac{display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 13px;margin-left:16px;border-radius:10px;font:inherit;font-size:11.5px;font-weight:800;white-space:nowrap;background:var(--success-soft);color:#15803d;border:1.5px solid #86efac}
+.sv-g__fac svg{width:14px;height:14px}
+.sv-g__fac--btn{background:#fff;color:var(--gray-500);border:1.5px dashed var(--gray-300);cursor:pointer;transition:border-color .18s,color .18s,background .18s}
+.sv-g__fac--btn:hover{border-color:var(--primary);border-style:solid;color:var(--primary);background:#f3f9fd}
+
 /* ── Datos registrados ── */
-.sv-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
-.sv-bar select{height:38px;border:1.5px solid var(--gray-200);border-radius:10px;padding:0 10px;font:inherit;font-size:13px;font-weight:700;color:var(--gray-700);background:#fff;outline:none}
-.sv-bar select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(11,95,141,.12)}
-.sv-bar__srch{position:relative;flex:1 1 240px;max-width:340px}
-.sv-bar__srch svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--gray-400);pointer-events:none}
-.sv-bar__srch input{width:100%;height:38px;border:1.5px solid var(--gray-200);border-radius:10px;padding:0 12px 0 34px;font:inherit;font-size:13px;font-weight:600;color:var(--gray-800);background:#fff;outline:none}
-.sv-bar__srch input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(11,95,141,.12)}
-.sv-bar__tot{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:13px;font-weight:800;color:var(--gray-500)}
-.sv-bar__tot b{font-size:16px;color:var(--primary);font-variant-numeric:tabular-nums}
+/* ── Filtros ── */
+.sv-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.sv-pills{display:flex;align-items:center;gap:7px;flex-wrap:wrap;min-width:0}
+.sv-pill{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 8px 0 14px;border:1.5px solid var(--gray-200);border-radius:999px;background:#fff;font:inherit;font-size:12.5px;font-weight:800;color:var(--gray-500);cursor:pointer;white-space:nowrap;
+  transition:border-color .18s ease,color .18s ease,background .18s ease,box-shadow .18s ease;
+  animation:svPillIn .34s cubic-bezier(.2,.8,.3,1.1) backwards;animation-delay:calc(var(--i,0)*35ms)}
+.sv-pill span{display:inline-grid;place-items:center;min-width:21px;height:21px;padding:0 6px;border-radius:999px;background:var(--gray-100);color:var(--gray-400);font-size:11px;font-weight:800;transition:background .18s ease,color .18s ease}
+.sv-pill:hover:not(.on){border-color:var(--gray-300);color:var(--gray-700)}
+.sv-pill.on{border-color:transparent;background:linear-gradient(135deg,#1478b8,var(--primary));color:#fff;box-shadow:0 8px 18px -10px rgba(11,95,141,.9)}
+.sv-pill.on span{background:rgba(255,255,255,.24);color:#fff}
+@keyframes svPillIn{from{opacity:0;transform:translateY(-6px) scale(.94)}to{opacity:1;transform:none}}
+
+.sv-bar__r{display:flex;align-items:center;gap:9px;margin-left:auto}
+.sv-sel{position:relative;display:inline-flex;align-items:center}
+.sv-sel select{appearance:none;-webkit-appearance:none;height:36px;border:1.5px solid var(--gray-200);border-radius:999px;padding:0 34px 0 15px;font:inherit;font-size:12.5px;font-weight:800;color:var(--gray-500);background:#fff;outline:none;cursor:pointer;transition:border-color .18s ease,color .18s ease,box-shadow .18s ease}
+.sv-sel__ch{position:absolute;right:13px;width:14px;height:14px;color:var(--gray-400);pointer-events:none;transition:color .18s ease,transform .25s cubic-bezier(.2,.8,.2,1)}
+.sv-sel select:hover{border-color:var(--gray-300)}
+.sv-sel select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(11,95,141,.12)}
+.sv-sel.on select{border-color:var(--primary);color:var(--primary)}
+.sv-sel.on .sv-sel__ch{color:var(--primary)}
+.sv-sel:focus-within .sv-sel__ch{transform:rotate(180deg);color:var(--primary)}
+
+/* El buscador se agranda al enfocarlo. */
+.sv-srch{position:relative;width:230px;transition:width .3s cubic-bezier(.2,.8,.2,1)}
+.sv-srch:focus-within{width:320px}
+.sv-srch>svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--gray-400);pointer-events:none;transition:color .18s ease}
+.sv-srch:focus-within>svg{color:var(--primary)}
+.sv-srch input{width:100%;height:36px;border:1.5px solid var(--gray-200);border-radius:999px;padding:0 34px 0 36px;font:inherit;font-size:12.5px;font-weight:600;color:var(--gray-800);background:#fff;outline:none;transition:border-color .18s ease,box-shadow .18s ease}
+.sv-srch input::placeholder{color:var(--gray-400);font-weight:600}
+.sv-srch input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(11,95,141,.12)}
+.sv-srch__x{position:absolute;right:9px;top:50%;transform:translateY(-50%);display:grid;place-items:center;width:20px;height:20px;border:0;border-radius:50%;background:var(--gray-200);color:var(--gray-500);cursor:pointer;padding:0;transition:background .15s,color .15s}
+.sv-srch__x svg{width:11px;height:11px}
+.sv-srch__x:hover{background:var(--danger);color:#fff}
+
+.sv-limpiar{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 13px;border:1.5px dashed var(--gray-300);border-radius:999px;background:transparent;font:inherit;font-size:12px;font-weight:800;color:var(--gray-400);cursor:pointer;white-space:nowrap;transition:border-color .18s,color .18s,background .18s;animation:svPillIn .3s cubic-bezier(.2,.8,.3,1.1)}
+.sv-limpiar svg{width:13px;height:13px}
+.sv-limpiar:hover{border-color:var(--danger);color:var(--danger-dark);background:var(--danger-soft)}
+
+.sv-resumen{flex-basis:100%;display:flex;align-items:baseline;gap:10px;padding-top:2px}
+.sv-resumen span{font-size:11.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--gray-400)}
+.sv-resumen b{font-size:19px;font-weight:800;color:var(--primary);font-variant-numeric:tabular-nums;letter-spacing:-.3px}
+@media(max-width:980px){ .sv-bar__r{margin-left:0;flex-wrap:wrap} .sv-srch,.sv-srch:focus-within{width:100%} }
+@media(prefers-reduced-motion:reduce){ .sv-pill,.sv-limpiar{animation:none} .sv-srch,.sv-srch:focus-within{transition:none} }
 
 .sv-grupos{display:flex;flex-direction:column;gap:14px;padding-bottom:10px}
-.sv-g{background:#fff;border:1.5px solid var(--gray-200);border-radius:16px;overflow:hidden;box-shadow:0 2px 10px rgba(15,36,64,.05)}
-.sv-g__hd{display:flex;align-items:center;gap:12px;padding:13px 18px;background:linear-gradient(135deg,#1478b8,var(--primary));color:#fff}
-.sv-g__ini{display:grid;place-items:center;width:34px;height:34px;flex-shrink:0;border-radius:10px;background:rgba(255,255,255,.18);font-family:Sora,Inter,sans-serif;font-size:12px;font-weight:800}
+/* Tarjeta sobria: el color queda para el dato, no para el encabezado. */
+.sv-g{background:#fff;border:1.5px solid var(--gray-200);border-radius:16px;overflow:hidden;box-shadow:0 1px 3px rgba(15,36,64,.05)}
+.sv-g__hd{display:flex;align-items:center;gap:13px;padding:15px 20px 14px;border-bottom:1.5px solid var(--gray-100)}
+.sv-g__ini{display:grid;place-items:center;width:36px;height:36px;flex-shrink:0;border-radius:11px;background:var(--accent-soft);color:var(--primary);font-family:Sora,Inter,sans-serif;font-size:12px;font-weight:800;letter-spacing:.4px}
 .sv-g__t{min-width:0}
-.sv-g__t b{display:block;font-family:Sora,Inter,sans-serif;font-size:14px;font-weight:800;letter-spacing:-.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.sv-g__t span{font-size:11px;font-weight:700;color:rgba(255,255,255,.82)}
+.sv-g__t b{display:block;font-family:Sora,Inter,sans-serif;font-size:14.5px;font-weight:800;color:var(--gray-800);letter-spacing:-.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sv-g__t span{font-size:11.5px;font-weight:600;color:var(--gray-400)}
 .sv-g__tot{margin-left:auto;text-align:right;white-space:nowrap}
-.sv-g__tot b{display:block;font-size:16px;font-weight:800;font-variant-numeric:tabular-nums}
-.sv-g__tot span{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.75)}
-.sv-g__print{display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 13px;margin-left:12px;border:1px solid rgba(255,255,255,.35);border-radius:9px;background:rgba(255,255,255,.14);color:#fff;font:inherit;font-size:11.5px;font-weight:800;cursor:pointer;transition:background .15s}
+.sv-g__tot span{display:block;font-size:9.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--gray-400)}
+.sv-g__tot b{display:block;margin-top:1px;font-size:17px;font-weight:800;color:var(--primary);font-variant-numeric:tabular-nums}
+.sv-g__print{display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 13px;margin-left:9px;border:1.5px solid var(--gray-200);border-radius:10px;background:#fff;color:var(--gray-500);font:inherit;font-size:11.5px;font-weight:800;cursor:pointer;transition:border-color .15s,color .15s,background .15s}
 .sv-g__print svg{width:14px;height:14px}
-.sv-g__print:hover{background:rgba(255,255,255,.26)}
+.sv-g__print:hover{border-color:var(--primary);color:var(--primary);background:#f3f9fd}
+
+/* Tabla: sin líneas de más. Solo una separación muy tenue entre filas. */
 .sv-tbl{width:100%;border-collapse:collapse}
-.sv-tbl th{padding:9px 16px;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--gray-400);background:var(--gray-50);border-bottom:1.5px solid var(--gray-100);text-align:left;white-space:nowrap}
+.sv-tbl th{padding:10px 20px 9px;font-size:9.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--gray-400);text-align:left;white-space:nowrap}
 .sv-tbl th.r,.sv-tbl td.r{text-align:right}
-.sv-tbl td{padding:10px 16px;font-size:13.5px;color:var(--gray-700);border-bottom:1px solid var(--gray-100)}
-.sv-tbl tr:last-child td{border-bottom:0}
-.sv-tbl tr:hover td{background:#f8fbff}
+.sv-tbl td{padding:12px 20px;font-size:13.5px;color:var(--gray-500);border-top:1px solid var(--gray-100)}
+.sv-tbl tbody tr:hover td{background:#f7fbfe}
+.sv-tbl .sv-fecha{font-variant-numeric:tabular-nums;white-space:nowrap}
 .sv-tbl .sv-serv{font-weight:700;color:var(--gray-800)}
-.sv-tbl .sv-monto{font-weight:800;color:var(--primary);font-variant-numeric:tabular-nums;white-space:nowrap}
-.sv-fact{display:inline-flex;align-items:center;font-size:11px;font-weight:800;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent);white-space:nowrap}
-.sv-fact--no{background:var(--gray-100);color:var(--gray-400)}
+.sv-tbl .sv-cam{font-size:12.5px}
+.sv-tbl .sv-monto{font-weight:800;color:var(--gray-800);font-variant-numeric:tabular-nums;white-space:nowrap}
+
+/* La factura propia va en azul; la de la planilla, apagada y rotulada. */
+.sv-fact{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:800;padding:4px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent);white-space:nowrap}
+.sv-fact i{font-style:normal;font-size:9px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;opacity:.65}
+.sv-fact--pl{background:var(--gray-100);color:var(--gray-500)}
+.sv-fact--no{background:transparent;color:var(--gray-300);padding-left:0;font-weight:700}
 .sv-del{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border:0;border-radius:8px;background:transparent;color:var(--gray-300);cursor:pointer;opacity:0;transition:opacity .15s,background .15s,color .15s}
 .sv-del svg{width:15px;height:15px}
 .sv-tbl tr:hover .sv-del{opacity:1}
@@ -10286,6 +10349,29 @@ const _svHOY=function(){ try{ return (typeof todayISO==='function')?todayISO():n
 const _svDM=function(iso){ return iso?String(iso).slice(0,10).split('-').reverse().join('/'):'—'; };
 const _svGs=function(n){ return 'Gs. '+formatMoney(Math.round(+n||0)); };
 
+/* Un servicio puede estar facturado de dos maneras: con su propio número, o
+   por la factura de la planilla en la que está. Antes solo se miraba lo
+   primero, y por eso salían como «sin factura» servicios que sí lo estaban. */
+function _svFact(x){
+  const propio=String((x.c&&x.c.factNro)||'').trim();
+  if(propio)return {nro:propio,propia:true};
+  let f=null;
+  try{
+    if(x.c&&x.c.factura_id!=null)f=_facById(x.c.factura_id);
+    if(!f&&x.r&&x.r.factura_id!=null)f=_facById(x.r.factura_id);
+    if(!f&&x.wk&&typeof _facLegacy==='function')f=_facLegacy(x.ts,x.wk.desde);
+  }catch(_){}
+  if(f&&f.nro)return {nro:String(f.nro),propia:false};
+  return null;
+}
+function _svChipFact(x){
+  const f=_svFact(x);
+  if(!f)return '<span class="sv-fact sv-fact--no">Sin factura</span>';
+  return '<span class="sv-fact'+(f.propia?'':' sv-fact--pl')+'" title="'+
+    (f.propia?'Factura cargada con el servicio':'Factura de la planilla de esa semana')+'">'+
+    esc(f.nro)+(f.propia?'':'<i>planilla</i>')+'</span>';
+}
+
 /* Todas las líneas de servicio que hay cargadas, vengan de donde vengan. */
 function _svLineas(){
   const out=[];
@@ -10321,34 +10407,23 @@ function renderServicios(){
 function _svReg(host){
   const ts=(transportistas||[]).slice().sort(function(a,b){ return String(a.n||'').localeCompare(String(b.n||''),'es'); });
   host.innerHTML='<div class="sv-reg">'+
-    '<div class="sv-card sv-in" style="--i:0">'+
-      '<div class="sv-card__hd"><h3>Registrar servicio adicional</h3>'+
-      '<p>Se suma a la planilla de esa transportadora, bajo «Servicios adicionales», junto con lo que ya se haya cargado desde el reparto.</p></div>'+
+    '<div class="sv-form">'+
+      '<div class="sv-form__hd sv-f" style="--i:0"><h3>Registrar servicio adicional</h3>'+
+      '<p>Se suma a la planilla de esa transportadora, bajo «Servicios adicionales». Después podés registrarle la factura desde «Datos registrados».</p></div>'+
       '<div class="sv-grid">'+
-        '<label class="cf-fld"><span>Fecha</span><input type="date" id="svFecha" value="'+(_svUlt.fecha||_svHOY())+'"></label>'+
-        '<label class="cf-fld"><span>Transportadora</span><select id="svTs"><option value="">— Elegir —</option>'+
-          ts.map(function(t){ return '<option value="'+t.id+'"'+(String(t.id)===_svUlt.tsId?' selected':'')+'>'+esc(t.n)+'</option>'; }).join('')+'</select></label>'+
-        '<label class="cf-fld"><span>Camión · opcional</span><select id="svTr"><option value="">— Sin camión —</option></select></label>'+
-        '<label class="cf-fld sv-grid__wide"><span>Servicio</span><input type="text" id="svObs" placeholder="Ej: Grúa por desperfecto en ruta" maxlength="160" autocomplete="off"></label>'+
-        '<label class="cf-fld"><span>Monto (Gs.)</span><input type="text" id="svMonto" inputmode="numeric" placeholder="0" autocomplete="off"></label>'+
-        '<label class="cf-fld"><span>Factura Nº · opcional</span><input type="text" id="svFact" placeholder="Ej: 0087" maxlength="40" autocomplete="off"></label>'+
+        '<label class="sv-f" style="--i:1"><span>Fecha</span><input type="date" id="svFecha" value="'+(_svUlt.fecha||_svHOY())+'"></label>'+
+        '<label class="sv-f sv-grid__wide" style="--i:2"><span>Transportadora</span>'+
+          '<div class="sv-sel sv-sel--blk"><select id="svTs"><option value="">— Elegir transportadora —</option>'+
+          ts.map(function(t){ return '<option value="'+t.id+'"'+(String(t.id)===_svUlt.tsId?' selected':'')+'>'+esc(t.n)+'</option>'; }).join('')+'</select>'+
+          '<svg class="sv-sel__ch" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></div></label>'+
+        '<label class="sv-f sv-grid__wide" style="--i:3"><span>Servicio</span><input type="text" id="svObs" placeholder="Ej: Grúa por desperfecto en ruta" maxlength="160" autocomplete="off"></label>'+
+        '<label class="sv-f" style="--i:4"><span>Monto (Gs.)</span><input type="text" id="svMonto" inputmode="numeric" placeholder="0" autocomplete="off"></label>'+
       '</div>'+
-      '<div class="sv-card__ft"><span class="sv-hint" id="svHint"></span>'+
-        '<button class="btn btn-primary" type="button" id="svSave">'+
-        '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>Registrar servicio</button></div>'+
+      '<div class="sv-form__ft sv-f" style="--i:5"><span class="sv-hint" id="svHint"></span>'+
+        '<button class="sv-btn" type="button" id="svSave">'+
+        '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Registrar servicio</button></div>'+
     '</div>'+
-    _svUltimos()+
   '</div>';
-
-  const selTs=document.getElementById('svTs'), selTr=document.getElementById('svTr');
-  const pintaCam=function(){
-    const t=(transportistas||[]).find(function(x){ return x.id===+selTs.value; });
-    const cams=(t&&t.trucks)||[];
-    selTr.innerHTML='<option value="">— Sin camión —</option>'+
-      cams.map(function(c){ return '<option value="'+c.id+'"'+(String(c.id)===_svUlt.trId?' selected':'')+'>'+esc(c.d)+'</option>'; }).join('');
-    selTr.disabled=!cams.length;
-  };
-  selTs.addEventListener('change',pintaCam); pintaCam();
 
   // El monto se escribe con separador de miles mientras se tipea.
   const mi=document.getElementById('svMonto');
@@ -10357,34 +10432,20 @@ function _svReg(host){
     mi.value=n>0?formatMoney(n):'';
     try{ mi.setSelectionRange(mi.value.length,mi.value.length); }catch(_){}
   });
+  const sel=document.getElementById('svTs');
+  const pintaSel=function(){ sel.parentNode.classList.toggle('on',!!sel.value); };
+  sel.addEventListener('change',pintaSel); pintaSel();
   document.getElementById('svSave').addEventListener('click',_svGuardar);
   document.getElementById('svObs').addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); mi.focus(); } });
   mi.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); _svGuardar(); } });
-}
-
-/* Los últimos cargados, para confirmar de un vistazo que entró lo que se quería. */
-function _svUltimos(){
-  const lin=_svLineas().slice(0,5);
-  if(!lin.length)return '';
-  return '<div class="sv-card sv-in" style="--i:1">'+
-    '<div class="sv-card__hd"><h3>Últimos registrados</h3><p>Los '+lin.length+' más recientes. El listado completo está en «Datos registrados».</p></div>'+
-    '<table class="sv-tbl"><thead><tr><th>Fecha</th><th>Transportadora</th><th>Servicio</th><th>Factura</th><th class="r">Monto</th></tr></thead><tbody>'+
-    lin.map(function(x){
-      return '<tr><td>'+_svDM(x.iso)+'</td><td>'+esc(x.ts)+'</td>'+
-        '<td class="sv-serv">'+esc(x.c.obs||'—')+'</td>'+
-        '<td>'+(x.c.factNro?('<span class="sv-fact">N.º '+esc(x.c.factNro)+'</span>'):'<span class="sv-fact sv-fact--no">sin factura</span>')+'</td>'+
-        '<td class="r sv-monto">'+_svGs(x.monto)+'</td></tr>';
-    }).join('')+'</tbody></table></div>';
 }
 
 async function _svGuardar(){
   const $=function(id){ return document.getElementById(id); };
   const fecha=($('svFecha')||{}).value||'';
   const tsId=+(($('svTs')||{}).value||0);
-  const trId=+(($('svTr')||{}).value||0)||null;
   const obs=((($('svObs')||{}).value)||'').trim();
   const monto=parseMoney((($('svMonto')||{}).value)||'');
-  const fact=((($('svFact')||{}).value)||'').trim();
   const hint=$('svHint');
   const marca=function(el,msg){ if(el){ el.classList.add('is-err'); el.focus(); el.addEventListener('input',function(){ el.classList.remove('is-err'); },{once:true}); } if(hint)hint.textContent=msg; showToast(msg); };
   if(hint)hint.textContent='';
@@ -10395,7 +10456,6 @@ async function _svGuardar(){
 
   const t=(transportistas||[]).find(function(x){ return x.id===tsId; });
   if(!t) return showToast('No encuentro esa transportadora');
-  const tr=trId?((t.trucks||[]).find(function(x){ return x.id===trId; })):null;
 
   // Se busca el reparto de esa transportadora y fecha; si no existe, se crea.
   let r=(repartos||[]).find(function(x){ return x.fechaISO===fecha && x.tsId===tsId; });
@@ -10407,11 +10467,11 @@ async function _svGuardar(){
     repartos.push(r);
   }
   if(!r.clientes)r.clientes=[];
-  const cl={id:nextClienteId++,trId:tr?tr.id:null,tsId:tsId,tsNombre:t.n,
-            trDesc:tr?tr.d:'Servicio',seg:'servicios',rep:null,zona:null,
+  const cl={id:nextClienteId++,trId:null,tsId:tsId,tsNombre:t.n,
+            trDesc:'',seg:'servicios',rep:null,zona:null,
             obs:obs,cant:null,km:0,precioKm:0,fijo:false,
             monto:0,precio:monto,gasto:monto,pct:0,inc:null,
-            factNro:fact||null};
+            factNro:null};   // la factura se registra después, desde «Datos registrados»
   r.clientes.push(cl);
 
   const btn=$('svSave'); const txt=btn?btn.innerHTML:'';
@@ -10425,11 +10485,11 @@ async function _svGuardar(){
       gastoPermitido:r.gastoPermitido,diferencia:r.diferencia,zona:r.zona,clientes:r.clientes});
     if(r.id==null)r.id=id;
     // Se recuerda para el siguiente: fecha, transportadora y camion.
-    _svUlt={fecha:fecha,tsId:String(tsId),trId:trId?String(trId):''};
+    _svUlt={fecha:fecha,tsId:String(tsId),trId:''};
     if(typeof _cfCheckBurst==='function')_cfCheckBurst('Servicio registrado',true);
     else showToast('Servicio registrado');
     // Se deja listo para cargar el siguiente, conservando fecha y transportadora.
-    $('svObs').value=''; $('svMonto').value=''; $('svFact').value='';
+    $('svObs').value=''; $('svMonto').value='';
     renderServicios();
     setTimeout(function(){ const o=document.getElementById('svObs'); if(o)o.focus(); },60);
   }catch(err){
@@ -10456,7 +10516,8 @@ function _svDatos(host,lin){
   const vis=lin.filter(function(x){
     if(_svMes && String(x.iso||'').slice(0,7)!==_svMes)return false;
     if(_svTs && x.ts!==_svTs)return false;
-    if(q && _tsNorm((x.c.obs||'')+' '+x.ts+' '+(x.c.factNro||'')+' '+(x.c.trDesc||'')).indexOf(q)<0)return false;
+    if(q){ const f=_svFact(x);
+      if(_tsNorm((x.c.obs||'')+' '+x.ts+' '+((f&&f.nro)||'')+' '+(x.c.trDesc||'')).indexOf(q)<0)return false; }
     return true;
   });
 
@@ -10464,14 +10525,28 @@ function _svDatos(host,lin){
     const p=k.split('-'); const M=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
     return (M[(+p[1]||1)-1]||'')+' '+p[0];
   };
+  // Cuántos servicios caen en cada mes: el número va en la pastilla.
+  const porMes={}; lin.forEach(function(x){ const k=String(x.iso||'').slice(0,7); if(k)porMes[k]=(porMes[k]||0)+1; });
+  const pill=function(v,lbl,n,i){
+    return '<button type="button" class="sv-pill'+((_svMes===v)?' on':'')+'" data-svmes="'+esc(v)+'" style="--i:'+i+'">'+
+      esc(lbl)+'<span>'+n+'</span></button>';
+  };
+  let im=0;
+  const pills=pill('','Todos',lin.length,im++)+lMes.map(function(k){ return pill(k,mesLbl(k),porMes[k]||0,im++); }).join('');
+  const hayFiltro=!!(_svMes||_svTs||_svQ);
   const barra='<div class="sv-bar">'+
-    '<select id="svFMes"><option value="">Todos los meses</option>'+
-      lMes.map(function(k){ return '<option value="'+k+'"'+(_svMes===k?' selected':'')+'>'+mesLbl(k)+'</option>'; }).join('')+'</select>'+
-    '<select id="svFTs"><option value="">Todas las transportadoras</option>'+
-      lTs.map(function(t){ return '<option value="'+esc(t)+'"'+(_svTs===t?' selected':'')+'>'+esc(t)+'</option>'; }).join('')+'</select>'+
-    '<div class="sv-bar__srch"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>'+
-      '<input type="text" id="svFQ" placeholder="Buscar servicio, factura o camión…" value="'+esc(_svQ)+'" autocomplete="off"></div>'+
-    '<span class="sv-bar__tot">'+vis.length+' de '+lin.length+' · <b>'+_svGs(vis.reduce(function(s,x){ return s+x.monto; },0))+'</b></span>'+
+    '<div class="sv-pills">'+pills+'</div>'+
+    '<div class="sv-bar__r">'+
+      '<label class="sv-sel'+(_svTs?' on':'')+'"><select id="svFTs"><option value="">Todas las transportadoras</option>'+
+        lTs.map(function(t){ return '<option value="'+esc(t)+'"'+(_svTs===t?' selected':'')+'>'+esc(t)+'</option>'; }).join('')+'</select>'+
+        '<svg class="sv-sel__ch" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></label>'+
+      '<div class="sv-srch"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>'+
+        '<input type="text" id="svFQ" placeholder="Buscar servicio, factura o camión…" value="'+esc(_svQ)+'" autocomplete="off">'+
+        (_svQ?'<button type="button" class="sv-srch__x" id="svFQX" title="Limpiar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M18 6L6 18M6 6l12 12"/></svg></button>':'')+'</div>'+
+      (hayFiltro?'<button type="button" class="sv-limpiar" id="svFClr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 6L6 18M6 6l12 12"/></svg>Limpiar</button>':'')+
+    '</div>'+
+    '<div class="sv-resumen"><span>'+(hayFiltro?('Filtrado · '+vis.length+' de '+lin.length):(lin.length+(lin.length===1?' servicio':' servicios')))+'</span>'+
+      '<b>'+_svGs(vis.reduce(function(s,x){ return s+x.monto; },0))+'</b></div>'+
   '</div>';
 
   if(!vis.length){
@@ -10503,15 +10578,15 @@ function _svDatos(host,lin){
       '<div class="sv-g__hd">'+
         '<span class="sv-g__ini">'+esc(initials(g.ts))+'</span>'+
         '<div class="sv-g__t"><b>'+esc(g.ts)+'</b><span>'+_svDM(g.desde)+' al '+_svDM(g.hasta)+' · '+g.filas.length+(g.filas.length===1?' servicio':' servicios')+'</span></div>'+
-        '<div class="sv-g__tot"><b>'+_svGs(g.total)+'</b><span>Total</span></div>'+
+        '<div class="sv-g__tot"><span>Total</span><b>'+_svGs(g.total)+'</b></div>'+
+        _svBotonFac(g,k)+
         '<button type="button" class="sv-g__print" data-svprint="'+k+'">'+PRINT+'Imprimir</button>'+
       '</div>'+
-      '<table class="sv-tbl"><thead><tr><th>Fecha</th><th>Servicio</th><th>Camión</th><th>Factura</th><th class="r">Monto</th><th></th></tr></thead><tbody>'+
+      '<table class="sv-tbl"><thead><tr><th>Fecha</th><th>Servicio</th><th>Factura</th><th class="r">Monto</th><th></th></tr></thead><tbody>'+
       g.filas.map(function(x){
-        return '<tr><td>'+_svDM(x.iso)+'</td>'+
+        return '<tr><td class="sv-fecha">'+_svDM(x.iso)+'</td>'+
           '<td class="sv-serv">'+esc(x.c.obs||'—')+'</td>'+
-          '<td>'+esc(x.c.trDesc||'—')+'</td>'+
-          '<td>'+(x.c.factNro?('<span class="sv-fact">N.º '+esc(x.c.factNro)+'</span>'):'<span class="sv-fact sv-fact--no">sin factura</span>')+'</td>'+
+          '<td>'+_svChipFact(x)+'</td>'+
           '<td class="r sv-monto">'+_svGs(x.monto)+'</td>'+
           '<td class="r"><button type="button" class="sv-del" data-svdel="'+x.r.id+':'+x.c.id+'" title="Quitar este servicio">'+TACHO+'</button></td></tr>';
       }).join('')+'</tbody></table></div>';
@@ -10521,20 +10596,34 @@ function _svDatos(host,lin){
   host.querySelectorAll('[data-svprint]').forEach(function(b){
     b.addEventListener('click',function(){ _svPrint(gm[b.dataset.svprint]); });
   });
+  host.querySelectorAll('[data-svfac]').forEach(function(b){
+    b.addEventListener('click',function(){ _svFacturar(gm[b.dataset.svfac]); });
+  });
   host.querySelectorAll('[data-svdel]').forEach(function(b){
     b.addEventListener('click',function(){ _svBorrar(b.dataset.svdel); });
   });
 }
 
 function _svBarra(host){
-  const m=document.getElementById('svFMes'), t=document.getElementById('svFTs'), q=document.getElementById('svFQ');
-  if(m)m.addEventListener('change',function(){ _svMes=m.value; renderServicios(); });
+  host.querySelectorAll('[data-svmes]').forEach(function(b){
+    b.addEventListener('click',function(){
+      if(_svMes===b.dataset.svmes)return;
+      _svMes=b.dataset.svmes; renderServicios();
+    });
+  });
+  const t=document.getElementById('svFTs'), q=document.getElementById('svFQ');
   if(t)t.addEventListener('change',function(){ _svTs=t.value; renderServicios(); });
   if(q)q.addEventListener('input',function(){
     _svQ=q.value; renderServicios();
+    // El re-render rehace el campo: hay que devolverle el foco y el cursor.
     const n=document.getElementById('svFQ');
     if(n){ n.focus(); try{ n.setSelectionRange(n.value.length,n.value.length); }catch(_){} }
   });
+  const x=document.getElementById('svFQX');
+  if(x)x.addEventListener('click',function(){ _svQ=''; renderServicios();
+    const n=document.getElementById('svFQ'); if(n)n.focus(); });
+  const c=document.getElementById('svFClr');
+  if(c)c.addEventListener('click',function(){ _svMes=''; _svTs=''; _svQ=''; renderServicios(); });
 }
 
 function _svBorrar(ref){
@@ -10562,17 +10651,99 @@ function _svBorrar(ref){
   },'Sí, quitar');
 }
 
+/* El grupo ya facturado muestra su número; si no, el botón para cargarla. */
+function _svBotonFac(g,k){
+  const nros={}; g.filas.forEach(function(x){ const f=_svFact(x); if(f)nros[f.nro]=1; });
+  const l=Object.keys(nros);
+  if(l.length&&g.filas.every(function(x){ return !!_svFact(x); })){
+    return '<span class="sv-g__fac" title="Todos los servicios del grupo están facturados">'+
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>'+
+      'Factura '+esc(l.join(', '))+'</span>';
+  }
+  return '<button type="button" class="sv-g__fac sv-g__fac--btn" data-svfac="'+k+'">'+
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z"/><path d="M14 2v6h6M9 13h6M9 17h6"/></svg>'+
+    'Registrar factura'+(l.length?' ('+(g.filas.length-g.filas.filter(function(x){ return !!_svFact(x); }).length)+' sin)':'')+'</button>';
+}
+
+/* Registrar la factura de un grupo de servicios. Misma idea que la planilla de
+   repartos: se carga el número y el monto, y se ve en vivo si el monto coincide
+   con el total de los servicios antes de confirmar. */
+function _svFacturar(g){
+  if(!g||!g.filas.length)return;
+  const tot=Math.round(g.total);
+  const m=_cfModalOpen('<div class="cf-mbox cf-mbox--form" style="max-width:520px">'+
+    '<div class="cf-fhead"><div class="cf-fhead__l"><h3>Registrar factura</h3>'+
+    '<p class="cf-msub">'+esc(g.ts)+' · '+_svDM(g.desde)+' al '+_svDM(g.hasta)+' · '+g.filas.length+(g.filas.length===1?' servicio':' servicios')+'</p></div></div>'+
+    '<div class="cf-sec">'+
+      '<div class="cf-fld" data-fnro><label for="svfNro">Nº de factura <span class="req">*</span></label>'+
+        '<input id="svfNro" autocomplete="off" maxlength="40" placeholder="Ej: 0087"><span class="cf-fld__err"></span></div>'+
+      '<div class="cf-fld"><label for="svfMonto">Monto de la factura (Gs.)</label>'+
+        '<input id="svfMonto" inputmode="numeric" autocomplete="off" value="'+formatMoney(tot)+'"></div>'+
+      '<div class="cf-live" id="svfLive"></div>'+
+    '</div>'+
+    '<div class="cf-mfoot"><button class="cancel">Cancelar</button><button class="ok">Registrar factura</button></div></div>');
+
+  const nro=m.$('#svfNro'), mon=m.$('#svfMonto'), live=m.$('#svfLive'), fld=nro.closest('[data-fnro]');
+  const pinta=function(){
+    const v=parseMoney(mon.value), d=v-tot;
+    live.className='cf-live'+(d===0?' ok':(v>0?' bad':''));
+    live.innerHTML=(d===0)
+      ? '<b>Coincide</b> con el total de los servicios · '+_svGs(tot)
+      : (v>0 ? ('<b>'+(d>0?'Sobra':'Falta')+' '+_svGs(Math.abs(d))+'</b> · servicios '+_svGs(tot))
+             : ('Total de los servicios · <b>'+_svGs(tot)+'</b>'));
+  };
+  mon.addEventListener('input',function(){
+    const n=parseMoney(mon.value);
+    mon.value=n>0?formatMoney(n):'';
+    try{ mon.setSelectionRange(mon.value.length,mon.value.length); }catch(_){}
+    pinta();
+  });
+  pinta();
+  setTimeout(function(){ try{ nro.focus(); }catch(_){} },80);
+
+  const guardar=async function(){
+    const v=(nro.value||'').trim();
+    if(!v){ _cfSetErr(fld,'Escribí el número de la factura.'); return; }
+    const ok=m.$('button.ok'); const txt=ok.innerHTML;
+    ok.disabled=true; ok.innerHTML='<span class="cf-spin"></span>Guardando…';
+    const antes=g.filas.map(function(x){ return x.c.factNro; });
+    g.filas.forEach(function(x){ x.c.factNro=v; });
+    const reps=[]; g.filas.forEach(function(x){ if(reps.indexOf(x.r)<0)reps.push(x.r); });
+    try{
+      for(const r of reps){
+        const tM=(r.clientes||[]).reduce(function(a,c){ return a+(+c.monto||0); },0);
+        const tF=(r.clientes||[]).reduce(function(a,c){ return a+(+c.precio||0); },0);
+        await dbSaveReparto({id:r.id,fechaISO:r.fechaISO,tsId:r.tsId,tsNombre:r.tsNombre,trId:r.trId,trDesc:r.trDesc,
+          km:r.km,precio:r.precio,tipo:r.tipo,totalFlete:tF,totalMonto:tM,incTotal:tM>0?tF/tM*100:null,
+          gastoPermitido:r.gastoPermitido,diferencia:r.diferencia,zona:r.zona,clientes:r.clientes});
+      }
+      m.close();
+      if(typeof _cfCheckBurst==='function')_cfCheckBurst('Factura registrada',true);
+      else showToast('Factura registrada');
+      renderServicios();
+    }catch(err){
+      g.filas.forEach(function(x,i){ x.c.factNro=antes[i]; });
+      console.error('[flete] no pude registrar la factura del grupo',err);
+      showToast('No pude registrar la factura. Probá de nuevo 😕');
+      ok.disabled=false; ok.innerHTML=txt;
+    }
+  };
+  nro.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); guardar(); } });
+  m.$('.cancel').addEventListener('click',function(){ m.close(); });
+  m.$('button.ok').addEventListener('click',guardar);
+}
+
 /* ── Impreso ─────────────────────────────────────────────
    Mismo diseño que la planilla de flete: comparten _cfPrintCSS. */
 function _svPrint(g){
   if(!g||!g.filas.length){ showToast('No hay servicios para imprimir'); return; }
   const logoUrl=new URL('logo-alas-s.a.png',window.location.href).href;
   const meta=function(k,v){ return '<div class="mi"><span>'+k+'</span><b>'+v+'</b></div>'; };
-  const facturas={}; g.filas.forEach(function(x){ if(x.c.factNro)facturas[x.c.factNro]=1; });
+  const facturas={}; g.filas.forEach(function(x){ const f=_svFact(x); if(f)facturas[f.nro]=1; });
   const lf=Object.keys(facturas);
   const body=g.filas.slice().sort(function(a,b){ return String(a.iso||'').localeCompare(String(b.iso||'')); }).map(function(x){
     return '<tr><td>'+_svDM(x.iso)+'</td><td>'+_escp(x.c.obs||'—')+'</td><td>'+_escp(x.c.trDesc||'—')+'</td>'+
-      '<td>'+(x.c.factNro?_escp(x.c.factNro):'—')+'</td><td class="r">'+_gs(_cfFleteVal(x.c))+'</td></tr>';
+      '<td>'+((function(){ const f=_svFact(x); return f?_escp(f.nro):'—'; })())+'</td><td class="r">'+_gs(_cfFleteVal(x.c))+'</td></tr>';
   }).join('');
   const content=
     '<div class="rp-hd"><div class="rp-hd__l"><img class="rp-logo" src="'+logoUrl+'" alt="ALAS"><div><h1>Servicios Adicionales</h1></div></div>'+
@@ -10585,7 +10756,7 @@ function _svPrint(g){
     '</tbody></table></div>'+
     '<div class="foot"><div class="firmas"><div class="firma"><div class="ln"></div><span>JEFE DE DISTRIBUCIÓN</span></div><div class="firma"><div class="ln"></div><span>JEFE DE ADMINISTRACIÓN</span></div></div>'+
     '<div class="resumen"><h3>Resumen</h3><div class="rr"><span>Servicios</span><b>'+g.filas.length+'</b></div>'+
-    '<div class="rr"><span>Con factura</span><b>'+g.filas.filter(function(x){ return !!x.c.factNro; }).length+'</b></div>'+
+    '<div class="rr"><span>Con factura</span><b>'+g.filas.filter(function(x){ return !!_svFact(x); }).length+'</b></div>'+
     '<div class="rr"><span>Total</span><b>'+_gs(g.total)+'</b></div></div></div>';
   _cfPrintDoc('Servicios Adicionales',content);
 }
