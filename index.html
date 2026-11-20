@@ -47,9 +47,13 @@ body{min-height:100vh;overflow:hidden;font-family:Inter,system-ui,-apple-system,
 .layout{min-height:100vh;padding:16px;display:flex;align-items:stretch;overflow:hidden}
 .system-shell{position:relative;flex:1;display:flex;height:calc(100vh - 32px);max-height:calc(100vh - 32px);overflow:hidden;background:var(--white);border-radius:var(--radius-xl);box-shadow:0 12px 50px rgba(0,0,0,.14)}
 .stage{flex:1;margin-left:60px;padding:24px 32px 26px;display:none;flex-direction:column;gap:16px;overflow-y:auto;overflow-x:hidden}
-/* La tira de apartados se centra sola arriba de la Calculadora. El resto del
-   diseño lo hereda de .ci-seg, el filtro de segmentos de Registros del reparto. */
+/* La tira de apartados se centra sola arriba de la sección. El resto del diseño
+   lo hereda de .ci-seg, el filtro de segmentos de Registros del reparto. */
 .cf-tabs{flex-shrink:0;align-self:center}
+/* El filtro mide 48.5px de gajo porque su columna lleva etiqueta + número
+   (10.5 + 3 de margen + 19). Acá no hay número, así que se reserva ese mismo
+   alto y la etiqueta queda centrada: la tira mide igual que el filtro. */
+.cf-tabs .ci-seg__col{min-height:32.5px;justify-content:center}
 @keyframes cfTabPop{0%{transform:scale(.95)}55%{transform:scale(1.03)}100%{transform:scale(1)}}
 .cf-tabs .ci-seg__btn.is-active.pop{animation:cfTabPop .34s cubic-bezier(.2,.9,.3,1.2)}
 @media(prefers-reduced-motion:reduce){.cf-tabs .ci-seg__btn.is-active.pop{animation:none}}
@@ -1337,14 +1341,6 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 
 <!-- ═══ VIEW 1 — CALCULADORA ════════════════════════════ -->
 <section id="viewCalc" class="stage is-active">
-  <!-- Atajo a las otras dos secciones del dia a dia. Solo se ve aca dentro.
-       Mismo diseno que el filtro de segmentos de Registros del reparto: comparte
-       las reglas .ci-seg, no las copia. -->
-  <div class="cf-tabs ci-seg" id="cfTabs" role="tablist">
-    <button class="ci-seg__btn cf-tab" type="button" data-nav="calc" role="tab"><span class="ci-seg__ic"><svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg></span><span class="ci-seg__col"><span class="ci-seg__lbl">Calculadora de flete</span></span></button>
-    <button class="ci-seg__btn cf-tab" type="button" data-nav="hist" role="tab"><span class="ci-seg__ic"><svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span><span class="ci-seg__col"><span class="ci-seg__lbl">Calendario</span></span></button>
-    <button class="ci-seg__btn cf-tab" type="button" data-nav="rrep" role="tab"><span class="ci-seg__ic"><svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2M9 13l2 2 4-4"/></svg></span><span class="ci-seg__col"><span class="ci-seg__lbl">Reporte de repartos</span></span></button>
-  </div>
 
   <div class="edit-chip" id="editChip" style="display:none">
     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
@@ -2173,6 +2169,31 @@ document.addEventListener('click',function(e){
   const b=e.target.closest&&e.target.closest('[data-nav]');
   if(b)showView(b.dataset.nav);
 });
+
+/* Tira de apartados. Va en las tres secciones del día a día para poder saltar
+   entre ellas sin volver a la barra lateral. Se arma acá y no en el HTML para
+   no repetir el mismo bloque tres veces; showView ya marca el activo en todos
+   los [data-nav], así que las tres copias quedan sincronizadas solas. */
+(function(){
+  const APARTADOS=[
+    ['calc','Calculadora de flete','<line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/>'],
+    ['hist','Calendario','<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>'],
+    ['rrep','Reporte de repartos','<path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2M9 13l2 2 4-4"/>']
+  ];
+  const HTML=APARTADOS.map(function(a){
+    return '<button class="ci-seg__btn cf-tab" type="button" data-nav="'+a[0]+'" role="tab">'+
+      '<span class="ci-seg__ic"><svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">'+a[2]+'</svg></span>'+
+      '<span class="ci-seg__col"><span class="ci-seg__lbl">'+a[1]+'</span></span></button>';
+  }).join('');
+  ['viewCalc','viewHist','viewRrep'].forEach(function(id){
+    const st=document.getElementById(id); if(!st)return;
+    const d=document.createElement('div');
+    d.className='cf-tabs ci-seg';
+    d.setAttribute('role','tablist');
+    d.innerHTML=HTML;
+    st.insertBefore(d,st.firstChild);
+  });
+})();
 
 /* ════════ VIEW 1 — CALCULADORA ═════════════════════ */
 // Los selectores de arriba (transportista/camión/zona/precio) se removieron: ahora
@@ -3219,7 +3240,13 @@ function _qTsLbl(d,n){return _qNorm(d).indexOf(_qNorm(n))===0?"":esc(n);}
 function _qBuscar(q){
   const terms=_qNorm(q).trim().split(/\s+/).filter(Boolean);
   const freq=_qFreq(), out=[];
+  // Los que ya estan en el reparto no se vuelven a ofrecer: al agregar uno con
+  // Enter desaparece de la lista y se sigue buscando el siguiente sin volver a
+  // verlo.
+  const puestos={};
+  ((typeof currentReparto!=='undefined'&&currentReparto&&currentReparto.clientes)||[]).forEach(function(c){ if(c&&c.trId!=null)puestos[c.trId]=1; });
   (transportistas||[]).forEach(ts=>(ts.trucks||[]).forEach(tr=>{
+    if(puestos[tr.id])return;
     const sc=_qScore(tr.d,ts.n,terms,freq[tr.id]||0);
     if(sc>=0)out.push({tr:tr,ts:ts,sc:sc,fq:freq[tr.id]||0});
   }));
