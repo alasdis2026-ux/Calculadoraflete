@@ -47,13 +47,88 @@ body{min-height:100vh;overflow:hidden;font-family:Inter,system-ui,-apple-system,
 .layout{min-height:100vh;padding:16px;display:flex;align-items:stretch;overflow:hidden}
 .system-shell{position:relative;flex:1;display:flex;height:calc(100vh - 32px);max-height:calc(100vh - 32px);overflow:hidden;background:var(--white);border-radius:var(--radius-xl);box-shadow:0 12px 50px rgba(0,0,0,.14)}
 .stage{flex:1;margin-left:60px;padding:24px 32px 26px;display:none;flex-direction:column;gap:16px;overflow-y:auto;overflow-x:hidden}
+/* ══ Servicios adicionales ══ */
+.sv-hd{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;flex-shrink:0}
+.sv-hd>h2{justify-self:start;display:flex;align-items:center;gap:10px;line-height:1;font-family:Sora,Inter,sans-serif;font-size:21px;font-weight:800;color:var(--primary);letter-spacing:-.25px}
+.sv-hd>h2 img{height:36px;object-fit:contain;flex-shrink:0}
+.sv-hd>.sv-tabs{justify-self:center}
+.sv-hd__n{justify-self:end;font-size:12px;font-weight:700;color:var(--gray-400);padding:3px 10px;border-radius:999px;background:var(--gray-100);white-space:nowrap}
+.sv-body{flex:1;min-height:0;overflow:auto;padding-top:4px}
+@media(max-width:1100px){
+  .sv-hd{grid-template-columns:1fr auto}
+  .sv-hd>.sv-tabs{grid-column:1/-1;grid-row:2;justify-self:stretch}
+}
+
+/* ── Registro ── */
+.sv-reg{max-width:980px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+.sv-card{background:#fff;border:1.5px solid var(--gray-200);border-radius:18px;box-shadow:0 2px 12px rgba(15,36,64,.06);overflow:hidden}
+.sv-card__hd{padding:18px 22px 14px;border-bottom:1.5px solid var(--gray-100);background:linear-gradient(135deg,#f8fbff,#fff)}
+.sv-card__hd h3{font-family:Sora,Inter,sans-serif;font-size:15px;font-weight:800;color:var(--primary)}
+.sv-card__hd p{margin-top:3px;font-size:12.5px;font-weight:600;color:var(--gray-400)}
+.sv-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px 16px;padding:18px 22px}
+.sv-grid .cf-fld{display:flex;flex-direction:column;gap:6px}
+.sv-grid .cf-fld>span{font-size:10.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--gray-400)}
+.sv-grid input,.sv-grid select{height:42px;border:1.5px solid var(--gray-200);border-radius:10px;padding:0 12px;font:inherit;font-size:14px;font-weight:600;color:var(--gray-800);background:#fff;outline:none;transition:border-color .15s,box-shadow .15s}
+.sv-grid input:focus,.sv-grid select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(11,95,141,.12)}
+.sv-grid input.is-err{border-color:#e0707a;box-shadow:0 0 0 3px rgba(224,112,122,.13)}
+.sv-grid__wide{grid-column:span 2}
+.sv-card__ft{display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:0 22px 20px}
+.sv-hint{margin-right:auto;font-size:12px;font-weight:600;color:var(--gray-400)}
+@media(max-width:860px){.sv-grid{grid-template-columns:1fr}.sv-grid__wide{grid-column:span 1}}
+
+/* ── Datos registrados ── */
+.sv-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.sv-bar select{height:38px;border:1.5px solid var(--gray-200);border-radius:10px;padding:0 10px;font:inherit;font-size:13px;font-weight:700;color:var(--gray-700);background:#fff;outline:none}
+.sv-bar select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(11,95,141,.12)}
+.sv-bar__srch{position:relative;flex:1 1 240px;max-width:340px}
+.sv-bar__srch svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--gray-400);pointer-events:none}
+.sv-bar__srch input{width:100%;height:38px;border:1.5px solid var(--gray-200);border-radius:10px;padding:0 12px 0 34px;font:inherit;font-size:13px;font-weight:600;color:var(--gray-800);background:#fff;outline:none}
+.sv-bar__srch input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(11,95,141,.12)}
+.sv-bar__tot{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:13px;font-weight:800;color:var(--gray-500)}
+.sv-bar__tot b{font-size:16px;color:var(--primary);font-variant-numeric:tabular-nums}
+
+.sv-grupos{display:flex;flex-direction:column;gap:14px;padding-bottom:10px}
+.sv-g{background:#fff;border:1.5px solid var(--gray-200);border-radius:16px;overflow:hidden;box-shadow:0 2px 10px rgba(15,36,64,.05)}
+.sv-g__hd{display:flex;align-items:center;gap:12px;padding:13px 18px;background:linear-gradient(135deg,#1478b8,var(--primary));color:#fff}
+.sv-g__ini{display:grid;place-items:center;width:34px;height:34px;flex-shrink:0;border-radius:10px;background:rgba(255,255,255,.18);font-family:Sora,Inter,sans-serif;font-size:12px;font-weight:800}
+.sv-g__t{min-width:0}
+.sv-g__t b{display:block;font-family:Sora,Inter,sans-serif;font-size:14px;font-weight:800;letter-spacing:-.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sv-g__t span{font-size:11px;font-weight:700;color:rgba(255,255,255,.82)}
+.sv-g__tot{margin-left:auto;text-align:right;white-space:nowrap}
+.sv-g__tot b{display:block;font-size:16px;font-weight:800;font-variant-numeric:tabular-nums}
+.sv-g__tot span{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.75)}
+.sv-g__print{display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 13px;margin-left:12px;border:1px solid rgba(255,255,255,.35);border-radius:9px;background:rgba(255,255,255,.14);color:#fff;font:inherit;font-size:11.5px;font-weight:800;cursor:pointer;transition:background .15s}
+.sv-g__print svg{width:14px;height:14px}
+.sv-g__print:hover{background:rgba(255,255,255,.26)}
+.sv-tbl{width:100%;border-collapse:collapse}
+.sv-tbl th{padding:9px 16px;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--gray-400);background:var(--gray-50);border-bottom:1.5px solid var(--gray-100);text-align:left;white-space:nowrap}
+.sv-tbl th.r,.sv-tbl td.r{text-align:right}
+.sv-tbl td{padding:10px 16px;font-size:13.5px;color:var(--gray-700);border-bottom:1px solid var(--gray-100)}
+.sv-tbl tr:last-child td{border-bottom:0}
+.sv-tbl tr:hover td{background:#f8fbff}
+.sv-tbl .sv-serv{font-weight:700;color:var(--gray-800)}
+.sv-tbl .sv-monto{font-weight:800;color:var(--primary);font-variant-numeric:tabular-nums;white-space:nowrap}
+.sv-fact{display:inline-flex;align-items:center;font-size:11px;font-weight:800;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent);white-space:nowrap}
+.sv-fact--no{background:var(--gray-100);color:var(--gray-400)}
+.sv-del{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border:0;border-radius:8px;background:transparent;color:var(--gray-300);cursor:pointer;opacity:0;transition:opacity .15s,background .15s,color .15s}
+.sv-del svg{width:15px;height:15px}
+.sv-tbl tr:hover .sv-del{opacity:1}
+.sv-del:hover{background:var(--danger-soft);color:var(--danger-dark)}
+.sv-vacio{padding:56px 24px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px}
+.sv-vacio svg{width:48px;height:48px;color:var(--gray-200)}
+.sv-vacio b{font-size:15px;font-weight:800;color:var(--gray-400)}
+.sv-vacio span{font-size:13px;color:var(--gray-300)}
+@keyframes svIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.sv-in{animation:svIn .36s cubic-bezier(.2,.7,.3,1) backwards;animation-delay:calc(var(--i,0)*45ms)}
+@media(prefers-reduced-motion:reduce){.sv-in{animation:none}}
+
 /* La tira de apartados se centra sola arriba de la sección. El resto del diseño
    lo hereda de .ci-seg, el filtro de segmentos de Registros del reparto. */
 .cf-tabs{flex-shrink:0;align-self:center}
 /* El filtro mide 48.5px de gajo porque su columna lleva etiqueta + número
    (10.5 + 3 de margen + 19). Acá no hay número, así que se reserva ese mismo
    alto y la etiqueta queda centrada: la tira mide igual que el filtro. */
-.cf-tabs .ci-seg__col{min-height:32.5px;justify-content:center}
+.cf-tabs .ci-seg__col,.sv-tabs .ci-seg__col{min-height:32.5px;justify-content:center}
 /* En Reporte de repartos la tira lleva el ancho del filtro de abajo (ver
    _cfAlinearTira), así que los gajos se reparten ese espacio. */
 #viewRrep>.cf-tabs .ci-seg__btn{flex:1 1 0;min-width:0}
@@ -1333,6 +1408,10 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>
       <span class="label">Calculadora</span>
     </button>
+    <button class="sidebar-item" type="button" data-nav="serv">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 00-5.4 5.4L3 18v3h3l6.3-6.3a4 4 0 005.4-5.4l-2.6 2.6-2.1-2.1 2.7-2.5z"/></svg>
+      <span class="label">Servicios Adicionales</span>
+    </button>
     <button class="sidebar-item" type="button" data-nav="fact">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 3h14a1 1 0 011 1v17l-3-2-3 2-3-2-3 2-3-2V4a1 1 0 011-1z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
       <span class="label">Facturas</span>
@@ -1577,6 +1656,27 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
       <div class="ts-detail-body" id="detailBody"></div>
     </div>
   </div>
+</section>
+
+<!-- ═══ VIEW — SERVICIOS ADICIONALES ═══════════════════
+     Un servicio adicional es una linea del reparto con segmento 'servicios':
+     la misma que se carga desde la planilla. Por eso suma a la misma planilla,
+     al mismo reporte y al mismo impreso. Lo propio de este apartado es que
+     cada uno puede llevar su numero de factura (factNro). -->
+<section id="viewServ" class="stage">
+  <div class="sv-hd">
+    <h2><img src="logo-alas-s.a.png" alt="ALAS">Servicios adicionales</h2>
+    <div class="sv-tabs ci-seg" id="svTabs" role="tablist">
+      <button class="ci-seg__btn" type="button" data-svtab="reg" role="tab">
+        <span class="ci-seg__ic"><svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span>
+        <span class="ci-seg__col"><span class="ci-seg__lbl">Registro</span></span></button>
+      <button class="ci-seg__btn" type="button" data-svtab="datos" role="tab">
+        <span class="ci-seg__ic"><svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h12"/></svg></span>
+        <span class="ci-seg__col"><span class="ci-seg__lbl">Datos registrados</span></span></button>
+    </div>
+    <span class="sv-hd__n" id="svCount"></span>
+  </div>
+  <div class="sv-body" id="svBody"></div>
 </section>
 
 <!-- ═══ VIEW 3 — HISTORIAL ════════════════════════════ -->
@@ -2140,7 +2240,7 @@ let _lastView=null;
 function showView(v){
   // Red de seguridad: aunque se llame a showView desde otro lado, no se sale de Transportistas.
   if(window._alasRole===CF_ROL_SOLO_TRANS&&v!==CF_ROL_SOLO_TRANS_VIEW)v=CF_ROL_SOLO_TRANS_VIEW;
-  ['calc','trans','hist','dash','fact','rrep','stats','meta'].forEach(x=>{
+  ['calc','serv','trans','hist','dash','fact','rrep','stats','meta'].forEach(x=>{
     document.getElementById('view'+x.charAt(0).toUpperCase()+x.slice(1)).classList.toggle('is-active',x===v);
   });
   document.querySelectorAll('[data-nav]').forEach(b=>{
@@ -2163,6 +2263,7 @@ function showView(v){
   if(v==='rrep')renderReporteRepartos();
   if(v==='stats')_cfOpenStats();
   if(v==='meta')renderMetaRep();
+  if(v==='serv')renderServicios();
   if(cambia)_cfEntradaVista(v);
 }
 
@@ -6204,7 +6305,7 @@ function showSaveAnim(text){
   .rr-card__monto b{color:var(--gray-800,#1e293b);font-weight:800}
   .rr-card__go{margin-top:8px;font-size:12.5px;font-weight:800;color:var(--primary)}
   /* ══ Reporte de Repartos · diseño Calendario de inventarios (portado) ══ */
-  .rr-ci,.cf-tabs{--ci-primary:#0877AF;--ci-primary-2:#0B5F8D;--ci-primary-soft:#eaf3fb;
+  .rr-ci,.cf-tabs,.sv-tabs{--ci-primary:#0877AF;--ci-primary-2:#0B5F8D;--ci-primary-soft:#eaf3fb;
     --ci-surface:#fff;--ci-border:#e4ecf3;--ci-border-2:#d6e3ef;
     --ci-text:#132437;--ci-text-2:#475569;--ci-muted:#8a99a8;
     --ci-prog:#2a78d6;--ci-proc:#eab308;--ci-real:#16a34a;--ci-pend:#ef4444;
@@ -6221,16 +6322,16 @@ function showSaveAnim(text){
   /* Control segmentado (segmentos) — estilo depósitos de Inventario, compacto y centrado */
   /* La tira de apartados de la Calculadora usa este mismo diseño: por eso cada
      regla lleva también .cf-tabs. Si se retoca el filtro, la tira lo sigue. */
-  .rr-ci .ci-seg,.cf-tabs{display:flex;align-items:stretch;border:1px solid var(--ci-border-2);border-radius:16px;overflow:hidden;background:#fff;box-shadow:0 2px 12px rgba(15,36,64,.07);width:auto;justify-self:center}
-  .rr-ci .ci-seg__btn,.cf-tabs .ci-seg__btn{flex:0 0 auto;min-width:104px;display:flex;align-items:center;justify-content:center;gap:9px;padding:8px 16px;border:0;border-left:1px solid var(--ci-border);background:transparent;cursor:pointer;transition:background .2s;color:var(--ci-text-2)}
-  .rr-ci .ci-seg__btn:first-child,.cf-tabs .ci-seg__btn:first-child{border-left:0}
-  .rr-ci .ci-seg__btn:hover:not(.on),.cf-tabs .ci-seg__btn:hover:not(.is-active){background:#f1f6fb}
-  .rr-ci .ci-seg__btn.on,.cf-tabs .ci-seg__btn.is-active{background:linear-gradient(135deg,#1478b8,var(--ci-primary-2));color:#fff}
-  .rr-ci .ci-seg__btn.on .ci-seg__ic,.rr-ci .ci-seg__btn.on .ci-seg__n,.rr-ci .ci-seg__btn.on .ci-seg__lbl,.cf-tabs .ci-seg__btn.is-active .ci-seg__ic,.cf-tabs .ci-seg__btn.is-active .ci-seg__lbl{color:#fff}
-  .rr-ci .ci-seg__ic,.cf-tabs .ci-seg__ic{width:22px;height:22px;color:var(--ci-muted);flex-shrink:0;display:grid;place-items:center}
-  .rr-ci .ci-seg__ic svg,.cf-tabs .ci-seg__ic svg{width:22px;height:22px}
-  .rr-ci .ci-seg__col,.cf-tabs .ci-seg__col{display:flex;flex-direction:column;align-items:center;line-height:1;min-width:0}
-  .rr-ci .ci-seg__lbl,.cf-tabs .ci-seg__lbl{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--ci-muted);white-space:nowrap}
+  .rr-ci .ci-seg,.cf-tabs,.sv-tabs{display:flex;align-items:stretch;border:1px solid var(--ci-border-2);border-radius:16px;overflow:hidden;background:#fff;box-shadow:0 2px 12px rgba(15,36,64,.07);width:auto;justify-self:center}
+  .rr-ci .ci-seg__btn,.cf-tabs .ci-seg__btn,.sv-tabs .ci-seg__btn{flex:0 0 auto;min-width:104px;display:flex;align-items:center;justify-content:center;gap:9px;padding:8px 16px;border:0;border-left:1px solid var(--ci-border);background:transparent;cursor:pointer;transition:background .2s;color:var(--ci-text-2)}
+  .rr-ci .ci-seg__btn:first-child,.cf-tabs .ci-seg__btn:first-child,.sv-tabs .ci-seg__btn:first-child{border-left:0}
+  .rr-ci .ci-seg__btn:hover:not(.on),.cf-tabs .ci-seg__btn:hover:not(.is-active),.sv-tabs .ci-seg__btn:hover:not(.is-active){background:#f1f6fb}
+  .rr-ci .ci-seg__btn.on,.cf-tabs .ci-seg__btn.is-active,.sv-tabs .ci-seg__btn.is-active{background:linear-gradient(135deg,#1478b8,var(--ci-primary-2));color:#fff}
+  .rr-ci .ci-seg__btn.on .ci-seg__ic,.rr-ci .ci-seg__btn.on .ci-seg__n,.rr-ci .ci-seg__btn.on .ci-seg__lbl,.cf-tabs .ci-seg__btn.is-active .ci-seg__ic,.cf-tabs .ci-seg__btn.is-active .ci-seg__lbl,.sv-tabs .ci-seg__btn.is-active .ci-seg__ic,.sv-tabs .ci-seg__btn.is-active .ci-seg__lbl{color:#fff}
+  .rr-ci .ci-seg__ic,.cf-tabs .ci-seg__ic,.sv-tabs .ci-seg__ic{width:22px;height:22px;color:var(--ci-muted);flex-shrink:0;display:grid;place-items:center}
+  .rr-ci .ci-seg__ic svg,.cf-tabs .ci-seg__ic svg,.sv-tabs .ci-seg__ic svg{width:22px;height:22px}
+  .rr-ci .ci-seg__col,.cf-tabs .ci-seg__col,.sv-tabs .ci-seg__col{display:flex;flex-direction:column;align-items:center;line-height:1;min-width:0}
+  .rr-ci .ci-seg__lbl,.cf-tabs .ci-seg__lbl,.sv-tabs .ci-seg__lbl{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--ci-muted);white-space:nowrap}
   .rr-ci .ci-seg__n{font-size:19px;font-weight:800;margin-top:3px;color:var(--ci-text)}
   .rr-ci .ci-panel{background:var(--ci-surface);border:1px solid var(--ci-border);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;min-height:0;box-shadow:0 1px 10px rgba(15,36,64,.05)}
   /* Header azul de panel */
@@ -10168,6 +10269,392 @@ function _cfCheckBurst(label,fast){
 })();
 /* ════════ IMPRIMIR PLANILLA (formato Control, agrupado por segmento) ════════ */
 function printPlanillaFlete(id){const r=(repartos||[]).find(x=>x.id===id);if(!r){showToast('Planilla no encontrada');return;}_cfPrint(r);}
+/* ════════ SERVICIOS ADICIONALES ═══════════════════════════════════════
+   Un servicio adicional es una línea del reparto con segmento 'servicios':
+   exactamente la misma que se carga desde la planilla de repartos. Por eso
+   suma a la misma planilla, al mismo reporte y al mismo impreso, y se
+   complementa con lo que ya se haya cargado desde ahí.
+   Lo propio de este apartado es que cada servicio puede llevar su propio
+   número de factura (factNro). `clientes` es una columna JSONB, así que ese
+   campo no necesita migración. */
+let _svTab='reg', _svMes='', _svTs='', _svQ='';
+// Lo ultimo usado en el formulario: cargar varios servicios seguidos de la
+// misma transportadora es lo normal, y el re-render rehace el formulario.
+let _svUlt={fecha:'',tsId:'',trId:''};
+
+const _svHOY=function(){ try{ return (typeof todayISO==='function')?todayISO():new Date().toISOString().slice(0,10); }catch(_){ return new Date().toISOString().slice(0,10); } };
+const _svDM=function(iso){ return iso?String(iso).slice(0,10).split('-').reverse().join('/'):'—'; };
+const _svGs=function(n){ return 'Gs. '+formatMoney(Math.round(+n||0)); };
+
+/* Todas las líneas de servicio que hay cargadas, vengan de donde vengan. */
+function _svLineas(){
+  const out=[];
+  (repartos||[]).forEach(function(r){
+    (r.clientes||[]).forEach(function(c){
+      if((c.seg||'local')!=='servicios')return;
+      const iso=r.fechaISO||'';
+      const own=c.trId?tsOfTruck(c.trId):null;
+      out.push({
+        r:r, c:c, iso:iso,
+        wk:(iso&&typeof isoWeekRange==='function')?isoWeekRange(iso):null,
+        ts:(own&&own.n)||c.tsNombre||r.tsNombre||'—',
+        monto:_cfFleteVal(c)
+      });
+    });
+  });
+  out.sort(function(a,b){ return String(b.iso||'').localeCompare(String(a.iso||'')); });
+  return out;
+}
+
+function renderServicios(){
+  const host=document.getElementById('svBody'); if(!host)return;
+  const lin=_svLineas();
+  const n=document.getElementById('svCount');
+  if(n)n.textContent=lin.length+(lin.length===1?' servicio':' servicios');
+  document.querySelectorAll('#svTabs [data-svtab]').forEach(function(b){
+    b.classList.toggle('is-active',b.dataset.svtab===_svTab);
+  });
+  if(_svTab==='reg')_svReg(host); else _svDatos(host,lin);
+}
+
+/* ── Pestaña: Registro ───────────────────────────────────── */
+function _svReg(host){
+  const ts=(transportistas||[]).slice().sort(function(a,b){ return String(a.n||'').localeCompare(String(b.n||''),'es'); });
+  host.innerHTML='<div class="sv-reg">'+
+    '<div class="sv-card sv-in" style="--i:0">'+
+      '<div class="sv-card__hd"><h3>Registrar servicio adicional</h3>'+
+      '<p>Se suma a la planilla de esa transportadora, bajo «Servicios adicionales», junto con lo que ya se haya cargado desde el reparto.</p></div>'+
+      '<div class="sv-grid">'+
+        '<label class="cf-fld"><span>Fecha</span><input type="date" id="svFecha" value="'+(_svUlt.fecha||_svHOY())+'"></label>'+
+        '<label class="cf-fld"><span>Transportadora</span><select id="svTs"><option value="">— Elegir —</option>'+
+          ts.map(function(t){ return '<option value="'+t.id+'"'+(String(t.id)===_svUlt.tsId?' selected':'')+'>'+esc(t.n)+'</option>'; }).join('')+'</select></label>'+
+        '<label class="cf-fld"><span>Camión · opcional</span><select id="svTr"><option value="">— Sin camión —</option></select></label>'+
+        '<label class="cf-fld sv-grid__wide"><span>Servicio</span><input type="text" id="svObs" placeholder="Ej: Grúa por desperfecto en ruta" maxlength="160" autocomplete="off"></label>'+
+        '<label class="cf-fld"><span>Monto (Gs.)</span><input type="text" id="svMonto" inputmode="numeric" placeholder="0" autocomplete="off"></label>'+
+        '<label class="cf-fld"><span>Factura Nº · opcional</span><input type="text" id="svFact" placeholder="Ej: 0087" maxlength="40" autocomplete="off"></label>'+
+      '</div>'+
+      '<div class="sv-card__ft"><span class="sv-hint" id="svHint"></span>'+
+        '<button class="btn btn-primary" type="button" id="svSave">'+
+        '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>Registrar servicio</button></div>'+
+    '</div>'+
+    _svUltimos()+
+  '</div>';
+
+  const selTs=document.getElementById('svTs'), selTr=document.getElementById('svTr');
+  const pintaCam=function(){
+    const t=(transportistas||[]).find(function(x){ return x.id===+selTs.value; });
+    const cams=(t&&t.trucks)||[];
+    selTr.innerHTML='<option value="">— Sin camión —</option>'+
+      cams.map(function(c){ return '<option value="'+c.id+'"'+(String(c.id)===_svUlt.trId?' selected':'')+'>'+esc(c.d)+'</option>'; }).join('');
+    selTr.disabled=!cams.length;
+  };
+  selTs.addEventListener('change',pintaCam); pintaCam();
+
+  // El monto se escribe con separador de miles mientras se tipea.
+  const mi=document.getElementById('svMonto');
+  mi.addEventListener('input',function(){
+    const n=parseMoney(mi.value);
+    mi.value=n>0?formatMoney(n):'';
+    try{ mi.setSelectionRange(mi.value.length,mi.value.length); }catch(_){}
+  });
+  document.getElementById('svSave').addEventListener('click',_svGuardar);
+  document.getElementById('svObs').addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); mi.focus(); } });
+  mi.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); _svGuardar(); } });
+}
+
+/* Los últimos cargados, para confirmar de un vistazo que entró lo que se quería. */
+function _svUltimos(){
+  const lin=_svLineas().slice(0,5);
+  if(!lin.length)return '';
+  return '<div class="sv-card sv-in" style="--i:1">'+
+    '<div class="sv-card__hd"><h3>Últimos registrados</h3><p>Los '+lin.length+' más recientes. El listado completo está en «Datos registrados».</p></div>'+
+    '<table class="sv-tbl"><thead><tr><th>Fecha</th><th>Transportadora</th><th>Servicio</th><th>Factura</th><th class="r">Monto</th></tr></thead><tbody>'+
+    lin.map(function(x){
+      return '<tr><td>'+_svDM(x.iso)+'</td><td>'+esc(x.ts)+'</td>'+
+        '<td class="sv-serv">'+esc(x.c.obs||'—')+'</td>'+
+        '<td>'+(x.c.factNro?('<span class="sv-fact">N.º '+esc(x.c.factNro)+'</span>'):'<span class="sv-fact sv-fact--no">sin factura</span>')+'</td>'+
+        '<td class="r sv-monto">'+_svGs(x.monto)+'</td></tr>';
+    }).join('')+'</tbody></table></div>';
+}
+
+async function _svGuardar(){
+  const $=function(id){ return document.getElementById(id); };
+  const fecha=($('svFecha')||{}).value||'';
+  const tsId=+(($('svTs')||{}).value||0);
+  const trId=+(($('svTr')||{}).value||0)||null;
+  const obs=((($('svObs')||{}).value)||'').trim();
+  const monto=parseMoney((($('svMonto')||{}).value)||'');
+  const fact=((($('svFact')||{}).value)||'').trim();
+  const hint=$('svHint');
+  const marca=function(el,msg){ if(el){ el.classList.add('is-err'); el.focus(); el.addEventListener('input',function(){ el.classList.remove('is-err'); },{once:true}); } if(hint)hint.textContent=msg; showToast(msg); };
+  if(hint)hint.textContent='';
+  if(!fecha) return marca($('svFecha'),'Elegí la fecha del servicio');
+  if(!tsId)  return marca($('svTs'),'Elegí la transportadora');
+  if(!obs)   return marca($('svObs'),'Escribí qué servicio fue');
+  if(!(monto>0)) return marca($('svMonto'),'Cargá el monto del servicio');
+
+  const t=(transportistas||[]).find(function(x){ return x.id===tsId; });
+  if(!t) return showToast('No encuentro esa transportadora');
+  const tr=trId?((t.trucks||[]).find(function(x){ return x.id===trId; })):null;
+
+  // Se busca el reparto de esa transportadora y fecha; si no existe, se crea.
+  let r=(repartos||[]).find(function(x){ return x.fechaISO===fecha && x.tsId===tsId; });
+  const creado=!r;
+  if(!r){
+    r={id:null,fecha:(typeof isoToDisplay==='function'?isoToDisplay(fecha):fecha),fechaISO:fecha,
+       tsId:tsId,tsNombre:t.n,trId:null,trDesc:'',km:0,precio:0,tipo:'km',
+       totalFlete:0,totalMonto:0,incTotal:null,gastoPermitido:0,diferencia:0,zona:'',clientes:[]};
+    repartos.push(r);
+  }
+  if(!r.clientes)r.clientes=[];
+  const cl={id:nextClienteId++,trId:tr?tr.id:null,tsId:tsId,tsNombre:t.n,
+            trDesc:tr?tr.d:'Servicio',seg:'servicios',rep:null,zona:null,
+            obs:obs,cant:null,km:0,precioKm:0,fijo:false,
+            monto:0,precio:monto,gasto:monto,pct:0,inc:null,
+            factNro:fact||null};
+  r.clientes.push(cl);
+
+  const btn=$('svSave'); const txt=btn?btn.innerHTML:'';
+  if(btn){ btn.disabled=true; btn.innerHTML='<span class="cf-spin"></span>Guardando…'; }
+  try{
+    const tM=(r.clientes||[]).reduce(function(s,c){ return s+(+c.monto||0); },0);
+    const tF=(r.clientes||[]).reduce(function(s,c){ return s+(+c.precio||0); },0);
+    const id=await dbSaveReparto({id:r.id,fechaISO:r.fechaISO,tsId:r.tsId,tsNombre:r.tsNombre,
+      trId:r.trId,trDesc:r.trDesc,km:r.km,precio:r.precio,tipo:r.tipo,
+      totalFlete:tF,totalMonto:tM,incTotal:tM>0?tF/tM*100:null,
+      gastoPermitido:r.gastoPermitido,diferencia:r.diferencia,zona:r.zona,clientes:r.clientes});
+    if(r.id==null)r.id=id;
+    // Se recuerda para el siguiente: fecha, transportadora y camion.
+    _svUlt={fecha:fecha,tsId:String(tsId),trId:trId?String(trId):''};
+    if(typeof _cfCheckBurst==='function')_cfCheckBurst('Servicio registrado',true);
+    else showToast('Servicio registrado');
+    // Se deja listo para cargar el siguiente, conservando fecha y transportadora.
+    $('svObs').value=''; $('svMonto').value=''; $('svFact').value='';
+    renderServicios();
+    setTimeout(function(){ const o=document.getElementById('svObs'); if(o)o.focus(); },60);
+  }catch(err){
+    // Rollback: si no se guardó, no puede quedar en pantalla como si sí.
+    const i=r.clientes.indexOf(cl); if(i>=0)r.clientes.splice(i,1);
+    if(creado){ const j=repartos.indexOf(r); if(j>=0)repartos.splice(j,1); }
+    console.error('[flete] no pude guardar el servicio adicional',err);
+    showToast('No pude guardar el servicio. Probá de nuevo 😕');
+  }finally{
+    if(btn){ btn.disabled=false; btn.innerHTML=txt; }
+  }
+}
+
+/* ── Pestaña: Datos registrados ──────────────────────────── */
+function _svDatos(host,lin){
+  const meses={}; lin.forEach(function(x){ const k=String(x.iso||'').slice(0,7); if(k)meses[k]=1; });
+  const lMes=Object.keys(meses).sort().reverse();
+  if(_svMes && lMes.indexOf(_svMes)<0)_svMes='';
+  const tss={}; lin.forEach(function(x){ tss[x.ts]=1; });
+  const lTs=Object.keys(tss).sort(function(a,b){ return a.localeCompare(b,'es'); });
+  if(_svTs && lTs.indexOf(_svTs)<0)_svTs='';
+
+  const q=_tsNorm(_svQ);
+  const vis=lin.filter(function(x){
+    if(_svMes && String(x.iso||'').slice(0,7)!==_svMes)return false;
+    if(_svTs && x.ts!==_svTs)return false;
+    if(q && _tsNorm((x.c.obs||'')+' '+x.ts+' '+(x.c.factNro||'')+' '+(x.c.trDesc||'')).indexOf(q)<0)return false;
+    return true;
+  });
+
+  const mesLbl=function(k){
+    const p=k.split('-'); const M=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+    return (M[(+p[1]||1)-1]||'')+' '+p[0];
+  };
+  const barra='<div class="sv-bar">'+
+    '<select id="svFMes"><option value="">Todos los meses</option>'+
+      lMes.map(function(k){ return '<option value="'+k+'"'+(_svMes===k?' selected':'')+'>'+mesLbl(k)+'</option>'; }).join('')+'</select>'+
+    '<select id="svFTs"><option value="">Todas las transportadoras</option>'+
+      lTs.map(function(t){ return '<option value="'+esc(t)+'"'+(_svTs===t?' selected':'')+'>'+esc(t)+'</option>'; }).join('')+'</select>'+
+    '<div class="sv-bar__srch"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>'+
+      '<input type="text" id="svFQ" placeholder="Buscar servicio, factura o camión…" value="'+esc(_svQ)+'" autocomplete="off"></div>'+
+    '<span class="sv-bar__tot">'+vis.length+' de '+lin.length+' · <b>'+_svGs(vis.reduce(function(s,x){ return s+x.monto; },0))+'</b></span>'+
+  '</div>';
+
+  if(!vis.length){
+    host.innerHTML=barra+'<div class="sv-vacio sv-in">'+
+      '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path d="M14.7 6.3a4 4 0 00-5.4 5.4L3 18v3h3l6.3-6.3a4 4 0 005.4-5.4l-2.6 2.6-2.1-2.1 2.7-2.5z"/></svg>'+
+      '<b>'+(lin.length?'Ningún servicio coincide con el filtro':'Todavía no hay servicios adicionales')+'</b>'+
+      '<span>'+(lin.length?'Probá con otro mes o con otra transportadora.':'Cargá el primero desde la pestaña «Registro».')+'</span></div>';
+    _svBarra(host);
+    return;
+  }
+
+  // Agrupado por transportadora y semana: la misma planilla que el reporte.
+  const gm={}, orden=[];
+  vis.forEach(function(x){
+    const d=(x.wk&&x.wk.desde)||String(x.iso||'').slice(0,10);
+    const k=x.ts+'|'+d;
+    let g=gm[k];
+    if(!g){ g=gm[k]={ts:x.ts,desde:d,hasta:(x.wk&&x.wk.hasta)||d,filas:[],total:0}; orden.push(k); }
+    g.filas.push(x); g.total+=x.monto;
+  });
+  orden.sort(function(a,b){ return gm[b].desde.localeCompare(gm[a].desde)||gm[a].ts.localeCompare(gm[b].ts,'es'); });
+
+  const PRINT='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6v-8z"/></svg>';
+  const TACHO='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>';
+
+  host.innerHTML=barra+'<div class="sv-grupos">'+orden.map(function(k,i){
+    const g=gm[k];
+    return '<div class="sv-g sv-in" style="--i:'+Math.min(i,10)+'">'+
+      '<div class="sv-g__hd">'+
+        '<span class="sv-g__ini">'+esc(initials(g.ts))+'</span>'+
+        '<div class="sv-g__t"><b>'+esc(g.ts)+'</b><span>'+_svDM(g.desde)+' al '+_svDM(g.hasta)+' · '+g.filas.length+(g.filas.length===1?' servicio':' servicios')+'</span></div>'+
+        '<div class="sv-g__tot"><b>'+_svGs(g.total)+'</b><span>Total</span></div>'+
+        '<button type="button" class="sv-g__print" data-svprint="'+k+'">'+PRINT+'Imprimir</button>'+
+      '</div>'+
+      '<table class="sv-tbl"><thead><tr><th>Fecha</th><th>Servicio</th><th>Camión</th><th>Factura</th><th class="r">Monto</th><th></th></tr></thead><tbody>'+
+      g.filas.map(function(x){
+        return '<tr><td>'+_svDM(x.iso)+'</td>'+
+          '<td class="sv-serv">'+esc(x.c.obs||'—')+'</td>'+
+          '<td>'+esc(x.c.trDesc||'—')+'</td>'+
+          '<td>'+(x.c.factNro?('<span class="sv-fact">N.º '+esc(x.c.factNro)+'</span>'):'<span class="sv-fact sv-fact--no">sin factura</span>')+'</td>'+
+          '<td class="r sv-monto">'+_svGs(x.monto)+'</td>'+
+          '<td class="r"><button type="button" class="sv-del" data-svdel="'+x.r.id+':'+x.c.id+'" title="Quitar este servicio">'+TACHO+'</button></td></tr>';
+      }).join('')+'</tbody></table></div>';
+  }).join('')+'</div>';
+
+  _svBarra(host);
+  host.querySelectorAll('[data-svprint]').forEach(function(b){
+    b.addEventListener('click',function(){ _svPrint(gm[b.dataset.svprint]); });
+  });
+  host.querySelectorAll('[data-svdel]').forEach(function(b){
+    b.addEventListener('click',function(){ _svBorrar(b.dataset.svdel); });
+  });
+}
+
+function _svBarra(host){
+  const m=document.getElementById('svFMes'), t=document.getElementById('svFTs'), q=document.getElementById('svFQ');
+  if(m)m.addEventListener('change',function(){ _svMes=m.value; renderServicios(); });
+  if(t)t.addEventListener('change',function(){ _svTs=t.value; renderServicios(); });
+  if(q)q.addEventListener('input',function(){
+    _svQ=q.value; renderServicios();
+    const n=document.getElementById('svFQ');
+    if(n){ n.focus(); try{ n.setSelectionRange(n.value.length,n.value.length); }catch(_){} }
+  });
+}
+
+function _svBorrar(ref){
+  const p=String(ref).split(':'), rid=+p[0], cid=+p[1];
+  const r=(repartos||[]).find(function(x){ return x.id===rid; }); if(!r)return;
+  const cl=(r.clientes||[]).find(function(c){ return c.id===cid; }); if(!cl)return;
+  _cfConfirm('¿Quitar el servicio?','<b>'+esc(cl.obs||'—')+'</b> por '+_svGs(_cfFleteVal(cl))+' se quita de la planilla.',async function(){
+    const i=r.clientes.indexOf(cl); if(i>=0)r.clientes.splice(i,1);
+    renderServicios();
+    try{
+      if(!(r.clientes||[]).length && r.id!=null){ await dbDeleteReparto(r.id); const j=repartos.indexOf(r); if(j>=0)repartos.splice(j,1); }
+      else{
+        const tM=(r.clientes||[]).reduce(function(s,c){ return s+(+c.monto||0); },0);
+        const tF=(r.clientes||[]).reduce(function(s,c){ return s+(+c.precio||0); },0);
+        await dbSaveReparto({id:r.id,fechaISO:r.fechaISO,tsId:r.tsId,tsNombre:r.tsNombre,trId:r.trId,trDesc:r.trDesc,km:r.km,precio:r.precio,tipo:r.tipo,totalFlete:tF,totalMonto:tM,incTotal:tM>0?tF/tM*100:null,gastoPermitido:r.gastoPermitido,diferencia:r.diferencia,zona:r.zona,clientes:r.clientes});
+      }
+      showToast('Servicio quitado');
+    }catch(err){
+      r.clientes.splice(Math.max(0,i),0,cl);
+      renderServicios();
+      console.error('[flete] no pude quitar el servicio',err);
+      showToast('No pude quitarlo. Probá de nuevo 😕');
+    }
+    renderServicios();
+  },'Sí, quitar');
+}
+
+/* ── Impreso ─────────────────────────────────────────────
+   Mismo diseño que la planilla de flete: comparten _cfPrintCSS. */
+function _svPrint(g){
+  if(!g||!g.filas.length){ showToast('No hay servicios para imprimir'); return; }
+  const logoUrl=new URL('logo-alas-s.a.png',window.location.href).href;
+  const meta=function(k,v){ return '<div class="mi"><span>'+k+'</span><b>'+v+'</b></div>'; };
+  const facturas={}; g.filas.forEach(function(x){ if(x.c.factNro)facturas[x.c.factNro]=1; });
+  const lf=Object.keys(facturas);
+  const body=g.filas.slice().sort(function(a,b){ return String(a.iso||'').localeCompare(String(b.iso||'')); }).map(function(x){
+    return '<tr><td>'+_svDM(x.iso)+'</td><td>'+_escp(x.c.obs||'—')+'</td><td>'+_escp(x.c.trDesc||'—')+'</td>'+
+      '<td>'+(x.c.factNro?_escp(x.c.factNro):'—')+'</td><td class="r">'+_gs(_cfFleteVal(x.c))+'</td></tr>';
+  }).join('');
+  const content=
+    '<div class="rp-hd"><div class="rp-hd__l"><img class="rp-logo" src="'+logoUrl+'" alt="ALAS"><div><h1>Servicios Adicionales</h1></div></div>'+
+    '<div class="co"><span class="co-lbl">Fecha de emisión</span><b>'+_svDM(_svHOY())+'</b></div></div>'+
+    '<div class="meta">'+meta('Transportadora',_escp(g.ts))+meta('Período',_svDM(g.desde)+' al '+_svDM(g.hasta))+
+      meta('Servicios',String(g.filas.length))+meta('Facturas',lf.length?_escp(lf.join(', ')):'—')+'</div>'+
+    '<div class="rp-tbl"><table><thead><tr><th>Fecha</th><th>Servicio</th><th>Camión</th><th>Factura Nº</th><th class="r">Monto (Gs.)</th></tr></thead><tbody>'+
+    '<tr class="grp"><td colspan="5">SERVICIOS ADICIONALES</td></tr>'+body+
+    '<tr class="total"><td colspan="4">TOTAL GENERAL</td><td class="r">'+_gs(g.total)+'</td></tr>'+
+    '</tbody></table></div>'+
+    '<div class="foot"><div class="firmas"><div class="firma"><div class="ln"></div><span>JEFE DE DISTRIBUCIÓN</span></div><div class="firma"><div class="ln"></div><span>JEFE DE ADMINISTRACIÓN</span></div></div>'+
+    '<div class="resumen"><h3>Resumen</h3><div class="rr"><span>Servicios</span><b>'+g.filas.length+'</b></div>'+
+    '<div class="rr"><span>Con factura</span><b>'+g.filas.filter(function(x){ return !!x.c.factNro; }).length+'</b></div>'+
+    '<div class="rr"><span>Total</span><b>'+_gs(g.total)+'</b></div></div></div>';
+  _cfPrintDoc('Servicios Adicionales',content);
+}
+
+/* Las pestañas del apartado */
+(function(){
+  const t=document.getElementById('svTabs');
+  if(!t)return;
+  t.addEventListener('click',function(e){
+    const b=e.target.closest('[data-svtab]');
+    if(!b||b.dataset.svtab===_svTab)return;
+    _svTab=b.dataset.svtab;
+    renderServicios();
+  });
+})();
+
+/* El CSS del impreso vive aparte: lo comparten la planilla de flete y el
+   impreso de servicios adicionales, asi los dos salen identicos. */
+/* La impresion vive aparte: la comparten la planilla de flete y el impreso de
+   servicios adicionales. Iframe aislado con medidas reales fuera de pantalla
+   (uno de 0x0 no imprime en Chrome), con ventana nueva como respaldo. */
+function _cfPrintDoc(titulo,contenido){
+  const doc='<!doctype html><html><head><meta charset="utf-8"><title>'+titulo+'</title>'+_cfPrintCSS()+'</head><body><div id="_cfPrintArea">'+contenido+'</div></body></html>';
+  const openWindowFallback=function(){try{const w=window.open('','_blank');if(!w){try{showToast('Permití las ventanas emergentes para poder imprimir');}catch(_){}return;}w.document.open();w.document.write(doc);w.document.close();w.focus();setTimeout(function(){try{w.print();}catch(_){}},500);}catch(_){}};
+  let ifr;
+  try{
+    const old=document.getElementById('_cfPrintFrame');if(old)old.remove();
+    ifr=document.createElement('iframe');ifr.id='_cfPrintFrame';
+    ifr.style.cssText='position:fixed;left:-10000px;top:0;width:820px;height:1160px;border:0';
+    document.body.appendChild(ifr);
+    const idoc=ifr.contentWindow.document;idoc.open();idoc.write(doc);idoc.close();
+    let fired=false;
+    const doPrint=function(){if(fired)return;fired=true;let ok=false;try{ifr.contentWindow.focus();ifr.contentWindow.print();ok=true;}catch(e){ok=false;}if(!ok)openWindowFallback();setTimeout(function(){if(ifr&&ifr.parentNode)ifr.remove();},30000);};
+    const imgs=idoc.images;let pend=0;
+    if(imgs&&imgs.length){for(let i=0;i<imgs.length;i++){const im=imgs[i];if(!im.complete){pend++;im.onload=im.onerror=function(){pend--;if(pend<=0)doPrint();};}}if(pend===0)doPrint();else setTimeout(doPrint,1500);}
+    else setTimeout(doPrint,80);
+  }catch(e){openWindowFallback();}
+}
+
+function _cfPrintCSS(){
+  const P='#_cfPrintArea ';
+  return '<style>'+
+  '*{margin:0;padding:0;box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact}'+
+  'html,body{font-family:Arial,sans-serif;color:#1a2331;background:#fff}@page{margin:14mm}'+
+  P+'{display:block}'+
+  P+'.rp-hd{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:3px solid #0B5F8D;padding-bottom:12px;margin-bottom:14px}'+
+  P+'.rp-hd__l{display:flex;align-items:flex-end;gap:14px}'+P+'.rp-logo{height:40px;width:auto}'+
+  P+'.rp-hd h1{font-size:17px;color:#0B5F8D;line-height:1;padding-bottom:3px}'+
+  P+'.rp-hd .co{text-align:right;line-height:1.4}'+P+'.rp-hd .co-lbl{display:block;font-size:8.5px;text-transform:uppercase;letter-spacing:.5px;color:#7a8699;font-weight:700}'+P+'.rp-hd .co b{color:#0B5F8D;font-size:14px}'+
+  P+'.meta{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}'+
+  P+'.mi{background:#f2f6fa;border:1px solid #dde6ef;border-radius:7px;padding:7px 11px}'+
+  P+'.mi span{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.5px;color:#7a8699;font-weight:700}'+P+'.mi b{font-size:12.5px;color:#1a2331}'+
+  P+'.rp-tbl{border:1px solid #dbe3ee;border-radius:12px;overflow:hidden;margin-bottom:14px}'+
+  P+'table{width:100%;border-collapse:separate;border-spacing:0}'+
+  P+'thead th{background:#2578b8;color:#fff;font-size:10px;text-transform:uppercase;letter-spacing:.4px;padding:8px 9px;text-align:left}'+
+  P+'thead th.r,'+P+'td.r{text-align:right}'+
+  P+'tbody td{padding:6px 9px;border-bottom:1px solid #e7edf4;font-size:11.5px;color:#1a2331}'+
+  P+'tr.grp td{background:#e8eef5;font-weight:800;color:#0B5F8D;font-size:10.5px;padding:7px 9px}'+
+  P+'tr.sub td{background:#f2f6fa;font-weight:800;color:#1a2331;border-top:1.5px solid #cdd8e4}'+
+  P+'tr.total td{background:#2578b8;color:#fff;font-weight:800;font-size:13px;padding:10px 9px}'+
+  P+'.foot{display:flex;justify-content:space-between;gap:24px;margin-top:8px}'+
+  P+'.resumen{border:1.5px solid #0B5F8D;border-radius:9px;padding:12px 16px;min-width:240px}'+
+  P+'.resumen h3{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:#0B5F8D;margin-bottom:8px;border-bottom:1px solid #dde6ef;padding-bottom:5px}'+
+  P+'.resumen .rr{display:flex;justify-content:space-between;padding:3px 0;font-size:12px}'+P+'.resumen .rr b{font-weight:800}'+
+  P+'.firmas{display:flex;gap:40px;align-items:flex-end;flex:1;justify-content:space-around;padding:0 10px}'+
+  P+'.firma{text-align:center;min-width:180px}'+P+'.firma .ln{border-top:1.5px solid #1a2331;margin-bottom:5px}'+P+'.firma span{font-size:11px;font-weight:700;color:#3a4759}'+
+  '</style>';
+}
+
 function _cfPrint(r){
   const lines=r.clientes||[];if(!lines.length){showToast('La planilla no tiene camiones');return;}
   const f=_facById(r.factura_id)
@@ -10191,33 +10678,6 @@ function _cfPrint(r){
   const wk=r.semanaDesde?{desde:r.semanaDesde,hasta:r.semanaHasta}:((typeof isoWeekRange==='function'&&r.fechaISO)?isoWeekRange(r.fechaISO):null);
   const dd=iso=>iso?iso.split('-').reverse().join('/'):'—';
   const meta=(k,v)=>'<div class="mi"><span>'+k+'</span><b>'+v+'</b></div>';
-  const P='#_cfPrintArea ';
-  const css='<style>'+
-    '*{margin:0;padding:0;box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact}'+
-    'html,body{font-family:Arial,sans-serif;color:#1a2331;background:#fff}@page{margin:14mm}'+
-    P+'{display:block}'+
-    P+'.rp-hd{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:3px solid #0B5F8D;padding-bottom:12px;margin-bottom:14px}'+
-    P+'.rp-hd__l{display:flex;align-items:flex-end;gap:14px}'+P+'.rp-logo{height:40px;width:auto}'+
-    P+'.rp-hd h1{font-size:17px;color:#0B5F8D;line-height:1;padding-bottom:3px}'+
-    P+'.rp-hd .co{text-align:right;line-height:1.4}'+P+'.rp-hd .co-lbl{display:block;font-size:8.5px;text-transform:uppercase;letter-spacing:.5px;color:#7a8699;font-weight:700}'+P+'.rp-hd .co b{color:#0B5F8D;font-size:14px}'+
-    P+'.meta{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}'+
-    P+'.mi{background:#f2f6fa;border:1px solid #dde6ef;border-radius:7px;padding:7px 11px}'+
-    P+'.mi span{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.5px;color:#7a8699;font-weight:700}'+P+'.mi b{font-size:12.5px;color:#1a2331}'+
-    P+'.rp-tbl{border:1px solid #dbe3ee;border-radius:12px;overflow:hidden;margin-bottom:14px}'+
-    P+'table{width:100%;border-collapse:separate;border-spacing:0}'+
-    P+'thead th{background:#2578b8;color:#fff;font-size:10px;text-transform:uppercase;letter-spacing:.4px;padding:8px 9px;text-align:left}'+
-    P+'thead th.r,'+P+'td.r{text-align:right}'+
-    P+'tbody td{padding:6px 9px;border-bottom:1px solid #e7edf4;font-size:11.5px;color:#1a2331}'+
-    P+'tr.grp td{background:#e8eef5;font-weight:800;color:#0B5F8D;font-size:10.5px;padding:7px 9px}'+
-    P+'tr.sub td{background:#f2f6fa;font-weight:800;color:#1a2331;border-top:1.5px solid #cdd8e4}'+
-    P+'tr.total td{background:#2578b8;color:#fff;font-weight:800;font-size:13px;padding:10px 9px}'+
-    P+'.foot{display:flex;justify-content:space-between;gap:24px;margin-top:8px}'+
-    P+'.resumen{border:1.5px solid #0B5F8D;border-radius:9px;padding:12px 16px;min-width:240px}'+
-    P+'.resumen h3{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:#0B5F8D;margin-bottom:8px;border-bottom:1px solid #dde6ef;padding-bottom:5px}'+
-    P+'.resumen .rr{display:flex;justify-content:space-between;padding:3px 0;font-size:12px}'+P+'.resumen .rr b{font-weight:800}'+
-    P+'.firmas{display:flex;gap:40px;align-items:flex-end;flex:1;justify-content:space-around;padding:0 10px}'+
-    P+'.firma{text-align:center;min-width:180px}'+P+'.firma .ln{border-top:1.5px solid #1a2331;margin-bottom:5px}'+P+'.firma span{font-size:11px;font-weight:700;color:#3a4759}'+
-    '</style>';
   const content=
     '<div class="rp-hd"><div class="rp-hd__l"><img class="rp-logo" src="'+logoUrl+'" alt="ALAS"><div><h1>Planilla de Reparto de Flete</h1></div></div>'+
     '<div class="co"><span class="co-lbl">Fecha de emisión</span><b>'+dd(typeof todayISO==='function'?todayISO():new Date().toISOString().slice(0,10))+'</b></div></div>'+
@@ -10229,21 +10689,7 @@ function _cfPrint(r){
     '<div class="resumen"><h3>Resumen</h3><div class="rr"><span>Camiones</span><b>'+totN+'</b></div>'+(totKm>0?'<div class="rr"><span>Km total</span><b>'+_nnum(totKm)+' km</b></div>':'')+'<div class="rr"><span>Flete total</span><b>Gs. '+_nnum(totF)+'</b></div>'+(f?'<div class="rr" style="border-top:1px solid #dde6ef;margin-top:5px;padding-top:6px"><span>Monto factura</span><b>Gs. '+_nnum(f.monto)+'</b></div>':'')+'</div></div>';
   // Impresión 100% confiable: iframe aislado con dimensiones reales fuera de pantalla
   // (un iframe 0x0 no imprime en Chrome). Fallback a ventana nueva si el iframe falla.
-  const doc='<!doctype html><html><head><meta charset="utf-8"><title>Planilla de Reparto de Flete</title>'+css+'</head><body><div id="_cfPrintArea">'+content+'</div></body></html>';
-  const openWindowFallback=function(){try{const w=window.open('','_blank');if(!w){try{showToast('Permití las ventanas emergentes para poder imprimir');}catch(_){}return;}w.document.open();w.document.write(doc);w.document.close();w.focus();setTimeout(function(){try{w.print();}catch(_){}},500);}catch(_){}};
-  let ifr;
-  try{
-    const old=document.getElementById('_cfPrintFrame');if(old)old.remove();
-    ifr=document.createElement('iframe');ifr.id='_cfPrintFrame';
-    ifr.style.cssText='position:fixed;left:-10000px;top:0;width:820px;height:1160px;border:0';
-    document.body.appendChild(ifr);
-    const idoc=ifr.contentWindow.document;idoc.open();idoc.write(doc);idoc.close();
-    let fired=false;
-    const doPrint=function(){if(fired)return;fired=true;let ok=false;try{ifr.contentWindow.focus();ifr.contentWindow.print();ok=true;}catch(e){ok=false;}if(!ok)openWindowFallback();setTimeout(function(){if(ifr&&ifr.parentNode)ifr.remove();},30000);};
-    const imgs=idoc.images;let pend=0;
-    if(imgs&&imgs.length){for(let i=0;i<imgs.length;i++){const im=imgs[i];if(!im.complete){pend++;im.onload=im.onerror=function(){pend--;if(pend<=0)doPrint();};}}if(pend===0)doPrint();else setTimeout(doPrint,1500);}
-    else setTimeout(doPrint,80);
-  }catch(e){openWindowFallback();}
+  _cfPrintDoc('Planilla de Reparto de Flete',content);
 }
 </script>
 </body>
