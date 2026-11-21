@@ -6541,9 +6541,8 @@ function showSaveAnim(text){
   .rr-brand{display:flex;align-items:center;gap:11px;min-width:0;justify-self:start;height:44px}
   .rr-brand img{height:34px;width:auto;object-fit:contain;flex-shrink:0;display:block}
   .rr-brand__t{display:flex;align-items:center;font-family:'Sora','Inter',sans-serif;font-weight:800;font-size:22px;letter-spacing:-.3px;line-height:1;color:var(--ci-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  /* En el detalle de una planilla no hay filtro ni titulo del mes: se oculta
-     sin sacarla de la grilla, asi la tira no se corre de lugar. */
-  #viewRrep:has(#rrepHost:not(.rr-ci)) .rrep-top .rr-brand{visibility:hidden}
+  /* La marca se ve también en el detalle de una planilla: ocultarla dejaba un
+     hueco de su mismo ancho (la columna sigue reservada) arriba a la izquierda. */
   .rr-ci .ci-body{flex:1 1 auto;min-height:0;display:grid;grid-template-columns:minmax(0,1.38fr) minmax(0,1fr);gap:14px;align-items:stretch}
   /* Control segmentado (segmentos) — estilo depósitos de Inventario, compacto y centrado */
   /* La tira de apartados de la Calculadora usa este mismo diseño: por eso cada
@@ -6882,19 +6881,29 @@ function showSaveAnim(text){
   .rr-detail>*:nth-child(n+4){animation-delay:140ms}
   @media(prefers-reduced-motion:reduce){.rr-detail>*{animation:none}}
   .rrd-topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;background:#fff;padding:12px 0;margin-bottom:8px;border-bottom:1px solid var(--gray-100,#f1f5f9)}
-  /* KPIs en la línea del topbar (centrados entre título y botones) */
+  /* Los KPI ya no comparten renglón con el título: tienen su propia banda, de
+     borde a borde. Antes iban apretados entre la cabecera y los botones y el
+     tile "Flete total" se aplastaba (143px en 1680, 88px en 1440) hasta cortar
+     el texto y quedar por debajo del botón de acción. */
   .rrd-topbar--kpi{flex-wrap:wrap;gap:16px}
-  .rrd-topresumen{flex:1 1 520px;min-width:0;display:flex;justify-content:center}
-  .rrd-topresumen .rrd-resumen-bar{margin:0;gap:10px;width:100%;flex-wrap:nowrap}
-  .rrd-topresumen .rrd-ktile{padding:17px 16px;gap:12px;border-radius:15px;box-shadow:0 4px 14px rgba(15,23,42,.06)}
+  .rrd-kpibar{margin:6px 0 14px}
+  .rrd-topresumen .rrd-resumen-bar{display:grid;grid-template-columns:1fr 1fr 1.45fr;gap:12px;margin:0;width:100%}
+  .rrd-topresumen .rrd-ktile{min-width:0;padding:17px 16px;gap:12px;border-radius:15px;box-shadow:0 4px 14px rgba(15,23,42,.06)}
   .rrd-topresumen .rrd-ktile::before{height:3px}
   .rrd-topresumen .rrd-ktile__ic{width:38px;height:38px;border-radius:11px}
   .rrd-topresumen .rrd-ktile__ic svg{width:20px;height:20px}
   .rrd-topresumen .rrd-ktile__tx small{font-size:9px}
   .rrd-topresumen .rrd-ktile__tx b{font-size:20px}
-  .rrd-topbar--kpi .rrd-ktile--total{flex:1.5 1 0!important;min-width:0!important;max-width:none!important;justify-content:center;gap:20px}
   .rrd-topresumen .rrd-total__div{margin:2px 0}
-  @media(max-width:1280px){.rrd-topresumen{flex-basis:100%;order:3}.rrd-topresumen .rrd-resumen-bar{flex-wrap:wrap}}
+  /* Al achicarse, "Flete total" (que lleva dos stats) se queda con el renglón entero. */
+  @media(max-width:1180px){
+    .rrd-topresumen .rrd-resumen-bar{grid-template-columns:1fr 1fr}
+    .rrd-topresumen .rrd-ktile--total{grid-column:1/-1}
+  }
+  @media(max-width:700px){
+    .rrd-topresumen .rrd-resumen-bar{grid-template-columns:1fr}
+    .rrd-topresumen .rrd-ktile--total{grid-column:auto}
+  }
   .rr-detail.is-editing .rrd-topbar{border-bottom:2px solid #FCD34D;box-shadow:0 6px 16px rgba(245,158,11,.1)}
   .rrd-left{display:flex;align-items:center;gap:14px;min-width:0}
   .rrd-topbar .rrm-kpis{margin:0;flex-wrap:nowrap}
@@ -6913,7 +6922,7 @@ function showSaveAnim(text){
   .rrd-ttl h2{margin:0;display:flex;align-items:center;gap:10px;min-width:0;font-family:Sora,Inter,sans-serif;font-size:22px;font-weight:800;color:var(--primary);white-space:nowrap}
   .rr-detail.is-editing .rrd-ttl h2{font-size:24px}
   .rrd-acts{justify-self:end;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-  @media(max-width:1040px){.rrd-topbar{flex-wrap:wrap;justify-content:center}.rrd-left{flex:1 1 100%}}
+  @media(max-width:1040px){.rrd-topbar{flex-wrap:wrap}.rrd-left{flex:1 1 100%}.rrd-acts{flex:1 1 100%}}
   .rrd-acts .rrm-act{padding:10px 18px;font-size:13px;border-radius:12px}
   .rrd-acts .rrm-act svg{width:16px;height:16px}
   /* Botones de selección de factura (arriba) */
@@ -6933,8 +6942,10 @@ function showSaveAnim(text){
   .rrd-ktile__cnt--dark{color:#0B5F8D;background:linear-gradient(180deg,#eef6fc,#e3eefb);border:1px solid rgba(37,120,184,.16)}
   .rrd-ktile__cnt--big{font-size:12.5px;padding:5px 13px;gap:7px;margin-top:8px;box-shadow:0 2px 6px rgba(11,95,141,.08)}
   .rrd-ktile__cnt--big svg{width:16px;height:16px;fill:none;stroke:currentColor}
-  /* Tile "Flete total": dos stats normales lado a lado (flete + camiones), centrados */
-  .rrd-resumen-bar .rrd-ktile--total{flex:1 1 100%;min-width:100%;max-width:none;justify-content:center;gap:36px}
+  /* Tile "Flete total": sus dos stats (flete + camiones) se anclan a los bordes
+     de la tarjeta; centrados dejaban un hueco grande a cada lado. */
+  .rrd-resumen-bar .rrd-ktile--total{min-width:0;max-width:none;justify-content:space-between;gap:24px}
+  .rrd-resumen-bar .rrd-ktile--total .rrd-total__stat{min-width:0}
   .rrd-ktile--total .rrd-ktile__tx{overflow:visible}
   .rrd-ktile--total .rrd-ktile__tx b{white-space:nowrap;overflow:visible;text-overflow:clip}
   .rrd-total__stat{display:flex;align-items:center;gap:14px}
@@ -7022,12 +7033,15 @@ function showSaveAnim(text){
   .rrd-bar{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:14px;margin-bottom:14px}
   .rrd-bar .rrm-filterbar{margin:0}
   .rrd-bar .rrd-tabs,.rrd-bar .rrd-segctrl{justify-self:center}
-  .rrd-bar--center{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:14px;margin-bottom:14px}
-  .rrd-bar--center .rrm-filterbar{margin:0;justify-content:center}
+  /* Herramientas alineadas con el título (antes iban centradas y dejaban un
+     hueco grande a la izquierda); lo que venga después queda contra la derecha. */
+  .rrd-bar--center{display:flex;flex-wrap:wrap;justify-content:flex-start;align-items:center;gap:14px;margin-bottom:14px}
+  .rrd-bar--center .rrm-filterbar{margin:0;justify-content:flex-start;flex:1 1 auto}
   /* Control de segmento dentro de la tarjeta, arriba y centrado */
   /* Las pestañas van en la misma línea que el título, centradas en la cabecera. */
   .rrd-cardseg{grid-column:2;justify-self:center;display:flex;justify-content:center;padding:0}
-  @media(max-width:980px){.rrd-bar{grid-template-columns:1fr;justify-items:center}.rrd-bar .rrm-filterbar{justify-content:center}.rrd-bar__sp{display:none}}
+  @media(max-width:980px){.rrd-bar{grid-template-columns:1fr;justify-items:center}.rrd-bar .rrm-filterbar{justify-content:center}.rrd-bar__sp{display:none}
+    .rrd-bar--center .rrm-filterbar{flex:1 1 100%}}
   /* Sello grande "Conciliada" a la derecha de la fila de filtros (planilla facturada) */
   /* Sello de goma: ocupa su propia línea y queda centrado en la barra. */
   .rrd-sealwrap{flex:0 0 100%;display:flex;justify-content:center;margin-top:4px}
@@ -7099,7 +7113,9 @@ function showSaveAnim(text){
   .segmodal-sug{position:absolute;top:-9px;right:12px;font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:#fff;background:linear-gradient(135deg,#2578b8,#0B5F8D);padding:3px 9px;border-radius:999px;box-shadow:0 4px 10px rgba(11,95,141,.4)}
   .rrd-tablewrap{overflow-x:auto}
   .rrd-tbl{width:100%;border-collapse:collapse}
-  .rrd-tbl:not(.rrd-tbl--edit){width:auto;margin-left:auto;margin-right:auto}
+  /* Ocupa la tarjeta entera: centrada y con ancho automatico dejaba un hueco
+     grande a la izquierda y las columnas no arrancaban donde la cabecera. */
+  .rrd-tbl:not(.rrd-tbl--edit){width:100%}
   .rrd-resumen-bar{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:6px}
   .rrd-selacts{display:flex;gap:10px;justify-content:center;align-items:center}
   .rrd-resumen-bar .rrd-ktile{flex:1 1 0;min-width:240px;margin-bottom:0}
@@ -10373,9 +10389,9 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     bd.innerHTML=
       '<div class="rrd-topbar rrd-topbar--kpi">'+
         '<div class="rrd-left">'+back+'<div class="rrd-ttl"><h2>'+_escp(g.ts)+(editing?'<span class="rrd-edbadge"><i></i>Editando</span>':'')+'</h2>'+pdHTML()+'</div></div>'+
-        '<div class="rrd-topresumen">'+_dashResumen('General',0,_kpiCam,_kpiSub)+'</div>'+
         '<div class="rrd-acts">'+acts+'</div>'+
       '</div>'+
+      '<div class="rrd-kpibar rrd-topresumen">'+_dashResumen('General',0,_kpiCam,_kpiSub)+'</div>'+
       '<div class="rrd-bar rrd-bar--center">'+camFilterBar()+(_facMode?_selActs:'')+((facReg&&!editing&&!_facMode)?'<div class="rrd-sealwrap"><div class="rrd-seal" title="Factura conciliada"><span class="rrd-seal__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span><span class="rrd-seal__tx">Conciliada</span></div></div>':'')+'</div>'+
       '<div class="rrm-body">'+dashBody()+'</div>';
     wire();
