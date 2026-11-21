@@ -1606,7 +1606,7 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
       <span class="label">Calculadora</span>
     </button>
     <button class="sidebar-item" type="button" data-nav="serv">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 00-5.4 5.4L3 18v3h3l6.3-6.3a4 4 0 005.4-5.4l-2.6 2.6-2.1-2.1 2.7-2.5z"/></svg>
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18.5h18"/><path d="M5 18.5a7 7 0 0114 0"/><path d="M12 11.5V9.4"/><circle cx="12" cy="8.1" r="1.2"/></svg>
       <span class="label">Servicios Adicionales</span>
     </button>
     <button class="sidebar-item" type="button" data-nav="fact">
@@ -5119,7 +5119,11 @@ async function calSaveEdit(){
   const r=calDayRepartos().find(x=>x.id===calEditRepId);
   if(!r){calEditRepId=null;calWork=null;renderCalDay('toggle');return;}
   const rows=calWork.filter(w=>!w.del);
-  for(const w of rows){if(!w.trId){showToast('Elegí el camión en todas las filas 👀');return;}}
+  // Servicios no lleva camion (es un gasto suelto) y Transportadora se mide por cantidad.
+  for(const w of rows){const sg=w.seg||'local';
+    if(sg==='servicios')continue;
+    if(sg==='transportadora'){if(!(+w.cant>0)){showToast('Cargá la cantidad de camiones 👀');return;}continue;}
+    if(!w.trId){showToast('Elegí el camión en todas las filas 👀');return;}}
   const ts=(transportistas||[]).find(t=>t.id===r.tsId)||{};
   const saveBtn=document.querySelector('[data-cal-save]');
   if(saveBtn){saveBtn.disabled=true;saveBtn.innerHTML='<span class="cf-spin"></span>Guardando…';}
@@ -9906,7 +9910,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
   // Aplica una línea del draft a un work item según el segmento destino (tseg)
   function _applyLineToWork(w,d,tseg){const isTr=tseg==='transportadora',isInt=tseg==='interior',isServ=tseg==='servicios';w.seg=tseg;if(isTr){w.cant=+d.cant||1;w.precio=+d.precio||0;w.trId=null;w.trDesc=((+d.cant||1)+' '+_camLbl((+d.cant||1)));w.rep=null;w.zona=null;w.km=0;w.precioKm=0;w.fijo=false;w.obs=null;w.fecha=d.fecha;return;}const km2=isInt&&_dfKm(d);w.trId=d.trId;w.trDesc=d.trDesc;w.tsId=d.tsId||w.tsId;w.tsNombre=d.tsNombre||w.tsNombre;w.rep=(d.rep||'').trim();w.zona=isServ?'':(d.zona||'').trim();w.fecha=d.fecha;w.obs=isServ?((d.obs||d.zona||'').trim()):'';w.fijo=isInt?!km2:false;w.cant=1;if(km2){w.km=d.km;w.precioKm=d.precioKm;w.precio=Math.round(d.km*d.precioKm);}else{w.km=0;w.precioKm=0;w.precio=(+d.precio||0)||Math.round((+d.km||0)*(+d.precioKm||0));}}
   async function _dashSaveEdit(){const sk=_dashSeg;const alive=(_dashDraft||[]).filter(d=>!d.del);const tseg=d=>d.seg||sk;
-    for(const d of alive){const ts=tseg(d);if(ts==='transportadora'){if(!(+d.cant>0)){showToast('Cargá la cantidad de camiones 👀');return;}}else if(!d.trId){showToast('Elegí el camión en todas las filas 👀');return;}}
+    for(const d of alive){const ts=tseg(d);if(ts==='transportadora'){if(!(+d.cant>0)){showToast('Cargá la cantidad de camiones 👀');return;}}else if(ts!=='servicios'&&!d.trId){showToast('Elegí el camión en todas las filas 👀');return;}}
     const sbtn=bd.querySelector('[data-dashsave]');if(sbtn){sbtn.disabled=true;sbtn.classList.add('is-loading');sbtn.innerHTML='<span class="rrd-spin"></span>Guardando…';}
     // Actualiza / borra las líneas existentes del segmento en edición (su destino puede ser otro segmento)
     work.forEach(w=>{if(w.seg!==sk||w.del)return;const d=alive.find(x=>x.uid===w.uid);if(!d){if(!w.isNew)w.del=true;return;}_applyLineToWork(w,d,tseg(d));});
@@ -10052,7 +10056,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     if(!rows.length&&!allowEmpty){showToast('La planilla quedaría sin camiones. Cancelá o agregá al menos uno.');return;}
     for(const w of rows){
       if(w.seg==='transportadora'){if(!(+w.cant>0)){showToast('En Transportadora cargá la cantidad de camiones 👀');return;}continue;}
-      if(!w.trId){showToast('Elegí el camión en todas las filas 👀');return;}if(w.seg==='interior'&&!w.fijo&&w.km>0&&w.precioKm>0)w.precio=Math.round(w.km*w.precioKm);}
+      if(w.seg!=='servicios'&&!w.trId){showToast('Elegí el camión en todas las filas 👀');return;}if(w.seg==='interior'&&!w.fijo&&w.km>0&&w.precioKm>0)w.precio=Math.round(w.km*w.precioKm);}
     const affected=new Set();
     // Reparto (de esta transportadora) para una fecha dada; crea uno nuevo si no existe.
     const repForDate=(dISO)=>{ if(!dISO)return null;
@@ -10163,7 +10167,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     m.$('.xls-save').addEventListener('click',()=>{
       const alive=draft.filter(d=>!d.del);
       const trD=d=>((+d.cant||0)+' '+_camLbl((+d.cant||0)));
-      for(const d of alive){if(isTr){if(!(+d.cant>0)){showToast('Cargá la cantidad de camiones 👀');return;}}else if(!d.trId){showToast('Elegí el camión en todas las filas 👀');return;}}
+      for(const d of alive){if(isTr){if(!(+d.cant>0)){showToast('Cargá la cantidad de camiones 👀');return;}}else if(!isServ&&!d.trId){showToast('Elegí el camión en todas las filas 👀');return;}}
       work.forEach(w=>{if(w.seg!==sk||w.del)return;const d=alive.find(x=>x.uid===w.uid);if(!d){if(!w.isNew)w.del=true;return;}
         if(isTr){w.cant=+d.cant||0;w.precio=+d.precio||0;w.trId=null;w.trDesc=trD(d);w.rep=null;w.zona=null;w.km=0;w.precioKm=0;w.fijo=false;w.obs=null;w.fecha=d.fecha;return;}
         const km2=kmMode(d);w.trId=d.trId;w.trDesc=d.trDesc;w.tsId=d.tsId||w.tsId;w.tsNombre=d.tsNombre||w.tsNombre;w.rep=(d.rep||'').trim();w.zona=(d.zona||'').trim();w.fecha=d.fecha;w.obs=isServ?(d.obs||''):'';w.fijo=isInt?!km2:false;
