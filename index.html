@@ -49,8 +49,8 @@ body{min-height:100vh;overflow:hidden;font-family:Inter,system-ui,-apple-system,
 .stage{flex:1;margin-left:60px;padding:24px 32px 26px;display:none;flex-direction:column;gap:16px;overflow-y:auto;overflow-x:hidden}
 /* ══ Servicios adicionales ══ */
 .sv-hd{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;flex-shrink:0}
-.sv-hd>h2{justify-self:start;display:flex;align-items:center;gap:10px;line-height:1;font-family:Sora,Inter,sans-serif;font-size:21px;font-weight:800;color:var(--primary);letter-spacing:-.25px}
-.sv-hd>h2 img{height:36px;object-fit:contain;flex-shrink:0}
+.sv-hd>h2{justify-self:start;display:flex;align-items:center;gap:10px;line-height:1;font-family:Sora,Inter,sans-serif;font-size:22px;font-weight:800;color:var(--primary);letter-spacing:-.3px}
+.sv-hd>h2 img{height:34px;object-fit:contain;flex-shrink:0}
 .sv-hd>.sv-tabs{justify-self:center}
 .sv-hd__n{justify-self:end;font-size:12px;font-weight:700;color:var(--gray-400);padding:3px 10px;border-radius:999px;background:var(--gray-100);white-space:nowrap}
 .sv-body{flex:1;min-height:0;overflow:auto;padding-top:4px}
@@ -328,8 +328,8 @@ body{min-height:100vh;overflow:hidden;font-family:Inter,system-ui,-apple-system,
 .cf-tabs .ci-seg__col,.sv-tabs .ci-seg__col{min-height:32.5px;justify-content:center}
 /* En Reporte de repartos la tira lleva el ancho del filtro de abajo (ver
    _cfAlinearTira), así que los gajos se reparten ese espacio. */
-#viewRrep>.cf-tabs .ci-seg__btn{flex:1 1 0;min-width:0}
-#viewRrep>.cf-tabs .ci-seg__lbl{overflow:hidden;text-overflow:ellipsis}
+#viewRrep .cf-tabs .ci-seg__btn{flex:1 1 0;min-width:0}
+#viewRrep .cf-tabs .ci-seg__lbl{overflow:hidden;text-overflow:ellipsis}
 @keyframes cfTabPop{0%{transform:scale(.95)}55%{transform:scale(1.03)}100%{transform:scale(1)}}
 .cf-tabs .ci-seg__btn.is-active.pop{animation:cfTabPop .34s cubic-bezier(.2,.9,.3,1.2)}
 @media(prefers-reduced-motion:reduce){.cf-tabs .ci-seg__btn.is-active.pop{animation:none}}
@@ -461,7 +461,7 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 ════════════════════════════════════════ */
 /* Tres columnas: título, la tira de apartados centrada y lo que venga después. */
 .calc-top{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;flex-shrink:0}
-.calc-top>h2{font-family:Sora,Inter,sans-serif;font-size:26px;font-weight:800;color:var(--primary);justify-self:start;min-width:0;letter-spacing:-.4px}
+.calc-top>h2{font-family:Sora,Inter,sans-serif;font-size:22px;font-weight:800;color:var(--primary);justify-self:start;min-width:0;letter-spacing:-.3px}
 .calc-top>.cf-tabs{justify-self:center}
 .calc-top>.btn{justify-self:end}
 @media(max-width:1100px){
@@ -882,7 +882,7 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
    VIEW 2 — TRANSPORTISTAS
 ════════════════════════════════════════ */
 .ts-topbar{display:flex;align-items:center;gap:12px;flex-shrink:0;max-width:100%;width:100%}
-.ts-topbar h2{font-family:Sora,Inter,sans-serif;font-size:26px;font-weight:800;color:var(--primary);flex:1;letter-spacing:-.4px}
+.ts-topbar h2{font-family:Sora,Inter,sans-serif;font-size:22px;font-weight:800;color:var(--primary);flex:1;letter-spacing:-.3px}
 .btn-excel{background:linear-gradient(180deg,#22a565,#15803d);color:#fff;border:none;box-shadow:0 6px 16px rgba(21,128,61,.28)}
 .btn-excel:hover{background:linear-gradient(180deg,#26b06d,#167f3d);box-shadow:0 9px 22px rgba(21,128,61,.34);transform:translateY(-1px)}
 .btn-excel svg{stroke:#fff}
@@ -1210,7 +1210,7 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .hf-date-inp{height:36px;padding:0 10px;border:1.5px solid var(--gray-200);border-radius:8px;background:#fff;font-size:13px;font-weight:600;color:var(--gray-800);outline:none;transition:border-color var(--fast)}
 .hf-date-inp:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(59,130,246,.1)}
 .hf-date-sep{font-size:16px;color:var(--gray-300);margin-top:16px}
-.hist-hd h2{font-family:Sora,Inter,sans-serif;font-size:21px;font-weight:800;color:var(--primary);flex:1;letter-spacing:-.25px}
+.hist-hd h2{font-family:Sora,Inter,sans-serif;font-size:22px;font-weight:800;color:var(--primary);flex:1;letter-spacing:-.3px}
 .hist-wrap{flex:1;min-height:0;overflow-y:auto;padding-right:4px}
 .hist-wrap::-webkit-scrollbar{width:4px}
 .hist-wrap::-webkit-scrollbar-thumb{background:var(--gray-200);border-radius:99px}
@@ -1292,7 +1292,7 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .cal-day-wrap{flex:1;min-height:0;display:flex;flex-direction:column;gap:14px;overflow-y:auto;padding:2px 6px}
 .cal-day-topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:14px;background:#fff;padding:6px 2px 12px;margin:0 -6px;padding-left:8px;padding-right:8px;border-bottom:1px solid var(--gray-100)}
 .cal-day-ttl{display:flex;align-items:center;gap:12px;min-width:0}
-.cal-day-ttl h2{font-family:Sora,Inter,sans-serif;font-size:20px;font-weight:800;color:var(--primary);margin:0;white-space:nowrap}
+.cal-day-ttl h2{font-family:Sora,Inter,sans-serif;font-size:22px;letter-spacing:-.3px;font-weight:800;color:var(--primary);margin:0;white-space:nowrap}
 .cal-day-editbadge{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#B45309;background:#FEF3C7;border:1px solid #FCD34D;border-radius:999px;padding:5px 12px;white-space:nowrap}
 .cal-day-editbadge i{width:7px;height:7px;border-radius:50%;background:#F59E0B;animation:calpulse 1.4s ease-in-out infinite}
 #calDayWrap.is-editing .cal-day-topbar{border-bottom:2px solid #FCD34D;box-shadow:0 6px 16px rgba(245,158,11,.1)}
@@ -1643,7 +1643,7 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
   </div>
 
   <div class="calc-top">
-    <h2 style="display:flex;align-items:center;gap:10px;line-height:1"><img src="logo-alas-s.a.png" style="height:36px;object-fit:contain;flex-shrink:0">Calculadora de Flete</h2>
+    <h2 style="display:flex;align-items:center;gap:10px;line-height:1"><img src="logo-alas-s.a.png" style="height:34px;object-fit:contain;flex-shrink:0">Calculadora de Flete</h2>
     <button class="btn btn-sm btn-ghost" type="button" id="btnNewReparto" style="display:none">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
       Nuevo reparto
@@ -1786,7 +1786,7 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 <!-- ═══ VIEW 2 — TRANSPORTISTAS ════════════════════════ -->
 <section id="viewTrans" class="stage">
   <div class="ts-topbar">
-    <h2 style="display:flex;align-items:center;gap:10px;line-height:1"><img src="logo-alas-s.a.png" style="height:36px;object-fit:contain;flex-shrink:0">Transportistas <span id="tsCountBadge" style="font-size:14px;font-weight:700;color:var(--gray-400);padding:5px 14px;border-radius:999px;background:var(--gray-100)">0</span></h2>
+    <h2 style="display:flex;align-items:center;gap:10px;line-height:1"><img src="logo-alas-s.a.png" style="height:34px;object-fit:contain;flex-shrink:0">Transportistas <span id="tsCountBadge" style="font-size:14px;font-weight:700;color:var(--gray-400);padding:5px 14px;border-radius:999px;background:var(--gray-100)">0</span></h2>
     <button class="btn btn-excel" type="button" id="btnTsExport" title="Exportar todos los camiones por transportadora con su último precio">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.9"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
       Exportar Excel
@@ -1879,7 +1879,7 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 <!-- ═══ VIEW 3 — HISTORIAL ════════════════════════════ -->
 <section id="viewHist" class="stage">
   <div class="hist-hd">
-    <h2 style="display:flex;align-items:center;gap:10px;line-height:1"><img src="logo-alas-s.a.png" style="height:36px;object-fit:contain;flex-shrink:0">Historial de repartos</h2>
+    <h2 style="display:flex;align-items:center;gap:10px;line-height:1"><img src="logo-alas-s.a.png" style="height:34px;object-fit:contain;flex-shrink:0">Historial de repartos</h2>
     <span id="histCount" style="font-size:12px;font-weight:700;color:var(--gray-400);padding:3px 10px;border-radius:999px;background:var(--gray-100)">0</span>
   </div>
 
@@ -2518,7 +2518,17 @@ document.addEventListener('click',function(e){
     d.setAttribute('role','tablist');
     d.innerHTML=window._cfTabsHTML();
     const fila=x[1]?st.querySelector(x[1]):null;
-    if(!fila){ st.insertBefore(d,st.firstChild); return; }
+    if(!fila){
+      // Reporte de repartos: encabezado propio con la marca a la izquierda y
+      // la tira al medio, alineada con el filtro de segmentos de abajo.
+      const top=document.createElement('div');
+      top.className='rrep-top';
+      top.innerHTML='<div class="rr-brand"><img src="logo-alas-s.a.png" alt="ALAS"><span class="rr-brand__t">Registros del reparto del mes</span></div>';
+      top.appendChild(d);
+      top.appendChild(document.createElement('span'));
+      st.insertBefore(top,st.firstChild);
+      return;
+    }
     // Siempre justo despues del titulo: si va al final, el boton 'Nuevo
     // reparto' le roba la columna del medio cuando aparece.
     const antes=document.getElementById(x[2])||fila.children[1]||null;
@@ -5604,7 +5614,7 @@ function showSaveAnim(text){
   /* ═══ Meta Repartidores ═══ */
   .meta2{display:flex;flex-direction:column;gap:16px;padding:2px}
   .meta-hd{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-  .meta-hd h2{display:flex;align-items:center;gap:10px;font-family:Sora,Inter,sans-serif;font-size:24px;font-weight:800;color:var(--primary);letter-spacing:-.4px;margin:0}
+  .meta-hd h2{display:flex;align-items:center;gap:10px;font-family:Sora,Inter,sans-serif;font-size:22px;font-weight:800;color:var(--primary);letter-spacing:-.3px;margin:0}
   .meta-hd h2 img{height:34px;object-fit:contain}
   .meta-spacer{flex:1}
   .meta-seg{display:inline-flex;gap:3px;padding:4px;background:var(--gray-100);border:1.5px solid var(--gray-200);border-radius:12px}
@@ -5693,7 +5703,7 @@ function showSaveAnim(text){
   .msl-seg--local{background:#DBEAFE;color:#0B5F8D}
   .msl-seg--interior{background:#E0EDF6;color:#0B5F8D}
   .cf-hd{display:flex;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap}
-  .cf-hd h2{margin:0;font-family:Sora,Inter,sans-serif;font-size:22px;font-weight:800;color:var(--primary);display:flex;align-items:center;gap:10px}
+  .cf-hd h2{margin:0;font-family:Sora,Inter,sans-serif;font-size:22px;letter-spacing:-.3px;font-weight:800;color:var(--primary);display:flex;align-items:center;gap:10px}
   .cf-hd h2 img{height:34px;object-fit:contain}
   .cf-seg{display:inline-flex;background:var(--gray-100,#f1f5f9);border:1px solid var(--gray-200,#e2e8f0);border-radius:11px;padding:3px;gap:3px}
   .cf-seg button{border:0;background:transparent;border-radius:8px;height:32px;padding:0 13px;font:inherit;font-size:13px;font-weight:700;color:var(--gray-500,#64748b);cursor:pointer;transition:all .15s}
@@ -5705,8 +5715,8 @@ function showSaveAnim(text){
   /* ════════ Reporte General (diseño mensual PRO) ════════ */
   .rep2{--line:#E5E7EB;--soft-line:#F0F0F0;--muted:#6B7280;--text:#1A1A1A;--primary-dark:#08486A;--radius:14px;--fast:150ms cubic-bezier(.16,1,.3,1);--base:280ms cubic-bezier(.16,1,.3,1);color:var(--gray-700,#334155)}
   .rep2 .rep2-hd{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px}
-  .rep2 .rep2-hd h2{display:flex;align-items:center;gap:10px;font-family:Sora,Inter,sans-serif;font-size:20px;font-weight:800;color:var(--primary);margin:0}
-  .rep2 .rep2-hd h2 img{height:30px}
+  .rep2 .rep2-hd h2{display:flex;align-items:center;gap:10px;font-family:Sora,Inter,sans-serif;font-size:22px;letter-spacing:-.3px;font-weight:800;color:var(--primary);margin:0}
+  .rep2 .rep2-hd h2 img{height:34px;object-fit:contain}
   .rep2 .rep2-spacer{flex:1}
   .rep2 .section-label{display:flex;align-items:center;gap:10px;margin:20px 0 12px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--accent,#3B82F6)}
   .rep2 .section-label:after{content:"";flex:1;height:1px;background:linear-gradient(90deg,rgba(59,130,246,.25),transparent)}
@@ -6506,7 +6516,7 @@ function showSaveAnim(text){
   .rr-card__monto b{color:var(--gray-800,#1e293b);font-weight:800}
   .rr-card__go{margin-top:8px;font-size:12.5px;font-weight:800;color:var(--primary)}
   /* ══ Reporte de Repartos · diseño Calendario de inventarios (portado) ══ */
-  .rr-ci,.cf-tabs,.sv-tabs{--ci-primary:#0877AF;--ci-primary-2:#0B5F8D;--ci-primary-soft:#eaf3fb;
+  .rr-ci,.rrep-top,.cf-tabs,.sv-tabs{--ci-primary:#0877AF;--ci-primary-2:#0B5F8D;--ci-primary-soft:#eaf3fb;
     --ci-surface:#fff;--ci-border:#e4ecf3;--ci-border-2:#d6e3ef;
     --ci-text:#132437;--ci-text-2:#475569;--ci-muted:#8a99a8;
     --ci-prog:#2a78d6;--ci-proc:#eab308;--ci-real:#16a34a;--ci-pend:#ef4444;
@@ -6515,10 +6525,25 @@ function showSaveAnim(text){
   #viewRrep.stage{padding:12px 16px}
   #viewRrep.stage:has(#rrepHost.rr-ci){overflow:hidden}
   #rrepHost.rr-ci{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;gap:12px}
-  .rr-ci .rr-topbar{flex-shrink:0;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:14px}
-  .rr-ci .rr-brand{display:flex;align-items:center;gap:11px;min-width:0;justify-self:start;height:44px}
-  .rr-ci .rr-brand img{height:34px;width:auto;object-fit:contain;flex-shrink:0;display:block}
-  .rr-ci .rr-brand__t{display:flex;align-items:center;font-family:'Sora','Inter',sans-serif;font-weight:800;font-size:18px;line-height:1;color:var(--ci-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  /* Las dos filas del encabezado usan la MISMA grilla: la primera columna
+     mide lo que la marca (--rr-brand-w, que calcula _cfAlinearTira) y la
+     segunda la tira / el filtro. Asi quedan uno debajo del otro sin centrar:
+     centrar obligaba a espejar el ancho de la marca a la derecha y abajo de
+     1600px el titulo terminaba pisando la tira. */
+  .rr-ci .rr-topbar{flex-shrink:0;display:grid;grid-template-columns:auto auto minmax(0,1fr);align-items:center;gap:14px}
+  .rr-ci .rr-topbar>span:first-child{width:var(--rr-brand-w,0)}
+  /* La marca ya no vive adentro del host: sube al encabezado, en la misma
+     linea que la tira de apartados. Por eso las reglas no llevan .rr-ci.
+     Las dos filas usan la MISMA grilla (1fr auto 1fr) para que la tira y el
+     filtro de segmentos queden uno debajo del otro. */
+  .rrep-top{flex-shrink:0;display:grid;grid-template-columns:auto auto minmax(0,1fr);align-items:center;gap:14px}
+  .rrep-top>.cf-tabs{justify-self:start;align-self:center;min-width:0}
+  .rr-brand{display:flex;align-items:center;gap:11px;min-width:0;justify-self:start;height:44px}
+  .rr-brand img{height:34px;width:auto;object-fit:contain;flex-shrink:0;display:block}
+  .rr-brand__t{display:flex;align-items:center;font-family:'Sora','Inter',sans-serif;font-weight:800;font-size:22px;letter-spacing:-.3px;line-height:1;color:var(--ci-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  /* En el detalle de una planilla no hay filtro ni titulo del mes: se oculta
+     sin sacarla de la grilla, asi la tira no se corre de lugar. */
+  #viewRrep:has(#rrepHost:not(.rr-ci)) .rrep-top .rr-brand{visibility:hidden}
   .rr-ci .ci-body{flex:1 1 auto;min-height:0;display:grid;grid-template-columns:minmax(0,1.38fr) minmax(0,1fr);gap:14px;align-items:stretch}
   /* Control segmentado (segmentos) — estilo depósitos de Inventario, compacto y centrado */
   /* La tira de apartados de la Calculadora usa este mismo diseño: por eso cada
@@ -6717,9 +6742,14 @@ function showSaveAnim(text){
   .ci-tip__row svg{width:13px;height:13px;color:#8a99a8;flex-shrink:0} .ci-tip__row b{color:#132437;font-weight:700}
   .ci-tip__st{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:800;padding:2px 9px;border-radius:99px;align-self:flex-start;margin-top:2px}
   .ci-tip__st.st-programado{background:#eef5fc;color:#0b5f8d} .ci-tip__st.st-realizado{background:#e9f7ef;color:#127a4b}
-  @media(max-width:1100px){
-    .rr-ci .rr-topbar{grid-template-columns:1fr}
-    .rr-ci .rr-brand{justify-self:center}
+  /* 1240: abajo de ese ancho la marca (446) + la tira (625) ya no entran en
+     un renglon y la primera columna empezaba a encogerse solo en la fila de
+     arriba, asi que la tira se despegaba del filtro. */
+  @media(max-width:1240px){
+    .rr-ci .rr-topbar,.rrep-top{grid-template-columns:1fr}
+    .rrep-top>span,.rr-ci .rr-topbar>span{display:none}
+    .rrep-top>.cf-tabs{justify-self:stretch;width:auto!important}
+    .rr-brand{justify-self:center}
     .rr-ci .ci-seg{width:100%}
     .rr-ci .ci-seg__btn{flex:1;min-width:0;padding:8px 8px}
     .rr-ci .rr-topbar>span{display:none}
@@ -8992,7 +9022,7 @@ function _cfOpenStats(){
     card('Camiones · precio utilizado','<div class="gstat-tblwrap"><table class="gstat-tbl"><thead><tr><th>Camión</th><th>Transportadora</th><th>Tipo</th><th class="r">Precio</th><th class="r">Usos</th><th class="r">Gasto</th></tr></thead><tbody>'+camRows+'</tbody></table></div>')+
   '</div>';
   host.innerHTML='<div class="rep2 gstat">'+
-    '<div class="cal-day-topbar"><div class="cal-day-ttl"><h2><img src="logo-alas-s.a.png" style="height:28px;vertical-align:-6px;margin-right:8px">Estadísticas del gasto</h2></div><div class="rep2-spacer"></div>'+nav+'</div>'+
+    '<div class="cal-day-topbar"><div class="cal-day-ttl"><h2><img src="logo-alas-s.a.png" style="height:34px;vertical-align:-9px;margin-right:9px">Estadísticas del gasto</h2></div><div class="rep2-spacer"></div>'+nav+'</div>'+
     tsBtns+
     kpis+'<div class="section-label" style="margin-top:6px">Listas de precios</div>'+lists+
   '</div>';
@@ -9459,7 +9489,7 @@ function renderReporteRepartos(){
   // Conteo por segmento para el control superior
   function segCount(k){const prev=_rrSeg;_rrSeg=k;const gs=weeks.reduce((acc,w)=>acc.concat(_rrGroups(w.desde)),[]);_rrSeg=prev;return gs.length;}
   const SEGS=[['todos','Todos',IC.grid],['local','Local',IC.home],['interior','Interior',IC.truck],['servicios','Servicios',IC.wrench],['transportadora','Transportadora',IC.building]];
-  const segBar='<div class="rr-topbar"><div class="rr-brand"><img src="logo-alas-s.a.png" alt="ALAS"><span class="rr-brand__t">Registros del reparto del mes</span></div>'+
+  const segBar='<div class="rr-topbar"><span></span>'+
     '<div class="ci-seg">'+SEGS.map(s=>'<button type="button" class="ci-seg__btn'+(_rrSeg===s[0]?' on':'')+'" data-rrseg="'+s[0]+'"><span class="ci-seg__ic">'+s[2]+'</span><span class="ci-seg__col"><span class="ci-seg__lbl">'+s[1]+'</span><span class="ci-seg__n">'+segCount(s[0])+'</span></span></button>').join('')+'</div><span></span></div>';
 
   // Eventos por día (respeta el segmento activo vía _rrDayGroups)
@@ -9644,7 +9674,7 @@ function renderReporteRepartos(){
   _rrStagger('.ci-rowwrap',16);
   _rrStagger('.ci-ev',40);
   // Al cambiar de segmento sólo se re-anima el control y la lista, no la cabecera ni el calendario.
-  if(!_rrSegAnim){ _rrStagger('.rr-brand',0); _rrStagger('.ci-phead',8); _rrStagger('.ci-wrow',8); }
+  if(!_rrSegAnim){ _rrStagger('.ci-phead',8); _rrStagger('.ci-wrow',8); }
   _rrStagger('.ci-seg__btn',6);
   _rrSegAnim=false;
   _cfAlinearTira();
@@ -9656,8 +9686,12 @@ function renderReporteRepartos(){
    cambia con los números que muestra, por eso se recalcula en cada render. */
 function _cfAlinearTira(){
   const vista=document.getElementById('viewRrep'); if(!vista)return;
-  const tira=vista.querySelector(':scope > .cf-tabs');
+  const tira=vista.querySelector('.rrep-top > .cf-tabs');
   if(!tira)return;
+  // La fila de abajo reserva el mismo ancho que la marca de arriba, para que
+  // su primera columna coincida y el filtro arranque donde arranca la tira.
+  const marca=vista.querySelector('.rrep-top > .rr-brand');
+  if(marca){const bw=Math.round(marca.getBoundingClientRect().width);vista.style.setProperty('--rr-brand-w',(bw>0?bw:0)+'px');}
   const filtro=vista.querySelector('.rr-topbar > .ci-seg');
   if(!filtro){ tira.style.width=''; return; }
   const w=Math.round(filtro.getBoundingClientRect().width);
