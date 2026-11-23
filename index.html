@@ -2278,7 +2278,9 @@ async function dbDeleteReparto(id){
 // Vincula (o desvincula) un reparto con una factura
 async function dbSetRepartoFactura(id,facturaId){const{error}=await sb.from('repartos').update({factura_id:facturaId}).eq('id',id);if(error)throw error;}
 // Guarda el array de clientes de un reparto (usado para setear factura_id POR LÍNEA)
-async function dbUpdateClientes(id,clientes){const{error}=await sb.from('repartos').update({clientes:clientes}).eq('id',id);if(error)throw error;}
+async function dbUpdateClientes(id,clientes){const{data,error}=await sb.from('repartos').update({clientes:clientes}).eq('id',id).select('id');if(error)throw error;if(!data||!data.length)throw new Error('No se encontró el reparto o no hay permiso para actualizarlo.');}
+// Actualiza los vínculos por línea y limpia el vínculo viejo de reparto en la misma escritura.
+async function dbUpdateFacturaLinks(id,clientes,repartoFacturaId){const{data,error}=await sb.from('repartos').update({clientes:clientes,factura_id:repartoFacturaId==null?null:repartoFacturaId}).eq('id',id).select('id');if(error)throw error;if(!data||!data.length)throw new Error('No se encontró el reparto o no hay permiso para actualizarlo.');}
 
 /* ── SEED ────────────────────────────────────────── */
 const SEED=[
@@ -2687,20 +2689,26 @@ function tsOfTruck(trId){
 }
 // Facturas por id y por transportadora+semana. Se reindexa cuando window.__cfFac pasa a ser
 // otro array (siempre se reemplaza entero, nunca se le hace push).
-let _ixFacId=null,_ixFacTs=null,_ixFacRef=null;
+let _ixFacId=null,_ixFacTs=null,_ixFacTsId=null,_ixFacRef=null;
 function _facIdx(){
   const a=window.__cfFac||[];
   if(_ixFacRef!==a){
-    _ixFacId=new Map(); _ixFacTs=new Map();
+    _ixFacId=new Map(); _ixFacTs=new Map(); _ixFacTsId=new Map();
+    const add=(map,k,f)=>{const list=map.get(k)||[];list.push(f);map.set(k,list);};
     for(let i=0;i<a.length;i++){ const f=a[i];
       if(!_ixFacId.has(f.id))_ixFacId.set(f.id,f);
-      const k=(f.transportadora_nombre||'')+'|'+(f.semana_desde||'');
-      if(!_ixFacTs.has(k))_ixFacTs.set(k,f); }   // find() devuelve la primera: se respeta
+      const sd=_facSem(f)||'';if(!sd)continue;
+      add(_ixFacTs,'n:'+_facNorm(f.transportadora_nombre||'')+'|'+sd,f);
+      if(f.transportadora_id!=null)add(_ixFacTsId,'i:'+String(f.transportadora_id)+'|'+sd,f);
+    }
     _ixFacRef=a;
   }
 }
 function _facById(id){ if(id==null)return null; _facIdx(); const f=_ixFacId.get(id); if(f)return f; const n=Number(id); return Number.isFinite(n)?(_ixFacId.get(n)||null):null; }
-function _facByTsSem(ts,sd){ if(!sd)return null; _facIdx(); return _ixFacTs.get((ts||'')+'|'+sd)||null; }
+function _facCandidatesByTsSem(ts,sd,tsId){if(!sd)return[];_facIdx();const nk='n:'+_facNorm(ts||'')+'|'+sd,named=_ixFacTs.get(nk)||[];if(tsId==null)return named.slice();const ik='i:'+String(tsId)+'|'+sd,exact=_ixFacTsId.get(ik)||[],out=exact.slice(),seen=new Set(out.map(f=>String(f.id)));named.forEach(f=>{if(f.transportadora_id==null&&!seen.has(String(f.id))){out.push(f);seen.add(String(f.id));}});return out;}
+function _facCountByTsSem(ts,sd,tsId){return _facCandidatesByTsSem(ts,sd,tsId).length;}
+// Sólo hay vínculo legacy inequívoco cuando existe una factura para esa transportadora y semana.
+function _facByTsSem(ts,sd,tsId){const found=_facCandidatesByTsSem(ts,sd,tsId);return found.length===1?found[0]:null;}
 // Segmento predeterminado configurado para un camión (Transportistas). Default: local.
 function _truckSeg(trId){ const t=tsOfTruck(trId); const tr=t?t.trucks.find(x=>x.id===trId):null; return (tr&&tr.seg)||'local'; }
 
@@ -3892,6 +3900,7 @@ document.getElementById('btnNewReparto').addEventListener('click',clearCurrentRe
 
 function loadForEdit(id){
   const r=repartos.find(x=>x.id===id);if(!r)return;
+  if(_repTieneVinculoFactura(r)){showToast('Esta planilla tiene una factura vinculada. Eliminá primero la factura si necesitás cambiar sus líneas.');return;}
   // Cada fila del reparto guardado es un camión: {trId, tsId, monto, precio}
   currentReparto={id:r.id,fecha:r.fechaISO||'',
     clientes:(r.clientes||[]).map(c=>({id:c.id,trId:c.trId||null,tsId:c.tsId||null,seg:c.seg||'local',rep:c.rep||null,zona:c.zona||null,peso:c.peso||0,km:c.km||0,precioKm:c.precioKm||0,fijo:!!c.fijo,monto:c.monto||0,precio:c.precio||c.gasto||0}))};
@@ -5185,6 +5194,7 @@ function calLiveTotals(){
 async function calSaveEdit(){
   const r=calDayRepartos().find(x=>x.id===calEditRepId);
   if(!r){calEditRepId=null;calWork=null;renderCalDay('toggle');return;}
+  if(_repTieneVinculoFactura(r)){showToast('Esta planilla tiene una factura vinculada. Eliminá primero la factura para cambiar sus líneas.');calEditRepId=null;calWork=null;renderCalDay('toggle');return;}
   const rows=calWork.filter(w=>!w.del);
   // Servicios no lleva camion (es un gasto suelto) y Transportadora se mide por cantidad.
   for(const w of rows){const sg=w.seg||'local';
@@ -5320,7 +5330,7 @@ document.getElementById('calModalBody').addEventListener('click',async e=>{
   if(segTabE){e.stopPropagation();const parts=segTabE.dataset.caleditseg.split(':');const rid=+parts[0],sk=parts[1];if((_calEditSeg[rid]||'todos')===sk)return;_calEditSeg[rid]=sk;renderCalDay('rows');return;}
   if(modoBtn){e.stopPropagation();if(!calWork)return;const w=calWork.find(x=>x.uid===+modoBtn.dataset.uid);if(!w)return;const fijo=modoBtn.dataset.calmodo==='fijo';if(!!w.fijo===fijo)return;w.fijo=fijo;if(fijo){w.km=0;w.precioKm=0;}renderCalDay('rows');return;}
   if(pickBtn){e.stopPropagation();calOpenPick(pickBtn);return;}
-  if(editBtn){const id=+editBtn.dataset.editr;const r=calDayRepartos().find(x=>x.id===id);if(!r)return;calEditRepId=id;calWork=calBuildWork(r);renderCalDay('edit');return;}
+  if(editBtn){const id=+editBtn.dataset.editr;const r=calDayRepartos().find(x=>x.id===id);if(!r)return;if(_repTieneVinculoFactura(r)){showToast('Esta planilla tiene una factura vinculada. Eliminá primero la factura para cambiar sus líneas.');return;}calEditRepId=id;calWork=calBuildWork(r);renderCalDay('edit');return;}
   if(addBtn){if(!calWork)return;const _es=_calEditSeg[calEditRepId]||'todos';const _sk=_es==='todos'?'local':_es;calWork.unshift({uid:_calUid++,cId:null,trId:null,trDesc:'',tsId:null,tsNombre:'',seg:_sk,rep:'',zona:'',monto:0,precio:0,peso:0,km:0,precioKm:0,obs:null,cant:null,del:false,isNew:true});renderCalDay('add');return;}
   if(cancelBtn){calEditRepId=null;calWork=null;renderCalDay('toggle');return;}
   if(saveBtn){await calSaveEdit();return;}
@@ -5330,6 +5340,7 @@ document.getElementById('calModalBody').addEventListener('click',async e=>{
     return;}
   if(delBtn){
     const id=+delBtn.dataset.delr;
+    const selected=calDayRepartos().find(r=>r.id===id);if(selected&&_repTieneVinculoFactura(selected)){showToast('Esta planilla tiene una factura vinculada. Eliminá primero la factura para borrar sus líneas.');return;}
     if(confirm('¿Eliminar este reparto del historial?')){
       repartos=repartos.filter(r=>r.id!==id);
       dbDeleteReparto(id).catch(()=>showToast('Error al eliminar reparto'));
@@ -7966,11 +7977,12 @@ let _cfReporte={};      // {mes:{...manual...}} desde fact_reporte
 let _cfRepMes=(function(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');})();
 function _cfMonthKeys(){const s=new Set();(repartos||[]).forEach(r=>{const k=(r.fechaISO||'').slice(0,7);if(k)s.add(k);});return[...s].sort().reverse();}
 // ¿La planilla (transportadora dueña del camión + semana) de esta línea tiene factura registrada?
-function _cfFacturada(cl,fechaISO){if(!fechaISO)return false;const wk=(typeof isoWeekRange==='function')?isoWeekRange(fechaISO):null;if(!wk)return false;const own=cl.trId?tsOfTruck(cl.trId):null;const ts=(own&&own.n)||cl.tsNombre||'—';return !!_facByTsSem(ts,wk.desde);}
+function _cfFacturada(cl,fechaISO){if(!fechaISO)return false;const wk=(typeof isoWeekRange==='function')?isoWeekRange(fechaISO):null;if(!wk)return false;const own=cl.trId?tsOfTruck(cl.trId):null;const ts=(own&&own.n)||cl.tsNombre||'—';return !!_facLegacy(ts,wk.desde,(own&&own.id)||cl.tsId);}
 // ¿El reparto está facturado? (por factura_id explícito, o factura legacy de su transportadora+semana)
-function _repFacturado(r){if(!r)return false;if(r.factura_id!=null)return !!_facById(r.factura_id);if(!r.fechaISO)return false;const wk=(typeof isoWeekRange==='function')?isoWeekRange(r.fechaISO):null;if(!wk)return false;return (r.clientes||[]).some(c=>{const own=c.trId?tsOfTruck(c.trId):null;const ts=(own&&own.n)||c.tsNombre||'—';return !!_facLegacy(ts,wk.desde);});}
+function _repFacturado(r){if(!r)return false;if(r.factura_id!=null)return !!_facById(r.factura_id);if(!r.fechaISO)return false;const wk=(typeof isoWeekRange==='function')?isoWeekRange(r.fechaISO):null;if(!wk)return false;return (r.clientes||[]).some(c=>{const own=c.trId?tsOfTruck(c.trId):null;const ts=(own&&own.n)||c.tsNombre||'—';return !!_facLegacy(ts,wk.desde,(own&&own.id)||c.tsId);});}
 // Facturado POR LÍNEA (cliente): usa cl.factura_id, con fallback al del reparto y a legacy por ts+semana.
-function _clFacturado(cl,r){const _repHasCl=r&&(r.clientes||[]).some(c=>c.factura_id!=null);const fid=(cl&&cl.factura_id!=null)?cl.factura_id:(_repHasCl?null:(r&&r.factura_id));if(fid!=null)return !!_facById(fid);if(!r||!r.fechaISO)return false;const wk=(typeof isoWeekRange==='function')?isoWeekRange(r.fechaISO):null;if(!wk)return false;const own=cl.trId?tsOfTruck(cl.trId):null;const ts=(own&&own.n)||cl.tsNombre||'—';return !!_facLegacy(ts,wk.desde);}
+function _clFacturado(cl,r){const _repHasCl=r&&(r.clientes||[]).some(c=>c.factura_id!=null);const fid=(cl&&cl.factura_id!=null)?cl.factura_id:(_repHasCl?null:(r&&r.factura_id));if(fid!=null)return !!_facById(fid);if(!r||!r.fechaISO)return false;const wk=(typeof isoWeekRange==='function')?isoWeekRange(r.fechaISO):null;if(!wk)return false;const own=cl.trId?tsOfTruck(cl.trId):null;const ts=(own&&own.n)||cl.tsNombre||'—';return !!_facLegacy(ts,wk.desde,(own&&own.id)||cl.tsId);}
+function _repTieneVinculoFactura(r){if(!r)return false;if(r.factura_id!=null)return true;return (r.clientes||[]).some(cl=>cl&&(cl.factura_id!=null||_facIdDeLinea(cl,r)!=null));}
 function _cfRepName(n){n=String(n||'').trim();if(!n||/tercerizado/i.test(n)||/^sin\s+repartidor$/i.test(n))return '';return n.toUpperCase();}
 function _cfFleteVal(c){return +(c&&c.precio)||+(c&&c.gasto)||0;}
 function _cfCamCountVal(c){return ((c&&c.seg)||'local')==='transportadora'?(+c.cant||1):1;}
@@ -8784,24 +8796,30 @@ function _facCambios(f){ const c=f&&f.cambios; if(!c)return []; if(Array.isArray
 function _cfFechaHora(ts){ if(!ts)return '—'; const d=new Date(ts); if(isNaN(d))return String(ts).slice(0,16).replace('T',' ');
   const p=n=>String(n).padStart(2,'0'); return p(d.getDate())+'/'+p(d.getMonth()+1)+'/'+d.getFullYear()+' '+p(d.getHours())+':'+p(d.getMinutes()); }
 function _facNorm(t){ return String(t==null?'':t).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
+function _facMismoTs(f,ts,tsId){if(!f)return false;if(f.transportadora_id!=null&&tsId!=null)return String(f.transportadora_id)===String(tsId);return _facNorm(f.transportadora_nombre)===_facNorm(ts);}
 function _wkHasta(sd){const p=sd.split('-').map(Number),d=new Date(p[0],p[1]-1,p[2]+6);return _isoD(d);}
 function _facSem(f){return f.semana_desde||((f.fecha&&typeof isoWeekRange==='function')?isoWeekRange(f.fecha).desde:null);}
 // Flete agregado de un transportista en una semana (para conciliar)
-function _fleteDe(ts,semDesde){let f=0;if(!semDesde)return 0;(repartos||[]).forEach(r=>{const wk=(r.fechaISO&&typeof isoWeekRange==='function')?isoWeekRange(r.fechaISO):null;if(!wk||wk.desde!==semDesde)return;(r.clientes||[]).forEach(cl=>{const own=cl.trId?tsOfTruck(cl.trId):null;const name=(own&&own.n)||cl.tsNombre||'—';if(name===ts)f+=_cfFleteVal(cl);});});return f;}
+function _fleteDe(ts,semDesde,tsId){let f=0;if(!semDesde)return 0;(repartos||[]).forEach(r=>{const wk=(r.fechaISO&&typeof isoWeekRange==='function')?isoWeekRange(r.fechaISO):null;if(!wk||wk.desde!==semDesde)return;(r.clientes||[]).forEach(cl=>{const own=cl.trId?tsOfTruck(cl.trId):null;const name=(own&&own.n)||cl.tsNombre||'—',lineTsId=(own&&own.id)||cl.tsId;const same=tsId!=null&&lineTsId!=null?String(tsId)===String(lineTsId):_facNorm(name)===_facNorm(ts);if(same)f+=_cfFleteVal(cl);});});return f;}
 // Flete real de UNA factura: suma las líneas (clientes) asignadas a esa factura. null si no hay ninguna (factura legacy).
-function _fleteDeFactura(facId){if(facId==null)return null;let f=0,any=false;(repartos||[]).forEach(r=>{(r.clientes||[]).forEach(cl=>{const fid=(cl.factura_id!=null)?cl.factura_id:r.factura_id;if(fid===facId){f+=_cfFleteVal(cl);any=true;}});});return any?f:null;}
+function _fleteDeFactura(facId){if(facId==null)return null;let f=0,any=false;(repartos||[]).forEach(r=>{const repTieneVinculos=(r.clientes||[]).some(c=>c&&c.factura_id!=null);(r.clientes||[]).forEach(cl=>{const fid=(cl.factura_id!=null)?cl.factura_id:(repTieneVinculos?null:r.factura_id);if(fid!=null&&String(fid)===String(facId)){f+=_cfFleteVal(cl);any=true;}});});return any?f:null;}
 // "Cierra" una factura: ata (factura_id) todas las líneas de esa transportadora+semana que aún no
 // tengan factura, para que los repartos que se agreguen después NO la alteren.
-async function _claimLineasFactura(ts,semDesde,facId){
-  const affected=new Set();
+async function _claimLineasFactura(ts,semDesde,facId,tsId){
+  const plans=[];
   (repartos||[]).forEach(r=>{const wk=(r.fechaISO&&typeof isoWeekRange==='function')?isoWeekRange(r.fechaISO):null;if(!wk||wk.desde!==semDesde)return;
-    (r.clientes||[]).forEach(cl=>{const own=cl.trId?tsOfTruck(cl.trId):null;const name=(own&&own.n)||cl.tsNombre||'—';if(name===ts&&cl.factura_id==null){cl.factura_id=facId;affected.add(r.id);}});});
-  for(const rid of affected){const rr=repartos.find(x=>x.id===rid);if(rr){try{await dbUpdateClientes(rid,rr.clientes);}catch(_){}}}
-  return affected.size;
+    const originals=JSON.parse(JSON.stringify(r.clientes||[]));let changed=false;
+    const next=originals.map(cl=>{const own=cl&&cl.trId?tsOfTruck(cl.trId):null;const name=(own&&own.n)||(cl&&cl.tsNombre)||'—',lineTsId=(own&&own.id)||(cl&&cl.tsId);const sameTs=tsId!=null&&lineTsId!=null?String(tsId)===String(lineTsId):_facNorm(name)===_facNorm(ts);const parent=r.factura_id==null||String(r.factura_id)===String(facId);if(cl&&sameTs&&parent&&cl.factura_id==null){cl=Object.assign({},cl,{factura_id:facId});changed=true;}return cl;});
+    if(changed)plans.push({rr:r,originales:originals,next:next,parentFacturaId:r.factura_id||null});});
+  const saved=[];
+  try{for(const p of plans){await dbUpdateFacturaLinks(p.rr.id,p.next,null);p.rr.clientes=p.next;p.rr.factura_id=null;saved.push(p);}}
+  catch(err){let rollbackError=null;for(let i=saved.length-1;i>=0;i--){const p=saved[i];try{await dbUpdateFacturaLinks(p.rr.id,p.originales,p.parentFacturaId);p.rr.clientes=p.originales;p.rr.factura_id=p.parentFacturaId;}catch(e){rollbackError=rollbackError||e;}}
+    if(rollbackError)throw new Error('No pude cerrar la factura y tampoco se pudieron restaurar todos los repartos. Recargá los datos.');throw err;}
+  return plans.length;
 }
 async function _cerrarFactura(f){
   const ts=f.transportadora_nombre||'',sd=f._sd||_facSem(f);if(!ts||!sd){showToast('No pude identificar la planilla de la factura');return;}
-  const n=await _claimLineasFactura(ts,sd,f.id);
+  const n=await _claimLineasFactura(ts,sd,f.id,f.transportadora_id);
   showToast(n?('Factura cerrada: quedó fija con sus '+n+' reparto'+(n===1?'':'s')):'La factura ya estaba cerrada');
   renderFacturas();
 }
@@ -8809,21 +8827,86 @@ async function _cerrarFactura(f){
 function _facLineas(f){
   const out=[];const explicit=_fleteDeFactura(f.id)!=null;
   const ts=f.transportadora_nombre||'';const sd=f._sd||_facSem(f);
+  const legacy=(!explicit&&sd)?_facLegacy(ts,sd,f.transportadora_id):null;
   (repartos||[]).forEach(r=>{
     const wk=(r.fechaISO&&typeof isoWeekRange==='function')?isoWeekRange(r.fechaISO):null;
+    const repTieneVinculos=(r.clientes||[]).some(c=>c&&c.factura_id!=null);
     (r.clientes||[]).forEach(cl=>{
-      const fid=(cl.factura_id!=null)?cl.factura_id:r.factura_id;
+      const fid=(cl.factura_id!=null)?cl.factura_id:(repTieneVinculos?null:r.factura_id);
       let covered;
-      if(explicit){covered=(fid===f.id);}
-      else{const own=cl.trId?tsOfTruck(cl.trId):null;const name=(own&&own.n)||cl.tsNombre||'—';covered=(fid==null&&name===ts&&!!wk&&wk.desde===sd);}
+      if(explicit){covered=(fid!=null&&String(fid)===String(f.id));}
+      else{const own=cl.trId?tsOfTruck(cl.trId):null;const name=(own&&own.n)||cl.tsNombre||'—',lineTsId=(own&&own.id)||cl.tsId;const sameTs=f.transportadora_id!=null&&lineTsId!=null?String(f.transportadora_id)===String(lineTsId):_facNorm(name)===_facNorm(ts);covered=!!legacy&&String(legacy.id)===String(f.id)&&fid==null&&sameTs&&!!wk&&wk.desde===sd;}
       if(covered)out.push({fecha:r.fechaISO,cl:cl});
     });
   });
   out.sort((a,b)=>String(a.fecha||'').localeCompare(String(b.fecha||'')));
   return out;
 }
+// Crea la factura y la vincula a líneas concretas. Ante un error revierte lo ya guardado
+// para no dejar una factura parcialmente asociada.
+async function _cfInsertFacturaConLineas(row,refs){
+  const selected=new Map();
+  (refs||[]).forEach(x=>{const rid=x&&x.repartoId,lid=x&&x.lineId;if(rid==null||lid==null)throw new Error('Una línea seleccionada ya no está disponible.');const k=String(rid);if(!selected.has(k))selected.set(k,new Set());if(selected.get(k).has(String(lid)))throw new Error('Hay una línea duplicada en la selección.');selected.get(k).add(String(lid));});
+  if(!selected.size)throw new Error('Seleccioná al menos una línea pendiente para la factura.');
+  const plans=[];
+  selected.forEach((lineIds,rid)=>{
+    const rr=(repartos||[]).find(x=>String(x.id)===rid);if(!rr)throw new Error('Un reparto seleccionado ya no existe. Actualizá la vista e intentá de nuevo.');
+    const originales=JSON.parse(JSON.stringify(rr.clientes||[]));
+    const matches=originales.filter(c=>lineIds.has(String(c.id)));
+    if(matches.length!==lineIds.size)throw new Error('Una de las líneas cambió. Actualizá la vista e intentá de nuevo.');
+    matches.forEach(cl=>{
+      const linked=_facIdDeLinea(cl,rr);if(linked!=null&&linked!=='__ambigua__'&&linked!=='__huerfana__'&&linked!=='__huérfana__')throw new Error('Una de las líneas ya fue facturada. Actualizá la vista.');
+      const own=cl.trId?tsOfTruck(cl.trId):null,ts=(own&&own.n)||cl.tsNombre||'—',lineTsId=(own&&own.id)||cl.tsId;
+      if(row.transportadora_id!=null&&lineTsId!=null?String(row.transportadora_id)!==String(lineTsId):_facNorm(ts)!==_facNorm(row.transportadora_nombre))throw new Error('Una línea ya no corresponde a la transportadora seleccionada.');
+      if(linked==='__ambigua__')throw new Error('No se puede asignar automáticamente una línea de una semana con varias facturas. Revisá las facturas existentes.');
+      const fecha=String(rr.fechaISO||'').slice(0,10),desde=String(row.semana_desde||''),hasta=String(row.semana_hasta||row.semana_desde||'');
+      if(!fecha||(desde&&fecha<desde)||(hasta&&fecha>hasta))throw new Error('Una línea está fuera del período de la planilla seleccionada.');
+    });
+    plans.push({rr:rr,originales:originales,lineIds:lineIds,parentFacturaId:rr.factura_id||null});
+  });
+  let facId=null;const saved=[];
+  try{
+    let ins=await sb.from('fact_facturas').insert(row).select('id').single();
+    if(ins.error&&row.cambios){const base={};Object.keys(row).forEach(k=>{if(!['motivo_cambio','motivo_nota','cambiada_at','cambios'].includes(k))base[k]=row[k];});ins=await sb.from('fact_facturas').insert(base).select('id').single();if(!ins.error)showToast('Registré la factura, pero no el motivo: falta correr facturas-motivo.sql');}
+    if(ins.error)throw ins.error;facId=ins.data&&ins.data.id;if(facId==null)throw new Error('La base no devolvió el ID de la factura.');
+    for(const p of plans){
+      const next=p.originales.map(c=>p.lineIds.has(String(c.id))?Object.assign({},c,{factura_id:facId}):c);
+      await dbUpdateFacturaLinks(p.rr.id,next,null);
+      p.rr.clientes=next;p.rr.factura_id=null;saved.push(p);
+    }
+    return facId;
+  }catch(err){
+    let rollbackError=null;
+    for(let i=saved.length-1;i>=0;i--){const p=saved[i];try{await dbUpdateFacturaLinks(p.rr.id,p.originales,p.parentFacturaId);p.rr.clientes=p.originales;p.rr.factura_id=p.parentFacturaId;}catch(e){rollbackError=rollbackError||e;}}
+    if(facId!=null){try{const d=await sb.from('fact_facturas').delete().eq('id',facId);if(d.error)throw d.error;}catch(e){rollbackError=rollbackError||e;}}
+    if(rollbackError)throw new Error('No se pudo completar la factura ni revertir todos los vínculos. Recargá y revisá la planilla. Detalle: '+(rollbackError.message||rollbackError));
+    throw err;
+  }
+}
+async function _cfDesvincularYEliminarFactura(facId){
+  const id=String(facId),saved=[];
+  try{
+    for(const rr of (repartos||[])){
+      const parent=rr.factura_id!=null&&String(rr.factura_id)===id;
+      const linked=(rr.clientes||[]).some(c=>c&&c.factura_id!=null&&String(c.factura_id)===id);
+      if(!parent&&!linked)continue;
+      const originales=JSON.parse(JSON.stringify(rr.clientes||[]));
+      const next=originales.map(c=>c&&c.factura_id!=null&&String(c.factura_id)===id?Object.assign({},c,{factura_id:null}):c);
+      const oldParent=rr.factura_id||null;
+      await dbUpdateFacturaLinks(rr.id,next,parent?null:oldParent);
+      rr.clientes=next;if(parent)rr.factura_id=null;saved.push({rr:rr,clientes:originales,parentFacturaId:oldParent});
+    }
+    const d=await sb.from('fact_facturas').delete().eq('id',facId);if(d.error)throw d.error;
+  }catch(err){
+    let rollbackError=null;
+    for(let i=saved.length-1;i>=0;i--){const p=saved[i];try{await dbUpdateFacturaLinks(p.rr.id,p.clientes,p.parentFacturaId);p.rr.clientes=p.clientes;p.rr.factura_id=p.parentFacturaId;}catch(e){rollbackError=rollbackError||e;}}
+    if(rollbackError)throw new Error('No se pudo completar la eliminación ni restaurar todos los vínculos. Recargá y revisá la planilla. Detalle: '+(rollbackError.message||rollbackError));
+    throw err;
+  }
+}
 function _facDetailHtml(f){
   const SN={local:'Local',interior:'Interior',servicios:'Servicios',transportadora:'Transportadora'};
+  const ts=f.transportadora_nombre||'',sd=f._sd||_facSem(f);
   const lines=_facLineas(f);
   const flTot=lines.reduce((s,l)=>s+_cfFleteVal(l.cl),0);
   const monto=+f.monto||0,diff=monto-flTot;
@@ -8834,8 +8917,9 @@ function _facDetailHtml(f){
     return '<tr><td class="c">'+(i+1)+'</td><td>'+_dmy(l.fecha)+'</td><td class="facd-cam">'+cam+'</td><td><span class="facd-seg facd-seg--'+seg+'">'+(SN[seg]||seg)+'</span></td><td class="facd-rz">'+rz+'</td><td class="r facd-fl">'+_gs(_cfFleteVal(cl))+'</td></tr>';
   }).join(''):'<tr><td colspan="6" class="facd-empty">No hay líneas vinculadas a esta factura todavía.</td></tr>';
   const badge=dCls==='ok'?'✓ Conciliada':(dCls==='over'?'▲ Factura mayor al flete':'▼ Factura menor al flete');
-  const legacy=_fleteDeFactura(f.id)==null; // sin líneas atadas → absorbe repartos nuevos
-  const cerrarBtn=legacy?'<button type="button" class="facd-cerrar" data-cerrarfac="'+f.id+'" title="Fijar la factura con sus repartos actuales para que los repartos nuevos no la alteren">'+(dCls==='ok'?'🔒 Cerrar (proteger)':'🔒 Cerrar factura')+'</button>':'';
+  const legacy=_fleteDeFactura(f.id)==null; // sin líneas atadas → factura legacy
+  const legacyUnica=legacy&&String((sd&&_facLegacy(ts,sd,f.transportadora_id)||{}).id||'')===String(f.id);
+  const cerrarBtn=legacyUnica?'<button type="button" class="facd-cerrar" data-cerrarfac="'+f.id+'" title="Fijar la factura con sus repartos actuales para que los repartos nuevos no la alteren">'+(dCls==='ok'?'🔒 Cerrar (proteger)':'🔒 Cerrar factura')+'</button>':'';
   return '<div class="facd">'+
     '<div class="facd-recon">'+
       '<div class="facd-stat"><small>Flete de la planilla</small><b>'+_gs(flTot)+'</b></div>'+
@@ -8846,7 +8930,7 @@ function _facDetailHtml(f){
       cerrarBtn+
       '<div class="facd-badge facd-badge--'+dCls+'">'+badge+'</div>'+
     '</div>'+
-    (legacy?'<div class="facd-hint">Esta factura no tiene repartos atados: hoy compara contra <b>toda</b> la semana, así que un reparto nuevo la puede descuadrar. Con <b>Cerrar</b> queda fija con los repartos actuales.</div>':'')+
+    (legacyUnica?'<div class="facd-hint">Esta factura no tiene repartos atados: hoy compara contra <b>toda</b> la semana, así que un reparto nuevo la puede descuadrar. Con <b>Cerrar</b> queda fija con los repartos actuales.</div>':(legacy?'<div class="facd-hint">Hay más de una factura para esta transportadora y semana sin líneas vinculadas. Revisá la asignación antes de facturar de nuevo.</div>':''))+
     _facHistHtml(f)+
     '<div class="facd-tblwrap"><table class="facd-tbl"><thead><tr><th>#</th><th>Fecha</th><th>Camión</th><th>Segmento</th><th>Repartidor · Zona</th><th class="r">Flete</th></tr></thead><tbody>'+rowsH+'</tbody></table></div>'+
   '</div>';
@@ -8947,27 +9031,39 @@ function _facToggle(tr){
   try{er.scrollIntoView({block:'nearest',behavior:'smooth'});}catch(_){}
 }
 // Estado de la planilla (transportista + semana) según la factura vinculada
-function _facEstadoDe(ts,semDesde){
+function _facEstadoDe(ts,semDesde,tsId){
   if(!semDesde)return{k:'proc',l:'En proceso'};
-  const f=_facByTsSem(ts,semDesde);
+  const f=_facLegacy(ts,semDesde,tsId);
   if(!f)return{k:'proc',l:'En proceso'};
-  return Math.round(+f.monto||0)===Math.round(_fleteDe(ts,semDesde))?{k:'ok',l:'Conciliada'}:{k:'diff',l:'Con diferencia'};
+  return Math.round(+f.monto||0)===Math.round(_fleteDe(ts,semDesde,tsId))?{k:'ok',l:'Conciliada'}:{k:'diff',l:'Con diferencia'};
 }
 // ¿La planilla (transportista + semana) tiene una factura registrada?
-function _facRegistradaDe(ts,semDesde){if(!semDesde)return false;return !!_facByTsSem(ts,semDesde);}
+function _facRegistradaDe(ts,semDesde,tsId){if(!semDesde)return false;return !!_facLegacy(ts,semDesde,tsId);}
 // Monto de la factura registrada de una planilla (null si no hay)
-function _facMontoDe(ts,semDesde){if(!semDesde)return null;const f=_facByTsSem(ts,semDesde);return f?(+f.monto||0):null;}
+function _facMontoDe(ts,semDesde,tsId){if(!semDesde)return null;const f=_facLegacy(ts,semDesde,tsId);return f?(+f.monto||0):null;}
 // ¿La transportadora ya tiene facturas explícitas (por reparto) en esa semana? (split iniciado)
-function _tsFacSplit(ts,semDesde){if(!semDesde)return false;return (repartos||[]).some(r=>{if(!r.fechaISO)return false;const wk=(typeof isoWeekRange==='function')?isoWeekRange(r.fechaISO):null;if(!wk||wk.desde!==semDesde)return false;
-  // Factura a nivel reparto (legacy viejo)
-  if(r.factura_id!=null){const f=_facById(r.factura_id);if(f&&(f.transportadora_nombre||'')===ts)return true;}
-  // Factura POR LÍNEA (flujo nuevo): si ALGUNA línea de esta transportadora ya tiene factura_id,
-  // esta semana ya usa facturación por-línea → se apaga el match "legacy" (que absorbía repartos nuevos).
-  return (r.clientes||[]).some(cl=>{if(cl.factura_id==null)return false;const own=cl.trId?tsOfTruck(cl.trId):null;const cts=(own&&own.n)||cl.tsNombre||'—';if(cts!==ts)return false;const f=_facById(cl.factura_id);return f&&(f.transportadora_nombre||'')===ts;});});}
+function _tsFacSplit(ts,semDesde,tsId){if(!semDesde)return false;return (repartos||[]).some(r=>{if(!r.fechaISO)return false;const wk=(typeof isoWeekRange==='function')?isoWeekRange(r.fechaISO):null;if(!wk||wk.desde!==semDesde)return false;
+  const repTieneVinculos=(r.clientes||[]).some(c=>c&&c.factura_id!=null);
+  if(!repTieneVinculos&&r.factura_id!=null){const f=_facById(r.factura_id);if(_facMismoTs(f,ts,tsId))return true;}
+  return (r.clientes||[]).some(cl=>{if(cl.factura_id==null)return false;const own=cl.trId?tsOfTruck(cl.trId):null,cts=(own&&own.n)||cl.tsNombre||'—',cid=(own&&own.id)||cl.tsId;const sameLine=tsId!=null&&cid!=null?String(tsId)===String(cid):_facNorm(cts)===_facNorm(ts);return sameLine&&_facMismoTs(_facById(cl.factura_id),ts,tsId);});});}
 // Factura "legacy" (por ts+semana) que cubre lo pendiente, salvo que ya se esté dividiendo esa semana.
-function _facLegacy(ts,semDesde){if(!semDesde||_tsFacSplit(ts,semDesde))return null;return _facByTsSem(ts,semDesde)||null;}
+function _facLegacy(ts,semDesde,tsId){if(!semDesde||_tsFacSplit(ts,semDesde,tsId))return null;return _facByTsSem(ts,semDesde,tsId)||null;}
+// Devuelve el ID de factura de una línea. Los vínculos huérfanos y las semanas legacy
+// ambiguas se bloquean para no ofrecerlas como pendientes y volver a facturarlas.
+function _facIdDeLinea(cl,r){
+  if(!cl||!r)return null;
+  const repTieneVinculos=(r.clientes||[]).some(x=>x&&x.factura_id!=null);
+  const raw=(cl.factura_id!=null)?cl.factura_id:(repTieneVinculos?null:r.factura_id);
+  if(raw!=null){const f=_facById(raw);return f?f.id:'__huerfana__';}
+  if(!r.fechaISO)return null;
+  const wk=(typeof isoWeekRange==='function')?isoWeekRange(r.fechaISO):null;if(!wk)return null;
+  const own=cl.trId?tsOfTruck(cl.trId):null,ts=(own&&own.n)||cl.tsNombre||'—';
+  const tsId=(own&&own.id)||cl.tsId;if(_tsFacSplit(ts,wk.desde,tsId))return null;
+  if(_facCountByTsSem(ts,wk.desde,tsId)>1)return '__ambigua__';
+  const legacy=_facLegacy(ts,wk.desde,tsId);return legacy?legacy.id:null;
+}
 // Factura del grupo: por factura_id explícito, o legacy (ts+semana) si no hay split.
-function _facDeGrupo(g){if(!g)return null;if(g.facturaId!=null)return _facById(g.facturaId);return _facLegacy(g.ts,g.semDesde);}
+function _facDeGrupo(g){if(!g)return null;if(g.facturaId!=null)return _facById(g.facturaId);return _facLegacy(g.ts,g.semDesde,g.tsId);}
 // Chip binario Falta/Registrada para una tarjeta de planilla — según la factura del grupo
 function _facChipDe(g,semDesde){
   if(semDesde){return _facDeGrupo(g)
@@ -8975,32 +9071,34 @@ function _facChipDe(g,semDesde){
     :'<span class="cf-chip falta"><i class="cf-dot"></i>Falta factura</span>';}
   const wks=[...new Set((g.reps||[]).map(r=>(r.fechaISO&&typeof isoWeekRange==='function')?isoWeekRange(r.fechaISO).desde:null).filter(Boolean))];
   if(!wks.length)return '';
-  const falt=wks.filter(w=>!_facRegistradaDe(g.ts,w)).length;
+  const falt=wks.filter(w=>!_facRegistradaDe(g.ts,w,g.tsId)).length;
   if(!falt)return '<span class="cf-chip reg"><i class="cf-dot"></i>Facturas registradas</span>';
   return '<span class="cf-chip falta"><i class="cf-dot"></i>Falta '+falt+' factura'+(falt===1?'':'s')+'</span>';
 }
 // Planillas (transportista × semana) para el mes/semana dados
-function _planillasDe(mes,weekDesde,mesCut){
+function _planillasDe(mes,weekDesde,mesCut,opts){
+  opts=opts||{};
   const groups={};
   (repartos||[]).forEach(r=>{
     const wk=(r.fechaISO&&typeof isoWeekRange==='function')?isoWeekRange(r.fechaISO):null;if(!wk)return;
     if(mesCut&&(r.fechaISO||'').slice(0,7)!==mesCut)return;
     if(weekDesde){if(wk.desde!==weekDesde)return;}else if(mes){if((r.fechaISO||'').slice(0,7)!==mes)return;}
-    (r.clientes||[]).forEach(cl=>{const own=cl.trId?tsOfTruck(cl.trId):null;const ts=(own&&own.n)||cl.tsNombre||'—';const k=ts+'|'+wk.desde;const g=groups[k]||(groups[k]={ts:ts,semDesde:wk.desde,semHasta:wk.hasta,cam:0,monto:0,flete:0});g.cam+=_cfCamCountVal(cl);g.monto+=+cl.monto||0;g.flete+=_cfFleteVal(cl);});
+    (r.clientes||[]).forEach(cl=>{if(opts.pendingOnly&&_facIdDeLinea(cl,r)!=null)return;const own=cl.trId?tsOfTruck(cl.trId):null;const ts=(own&&own.n)||cl.tsNombre||'—';const tsId=(own&&own.id)||cl.tsId;const k=(tsId!=null?'i:'+String(tsId):'n:'+_facNorm(ts))+'|'+wk.desde;const g=groups[k]||(groups[k]={ts:ts,tsId:tsId,semDesde:wk.desde,semHasta:wk.hasta,cam:0,monto:0,flete:0,lines:[]});g.cam+=_cfCamCountVal(cl);g.monto+=+cl.monto||0;g.flete+=_cfFleteVal(cl);g.lines.push({repartoId:r.id,fechaISO:r.fechaISO,cl:cl});});
   });
-  return Object.values(groups).sort((a,b)=>b.flete-a.flete);
+  return Object.values(groups).filter(g=>!opts.pendingOnly||g.lines.length>0).sort((a,b)=>b.flete-a.flete);
 }
 
 async function renderFacturas(){
   const host=document.getElementById('factHost');if(!host)return;
   let facs=[];try{const res=await sb.from('fact_facturas').select('*').order('id',{ascending:false});facs=res.data||[];}catch(e){console.error('[facturas]',e);}
   window.__cfFac=facs;
+  try{await _cfMigrateLegacyPerLine();}catch(e){console.error('[migración de facturas legacy]',e);showToast('No pude fijar algunos vínculos antiguos; revisá la conexión e intentá de nuevo.');}
   const weeks=_weeksOfMonth(_facMes);
   // "Mes completo" = cualquier semana del mes en vista (incluye la semana que arranca el mes anterior,
   // ej. 31/08–06/09 cuenta en septiembre), igual que los chips de semana. Evita que desaparezcan facturas.
   var _wkSet={}; weeks.forEach(function(w){ _wkSet[w.desde]=1; });
   const shown=facs.filter(f=>{const sd=_facSem(f);if(!sd)return false;return _facWeek?sd===_facWeek:!!_wkSet[sd];});
-  shown.forEach(f=>{const ts=f.transportadora_nombre||'',sd=_facSem(f);let fl=_fleteDeFactura(f.id);if(fl==null)fl=(ts&&sd)?_fleteDe(ts,sd):0;f._flete=fl;f._sd=sd;f._st=(ts&&sd)?(Math.round(+f.monto||0)===Math.round(fl)?'ok':'diff'):'sin';});
+  shown.forEach(f=>{const ts=f.transportadora_nombre||'',sd=_facSem(f);let fl=_fleteDeFactura(f.id);if(fl==null){const legacy=(ts&&sd)?_facLegacy(ts,sd,f.transportadora_id):null;fl=legacy&&String(legacy.id)===String(f.id)?_fleteDe(ts,sd,f.transportadora_id):0;}f._flete=fl;f._sd=sd;f._st=(ts&&sd)?(Math.round(+f.monto||0)===Math.round(fl)?'ok':'diff'):'sin';});
   const totalFact=shown.reduce((s,f)=>s+(+f.monto||0),0),nOk=shown.filter(f=>f._st==='ok').length,nDiff=shown.filter(f=>f._st==='diff').length,nSin=shown.filter(f=>f._st==='sin').length;
   // Los KPI cuentan todo el período; la tabla muestra lo que queda después de filtrar.
   const _q=_facNorm(_facQ);
@@ -9066,8 +9164,8 @@ async function renderFacturas(){
 }
 
 function _cfDeleteFactura(id){
-  _cfConfirm('¿Eliminar esta factura?','No se puede deshacer. La planilla vuelve a quedar sin facturar.',async()=>{
-    try{const d=await sb.from('fact_facturas').delete().eq('id',id);if(d.error)throw d.error;showToast('Listo, borré la factura');renderFacturas();}catch(e){showToast('Uy, no pude borrar la factura');}
+  _cfConfirm('¿Eliminar esta factura?','Se desvincularán sus líneas y volverán a quedar pendientes.',async()=>{
+    try{await _cfDesvincularYEliminarFactura(id);window.__cfFac=(window.__cfFac||[]).filter(f=>String(f.id)!==String(id));showToast('Factura eliminada; sus líneas volvieron a quedar pendientes');await renderFacturas();const v=document.getElementById('viewRrep');if(v&&v.classList.contains('is-active'))renderReporteRepartos();}catch(e){console.error('[eliminar factura]',e);showToast((e&&e.message)||'No pude eliminar la factura; no cambié sus vínculos');}
   });
 }
 
@@ -9252,21 +9350,22 @@ function _cfOpenFacturaModal(existing,preset){
     // Si la factura tiene líneas atadas (por-línea), comparar contra ESAS líneas, no contra toda
     // la transportadora+semana (que incluiría repartos que no son de esta factura).
     const _facFl=_fleteDeFactura(existing.id);
-    sel={ts:existing.transportadora_nombre,semDesde:sd,semHasta:existing.semana_hasta||_wkHasta(sd),flete:(_facFl!=null?_facFl:_fleteDe(existing.transportadora_nombre,sd))};
+    const owner=(transportistas||[]).find(t=>_facNorm(t.n)===_facNorm(existing.transportadora_nombre));
+    sel={ts:existing.transportadora_nombre,tsId:existing.transportadora_id||(owner&&owner.id)||null,semDesde:sd,semHasta:existing.semana_hasta||_wkHasta(sd),flete:(_facFl!=null?_facFl:_fleteDe(existing.transportadora_nombre,sd,existing.transportadora_id||(owner&&owner.id)))};
   }
   if(!sel&&preset&&preset.ts&&preset.semDesde){
     // Si viene desde una planilla PENDIENTE, usar su flete (solo esas líneas), no el de toda la
     // transportadora+semana (que sumaría también las líneas de la planilla ya cerrada).
-    sel={ts:preset.ts,semDesde:preset.semDesde,semHasta:preset.semHasta||_wkHasta(preset.semDesde),flete:(preset.flete!=null?+preset.flete:_fleteDe(preset.ts,preset.semDesde))};
+    sel={ts:preset.ts,tsId:preset.tsId||null,semDesde:preset.semDesde,semHasta:preset.semHasta||_wkHasta(preset.semDesde),flete:(preset.flete!=null?+preset.flete:_fleteDe(preset.ts,preset.semDesde,preset.tsId))};
   }
   // "Bloqueado" = vino desde una planilla: la planilla ya está fija (sin "Cambiar") y el botón dice "Regresar"
   const locked=!editing&&!!(preset&&preset.ts&&preset.semDesde);
-  const repsList=(!editing&&preset&&preset.reps&&preset.reps.length)?preset.reps.slice():null;
+  let repsList=(!editing&&preset&&preset.reps&&preset.reps.length)?preset.reps.slice():null;
   // preSel: la selección ya se hizo con los check verde/azul de la planilla → acá solo se muestra en lectura
-  const preSel=!!(repsList&&preset&&preset.preselected);
+  let preSel=!!(repsList&&preset&&preset.preselected);
   let repSel=repsList?new Set(repsList.map(r=>r.id)):null;
   const repFlete=()=>repsList?repsList.filter(r=>repSel.has(r.id)).reduce((s,r)=>s+(+r.flete||0),0):(sel?sel.flete:0);
-  const subTxt=editing?'Cambiá lo que haga falta. Si modificás el Nº, el monto o la fecha vas a tener que indicar el motivo.'
+  const subTxt=editing?'Cambiá el Nº, monto o fecha. La planilla queda fija para conservar sus líneas vinculadas.'
     :(locked?'Cargá los datos de la factura para esta planilla.':'Cargá los datos y elegí la planilla (transportista + semana) que corresponde.');
   // Al editar: bloque de motivo del cambio. Solo se exige si algún dato cambió.
   const motivoSec=editing?('<div class="cf-sec cf-sec--mot" id="cf_motsec"><div class="cf-sec__t">'+_ic('doc')+'Motivo del cambio</div>'+
@@ -9288,7 +9387,7 @@ function _cfOpenFacturaModal(existing,preset){
       '<div class="cf-fld" data-fld><button type="button" class="cf-plbtn" id="cf_plbtn"></button><span class="cf-fld__err"></span></div>'+
       '<div class="cf-live neutral" id="cf_flive">Elegí la planilla y el monto para compararlo con el flete.</div>'+
     '</div>'+
-    (repsList?'<div class="cf-sec"><div class="cf-sec__t">'+_ic('truck')+(preSel?'Repartos incluidos':'Repartos a facturar')+'</div><div class="cf-reps'+(preSel?' cf-reps--ro':'')+'" id="cf_reps"></div></div>':'')+
+    (repsList?'<div class="cf-sec" id="cf_reps_section"><div class="cf-sec__t">'+_ic('truck')+(preSel?'Repartos incluidos':'Repartos a facturar')+'</div><div class="cf-reps'+(preSel?' cf-reps--ro':'')+'" id="cf_reps"></div></div>':'')+
     motivoSec+
     '<div class="cf-mfoot"><button class="cancel">'+(locked?'Regresar':'Cancelar')+'</button><button class="ok">'+(editing?'Guardar cambios':'Guardar factura')+'</button></div></div>');
   const nroI=m.$('#cf_fnro'),feI=m.$('#cf_ffecha'),mo=m.$('#cf_fmonto'),plBtn=m.$('#cf_plbtn'),live=m.$('#cf_flive');
@@ -9296,10 +9395,10 @@ function _cfOpenFacturaModal(existing,preset){
   feI.value=(editing&&existing.fecha)?existing.fecha:(typeof todayISO==='function'?todayISO():new Date().toISOString().slice(0,10));
   if(editing){nroI.value=existing.nro||'';mo.value=existing.monto?_nnum(existing.monto):'';}
   function renderPlBtn(){
-    if(sel){plBtn.classList.add('set');plBtn.innerHTML='<span class="cf-plbtn__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6.5" width="12" height="9" rx="1"/><path d="M13.5 9h4.2l3.3 3.3V15.5h-7.5z"/><circle cx="6" cy="17.5" r="1.8"/><circle cx="17.5" cy="17.5" r="1.8"/></svg></span><span class="cf-plbtn__main"><span class="cf-plbtn__ts">'+_escp(sel.ts)+'</span><span class="cf-plbtn__sub">'+_dispD(sel.semDesde)+' al '+_dispD(sel.semHasta)+' · flete '+_gs(repFlete())+'</span></span>'+(locked?'':'<span class="cf-plbtn__act">Cambiar</span>');}
+    if(sel){plBtn.classList.add('set');plBtn.innerHTML='<span class="cf-plbtn__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6.5" width="12" height="9" rx="1"/><path d="M13.5 9h4.2l3.3 3.3V15.5h-7.5z"/><circle cx="6" cy="17.5" r="1.8"/><circle cx="17.5" cy="17.5" r="1.8"/></svg></span><span class="cf-plbtn__main"><span class="cf-plbtn__ts">'+_escp(sel.ts)+'</span><span class="cf-plbtn__sub">'+_dispD(sel.semDesde)+' al '+_dispD(sel.semHasta)+' · flete '+_gs(repFlete())+'</span></span>'+((locked||editing)?'':'<span class="cf-plbtn__act">Cambiar</span>');}
     else{plBtn.classList.remove('set');plBtn.innerHTML='<span class="cf-plbtn__ph">— Elegir planilla —</span><span class="cf-plbtn__act">Elegir</span>';}
   }
-  if(locked){plBtn.disabled=true;plBtn.classList.add('cf-plbtn--locked');}
+  if(locked||editing){plBtn.disabled=true;plBtn.classList.add('cf-plbtn--locked');}
   function updLive(){const wasOk=live.classList.contains('ok');const v=parseInt(mo.value.replace(/[^\d]/g,''),10)||0;if(!sel){live.className='cf-live neutral';live.textContent='Elegí la planilla y el monto para compararlo con el flete.';return;}if(!v){live.className='cf-live neutral';live.textContent='Ingresá el monto para compararlo con el flete ('+_gs(repFlete())+').';return;}if(Math.round(v)===Math.round(repFlete())){live.className='cf-live ok';live.innerHTML='<span class="cf-live__badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span><span class="cf-live__t">¡Coincide con el flete!</span><span class="cf-live__s">La factura quedará conciliada</span>';if(!wasOk){const g=window.gsap;if(g){const bdg=live.querySelector('.cf-live__badge'),pth=live.querySelector('svg path');g.fromTo(live,{scale:.92},{scale:1,duration:.5,ease:'back.out(2)',clearProps:'transform'});if(bdg)g.fromTo(bdg,{scale:0,rotate:-30},{scale:1,rotate:0,duration:.6,ease:'back.out(3)',delay:.04,clearProps:'transform'});if(pth&&pth.getTotalLength){const L=pth.getTotalLength();g.fromTo(pth,{strokeDasharray:L,strokeDashoffset:L},{strokeDashoffset:0,duration:.42,delay:.24,ease:'power2.out'});}g.from(live.querySelectorAll('.cf-live__t,.cf-live__s'),{opacity:0,y:8,duration:.4,stagger:.06,delay:.2,ease:'power2.out',clearProps:'all'});}}}else{live.className='cf-live diff';live.textContent='▲ No coincide: flete '+_gs(repFlete())+' vs factura '+_gs(v)+'.';}}
   function renderReps(){const host=m.$('#cf_reps');if(!host)return;
     if(preSel){host.innerHTML=repsList.map(r=>{const dd=r.fechaISO?String(r.fechaISO).slice(0,10).split('-').reverse().join('/'):'—';return '<div class="cf-rep cf-rep--ro on"><span class="cf-rep__chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></span><span class="cf-rep__d">'+dd+'</span><span class="cf-rep__f">'+_gs(+r.flete||0)+'</span></div>';}).join('')+'<div class="cf-rep-sum"><span>Total a facturar</span><b>'+_gs(repFlete())+'</b></div>';return;}
@@ -9336,7 +9435,7 @@ function _cfOpenFacturaModal(existing,preset){
   });
   if(editing)feI.addEventListener('change',updMot);
   renderPlBtn();updLive();updMot();if(repsList)renderReps();
-  plBtn.addEventListener('click',()=>_facPlanillaPicker(pick=>{sel=pick;_cfClearVal(plF);renderPlBtn();updLive();}));
+  plBtn.addEventListener('click',()=>_facPlanillaPicker(pick=>{sel=pick;repsList=(pick.reps||[]).slice();preSel=!!(repsList&&repsList.length);repSel=preSel?new Set(repsList.map(r=>r.id)):null;if(preSel&&!m.$('#cf_reps_section')){const ps=m.$('.cf-sec--pl');if(ps)ps.insertAdjacentHTML('afterend','<div class="cf-sec" id="cf_reps_section"><div class="cf-sec__t">'+_ic('truck')+'Repartos incluidos</div><div class="cf-reps cf-reps--ro" id="cf_reps"></div></div>');}_cfClearVal(plF);renderPlBtn();renderReps();updLive();}));
   nroI.addEventListener('input',()=>{nroI.value.trim()?_cfSetOk(nroF):_cfClearVal(nroF);updMot();});
   mo.addEventListener('input',()=>{const n=parseInt(mo.value.replace(/[^\d]/g,''),10)||0;mo.value=n?_nnum(n):'';n>0?_cfSetOk(moF):_cfClearVal(moF);updLive();updMot();});
   m.$('.cancel').addEventListener('click',()=>{m.close();if(locked&&preset&&typeof preset.onBack==='function')setTimeout(preset.onBack,150);});
@@ -9377,7 +9476,7 @@ function _cfOpenFacturaModal(existing,preset){
       }
     }
     const okB=m.$('button.ok'),okTxt=editing?'Guardar cambios':'Guardar factura';if(okB){okB.disabled=true;okB.classList.add('is-loading');okB.innerHTML='<span class="cf-spin"></span>Guardando…';}
-    const row={nro:nro,fecha:fecha,monto:monto,transportadora_nombre:sel.ts,semana_desde:sel.semDesde,semana_hasta:sel.semHasta};
+    const row={nro:nro,fecha:fecha,monto:monto,transportadora_id:sel.tsId||((transportistas||[]).find(t=>_facNorm(t.n)===_facNorm(sel.ts))||{}).id||null,transportadora_nombre:sel.ts,semana_desde:sel.semDesde,semana_hasta:sel.semHasta};
     if(_hist)Object.assign(row,_hist);
     // Registrada con diferencia aceptada: queda como primera entrada del historial.
     if(!editing&&_obsAlta&&_obsAlta.motivo){
@@ -9397,11 +9496,8 @@ function _cfOpenFacturaModal(existing,preset){
           if(!up.error)showToast('Guardé el cambio, pero no el motivo: falta correr facturas-motivo.sql');
         }
         if(up.error)throw up.error;if(!up.data||!up.data.length){showToast('No pude actualizar la factura (no se encontró o sin permisos).');if(okB){okB.disabled=false;okB.classList.remove('is-loading');okB.textContent=okTxt;}return;}m.close();try{_cfCheckBurst('Registrado',true);}catch(_){}}
-      else{let ins=await sb.from('fact_facturas').insert(row).select('id').single();
-        if(ins.error&&row.cambios){ const base={};Object.keys(row).forEach(function(k){if(k!=='motivo_cambio'&&k!=='motivo_nota'&&k!=='cambiada_at'&&k!=='cambios')base[k]=row[k];});
-          ins=await sb.from('fact_facturas').insert(base).select('id').single();
-          if(!ins.error)showToast('Registré la factura, pero no el motivo: falta correr facturas-motivo.sql'); }
-        if(ins.error)throw ins.error;const facId=ins.data&&ins.data.id;_newFacId=facId;if(repsList&&facId!=null){const _aff=new Set();for(const rp of repsList){if(!repSel.has(rp.id))continue;if(rp.cl){rp.cl.factura_id=facId;if(rp.repId!=null)_aff.add(rp.repId);}else{try{await dbSetRepartoFactura(rp.id,facId);const rr=repartos.find(x=>x.id===rp.id);if(rr)rr.factura_id=facId;}catch(_){}}}for(const rid of _aff){const rr=repartos.find(x=>x.id===rid);if(rr){try{await dbUpdateClientes(rid,rr.clientes);}catch(_){}}}}else if(facId!=null&&sel){await _claimLineasFactura(sel.ts,sel.semDesde,facId);}m.close();_cfCheckBurst('Registrado',true);}
+      else{const refs=(repsList||[]).filter(r=>repSel&&repSel.has(r.id)&&r.cl&&r.repId!=null).map(r=>({repartoId:r.repId,lineId:r.cl.id}));
+        const facId=await _cfInsertFacturaConLineas(row,refs);_newFacId=facId;m.close();_cfCheckBurst('Registrado',true);}
       // Recarga facturas para refrescar chips/estado antes de volver a la vista.
       try{const fr=await sb.from('fact_facturas').select('*');window.__cfFac=fr.data||[];}catch(_){window.__cfFac=null;}
       // Al registrar desde una planilla se QUEDA en la planilla (ya facturada) para imprimir
@@ -9421,14 +9517,14 @@ function _facPlanillaPicker(onPick){
     if(pw===undefined){const t=_isoD(new Date());const c=weeks.find(w=>t>=w.desde&&t<=w.hasta);pw=c?c.desde:(weeks[0]?weeks[0].desde:null);}
     const nav='<div class="rr-mnav"><button data-pm="-1">‹</button><span>'+_mesLbl(pm)+'</span><button data-pm="1">›</button></div>';
     const chips='<div class="rr-chips"><button class="rr-chip'+(!pw?' on':'')+'" data-pw="">Mes completo</button>'+weeks.map(w=>'<button class="rr-chip'+(pw===w.desde?' on':'')+'" data-pw="'+w.desde+'">'+_shD(w.desde)+'–'+_shD(w.hasta)+'</button>').join('')+'</div>';
-    const groups=_planillasDe(pm,pw);
+    const groups=_planillasDe(pm,pw,null,{pendingOnly:true});
     let grid;
-    if(!groups.length)grid='<div class="cf-empty" style="padding:30px"><b>Sin planillas en este período</b><span>Cambiá de mes o semana.</span></div>';
+    if(!groups.length)grid='<div class="cf-empty" style="padding:30px"><b>Sin líneas pendientes para facturar</b><span>Las líneas ya facturadas no se vuelven a incluir.</span></div>';
     else grid='<div class="fac-pick-grid">'+groups.map((g,i)=>'<button type="button" class="rr-card" data-pick="'+i+'" style="cursor:pointer;text-align:left;font:inherit;width:100%"><div class="rr-card__ts">'+_escp(g.ts)+'</div><div class="rr-card__pd">'+_dispD(g.semDesde)+' al '+_dispD(g.semHasta)+'</div><div class="rr-card__foot"><div><b>'+g.cam+'</b><span>Camiones</span></div><div style="text-align:right"><b>'+_gs(g.flete)+'</b><span>Flete</span></div></div></button>').join('')+'</div>';
     m.$('#fp_body').innerHTML='<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">'+nav+'</div>'+chips+grid;
     m.$('#fp_body').querySelectorAll('[data-pm]').forEach(b=>b.addEventListener('click',()=>{const a=pm.split('-').map(Number),d=new Date(a[0],a[1]-1+(+b.dataset.pm),1);pm=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');pw=null;draw();}));
     m.$('#fp_body').querySelectorAll('[data-pw]').forEach(b=>b.addEventListener('click',()=>{pw=b.dataset.pw||null;draw();}));
-    m.$('#fp_body').querySelectorAll('[data-pick]').forEach(b=>b.addEventListener('click',()=>{const g=groups[+b.dataset.pick];m.close();onPick({ts:g.ts,semDesde:g.semDesde,semHasta:g.semHasta,flete:g.flete});}));
+    m.$('#fp_body').querySelectorAll('[data-pick]').forEach(b=>b.addEventListener('click',()=>{const g=groups[+b.dataset.pick];m.close();onPick({ts:g.ts,tsId:g.tsId,semDesde:g.semDesde,semHasta:g.semHasta,flete:g.flete,reps:g.lines.map(x=>({id:x.cl.id,repId:x.repartoId,cl:x.cl,fechaISO:x.fechaISO,flete:_cfFleteVal(x.cl)})),preselected:true});}));
     if(window.gsap)gsap.from(m.$('#fp_body').querySelectorAll('.rr-card'),{opacity:0,y:12,duration:.34,stagger:.03,ease:'power2.out',clearProps:'all'});
   }
   draw();
@@ -9482,7 +9578,7 @@ function _rrDaysIdx(quiero){
     const _sg2=_rrSegActivo();
     (r.clientes||[]).forEach(cl=>{ if(_sg2!=='todos'&&(cl.seg||'local')!==_sg2) return;
       const own=cl.trId?tsOfTruck(cl.trId):null; const ts=(own&&own.n)||cl.tsNombre||'—'; const tsId=(own&&own.id)||cl.tsId;
-      let g=d.groups[ts]; if(!g){ g=d.groups[ts]={ts:ts,tsId:tsId,facturaId:null,semDesde:isoWeekRange(dia).desde,lines:[],monto:0,flete:0,reps:[]}; d.order.push(ts); }
+      const key=tsId!=null?'i:'+String(tsId):'n:'+_facNorm(ts);let g=d.groups[key]; if(!g){ g=d.groups[key]={ts:ts,tsId:tsId,facturaId:null,semDesde:isoWeekRange(dia).desde,lines:[],monto:0,flete:0,reps:[]}; d.order.push(key); }
       cl._fecha=r.fechaISO||r.fecha||null; cl._repId=r.id; g.lines.push(cl); g.monto+=+cl.monto||0; g.flete+=_cfFleteVal(cl);
       if(!g.reps.some(x=>x.id===r.id)) g.reps.push({id:r.id,fecha:r.fecha,fechaISO:r.fechaISO,factura_id:r.factura_id});
     });
@@ -9504,7 +9600,7 @@ function _weeksOfMonth(mk){const a=mk.split('-').map(Number),y=a[0],mo=a[1];cons
    corta por semana ni por mes, sólo por fecha y por factura.
    Sólo entran las líneas que pertenecen a la MISMA factura que la planilla
    (o ninguna, si todavía está pendiente): nunca una ya facturada en otra planilla. */
-function _rrRangeLines(ts,desde,hasta,facId){
+function _rrRangeLines(ts,desde,hasta,facId,tsId){
   const lines=[],reps=[];
   const want=(facId==null)?null:facId;
   (repartos||[]).forEach(r=>{
@@ -9513,11 +9609,11 @@ function _rrRangeLines(ts,desde,hasta,facId){
     const _repHasCl=(r.clientes||[]).some(c=>c.factura_id!=null);
     (r.clientes||[]).forEach(cl=>{
       const own=cl.trId?tsOfTruck(cl.trId):null;
-      const nm=(own&&own.n)||cl.tsNombre||'—';
-      if(nm!==ts)return;
+      const nm=(own&&own.n)||cl.tsNombre||'—',lineTsId=(own&&own.id)||cl.tsId;
+      const sameTs=tsId!=null&&lineTsId!=null?String(tsId)===String(lineTsId):_facNorm(nm)===_facNorm(ts);if(!sameTs)return;
       const rawFid=(cl.factura_id!=null)?cl.factura_id:(_repHasCl?null:r.factura_id);
       let fid=null;
-      if(rawFid!=null){const _f=_facById(rawFid);if(_f&&(_f.transportadora_nombre||'')===nm)fid=rawFid;}
+      if(rawFid!=null){const _f=_facById(rawFid);if(_facMismoTs(_f,nm,(own&&own.id)||cl.tsId||tsId))fid=rawFid;}
       if(fid!==want)return;
       cl._fecha=r.fechaISO||r.fecha||null;cl._repId=r.id;
       lines.push(cl);
@@ -9545,10 +9641,10 @@ function _rrMergeByFactura(list){
   (list||[]).forEach(g=>{
     const p=_rrFacPeriodo(g);
     if(!_rrEsMultiSemana(p)){out.push(g);return;}
-    const key=g.ts+'|'+g.facturaId;
+    const key=String(g.facturaId);
     if(seen[key])return;
     seen[key]=1;
-    const rr=_rrRangeLines(g.ts,p.desde,p.hasta,g.facturaId);
+    const rr=_rrRangeLines(g.ts,p.desde,p.hasta,g.facturaId,g.tsId);
     if(!rr.lines.length){out.push(g);return;}
     const first=String(rr.lines[0]._fecha||'').slice(0,7);
     if(first&&first!==_rrMes)return;                 // se muestra sólo en el mes donde arranca
@@ -9601,8 +9697,8 @@ function _rrGroups(weekDesde){
       // Factura POR LÍNEA (cliente): cada camión/línea puede entrar en distinta factura.
       // Fallback al factura_id del reparto para las facturas viejas (registradas por fecha).
       const rawFid=(cl.factura_id!=null)?cl.factura_id:(_repHasCl?null:r.factura_id);
-      let fid=null;if(rawFid!=null){const _f=_facById(rawFid);if(_f&&(_f.transportadora_nombre||'')===ts)fid=rawFid;}
-      const key=ts+'|'+(fid==null?'':fid);
+      let fid=null;if(rawFid!=null){const _f=_facById(rawFid);if(_facMismoTs(_f,ts,tsId))fid=rawFid;}
+      const key=(tsId!=null?'i:'+String(tsId):'n:'+_facNorm(ts))+'|'+(fid==null?'':String(fid));
       const g=groups[key]||(groups[key]={ts:ts,tsId:tsId,facturaId:fid,semDesde:(weekDesde||(wk?wk.desde:null)),lines:[],monto:0,flete:0,reps:[]});cl._fecha=r.fechaISO||r.fecha||null;cl._repId=r.id;g.lines.push(cl);g.monto+=+cl.monto||0;g.flete+=_cfFleteVal(cl);if(!g.reps.some(x=>x.id===r.id))g.reps.push({id:r.id,fecha:r.fecha,fechaISO:r.fechaISO,factura_id:fid});});
   });
   return Object.values(groups).sort((a,b)=>b.flete-a.flete);
@@ -9612,29 +9708,42 @@ function _rrGroups(weekDesde){
 // conciliado); las líneas en Gs 0 quedan SUELTAS (pendientes) para que un reparto agregado después
 // NO quede dentro de la planilla ya cerrada. Al quedar alguna línea atada, _tsFacSplit apaga el
 // match legacy y las líneas nuevas forman su propia planilla pendiente en la misma semana.
-function _cfMigrateLegacyPerLine(){
-  try{if(localStorage.getItem('cf_legacymig_v2'))return;}catch(_){return;}
-  const facs=window.__cfFac;
-  if(!facs)return; // las facturas aún no cargaron; se reintenta en el próximo render
-  const done=()=>{try{localStorage.setItem('cf_legacymig_v2','1');}catch(_){}};
-  if(!facs.length){done();return;}
-  const dirty=new Set();
-  (repartos||[]).forEach(r=>{
-    if(!r.fechaISO)return;
-    const wk=(typeof isoWeekRange==='function')?isoWeekRange(r.fechaISO):null;
-    if(!wk)return;
-    (r.clientes||[]).forEach(cl=>{
-      if(cl.factura_id!=null)return;        // ya es por-línea
-      if(_cfFleteVal(cl)<=0)return;         // Gs 0 → queda pendiente (no se ata a la factura)
-      const own=cl.trId?tsOfTruck(cl.trId):null;
-      const ts=(own&&own.n)||cl.tsNombre||'—';
-      const f=facs.find(x=>(x.transportadora_nombre||'')===ts&&(x.semana_desde||'')===wk.desde);
-      if(f){cl.factura_id=f.id;dirty.add(r.id);}
+let _cfLegacyMigPromise=null;
+async function _cfMigrateLegacyPerLine(){
+  if(_cfLegacyMigPromise)return _cfLegacyMigPromise;
+  try{if(localStorage.getItem('cf_legacymig_v3'))return;}catch(_){return;}
+  const facs=window.__cfFac;if(!facs||!facs.length)return; // sin facturas cargadas todavía no hay nada que migrar
+  _cfLegacyMigPromise=(async()=>{
+    const done=()=>{try{localStorage.setItem('cf_legacymig_v3','1');}catch(_){}};
+    const byKey=new Map(),put=(k,f)=>{if(!byKey.has(k))byKey.set(k,[]);byKey.get(k).push(f);};
+    facs.forEach(f=>{const ts=f.transportadora_nombre||'',sd=_facSem(f);if(!ts||!sd)return;put('n:'+_facNorm(ts)+'|'+sd,f);if(f.transportadora_id!=null)put('i:'+String(f.transportadora_id)+'|'+sd,f);});
+    const plans=[];let ambiguous=0;
+    (repartos||[]).forEach(r=>{
+      if(!r.fechaISO)return;const wk=(typeof isoWeekRange==='function')?isoWeekRange(r.fechaISO):null;if(!wk)return;
+      const originals=JSON.parse(JSON.stringify(r.clientes||[]));let changed=false;
+      const next=originals.map(cl=>{
+        if(!cl||cl.factura_id!=null||_cfFleteVal(cl)<=0)return cl;
+        const own=cl.trId?tsOfTruck(cl.trId):null,ts=(own&&own.n)||cl.tsNombre||'—',tsId=(own&&own.id)||cl.tsId,named=byKey.get('n:'+_facNorm(ts)+'|'+wk.desde)||[],exact=(tsId!=null&&byKey.get('i:'+String(tsId)+'|'+wk.desde))||[],matches=tsId==null?named:exact.concat(named.filter(f=>f.transportadora_id==null&&!exact.some(x=>String(x.id)===String(f.id))));
+        if(matches.length>1){ambiguous++;return cl;}
+        if(matches.length===1){if(r.factura_id!=null&&String(r.factura_id)!==String(matches[0].id))return cl;changed=true;return Object.assign({},cl,{factura_id:matches[0].id});}
+        return cl;
+      });
+      if(changed)plans.push({rr:r,originales:originals,next:next,parentFacturaId:r.factura_id||null});
     });
-  });
-  if(!dirty.size){done();return;}
-  const ids=[...dirty];
-  Promise.all(ids.map(rid=>{const rr=(repartos||[]).find(x=>x.id===rid);return rr?dbUpdateClientes(rid,rr.clientes).catch(()=>{}):Promise.resolve();})).then(()=>{done();const v=document.getElementById('viewRrep');if(v&&v.classList.contains('is-active'))renderReporteRepartos();});
+    const saved=[];
+    try{
+      for(const p of plans){await dbUpdateClientes(p.rr.id,p.next);p.rr.clientes=p.next;saved.push(p);}
+    }catch(err){
+      let rollbackError=null;
+      for(let i=saved.length-1;i>=0;i--){const p=saved[i];try{await dbUpdateClientes(p.rr.id,p.originales);p.rr.clientes=p.originales;}catch(e){rollbackError=rollbackError||e;}}
+      if(rollbackError)throw new Error('Falló la migración de facturas legacy y no se pudieron restaurar todas las líneas. Recargá y revisá las planillas.');
+      throw err;
+    }
+    if(ambiguous)console.warn('[facturas] Hay líneas legacy en semanas con más de una factura; no se asignaron automáticamente.');
+    done();
+    const v=document.getElementById('viewRrep');if(v&&v.classList.contains('is-active'))renderReporteRepartos();
+  })();
+  try{return await _cfLegacyMigPromise;}finally{_cfLegacyMigPromise=null;}
 }
 // Diagnóstico: dump del estado de factura_id por reparto/cliente. Uso en consola: _diagFac('CELSO ORTIZ')
 window._diagFac=function(tsFiltro){const rowsD=[];(repartos||[]).forEach(r=>{(r.clientes||[]).forEach(c=>{const o=c.trId?tsOfTruck(c.trId):null;const ts=(o&&o.n)||c.tsNombre||'—';if(tsFiltro&&ts!==tsFiltro)return;rowsD.push({reparto:r.id,fecha:r.fechaISO,ts:ts,rep:c.rep,precio:c.precio,r_factura_id:(r.factura_id===undefined?'(sin campo)':r.factura_id),cl_factura_id:(c.factura_id===undefined?'(sin campo)':c.factura_id)});});});console.log('=== DIAG FACTURA'+(tsFiltro?' · '+tsFiltro:'')+' ===');console.table(rowsD);console.log('facturas registradas:',(window.__cfFac||[]).map(f=>({id:f.id,ts:f.transportadora_nombre,monto:f.monto,semana:f.semana_desde})));return rowsD;};
@@ -9643,7 +9752,7 @@ function renderReporteRepartos(){
   try{document.querySelectorAll('.ci-tip').forEach(t=>t.remove());}catch(_){} // limpia tooltips huérfanos
   if(!window.__cfFac){sb.from('fact_facturas').select('*').then(r=>{window.__cfFac=r.data||[];if(_rrVisible())renderReporteRepartos();}).catch(()=>{window.__cfFac=[];});}
   _cfResetBackfill();
-  _cfMigrateLegacyPerLine();
+  _cfMigrateLegacyPerLine().catch(e=>console.error('[migración de facturas legacy]',e));
   const IC={cal:'<svg fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>',
     week:'<svg fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/><rect x="6" y="13" width="12" height="4" rx="1" fill="currentColor" stroke="none" opacity=".55"/></svg>',
     truck:'<svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="6" width="13" height="11" rx="1"/><path d="M14 9h4l3 3v5h-7z"/><circle cx="5" cy="18.5" r="1.7"/><circle cx="17.5" cy="18.5" r="1.7"/></svg>',
@@ -9788,7 +9897,7 @@ function renderReporteRepartos(){
   function openResumen(g){const _l=host.querySelector('.ci-list');_rrBack={week:_rrWeek,day:_rrDay,fac:_rrFac,q:_rrQ,scroll:_l?_l.scrollTop:0};
     const wd=g.semDesde;_rrWeek=wd;const wk=weeks.find(w=>w.desde===wd)||{desde:wd,hasta:_wkHasta(wd)};
     if(g.perDesde){_rrOpenDetail(g,_dispD(g.perDesde)+' al '+_dispD(g.perHasta),wk);return;}
-    const wg=_rrGroups(wd);const full=wg.find(x=>x.ts===g.ts&&x.facturaId===g.facturaId)||wg.find(x=>x.ts===g.ts)||g;const pLbl=_dispD(clip(wk.desde))+' al '+_dispD(clip(wk.hasta));_rrOpenDetail(full,pLbl,wk);}
+    const wg=_rrGroups(wd),sameTs=x=>g.tsId!=null&&x.tsId!=null?String(g.tsId)===String(x.tsId):_facNorm(g.ts)===_facNorm(x.ts);const full=wg.find(x=>sameTs(x)&&String(x.facturaId||'')===String(g.facturaId||''))||wg.find(sameTs)||g;const pLbl=_dispD(clip(wk.desde))+' al '+_dispD(clip(wk.hasta));_rrOpenDetail(full,pLbl,wk);}
 
   // Segmentos (control superior)
   host.querySelectorAll('[data-rrseg]').forEach(b=>b.addEventListener('click',()=>{if(_rrSeg===b.dataset.rrseg)return;_rrSeg=b.dataset.rrseg;_rrSegAnim=true;renderReporteRepartos();}));
@@ -9986,7 +10095,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     if(d===pD&&h===pH)return;
     if(work.some(w=>w.edit||w.isNew)){showToast('Guardá o cancelá los cambios antes de mover el período');return;}
     pD=d;pH=h;
-    const rr=_rrRangeLines(g.ts,pD,pH,g.facturaId);
+    const rr=_rrRangeLines(g.ts,pD,pH,g.facturaId,g.tsId);
     const sum=_rrSumLines(rr.lines);
     g.lines=rr.lines;g.reps=rr.reps;g.monto=sum.monto;g.flete=sum.flete;
     buildWork();render('toggle');
@@ -10220,7 +10329,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     const dchip=t=>'<span class="rrd-chip">'+_escp(t)+'</span>';
     const serviceChip=t=>'<span class="rrd-service-chip">'+_escp(t)+'</span>';
     // Acciones de factura (aprobada / selección / borrar): SOLO en la vista "Todos"
-    const facReg2=!!_facDeGrupo(g);
+    const facReg2=!!_facDeGrupo(g)||work.some(w=>!w.del&&w.ref&&w.ref.factura_id!=null);
     const _facActs=w=>{
       if(facReg2)return '<td class="rrd-facc"><span class="rrd-facok" data-tip="Factura registrada · aprobada"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span></td>';
       if(_facMode){const on=_facSel.has(w.uid);return '<td class="rrd-facc"><button type="button" class="rrd-selchk'+(on?' on':'')+'" data-facsel="'+w.uid+'" data-tip="'+(on?'Aprobado':'Aprobar en la factura')+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></button></td>';}
@@ -10362,9 +10471,9 @@ function _rrOpenDetail(g,periodLbl,wkObj){
         // quedaría con uids viejos → no se podría editar). El work actual ya refleja el cambio.
         return; }
       // Recarga por período (no por semana): si la planilla integra otras semanas, no se pierden.
-      const _rr=(pD&&pH)?_rrRangeLines(g.ts,pD,pH,g.facturaId):null;
+      const _rr=(pD&&pH)?_rrRangeLines(g.ts,pD,pH,g.facturaId,g.tsId):null;
       if(_rr){const _sm=_rrSumLines(_rr.lines);g.lines=_rr.lines;g.reps=_rr.reps;g.monto=_sm.monto;g.flete=_sm.flete;}
-      else{const fresh=_rrGroups(_rrWeek).find(x=>x.ts===g.ts);
+      else{const fresh=_rrGroups(_rrWeek).find(x=>g.tsId!=null&&x.tsId!=null?String(g.tsId)===String(x.tsId):_facNorm(x.ts)===_facNorm(g.ts));
         if(fresh){g.lines=fresh.lines;g.monto=fresh.monto;g.flete=fresh.flete;g.reps=fresh.reps;}else{g.lines=[];g.monto=0;g.flete=0;g.reps=[];}}
       if(!g.lines.length){goBack();return;}
       buildWork();render('toggle');
@@ -10487,16 +10596,15 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     bd.querySelectorAll('[data-facall]').forEach(b=>b.addEventListener('click',()=>{const cand=work.filter(w=>!w.del);const allSel=cand.length>0&&cand.every(w=>_facSel.has(w.uid));_facSel=allSel?new Set():new Set(cand.map(w=>w.uid));render('filter');}));
     // Imprimir (habilitado al conciliar): crea la factura, asigna las líneas aprobadas y luego imprime
     bd.querySelectorAll('[data-facprint]').forEach(b=>b.addEventListener('click',async()=>{const selW=work.filter(w=>!w.del&&_facSel.has(w.uid));const tot=selW.reduce((s,w)=>s+(+w.precio||0),0);if(!(_facMonto>0&&tot===_facMonto)){showToast('El flete aprobado no coincide con la factura 🚫');return;}if(b.classList.contains('is-loading'))return;const _ov=b.innerHTML;b.classList.add('is-loading');b.disabled=true;b.innerHTML='<span class="cf-spin"></span>Registrando…';
-      try{const row={nro:_facNro,fecha:(typeof todayISO==='function'?todayISO():new Date().toISOString().slice(0,10)),monto:_facMonto,transportadora_nombre:g.ts,semana_desde:pD||wkObj.desde,semana_hasta:pH||wkObj.hasta};
-        const ins=await sb.from('fact_facturas').insert(row).select('id').single();if(ins.error)throw ins.error;const facId=ins.data&&ins.data.id;
-        const _aff=new Set();selW.forEach(w=>{if(w.ref){w.ref.factura_id=facId;if(w.repId!=null)_aff.add(w.repId);}});
-        for(const rid of _aff){const rr=repartos.find(x=>x.id===rid);if(rr){try{await dbUpdateClientes(rid,rr.clientes);}catch(_){}}}
+      try{const row={nro:_facNro,fecha:(typeof todayISO==='function'?todayISO():new Date().toISOString().slice(0,10)),monto:_facMonto,transportadora_id:g.tsId||((transportistas||[]).find(t=>_facNorm(t.n)===_facNorm(g.ts))||{}).id||null,transportadora_nombre:g.ts,semana_desde:pD||wkObj.desde,semana_hasta:pH||wkObj.hasta};
+        const refs=selW.map(w=>({repartoId:w.repId,lineId:w.ref&&w.ref.id}));if(refs.some(x=>x.repartoId==null||x.lineId==null))throw new Error('Una línea seleccionada ya no está disponible. Actualizá la vista.');
+        const facId=await _cfInsertFacturaConLineas(row,refs);
         try{const fr=await sb.from('fact_facturas').select('*');window.__cfFac=fr.data||[];}catch(_){}
         const _mt=_facMonto;_facMode=false;_facSel=new Set();_facMonto=0;_facNro='';
         _cfCheckBurst('Registrado',true);
         // La planilla recién facturada se recarga por su período, que puede cruzar semanas.
         const _fd=pD||wkObj.desde,_fh=pH||wkObj.hasta;
-        const _rr2=_rrRangeLines(g.ts,_fd,_fh,facId);
+        const _rr2=_rrRangeLines(g.ts,_fd,_fh,facId,g.tsId);
         if(_rr2.lines.length){
           const _s2=_rrSumLines(_rr2.lines);
           const fresh=Object.assign({},g,{facturaId:facId,lines:_rr2.lines,reps:_rr2.reps,monto:_s2.monto,flete:_s2.flete,perDesde:_fd,perHasta:_fh});
@@ -10515,7 +10623,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     bd.querySelectorAll('[data-todosadd]').forEach(b=>b.addEventListener('click',()=>_dashPickSeg(true)));
     bd.querySelectorAll('[data-todosedit]').forEach(b=>b.addEventListener('click',()=>_dashPickSeg(false)));
     bd.querySelectorAll('[data-dashdel]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();const w=W(b.dataset.dashdel);if(w)confirmDelete(w);}));
-    bd.querySelectorAll('[data-dashrow]').forEach(r=>r.addEventListener('click',e=>{if(e.target.closest('button')||e.target.closest('.rrd-facc'))return;if(_facMode){const w=W(r.dataset.dashrow);if(w)_facToggle(w.repId);return;}if(_facDeGrupo(g))return;_dashEnterEdit(_dashSeg);}));
+    bd.querySelectorAll('[data-dashrow]').forEach(r=>r.addEventListener('click',e=>{if(e.target.closest('button')||e.target.closest('.rrd-facc'))return;if(_facMode){const w=W(r.dataset.dashrow);if(w)_facToggle(w.uid);return;}if(_facDeGrupo(g))return;_dashEnterEdit(_dashSeg);}));
     // Check verde→azul: confirmar que el reparto entra en la factura (con loader interno)
     // Modo selección: marcar/desmarcar qué repartos entran en la factura (in-place, sin re-render)
     const _facUpdateBar=()=>{const cand=work.filter(w=>!w.del);const selN=cand.filter(w=>_facSel.has(w.uid)).length;const tot=cand.filter(w=>_facSel.has(w.uid)).reduce((s,w)=>s+(+w.precio||0),0);const conc=(_facMonto>0&&tot===_facMonto);
