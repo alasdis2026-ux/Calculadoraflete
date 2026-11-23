@@ -95,6 +95,17 @@ body{min-height:100vh;overflow:hidden;font-family:Inter,system-ui,-apple-system,
 .sv-ts-list{min-height:42px;overflow:auto;padding:3px 7px 8px;overscroll-behavior:contain}
 .sv-ts-list::-webkit-scrollbar{width:5px}
 .sv-ts-list::-webkit-scrollbar-thumb{border:1px solid #fff;border-radius:9px;background:#dce6ed}
+/* La opcion ya no es la fila: ahora comparte la fila con el boton de borrar.
+   Un boton no puede ir dentro de otro boton, de ahi el contenedor. */
+.sv-ts-row{position:relative;display:flex;align-items:center;gap:2px}
+.sv-ts-row .sv-ts-option{flex:1 1 auto;min-width:0}
+.sv-ts-del{display:grid;place-items:center;width:30px;height:30px;flex:none;border:0;border-radius:9px;background:transparent;color:var(--gray-300);cursor:pointer;opacity:0;transition:opacity .16s,color .16s,background .16s,transform .16s}
+.sv-ts-del svg{width:15px;height:15px}
+.sv-ts-row:hover .sv-ts-del,.sv-ts-del:focus-visible{opacity:1}
+.sv-ts-del:hover{background:#fdeaea;color:#c0392b}
+.sv-ts-del:active{transform:scale(.92)}
+.sv-ts-del:focus-visible{outline:2px solid #c0392b;outline-offset:1px}
+@media(hover:none){.sv-ts-del{opacity:1}}
 .sv-ts-option{display:flex;align-items:center;gap:10px;width:100%;min-height:44px;padding:6px 9px;border:0;border-radius:10px;background:transparent;color:var(--gray-700);font:inherit;text-align:left;cursor:pointer;transition:background .16s,color .16s,transform .16s}
 .sv-ts-option:hover,.sv-ts-option.is-active{background:#f2f8fc;color:var(--primary)}
 .sv-ts-option:active{transform:scale(.99)}
@@ -11095,6 +11106,23 @@ function _svReg(host){
   const search=document.getElementById('svTsSearch'),list=document.getElementById('svTsList');
   const meta=document.getElementById('svTsMeta'),create=document.getElementById('svTsCreate');
   let tsQuery='',tsCreateOpen=false,tsCreateValue='',tsActive=-1,tsSaving=false;
+  const SVTACHO='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>';
+  /* Cuantas lineas del historial cuelgan de esta transportadora. Una linea
+     puede apuntarle por id, por camion o por nombre, asi que se miran las tres. */
+  const _tsUsos=function(t){
+    if(!t)return 0;
+    let n=0;
+    /* repartos es un let del script: NO es window.repartos. */
+    (typeof repartos!=='undefined'&&repartos?repartos:[]).forEach(function(r){
+      (r.clientes||[]).forEach(function(c){
+        const own=c.trId&&typeof tsOfTruck==='function'?tsOfTruck(c.trId):null;
+        if(String(c.tsId||'')===String(t.id)||(own&&String(own.id)===String(t.id))||
+           (c.tsNombre&&String(c.tsNombre).trim().toUpperCase()===String(t.n||'').trim().toUpperCase()))n++;
+      });
+      if(!(r.clientes||[]).length&&String(r.tsId||'')===String(t.id))n++;
+    });
+    return n;
+  };
   const filteredTs=function(){const q=_tsNorm(tsQuery).trim();return (transportistas||[]).slice().sort(function(a,b){return String(a.n||'').localeCompare(String(b.n||''),'es');}).filter(function(t){return !q||_tsNorm(t.n).indexOf(q)>=0;});};
   const paintTs=function(animate){
     const matches=filteredTs();
@@ -11102,10 +11130,14 @@ function _svReg(host){
     meta.textContent=matches.length+' transportadora'+(matches.length===1?'':'s')+(tsQuery.trim()?' encontrada'+(matches.length===1?'':'s'):' disponible'+(matches.length===1?'':'s'));
     list.innerHTML=matches.length?matches.map(function(t,i){
       const chosen=String(t.id)===String(_svDraft.tsId);
-      return '<button type="button" class="sv-ts-option'+(chosen?' is-selected':'')+(i===tsActive?' is-active':'')+'" role="option" id="svTsOption'+i+'" data-tsid="'+esc(t.id)+'" data-idx="'+i+'" aria-selected="'+chosen+'" tabindex="-1">'+
+      const usos=_tsUsos(t);
+      return '<div class="sv-ts-row" data-tsrow="'+esc(t.id)+'">'+
+        '<button type="button" class="sv-ts-option'+(chosen?' is-selected':'')+(i===tsActive?' is-active':'')+'" role="option" id="svTsOption'+i+'" data-tsid="'+esc(t.id)+'" data-idx="'+i+'" aria-selected="'+chosen+'" tabindex="-1">'+
         '<span class="sv-ts-option__avatar">'+esc(String(t.n||'T').trim().charAt(0).toUpperCase())+'</span>'+
         '<span class="sv-ts-option__name">'+esc(t.n||'Sin nombre')+'</span>'+
-        '<svg class="sv-ts-option__check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4L19 6"/></svg></button>';
+        '<svg class="sv-ts-option__check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4L19 6"/></svg></button>'+
+        '<button type="button" class="sv-ts-del" data-tsdel="'+esc(t.id)+'" tabindex="-1" aria-label="Quitar '+esc(t.n||'')+'" title="'+(usos?('Tiene '+usos+' línea'+(usos===1?'':'s')+' cargada'+(usos===1?'':'s')+': se archiva, el historial queda'):'Quitar del listado')+'">'+SVTACHO+'</button>'+
+      '</div>';
     }).join(''):'<div class="sv-ts-empty">No encontré transportadoras con ese nombre.</div>';
     const q=tsQuery.trim();
     if(tsCreateOpen){
@@ -11129,6 +11161,45 @@ function _svReg(host){
     _svCloseTsDropdown(true);_svReg(host);
     setTimeout(function(){const b=document.getElementById('svTsTrigger');if(b)b.focus();},0);
   };
+  async function borrarTs(t){
+    if(!t)return;
+    const usos=_tsUsos(t);
+    const camiones=(t.trucks||[]).length;
+    /* Con historial cargado no se borra: se archiva. Un DELETE dejaria las
+       planillas apuntando a una transportadora que ya no existe. */
+    const archivar=usos>0;
+    const msg=archivar
+      ? '«'+(t.n||'')+'» tiene '+usos+' línea'+(usos===1?'':'s')+' cargada'+(usos===1?'':'s')+' en el historial.\n\n'+
+        'La saco del listado pero las planillas quedan intactas. ¿Dale?'
+      : ('¿Quitar «'+(t.n||'')+'» del listado?'+(camiones?('\n\nTambién se borran sus '+camiones+' camión'+(camiones===1?'':'es')+'.'):''));
+    if(!window.confirm(msg))return;
+
+    const fila=list.querySelector('[data-tsrow="'+String(t.id).replace(/"/g,'')+'"]');
+    const g=window.gsap;
+    const quitar=function(){
+      const i=(transportistas||[]).indexOf(t);
+      if(i>=0)transportistas.splice(i,1);
+      if(String(_svDraft.tsId||'')===String(t.id)){_svDraft.tsId=null;_svUlt.tsId=null;}
+      if(typeof renderTsList==='function')try{renderTsList();}catch(_){}
+      if(typeof populateTsSelect==='function')try{populateTsSelect();}catch(_){}
+      paintTs(false);
+    };
+    if(fila&&g&&!_svTsReduceMotion())g.to(fila,{opacity:0,x:-14,height:0,marginTop:0,marginBottom:0,duration:.22,ease:'power2.in',onComplete:quitar});
+    else quitar();
+
+    try{
+      if(archivar)await dbUpdateTs(t.id,{activo:false});
+      else await dbDeleteTs(t.id);
+      showToast(archivar?'Archivada: salió del listado y el historial quedó':'Transportadora eliminada');
+    }catch(err){
+      console.error('[flete] no pude quitar la transportadora',err);
+      /* Si la base la rechaza, vuelve al listado: no quiero que desaparezca de
+         la pantalla y siga existiendo en la base. */
+      if(!(transportistas||[]).some(function(x){return String(x.id)===String(t.id);}))transportistas.push(t);
+      paintTs(false);
+      showToast('No pude quitarla. Probá de nuevo.');
+    }
+  }
   async function saveNewTs(){
     const raw=String(tsCreateValue||'').trim().replace(/\s+/g,' ');
     const name=raw.toLocaleUpperCase('es-PY');
@@ -11180,7 +11251,14 @@ function _svReg(host){
       e.preventDefault();_svCloseTsDropdown(false);trigger.focus();
     }
   });
-  list.addEventListener('click',function(e){const b=e.target.closest('[data-tsid]');if(!b)return;const t=(transportistas||[]).find(function(x){return String(x.id)===b.dataset.tsid;});if(t)selectTs(t);});
+  list.addEventListener('click',function(e){
+    const d=e.target.closest('[data-tsdel]');
+    if(d){ e.preventDefault(); e.stopPropagation();
+      const t=(transportistas||[]).find(function(x){return String(x.id)===d.dataset.tsdel;});
+      if(t)borrarTs(t); return; }
+    const b=e.target.closest('[data-tsid]');if(!b)return;
+    const t=(transportistas||[]).find(function(x){return String(x.id)===b.dataset.tsid;});if(t)selectTs(t);
+  });
   paintTs(false);
 
   host.querySelectorAll('.svr__tr').forEach(function(tr){
@@ -11805,21 +11883,32 @@ function _cfPrintCSS(){
 }
 
 function _cfPrint(r){
-  const lines=r.clientes||[];if(!lines.length){showToast('La planilla no tiene camiones');return;}
+  const lines=r.clientes||[];if(!lines.length){showToast('La planilla no tiene líneas cargadas');return;}
   const f=_facById(r.factura_id)
     ||(r.semanaDesde?(window.__cfFac||[]).find(x=>(x.transportadora_nombre||x.tsNombre||'')===(r.tsNombre||'')&&(x.semana_desde||x.semanaDesde||'')===r.semanaDesde):null)
     ||null;
+  /* Planilla de puros servicios: no hay camion, ni zona, ni km que mostrar. */
+  const soloServ=lines.length>0&&lines.every(c=>(c.seg||'local')==='servicios');
+  /* El periodo que se cargo a mano al registrar manda sobre la semana. */
+  const perManual=(function(){
+    const cp=lines.filter(function(c){return c.per_desde&&c.per_hasta;});
+    if(!cp.length)return null;
+    return {desde:cp.map(function(c){return c.per_desde;}).sort()[0],
+            hasta:cp.map(function(c){return c.per_hasta;}).sort().pop()};
+  })();
   const SEGP=[['local','LOCAL'],['interior','INTERIOR'],['servicios','SERVICIOS ADICIONALES'],['transportadora','TRANSPORTADORA']];
   let body='',totM=0,totF=0,totN=0,totKm=0;
   SEGP.forEach(([sk,slbl])=>{
     const g=lines.filter(c=>(c.seg||'local')===sk).slice().sort((a,b)=>{const fa=a._fecha||'',fb=b._fecha||'';if(sk==='interior'){const pa=+a.precioKm||0,pb=+b.precioKm||0;if(pa!==pb)return pa-pb;return fa<fb?-1:(fa>fb?1:0);}const ca=(a.trDesc||''),cb=(b.trDesc||'');if(ca!==cb)return ca.localeCompare(cb,'es');return fa<fb?-1:(fa>fb?1:0);});if(!g.length)return;
     let sM=0,sF=0;
     const ddc=iso=>iso?String(iso).slice(0,10).split('-').reverse().join('/'):'—';
-    body+='<tr class="grp"><td colspan="5">REPARTO: '+slbl+'</td></tr>';
+    /* Con un unico segmento, "REPARTO: X" y su subtotal repiten el total. */
+    if(!soloServ)body+='<tr class="grp"><td colspan="5">REPARTO: '+slbl+'</td></tr>';
     g.forEach(c=>{const fl=(c.precio||c.gasto)||0;sM+=c.monto||0;sF+=fl;
       const det=sk==='interior'?((+c.km>0)?(_kmFmt(+c.km)+' km × '+_gs(+c.precioKm||0)):'—'):sk==='servicios'?(c.obs?_escp(c.obs):'—'):'—';
-      body+='<tr><td>'+ddc(c._fecha)+'</td><td>'+_escp(c.trDesc||'—')+'</td><td>'+_escp(c.zona||'—')+'</td><td>'+det+'</td><td class="r">'+_gs(fl)+'</td></tr>';});
-    body+='<tr class="sub"><td colspan="4">SUBTOTAL '+slbl+'</td><td class="r">'+_gs(sF)+'</td></tr>';
+      if(soloServ)body+='<tr><td>'+ddc(c._fecha)+'</td><td>'+_escp(c.obs||'—')+'</td><td>'+_escp(c.almacen||'—')+'</td><td>'+_escp(c.detalle||'—')+'</td><td class="r">'+_gs(fl)+'</td></tr>';
+      else body+='<tr><td>'+ddc(c._fecha)+'</td><td>'+_escp(c.trDesc||'—')+'</td><td>'+_escp(c.zona||'—')+'</td><td>'+det+'</td><td class="r">'+_gs(fl)+'</td></tr>';});
+    if(!soloServ)body+='<tr class="sub"><td colspan="4">SUBTOTAL '+slbl+'</td><td class="r">'+_gs(sF)+'</td></tr>';
     totM+=sM;totF+=sF;totN+=sk==='transportadora'?g.reduce((s,c)=>s+(+c.cant||1),0):g.length;totKm+=g.reduce((s,c)=>s+(+c.km||0),0);
   });
   const pid=r.id?('#'+String(r.id).padStart(4,'0')):'Semanal';
@@ -11828,17 +11917,23 @@ function _cfPrint(r){
   const dd=iso=>iso?iso.split('-').reverse().join('/'):'—';
   const meta=(k,v)=>'<div class="mi"><span>'+k+'</span><b>'+v+'</b></div>';
   const content=
-    '<div class="rp-hd"><div class="rp-hd__l"><img class="rp-logo" src="'+logoUrl+'" alt="ALAS"><div><h1>Planilla de Reparto de Flete</h1></div></div>'+
+    '<div class="rp-hd"><div class="rp-hd__l"><img class="rp-logo" src="'+logoUrl+'" alt="ALAS"><div><h1>'+(soloServ?'Planilla de Servicios Adicionales':'Planilla de Reparto de Flete')+'</h1></div></div>'+
     '<div class="co"><span class="co-lbl">Fecha de emisión</span><b>'+dd(typeof todayISO==='function'?todayISO():new Date().toISOString().slice(0,10))+'</b></div></div>'+
-    '<div class="meta">'+meta('Planilla ID',pid)+meta('Semana',wk?dd(wk.desde)+' al '+dd(wk.hasta):'—')+meta('Transportadora',_escp(r.tsNombre||'—'))+meta('Factura Nº',f?_escp(f.nro||'—'):'—')+'</div>'+
-    '<div class="rp-tbl"><table><thead><tr><th>Fecha</th><th>Camión</th><th>Zona</th><th>Detalle</th><th class="r">Flete (Gs.)</th></tr></thead><tbody>'+body+
+    '<div class="meta">'+meta('Planilla ID',pid)+
+      (soloServ
+        ? meta('Período',perManual?(dd(perManual.desde)+' al '+dd(perManual.hasta)):(wk?dd(wk.desde)+' al '+dd(wk.hasta):'—'))+meta('Factura de:',_escp(r.tsNombre||'—'))
+        : meta('Semana',wk?dd(wk.desde)+' al '+dd(wk.hasta):'—')+meta('Transportadora',_escp(r.tsNombre||'—')))+
+      meta('Factura Nº',f?_escp(f.nro||'—'):'—')+'</div>'+
+    '<div class="rp-tbl"><table><thead>'+(soloServ
+      ?'<tr><th>Fecha</th><th>Servicio</th><th>Almacén</th><th>Detalle</th><th class="r">Flete (Gs.)</th></tr>'
+      :'<tr><th>Fecha</th><th>Camión</th><th>Zona</th><th>Detalle</th><th class="r">Flete (Gs.)</th></tr>')+'</thead><tbody>'+body+
     '<tr class="total"><td colspan="4">TOTAL GENERAL</td><td class="r">'+_gs(totF)+'</td></tr>'+
     '</tbody></table></div>'+
     '<div class="foot"><div class="firmas"><div class="firma"><div class="ln"></div><span>JEFE DE DISTRIBUCIÓN</span></div><div class="firma"><div class="ln"></div><span>JEFE DE LOGÍSTICA</span></div></div>'+
-    '<div class="resumen"><h3>Resumen</h3><div class="rr"><span>Camiones</span><b>'+totN+'</b></div>'+(totKm>0?'<div class="rr"><span>Km total</span><b>'+_nnum(totKm)+' km</b></div>':'')+'<div class="rr"><span>Flete total</span><b>Gs. '+_nnum(totF)+'</b></div>'+(f?'<div class="rr" style="border-top:1px solid #dde6ef;margin-top:5px;padding-top:6px"><span>Monto factura</span><b>Gs. '+_nnum(f.monto)+'</b></div>':'')+'</div></div>';
+    '<div class="resumen"><h3>Resumen</h3><div class="rr"><span>'+(soloServ?'Servicios':'Camiones')+'</span><b>'+totN+'</b></div>'+(totKm>0?'<div class="rr"><span>Km total</span><b>'+_nnum(totKm)+' km</b></div>':'')+'<div class="rr"><span>Flete total</span><b>Gs. '+_nnum(totF)+'</b></div>'+(f?'<div class="rr" style="border-top:1px solid #dde6ef;margin-top:5px;padding-top:6px"><span>Monto factura</span><b>Gs. '+_nnum(f.monto)+'</b></div>':'')+'</div></div>';
   // Impresión 100% confiable: iframe aislado con dimensiones reales fuera de pantalla
   // (un iframe 0x0 no imprime en Chrome). Fallback a ventana nueva si el iframe falla.
-  _cfPrintDoc('Planilla de Reparto de Flete',content);
+  _cfPrintDoc(soloServ?'Planilla de Servicios Adicionales':'Planilla de Reparto de Flete',content);
 }
 </script>
 </body>
