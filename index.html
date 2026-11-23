@@ -6778,6 +6778,9 @@ function showSaveAnim(text){
   .rr-ci .ci-btbl td.b-rz{color:var(--ci-muted)}
   /* Camión toma el ancho restante; sólo elipsis si es muy largo */
   .rr-ci .ci-btbl td.b-cam{max-width:0;overflow:hidden;text-overflow:ellipsis;font-weight:700;color:var(--ci-text)}
+  .rr-ci .ci-btbl td.b-service,.rr-ci .ci-btbl td.b-warehouse,.rr-ci .ci-btbl td.b-detail{max-width:0;overflow:hidden;text-overflow:ellipsis}
+  .rr-ci .ci-btbl td.b-service{font-weight:700;color:var(--ci-text)}
+  .rr-ci .ci-btbl td.b-detail{color:var(--ci-muted)}
   .rr-ci .b-seg{display:inline-block;font-size:8px;font-weight:800;letter-spacing:.2px;padding:1px 5px;border-radius:6px;background:#eef5fb;color:var(--ci-primary);vertical-align:middle}
   .rr-ci .b-seg.s-interior{background:#FFEDD5;color:#c2410c} .rr-ci .b-seg.s-servicios{background:#D1FAE5;color:#15803d} .rr-ci .b-seg.s-transportadora{background:#ede9fe;color:#6d28d9}
   /* Vacío */
@@ -9743,10 +9746,13 @@ function renderReporteRepartos(){
 
   // Desglose
   function bdHTML(g){
+    const soloServicios=g.lines.length>0&&(_rrFijoSeg==='servicios'||g.lines.every(cl=>(cl.seg||'local')==='servicios'));
     const rows=g.lines.map((cl)=>{const seg=cl.seg||'local';const cam=(seg==='transportadora')?((+cl.cant||0)+' '+_camLbl((+cl.cant||0))):_escp(cl.trDesc||'—');const zona=_escp(cl.zona||'—');const f=String(cl._fecha||'');const fe=f.length>=10?(f.slice(8,10)+'/'+f.slice(5,7)+'/'+f.slice(0,4)):'—';
+      if(soloServicios){const servicio=String(cl.obs||cl.zona||'').trim(),almacen=String(cl.almacen||'').trim(),detalle=String(cl.detalle||'').trim();return '<tr><td class="b-fecha">'+fe+'</td><td class="b-service" title="'+_escp(servicio)+'">'+(servicio?_escp(servicio):'<span class="rrd-mut">—</span>')+'</td><td class="b-warehouse" title="'+_escp(almacen)+'">'+(almacen?_escp(almacen):'<span class="rrd-mut">—</span>')+'</td><td class="b-detail" title="'+_escp(detalle)+'">'+(detalle?_escp(detalle):'<span class="rrd-mut">—</span>')+'</td><td class="r">'+_gs(_cfFleteVal(cl))+'</td></tr>';}
       return '<tr><td class="b-fecha">'+fe+'</td><td class="b-cam" title="'+_escp(cl.trDesc||'')+'">'+cam+'</td><td class="b-rz" title="'+zona+'">'+zona+'</td><td class="r">'+_gs(_cfFleteVal(cl))+'</td></tr>';}).join('');
+    const thead=soloServicios?'<thead><tr><th class="col-fecha">Fecha</th><th>Servicio</th><th>Almacén</th><th>Detalle</th><th class="r">Monto</th></tr></thead>':'<thead><tr><th class="col-fecha">Fecha</th><th class="col-cam">Camión</th><th class="col-zona">Zona</th><th class="r">Monto</th></tr></thead>';
     return '<div class="ci-exp-in"><div class="ci-exp-bar"><span>'+g.lines.length+' línea'+(g.lines.length===1?'':'s')+' · <b>'+_gs(g.flete)+'</b> de flete</span><button class="ci-ver" type="button" data-rrver>'+IC.list+' Ver resumen</button></div>'+
-      '<div class="ci-btbl-wrap"><table class="ci-btbl"><thead><tr><th class="col-fecha">Fecha</th><th class="col-cam">Camión</th><th class="col-zona">Zona</th><th class="r">Monto</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
+      '<div class="ci-btbl-wrap"><table class="ci-btbl">'+thead+'<tbody>'+rows+'</tbody></table></div></div>';
   }
   function openResumen(g){const _l=host.querySelector('.ci-list');_rrBack={week:_rrWeek,day:_rrDay,fac:_rrFac,q:_rrQ,scroll:_l?_l.scrollTop:0};
     const wd=g.semDesde;_rrWeek=wd;const wk=weeks.find(w=>w.desde===wd)||{desde:wd,hasta:_wkHasta(wd)};
@@ -11911,7 +11917,6 @@ function _cfPrint(r){
     if(!soloServ)body+='<tr class="sub"><td colspan="4">SUBTOTAL '+slbl+'</td><td class="r">'+_gs(sF)+'</td></tr>';
     totM+=sM;totF+=sF;totN+=sk==='transportadora'?g.reduce((s,c)=>s+(+c.cant||1),0):g.length;totKm+=g.reduce((s,c)=>s+(+c.km||0),0);
   });
-  const pid=r.id?('#'+String(r.id).padStart(4,'0')):'Semanal';
   const logoUrl=new URL('logo-alas-s.a.png',window.location.href).href;
   const wk=r.semanaDesde?{desde:r.semanaDesde,hasta:r.semanaHasta}:((typeof isoWeekRange==='function'&&r.fechaISO)?isoWeekRange(r.fechaISO):null);
   const dd=iso=>iso?iso.split('-').reverse().join('/'):'—';
@@ -11919,10 +11924,10 @@ function _cfPrint(r){
   const content=
     '<div class="rp-hd"><div class="rp-hd__l"><img class="rp-logo" src="'+logoUrl+'" alt="ALAS"><div><h1>'+(soloServ?'Planilla de Servicios Adicionales':'Planilla de Reparto de Flete')+'</h1></div></div>'+
     '<div class="co"><span class="co-lbl">Fecha de emisión</span><b>'+dd(typeof todayISO==='function'?todayISO():new Date().toISOString().slice(0,10))+'</b></div></div>'+
-    '<div class="meta">'+meta('Planilla ID',pid)+
+    '<div class="meta">'+meta('Factura de:',_escp(r.tsNombre||'—'))+
       (soloServ
-        ? meta('Período',perManual?(dd(perManual.desde)+' al '+dd(perManual.hasta)):(wk?dd(wk.desde)+' al '+dd(wk.hasta):'—'))+meta('Factura de:',_escp(r.tsNombre||'—'))
-        : meta('Semana',wk?dd(wk.desde)+' al '+dd(wk.hasta):'—')+meta('Transportadora',_escp(r.tsNombre||'—')))+
+        ? meta('Período',perManual?(dd(perManual.desde)+' al '+dd(perManual.hasta)):(wk?dd(wk.desde)+' al '+dd(wk.hasta):'—'))
+        : meta('Semana',wk?dd(wk.desde)+' al '+dd(wk.hasta):'—'))+
       meta('Factura Nº',f?_escp(f.nro||'—'):'—')+'</div>'+
     '<div class="rp-tbl"><table><thead>'+(soloServ
       ?'<tr><th>Fecha</th><th>Servicio</th><th>Almacén</th><th>Detalle</th><th class="r">Flete (Gs.)</th></tr>'
