@@ -7846,6 +7846,9 @@ function showSaveAnim(text){
   .fac-cell{display:inline-flex;flex-direction:column;vertical-align:middle;min-width:0}
   .fac-cell b{font-size:13.5px;font-weight:800;color:var(--gray-800,#1e293b);line-height:1.2;font-variant-numeric:tabular-nums;letter-spacing:.2px}
   .fac-cell>span{font-size:11px;font-weight:600;color:var(--gray-400,#94a3b8);margin-top:3px;white-space:nowrap;font-variant-numeric:tabular-nums}
+  .fac-ref-chip{display:inline-flex;align-items:center;gap:6px;align-self:flex-start;max-width:100%;padding:5px 9px;border:1px solid rgba(255,255,255,.2);border-radius:9px;background:linear-gradient(135deg,#1686c4,#0B5F8D);color:#fff;box-shadow:0 3px 9px rgba(11,95,141,.18);font-size:9px;font-weight:900;letter-spacing:.55px;text-transform:uppercase;white-space:nowrap}
+  .fac-ref-chip svg{width:12px;height:12px;flex:none;opacity:.9}
+  .fac-cell .fac-ref-chip b,.fac-ref-chip b{overflow:hidden;color:#fff;font-size:11.5px;font-weight:900;letter-spacing:.3px;text-overflow:ellipsis}
   #factHost .cf-table td{padding:10px 12px}
   #factHost .cf-table th{padding:11px 12px}
   /* Estado y diferencia en una sola columna. */
@@ -7895,6 +7898,16 @@ function showSaveAnim(text){
   .fac-exp>td{padding:0!important;border:0!important;background:linear-gradient(180deg,#f6f9fd,#fff)}
   .fac-exp-in{overflow:hidden}
   .facd{padding:14px 18px 18px;border-top:1px solid var(--gray-100,#eef2f7)}
+  .facd-source{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:12px;padding:13px 15px;border:1px solid #d5e8f6;border-radius:14px;background:linear-gradient(115deg,#f1f8fe,#fff 68%);box-shadow:0 5px 16px rgba(11,95,141,.06)}
+  .facd-source__left{display:flex;align-items:center;gap:13px;min-width:0}
+  .facd-source__ic{display:grid;place-items:center;flex:none;width:38px;height:38px;border:1px solid #c8e1f2;border-radius:12px;background:#e3f2fc;color:#0B5F8D}
+  .facd-source__ic svg{width:19px;height:19px}
+  .facd-source__meta{display:flex;flex-direction:column;align-items:flex-start;gap:5px;min-width:0}
+  .facd-source__meta small{color:#7890a8;font-size:9px;font-weight:900;letter-spacing:.75px;text-transform:uppercase}
+  .facd-source__sub{color:#647b91;font-size:11px;font-weight:650}
+  .facd-open-report{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:34px;padding:0 12px;border:1px solid #c7deef;border-radius:10px;background:#fff;color:#0B5F8D;font:inherit;font-size:11px;font-weight:850;cursor:pointer;transition:background .16s,border-color .16s,transform .16s,box-shadow .16s}
+  .facd-open-report svg{width:14px;height:14px}
+  .facd-open-report:hover{transform:translateY(-1px);border-color:#8fc3e5;background:#eaf5fc;box-shadow:0 4px 11px rgba(11,95,141,.12)}
   .facd-recon{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:12px 14px;margin-bottom:12px;background:#fff;border:1px solid var(--gray-200,#e2e8f0);border-radius:12px;box-shadow:0 1px 8px rgba(15,36,64,.05)}
   .facd-stat{display:flex;flex-direction:column;gap:2px;min-width:0}
   .facd-stat small{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-400,#94a3b8)}
@@ -7907,6 +7920,7 @@ function showSaveAnim(text){
   .facd-cerrar:hover{border-color:var(--primary,#0B5F8D);background:var(--accent-soft,#eaf2fe);color:var(--primary,#0B5F8D)}
   .facd-cerrar + .facd-badge{margin-left:10px}
   .facd-hint{margin:0 0 12px;font-size:12px;font-weight:600;color:var(--gray-500,#64748b);line-height:1.5;background:#f6f9fd;border:1px solid var(--gray-100,#eef2f7);border-radius:10px;padding:9px 12px}
+  .facd-hint--source{background:#eef7fd;border-color:#d5e8f6;color:#44647d}
   .facd-hint b{color:var(--gray-700,#334155);font-weight:800}
   .facd-tblwrap{overflow-x:auto;border:1px solid var(--gray-200,#e2e8f0);border-radius:12px;background:#fff}
   .facd-tbl{width:100%;border-collapse:collapse;font-size:12.5px}
@@ -7920,6 +7934,7 @@ function showSaveAnim(text){
   .facd-seg{display:inline-block;font-size:10.5px;font-weight:800;padding:2px 8px;border-radius:99px}
   .facd-seg--local{background:#eaf2fe;color:#1d4ed8}.facd-seg--interior{background:#ecfdf3;color:#15803d}.facd-seg--servicios{background:#fef3e2;color:#a9740c}.facd-seg--transportadora{background:#f1f0fb;color:#6d28d9}
   .facd-empty{text-align:center;color:var(--gray-400,#94a3b8);padding:16px!important;font-weight:600}
+  @media(max-width:620px){.facd{padding:11px}.facd-source{padding:11px}.facd-source__left{align-items:flex-start}.facd-open-report{width:100%}.facd-recon{gap:11px;padding:10px}.facd-stat{flex:1 1 110px}.facd-div{display:none}}
   .cf-plbtn{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;padding:12px 14px;border:1.5px dashed var(--gray-300,#cbd5e1);border-radius:11px;background:#fff;font:inherit;cursor:pointer;text-align:left;transition:border-color .15s,background .15s}
   .cf-plbtn:hover{border-color:var(--accent,#3B82F6);background:var(--gray-50,#f8fafc)}
   .cf-plbtn.set{border-style:solid;border-color:var(--gray-200,#e2e8f0)}
@@ -7984,7 +7999,17 @@ function _repFacturado(r){if(!r)return false;if(r.factura_id!=null)return !!_fac
 function _clFacturado(cl,r){const _repHasCl=r&&(r.clientes||[]).some(c=>c.factura_id!=null);const fid=(cl&&cl.factura_id!=null)?cl.factura_id:(_repHasCl?null:(r&&r.factura_id));if(fid!=null)return !!_facById(fid);if(!r||!r.fechaISO)return false;const wk=(typeof isoWeekRange==='function')?isoWeekRange(r.fechaISO):null;if(!wk)return false;const own=cl.trId?tsOfTruck(cl.trId):null;const ts=(own&&own.n)||cl.tsNombre||'—';return !!_facLegacy(ts,wk.desde,(own&&own.id)||cl.tsId);}
 function _repTieneVinculoFactura(r){if(!r)return false;if(r.factura_id!=null)return true;return (r.clientes||[]).some(cl=>cl&&(cl.factura_id!=null||_facIdDeLinea(cl,r)!=null));}
 function _cfRepName(n){n=String(n||'').trim();if(!n||/tercerizado/i.test(n)||/^sin\s+repartidor$/i.test(n))return '';return n.toUpperCase();}
-function _cfFleteVal(c){return +(c&&c.precio)||+(c&&c.gasto)||0;}
+// Flete oficial de una línea: usa la misma reconstrucción de Interior que el Reporte de Repartos.
+function _cfFleteVal(c){
+  const precio=(+c?.precio||+c?.gasto||0);if(!c||(c.seg||'local')!=='interior')return precio;
+  let km=+c.km||0,precioKm=+c.precioKm||0;
+  const fijo=c.fijo!==undefined&&c.fijo!==null?!!c.fijo:(!(km>0)&&!(precioKm>0)&&precio>0);
+  if(fijo)return precio;
+  if(!(precioKm>0)&&c.trId!=null){const owner=tsOfTruck(c.trId),truck=owner&&(owner.trucks||[]).find(t=>String(t.id)===String(c.trId));if(truck)precioKm=+truck.precio||0;}
+  if(!(km>0)&&precioKm>0&&precio>0)km=Math.round(precio/precioKm);
+  if(km>0&&precioKm>0)return Math.round(km*precioKm);
+  return precio;
+}
 function _cfCamCountVal(c){return ((c&&c.seg)||'local')==='transportadora'?(+c.cant||1):1;}
 function _cfCuentaReporte(cl,r){const sk=(cl&&cl.seg)||'local';return sk==='transportadora'?(_cfFleteVal(cl)>0||(+cl.monto||0)>0||(+cl.cant||0)>0):_clFacturado(cl,r);}
 function _cfViaticoTotal(s){s=s||{};if(s.viatico!==undefined&&s.viatico!==null)return +s.viatico||0;const m=s.viaticos||{};return Object.keys(m).reduce((a,k)=>a+(+m[k]||0),0);}
@@ -8836,7 +8861,7 @@ function _facLineas(f){
       let covered;
       if(explicit){covered=(fid!=null&&String(fid)===String(f.id));}
       else{const own=cl.trId?tsOfTruck(cl.trId):null;const name=(own&&own.n)||cl.tsNombre||'—',lineTsId=(own&&own.id)||cl.tsId;const sameTs=f.transportadora_id!=null&&lineTsId!=null?String(f.transportadora_id)===String(lineTsId):_facNorm(name)===_facNorm(ts);covered=!!legacy&&String(legacy.id)===String(f.id)&&fid==null&&sameTs&&!!wk&&wk.desde===sd;}
-      if(covered)out.push({fecha:r.fechaISO,cl:cl});
+      if(covered)out.push({fecha:r.fechaISO,repId:r.id,cl:cl});
     });
   });
   out.sort((a,b)=>String(a.fecha||'').localeCompare(String(b.fecha||'')));
@@ -8907,6 +8932,7 @@ async function _cfDesvincularYEliminarFactura(facId){
 function _facDetailHtml(f){
   const SN={local:'Local',interior:'Interior',servicios:'Servicios',transportadora:'Transportadora'};
   const ts=f.transportadora_nombre||'',sd=f._sd||_facSem(f);
+  const sh=f.semana_hasta||(sd?_wkHasta(sd):''),ref=_escp(f.nro||'—');
   const lines=_facLineas(f);
   const flTot=lines.reduce((s,l)=>s+_cfFleteVal(l.cl),0);
   const monto=+f.monto||0,diff=monto-flTot;
@@ -8920,7 +8946,9 @@ function _facDetailHtml(f){
   const legacy=_fleteDeFactura(f.id)==null; // sin líneas atadas → factura legacy
   const legacyUnica=legacy&&String((sd&&_facLegacy(ts,sd,f.transportadora_id)||{}).id||'')===String(f.id);
   const cerrarBtn=legacyUnica?'<button type="button" class="facd-cerrar" data-cerrarfac="'+f.id+'" title="Fijar la factura con sus repartos actuales para que los repartos nuevos no la alteren">'+(dCls==='ok'?'🔒 Cerrar (proteger)':'🔒 Cerrar factura')+'</button>':'';
+  const fuente='<div class="facd-source"><div class="facd-source__left"><span class="facd-source__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l5 5v13H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M14 3v6h5M9 13h6M9 17h6"/></svg></span><span class="facd-source__meta"><small>Referencia · fuente: Reporte de Repartos</small><span class="fac-ref-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l5 5v13H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M14 3v6h5"/></svg>FACTURA <b>'+ref+'</b></span><span class="facd-source__sub">'+_escp(ts||'Transportista sin identificar')+' · '+(sd?_dispD(sd)+' al '+_dispD(sh):'Período sin identificar')+(f.fecha?' · Emitida '+_dmy(f.fecha):'')+'</span></span></div><button type="button" class="facd-open-report" data-facreport="'+f.id+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 5H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/><path d="M13 3h8v8M21 3l-10 10"/></svg>Ver planilla en Reporte de Repartos</button></div>';
   return '<div class="facd">'+
+    fuente+
     '<div class="facd-recon">'+
       '<div class="facd-stat"><small>Flete de la planilla</small><b>'+_gs(flTot)+'</b></div>'+
       '<div class="facd-div"></div>'+
@@ -8930,10 +8958,25 @@ function _facDetailHtml(f){
       cerrarBtn+
       '<div class="facd-badge facd-badge--'+dCls+'">'+badge+'</div>'+
     '</div>'+
+    '<div class="facd-hint facd-hint--source">El flete se compara con el Reporte de Repartos. En Interior se calcula por kilómetros × precio/km.</div>'+
     (legacyUnica?'<div class="facd-hint">Esta factura no tiene repartos atados: hoy compara contra <b>toda</b> la semana, así que un reparto nuevo la puede descuadrar. Con <b>Cerrar</b> queda fija con los repartos actuales.</div>':(legacy?'<div class="facd-hint">Hay más de una factura para esta transportadora y semana sin líneas vinculadas. Revisá la asignación antes de facturar de nuevo.</div>':''))+
     _facHistHtml(f)+
     '<div class="facd-tblwrap"><table class="facd-tbl"><thead><tr><th>#</th><th>Fecha</th><th>Camión</th><th>Segmento</th><th>Repartidor · Zona</th><th class="r">Flete</th></tr></thead><tbody>'+rowsH+'</tbody></table></div>'+
   '</div>';
+}
+function _cfAbrirFacturaEnReporte(facId){
+  const f=_facById(facId);if(!f)return;
+  const ts=f.transportadora_nombre||'',sd=f._sd||_facSem(f);if(!ts||!sd){showToast('Esta factura no tiene un período de planilla para abrir.');return;}
+  const owner=(transportistas||[]).find(t=>_facNorm(t.n)===_facNorm(ts)),tsId=f.transportadora_id||(owner&&owner.id)||null;
+  const linesInfo=_facLineas(f);if(!linesInfo.length){showToast('No hay líneas de reparto vinculadas para consultar en el reporte.');return;}
+  const lines=linesInfo.map(x=>{x.cl._fecha=x.fecha||null;x.cl._repId=x.repId;return x.cl;});
+  const seen=new Set(),reps=[];linesInfo.forEach(x=>{if(x.repId==null||seen.has(String(x.repId)))return;seen.add(String(x.repId));const r=(repartos||[]).find(y=>String(y.id)===String(x.repId));if(r)reps.push({id:r.id,fecha:r.fecha,fechaISO:r.fechaISO,factura_id:f.id});});
+  const sum=_rrSumLines(lines),hasta=f.semana_hasta||_wkHasta(sd),explicit=_fleteDeFactura(f.id)!=null;
+  const g={ts:ts,tsId:tsId,facturaId:explicit?f.id:null,semDesde:sd,lines:lines,reps:reps,monto:sum.monto,flete:sum.flete,perDesde:sd,perHasta:hasta};
+  const first=(lines[0]._fecha||sd).slice(0,7);_rrHostId='rrepHost';_rrFijoSeg=null;_rrMes=first||sd.slice(0,7);_rrWeek=sd;_rrDay=null;_rrFac='todos';_rrQ='';
+  _rrBack={week:_rrWeek,day:_rrDay,fac:_rrFac,q:_rrQ,scroll:0};
+  showView('rrep');
+  _rrOpenDetail(g,_dispD(sd)+' al '+_dispD(hasta),{desde:sd,hasta:hasta});
 }
 /* Paso de confirmación al registrar una factura nueva: se muestra el cotejo contra la
    planilla y se elige entre dejarla como corresponde o volver a corregirla. Si no coincide
@@ -9022,6 +9065,8 @@ function _facToggle(tr){
   tr.after(er);tr.classList.add('is-open');
   const cb=er.querySelector('[data-cerrarfac]');
   if(cb)cb.addEventListener('click',e=>{e.stopPropagation();const ff=_facById(+cb.dataset.cerrarfac);if(ff)_cerrarFactura(ff);});
+  const reportBtn=er.querySelector('[data-facreport]');
+  if(reportBtn)reportBtn.addEventListener('click',e=>{e.stopPropagation();_cfAbrirFacturaEnReporte(reportBtn.dataset.facreport);});
   const inn=er.querySelector('.fac-exp-in');
   if(window.gsap){
     gsap.set(inn,{height:'auto',opacity:1});const h=inn.offsetHeight;
@@ -9134,7 +9179,7 @@ async function renderFacturas(){
         :(dif===0?'<span class="fac-est fac-est--ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Conciliada</span>'
                  :'<span class="fac-est fac-est--dif">'+(dif>0?'+':'−')+_gs(Math.abs(dif))+'</span>');
       return '<tr data-facid="'+f.id+'" class="fac-row cf-rowin st-'+f._st+'" style="--i:'+Math.min(i,22)+'">'+
-        '<td class="fac-nro"><span class="fac-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 9l6 6 6-6"/></svg></span><span class="fac-cell"><b>'+_escp(f.nro||'—')+'</b><span>'+(f.fecha?f.fecha.split('-').reverse().join('/'):'—')+'</span></span></td>'+
+        '<td class="fac-nro"><span class="fac-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 9l6 6 6-6"/></svg></span><span class="fac-cell"><span class="fac-ref-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l5 5v13H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M14 3v6h5"/></svg>FACTURA <b>'+_escp(f.nro||'—')+'</b></span><span>'+(f.fecha?f.fecha.split('-').reverse().join('/'):'—')+'</span></span></td>'+
         '<td class="fac-ts"><span class="fac-cell"><b>'+_escp(f.transportadora_nombre||'—')+'</b><span>'+sem+'</span></span></td>'+
         '<td class="fac-mot">'+_facMotivoCell(f)+'</td>'+
         '<td class="r fac-dif">'+est+'</td><td class="r fac-monto">'+_gs(f.monto)+'</td>'+
@@ -10024,7 +10069,7 @@ function _cfAlinearTira(){
 function _rrOpenDetail(g,periodLbl,wkObj){
   const SEGN={local:'Local',interior:'Interior',servicios:'Servicios',transportadora:'Transportadora'};
   const TRUCKICON='<svg viewBox="0 0 24 24"><rect x="2.5" y="7" width="11" height="8" rx="1"/><path d="M13.5 9.5H17l3.5 3.5V15h-7z"/><circle cx="7" cy="17.5" r="1.6"/><circle cx="17.5" cy="17.5" r="1.6"/></svg>';
-  const tsObj=(typeof transportistas!=='undefined'?transportistas:[]).find(t=>t.n===g.ts);
+  const tsObj=(typeof transportistas!=='undefined'?transportistas:[]).find(t=>g.tsId!=null?String(t.id)===String(g.tsId):t.n===g.ts);
   const trucks=(tsObj&&tsObj.trucks)||[];
   const host=_rrHost();if(!host)return;
   const bd=document.createElement('div');bd.className='rr-detail';host.className='cf-host';host.innerHTML='';host.appendChild(bd);
