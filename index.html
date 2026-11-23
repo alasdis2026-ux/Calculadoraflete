@@ -6805,11 +6805,12 @@ function showSaveAnim(text){
   .rr-ci .ci-btbl td.b-service,.rr-ci .ci-btbl td.b-warehouse,.rr-ci .ci-btbl td.b-detail{max-width:0;overflow:hidden;text-overflow:ellipsis}
   .rr-ci .ci-btbl td.b-service{font-weight:700;color:var(--ci-text)}
   .rr-ci .ci-btbl td.b-detail{color:var(--ci-muted)}
-  .rr-ci .ci-btbl--servicios{table-layout:fixed;font-size:10px}
-  .rr-ci .ci-btbl--servicios th,.rr-ci .ci-btbl--servicios td{padding:5px 8px}
-  .rr-ci .ci-btbl--servicios th.col-fecha,.rr-ci .ci-btbl--servicios td.b-fecha{width:88px}
-  .rr-ci .ci-btbl--servicios th.r,.rr-ci .ci-btbl--servicios td.r{width:104px}
+  .rr-ci .ci-btbl--servicios{table-layout:fixed;font-size:9px}
+  .rr-ci .ci-btbl--servicios th,.rr-ci .ci-btbl--servicios td{padding:4px 6px}
+  .rr-ci .ci-btbl--servicios th.col-fecha,.rr-ci .ci-btbl--servicios td.b-fecha{width:84px}
+  .rr-ci .ci-btbl--servicios th.r,.rr-ci .ci-btbl--servicios td.r{width:96px}
   .rr-ci .ci-btbl--servicios td.b-service{max-width:none;overflow:visible;text-overflow:clip;white-space:normal;overflow-wrap:anywhere;line-height:1.25}
+  .rr-ci .ci-btbl--servicios .rrd-service-chip{max-width:100%;padding:3px 8px;font-size:9px;letter-spacing:.2px;white-space:normal;overflow-wrap:anywhere}
   .rr-ci .b-seg{display:inline-block;font-size:8px;font-weight:800;letter-spacing:.2px;padding:1px 5px;border-radius:6px;background:#eef5fb;color:var(--ci-primary);vertical-align:middle}
   .rr-ci .b-seg.s-interior{background:#FFEDD5;color:#c2410c} .rr-ci .b-seg.s-servicios{background:#D1FAE5;color:#15803d} .rr-ci .b-seg.s-transportadora{background:#ede9fe;color:#6d28d9}
   /* Vacío */
@@ -9777,11 +9778,10 @@ function renderReporteRepartos(){
   function bdHTML(g){
     const soloServicios=g.lines.length>0&&(_rrFijoSeg==='servicios'||g.lines.every(cl=>(cl.seg||'local')==='servicios'));
     const mostrarAlmacen=soloServicios&&g.lines.some(cl=>String(cl.almacen||'').trim());
-    const mostrarDetalle=soloServicios&&g.lines.some(cl=>String(cl.detalle||'').trim());
     const rows=g.lines.map((cl)=>{const seg=cl.seg||'local';const cam=(seg==='transportadora')?((+cl.cant||0)+' '+_camLbl((+cl.cant||0))):_escp(cl.trDesc||'—');const zona=_escp(cl.zona||'—');const f=String(cl._fecha||'');const fe=f.length>=10?(f.slice(8,10)+'/'+f.slice(5,7)+'/'+f.slice(0,4)):'—';
-      if(soloServicios){const servicio=String(cl.obs||cl.zona||'').trim(),almacen=String(cl.almacen||'').trim(),detalle=String(cl.detalle||'').trim();return '<tr><td class="b-fecha">'+fe+'</td><td class="b-service" title="'+_escp(servicio)+'">'+(servicio?_escp(servicio):'<span class="rrd-mut">—</span>')+'</td>'+(mostrarAlmacen?'<td class="b-warehouse" title="'+_escp(almacen)+'">'+(almacen?_escp(almacen):'<span class="rrd-mut">—</span>')+'</td>':'')+(mostrarDetalle?'<td class="b-detail" title="'+_escp(detalle)+'">'+(detalle?_escp(detalle):'<span class="rrd-mut">—</span>')+'</td>':'')+'<td class="r">'+_gs(_cfFleteVal(cl))+'</td></tr>';}
+      if(soloServicios){const servicio=String(cl.obs||cl.zona||'').trim(),almacen=String(cl.almacen||'').trim();return '<tr><td class="b-fecha">'+fe+'</td><td class="b-service" title="'+_escp(servicio)+'">'+(servicio?'<span class="rrd-service-chip">'+_escp(servicio)+'</span>':'<span class="rrd-mut">—</span>')+'</td>'+(mostrarAlmacen?'<td class="b-warehouse" title="'+_escp(almacen)+'">'+(almacen?_escp(almacen):'<span class="rrd-mut">—</span>')+'</td>':'')+'<td class="r">'+_gs(_cfFleteVal(cl))+'</td></tr>';}
       return '<tr><td class="b-fecha">'+fe+'</td><td class="b-cam" title="'+_escp(cl.trDesc||'')+'">'+cam+'</td><td class="b-rz" title="'+zona+'">'+zona+'</td><td class="r">'+_gs(_cfFleteVal(cl))+'</td></tr>';}).join('');
-    const thead=soloServicios?'<thead><tr><th class="col-fecha">Fecha</th><th>Servicio</th>'+(mostrarAlmacen?'<th>Almacén</th>':'')+(mostrarDetalle?'<th>Detalle</th>':'')+'<th class="r">Monto</th></tr></thead>':'<thead><tr><th class="col-fecha">Fecha</th><th class="col-cam">Camión</th><th class="col-zona">Zona</th><th class="r">Monto</th></tr></thead>';
+    const thead=soloServicios?'<thead><tr><th class="col-fecha">Fecha</th><th>Servicio</th>'+(mostrarAlmacen?'<th>Almacén</th>':'')+'<th class="r">Monto</th></tr></thead>':'<thead><tr><th class="col-fecha">Fecha</th><th class="col-cam">Camión</th><th class="col-zona">Zona</th><th class="r">Monto</th></tr></thead>';
     return '<div class="ci-exp-in"><div class="ci-exp-bar"><span>'+g.lines.length+' línea'+(g.lines.length===1?'':'s')+' · <b>'+_gs(g.flete)+'</b> de flete</span><button class="ci-ver" type="button" data-rrver>'+IC.list+' Ver resumen</button></div>'+
       '<div class="ci-btbl-wrap"><table class="ci-btbl'+(soloServicios?' ci-btbl--servicios':'')+'">'+thead+'<tbody>'+rows+'</tbody></table></div></div>';
   }
