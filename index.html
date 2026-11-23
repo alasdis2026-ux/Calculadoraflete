@@ -118,7 +118,7 @@ body{min-height:100vh;overflow:hidden;font-family:Inter,system-ui,-apple-system,
 /* Cinco columnas: Fecha · Servicio (catalogo) · Detalle (libre) · Monto · quitar.
    El servicio tiene ancho fijo porque sale de una lista; el detalle se queda con
    el resto, que es el texto que puede crecer. */
-.svr__th,.svr__tr{display:grid;grid-template-columns:150px minmax(0,268px) minmax(0,1fr) 150px 34px;align-items:center;gap:10px}
+.svr__th,.svr__tr{display:grid;grid-template-columns:150px minmax(0,310px) minmax(0,1fr) 150px 34px;align-items:center;gap:10px}
 @media(max-width:1180px){.svr__th,.svr__tr{grid-template-columns:132px minmax(0,210px) minmax(0,1fr) 120px 30px;gap:8px}}
 .svr__th{padding:10px 10px 8px}
 .svr__th span{font-size:9.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--gray-400)}
@@ -7482,17 +7482,17 @@ function showSaveAnim(text){
 .svr__pick-t.is-ph{color:var(--gray-300);font-weight:600}
 .svr__pick-ar{width:15px;height:15px;flex:0 0 auto;fill:none;stroke:var(--gray-400);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s}
 .svr__pick.is-open .svr__pick-ar{transform:rotate(180deg)}
-.svcat{position:fixed;z-index:100002;width:330px;max-width:94vw;background:#fff;border:1px solid var(--gray-200);border-radius:14px;box-shadow:0 22px 52px rgba(15,23,42,.22);overflow:hidden;display:flex;flex-direction:column;max-height:356px}
+.svcat{position:fixed;z-index:100002;width:412px;max-width:94vw;background:#fff;border:1px solid var(--gray-200);border-radius:14px;box-shadow:0 22px 52px rgba(15,23,42,.22);overflow:hidden;display:flex;flex-direction:column;max-height:356px}
 .svcat__head{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--gray-100)}
 .svcat__head svg{width:16px;height:16px;flex:0 0 auto;fill:none;stroke:var(--gray-400);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .svcat__inp{flex:1;min-width:0;border:0;outline:none;font:inherit;font-size:13.5px;font-weight:600;color:var(--gray-800);background:transparent}
 .svcat__list{overflow:auto;padding:6px;display:flex;flex-direction:column;gap:2px}
-.svcat__opt{display:flex;align-items:center;gap:9px;border:0;background:transparent;border-radius:9px;padding:10px 11px;font:inherit;font-size:13px;font-weight:650;color:var(--gray-700);cursor:pointer;text-align:left;transition:background .12s,color .12s}
+.svcat__opt{display:flex;align-items:center;gap:9px;border:0;background:transparent;border-radius:9px;padding:10px 11px;font:inherit;font-size:13px;font-weight:650;line-height:1.32;color:var(--gray-700);cursor:pointer;text-align:left;transition:background .12s,color .12s}
 .svcat__opt:hover,.svcat__opt.is-cursor{background:var(--gray-100);color:var(--gray-900)}
 .svcat__opt.is-sel{background:var(--accent-soft,#DBEAFE);color:var(--primary)}
 .svcat__opt-ic{display:grid;place-items:center;width:24px;height:24px;flex:0 0 auto;border-radius:7px;background:var(--gray-100);color:var(--primary)}
 .svcat__opt-ic svg{width:13px;height:13px;stroke-width:2}
-.svcat__opt-t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.svcat__opt-t{flex:1;min-width:0;white-space:normal;overflow-wrap:anywhere}
 .svcat__empty{padding:16px 12px;text-align:center;font-size:12.5px;font-weight:600;color:var(--gray-400)}
 .svcat__foot{border-top:1px solid var(--gray-100);padding:7px}
 .svcat__new{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;border:1.4px dashed var(--gray-200);border-radius:10px;padding:9px;background:transparent;font:inherit;font-size:12.5px;font-weight:800;color:var(--primary);cursor:pointer;transition:background .15s,border-color .15s}
@@ -10754,6 +10754,7 @@ function _svCatAbrir(btn,f,host){
     f.obs=v;
     const t=btn.querySelector('.svr__pick-t');
     if(t){t.textContent=v;t.classList.remove('is-ph');}
+    btn.title=v;
     _svRefrescarFt(host);
     _svCatCerrar();
     const gs=window.gsap;
@@ -10863,7 +10864,7 @@ function _svReg(host){
         const ok=!!f.cl;
         return '<div class="svr__tr'+(ok?' is-ok':'')+'" data-uid="'+f.uid+'" style="--i:'+Math.min(i,12)+'">'+
           '<label class="svr__fecha">'+CAL+'<input type="text" inputmode="none" data-k="fecha" value="'+esc(_svDM(f.fecha))+'" readonly aria-label="Fecha del servicio en formato día, mes y año"'+(ok?' disabled':'')+'><input class="svr__date-native" type="date" data-datepick value="'+esc(f.fecha||'')+'" aria-hidden="true" tabindex="-1"'+(ok?' disabled':'')+'></label>'+
-          '<button type="button" class="svr__pick" data-pick="'+f.uid+'"'+(ok?' disabled':'')+' aria-haspopup="listbox" title="Elegí el servicio de la lista">'+
+          '<button type="button" class="svr__pick" data-pick="'+f.uid+'"'+(ok?' disabled':'')+' aria-haspopup="listbox" title="'+esc(f.obs||'Elegí el servicio de la lista')+'">'+
             '<span class="svr__pick-t'+(f.obs?'':' is-ph')+'">'+esc(f.obs||'Elegí el servicio')+'</span>'+
             '<svg class="svr__pick-ar" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>'+
           '</button>'+
