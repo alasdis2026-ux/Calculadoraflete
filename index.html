@@ -115,7 +115,11 @@ body{min-height:100vh;overflow:hidden;font-family:Inter,system-ui,-apple-system,
 .svr__fac:disabled{border-color:#dce4ea;background:linear-gradient(135deg,#a8bdca,#8ea9b8);color:#fff;box-shadow:none;cursor:not-allowed}
 
 .svr__tbl{padding:6px 10px 10px}
-.svr__th,.svr__tr{display:grid;grid-template-columns:150px minmax(0,1fr) 150px 34px;align-items:center;gap:10px}
+/* Cinco columnas: Fecha · Servicio (catalogo) · Detalle (libre) · Monto · quitar.
+   El servicio tiene ancho fijo porque sale de una lista; el detalle se queda con
+   el resto, que es el texto que puede crecer. */
+.svr__th,.svr__tr{display:grid;grid-template-columns:150px minmax(0,268px) minmax(0,1fr) 150px 34px;align-items:center;gap:10px}
+@media(max-width:1180px){.svr__th,.svr__tr{grid-template-columns:132px minmax(0,210px) minmax(0,1fr) 120px 30px;gap:8px}}
 .svr__th{padding:10px 10px 8px}
 .svr__th span{font-size:9.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--gray-400)}
 .svr__th .r,.svr__tr .svr__monto{text-align:right}
@@ -165,7 +169,7 @@ body{min-height:100vh;overflow:hidden;font-family:Inter,system-ui,-apple-system,
 @media(max-width:600px){.svr__hd{padding:13px 12px;gap:8px;flex-wrap:wrap}.sv-ts-picker{flex:1 1 100%;min-width:0}.svr__head-actions{width:100%;margin-left:0;justify-content:flex-end}.svr__hd .svr__add{min-width:0;flex:1}.svr__ft{padding:13px 12px;gap:9px;flex-wrap:wrap}.svr__tot{flex:1 1 auto}.svr__tot b{font-size:20px}.svr__ok{order:3}}
 
 /* Factura de servicios: modal corto, claro y con una acción principal. */
-.cf-mbd .cf-mbox.sv-invoice{max-width:510px;width:min(510px,94vw);padding:23px;border:1px solid #e4ebf0;border-radius:20px;box-shadow:0 26px 70px rgba(12,37,57,.24)}
+.cf-mbd .cf-mbox.sv-invoice{max-width:510px;width:min(510px,94vw);max-height:92vh;overflow:auto;padding:23px;border:1px solid #e4ebf0;border-radius:20px;box-shadow:0 26px 70px rgba(12,37,57,.24)}
 .sv-invoice__head{display:flex;align-items:center;gap:13px;margin-bottom:18px}
 .sv-invoice__badge{display:grid;place-items:center;width:44px;height:44px;flex:none;border:1px solid #d2e7f3;border-radius:14px;background:linear-gradient(145deg,#f1f9fd,#e5f3fa);color:#0b6c9f}
 .sv-invoice__badge svg{width:21px;height:21px}
@@ -176,14 +180,11 @@ body{min-height:100vh;overflow:hidden;font-family:Inter,system-ui,-apple-system,
 .sv-invoice__close{display:grid;place-items:center;width:34px;height:34px;flex:none;border:1px solid #e7edf1;border-radius:10px;background:#fff;color:#7d8c98;cursor:pointer;transition:background .16s,color .16s,border-color .16s,transform .16s}
 .sv-invoice__close:hover{transform:rotate(4deg);border-color:#cfdde6;background:#f6f9fb;color:#29475b}
 .sv-invoice__close svg{width:16px;height:16px}
-.sv-invoice__summary{display:grid;grid-template-columns:1.2fr 1.1fr .7fr;gap:8px;padding:12px;border:1px solid #e3edf3;border-radius:14px;background:#f7fafc}
-.sv-invoice__summary-item{min-width:0;padding:1px 7px;border-right:1px solid #e2ebf1}
-.sv-invoice__summary-item:last-child{border-right:0}
-.sv-invoice__summary-item span{display:block;margin-bottom:5px;color:#8293a0;font-size:8.5px;font-weight:850;letter-spacing:.08em;text-transform:uppercase}
-.sv-invoice__summary-item b{display:block;overflow:hidden;color:#27475c;font-size:11px;font-weight:800;text-overflow:ellipsis;white-space:nowrap}
-.sv-invoice__summary-total{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:2px;padding:10px 8px 0;border-top:1px solid #e2ebf1}
-.sv-invoice__summary-total span{color:#657e8e;font-size:10px;font-weight:750}
-.sv-invoice__summary-total b{color:#075984;font-size:17px;font-weight:900;font-variant-numeric:tabular-nums}
+/* Una sola linea: cuantos servicios y cuanto suman. Quien y de que periodo ya
+   lo dice el subtitulo de arriba; repetirlo abajo era la mitad del alto. */
+.sv-invoice__summary{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 15px;border:1px solid #e3edf3;border-radius:14px;background:#f7fafc}
+.sv-invoice__summary span{color:#657e8e;font-size:11px;font-weight:750}
+.sv-invoice__summary b{color:#075984;font-size:19px;font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:-.4px}
 .sv-invoice__fields{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:17px 0 0}
 .sv-invoice__fields .cf-fld{margin:0;min-width:0}
 .sv-invoice__fields .cf-fld label{margin-bottom:1px;color:#526b7c;font-size:11px;font-weight:800}
@@ -198,16 +199,17 @@ body{min-height:100vh;overflow:hidden;font-family:Inter,system-ui,-apple-system,
 .cf-mbox.sv-invoice .cf-live.ok{flex-direction:row;justify-content:flex-start;text-align:left;gap:8px;padding:10px 12px;background:#eff9f3;color:#1a7b4a;border-color:#d0ebda;box-shadow:none}
 .cf-mbox.sv-invoice .cf-live.bad{background:#fff5f3;color:#b64c3f;border-color:#f3d9d4}
 .cf-mbox.sv-invoice .cf-live.neutral{background:#f5f8fa;color:#718292;border-color:#e5edf2}
-.sv-invoice__foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:18px;padding-top:15px;border-top:1px solid #edf1f4}
-.sv-invoice__hint{max-width:190px;color:#81909b;font-size:10px;font-weight:600;line-height:1.45}
+.sv-invoice__foot{display:flex;align-items:center;justify-content:flex-end;gap:12px;margin-top:16px;padding-top:14px;border-top:1px solid #edf1f4}
 .sv-invoice__actions{display:flex;align-items:center;justify-content:flex-end;gap:8px}
 .cf-mbox.sv-invoice .sv-invoice__actions button{height:40px;padding:0 14px;border:1px solid transparent;border-radius:10px;font:inherit;font-size:11.5px;font-weight:850;cursor:pointer;transition:transform .16s,box-shadow .16s,background .16s}
 .cf-mbox.sv-invoice .sv-invoice__actions .cancel{border-color:#e1e8ed;background:#fff;color:#617383}
 .cf-mbox.sv-invoice .sv-invoice__actions .cancel:hover{background:#f7f9fa}
 .cf-mbox.sv-invoice .sv-invoice__actions .ok{display:inline-flex;align-items:center;gap:7px;background:linear-gradient(135deg,#1682c2,#075984);color:#fff;box-shadow:0 7px 16px -7px rgba(7,89,132,.85)}
+/* Sin esto el tilde salia a tamaño natural y se comia el texto del boton. */
+.cf-mbox.sv-invoice .sv-invoice__actions button svg{width:15px;height:15px;flex:0 0 auto}
 .cf-mbox.sv-invoice .sv-invoice__actions .ok:hover{transform:translateY(-1px);box-shadow:0 10px 20px -7px rgba(7,89,132,.8)}
 .cf-mbox.sv-invoice .sv-invoice__actions .ok:disabled{opacity:.68;cursor:wait;transform:none;box-shadow:none}
-@media(max-width:520px){.cf-mbd .cf-mbox.sv-invoice{padding:18px}.sv-invoice__summary{grid-template-columns:1fr 1fr}.sv-invoice__summary-item:nth-child(2){border-right:0}.sv-invoice__summary-item:nth-child(3){display:none}.sv-invoice__fields{grid-template-columns:1fr;gap:10px}.sv-invoice__foot{align-items:flex-end;flex-direction:column}.sv-invoice__hint{max-width:none}.sv-invoice__actions{width:100%}.sv-invoice__actions button{flex:1}}
+@media(max-width:520px){.cf-mbd .cf-mbox.sv-invoice{padding:18px}.sv-invoice__fields{grid-template-columns:1fr;gap:10px}.sv-invoice__actions{width:100%}.sv-invoice__actions button{flex:1}}
 /* Entrada escalonada de cada parte del formulario. */
 @keyframes svFldIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 .sv-f{animation:svFldIn .4s cubic-bezier(.2,.7,.3,1) backwards;animation-delay:calc(var(--i,0)*55ms)}
@@ -7471,6 +7473,37 @@ function showSaveAnim(text){
   .rre-segctl{flex-wrap:wrap}
   .rre-segbtn{flex:1 1 40%}
   /* Dropdown PRO de camión (portal) */
+/* ── Desplegable del catalogo de servicios ── */
+.svr__pick{display:flex;align-items:center;gap:8px;width:100%;height:40px;border:0;border-bottom:1.5px solid transparent;border-radius:0;padding:0 2px;background:transparent;font:inherit;font-size:14px;font-weight:700;color:var(--gray-800);text-align:left;cursor:pointer;transition:border-color .18s,color .18s}
+.svr__pick:hover:not(:disabled){border-bottom-color:var(--gray-200)}
+.svr__pick.is-open{border-bottom-color:var(--primary)}
+.svr__pick:disabled{cursor:default;opacity:.75}
+.svr__pick-t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.svr__pick-t.is-ph{color:var(--gray-300);font-weight:600}
+.svr__pick-ar{width:15px;height:15px;flex:0 0 auto;fill:none;stroke:var(--gray-400);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s}
+.svr__pick.is-open .svr__pick-ar{transform:rotate(180deg)}
+.svcat{position:fixed;z-index:100002;width:330px;max-width:94vw;background:#fff;border:1px solid var(--gray-200);border-radius:14px;box-shadow:0 22px 52px rgba(15,23,42,.22);overflow:hidden;display:flex;flex-direction:column;max-height:356px}
+.svcat__head{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--gray-100)}
+.svcat__head svg{width:16px;height:16px;flex:0 0 auto;fill:none;stroke:var(--gray-400);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.svcat__inp{flex:1;min-width:0;border:0;outline:none;font:inherit;font-size:13.5px;font-weight:600;color:var(--gray-800);background:transparent}
+.svcat__list{overflow:auto;padding:6px;display:flex;flex-direction:column;gap:2px}
+.svcat__opt{display:flex;align-items:center;gap:9px;border:0;background:transparent;border-radius:9px;padding:10px 11px;font:inherit;font-size:13px;font-weight:650;color:var(--gray-700);cursor:pointer;text-align:left;transition:background .12s,color .12s}
+.svcat__opt:hover,.svcat__opt.is-cursor{background:var(--gray-100);color:var(--gray-900)}
+.svcat__opt.is-sel{background:var(--accent-soft,#DBEAFE);color:var(--primary)}
+.svcat__opt-ic{display:grid;place-items:center;width:24px;height:24px;flex:0 0 auto;border-radius:7px;background:var(--gray-100);color:var(--primary)}
+.svcat__opt-ic svg{width:13px;height:13px;stroke-width:2}
+.svcat__opt-t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.svcat__empty{padding:16px 12px;text-align:center;font-size:12.5px;font-weight:600;color:var(--gray-400)}
+.svcat__foot{border-top:1px solid var(--gray-100);padding:7px}
+.svcat__new{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;border:1.4px dashed var(--gray-200);border-radius:10px;padding:9px;background:transparent;font:inherit;font-size:12.5px;font-weight:800;color:var(--primary);cursor:pointer;transition:background .15s,border-color .15s}
+.svcat__new:hover{background:var(--accent-soft,#DBEAFE);border-color:var(--primary);border-style:solid}
+.svcat__new svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round}
+.svcat__add{display:flex;align-items:center;gap:7px;padding:7px}
+.svcat__add input{flex:1;min-width:0;height:36px;border:1.4px solid var(--gray-200);border-radius:9px;padding:0 10px;font:inherit;font-size:13px;font-weight:650;color:var(--gray-800);outline:none;transition:border-color .16s}
+.svcat__add input:focus{border-color:var(--primary)}
+.svcat__add button{height:36px;flex:0 0 auto;border:0;border-radius:9px;padding:0 13px;background:var(--primary);color:#fff;font:inherit;font-size:12.5px;font-weight:800;cursor:pointer;transition:background .15s,transform .12s}
+.svcat__add button:hover{background:#0a4f75}
+.svcat__add button:active{transform:scale(.97)}
   .rre-dd{position:fixed;z-index:100001;background:#fff;border:1px solid var(--gray-200,#e2e8f0);border-radius:12px;box-shadow:0 20px 48px rgba(15,23,42,.22);overflow:hidden;display:flex;flex-direction:column;max-height:330px}
   .rre-dd-head{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--gray-100,#f1f5f9)}
   .rre-dd-head svg{width:16px;height:16px;flex:0 0 auto;fill:none;stroke:var(--gray-400,#94a3b8);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
@@ -10666,15 +10699,134 @@ function _svBindTsOutside(){
   _svTsOutsideBound=true;
 }
 
+/* Desplegable del catalogo. Vive en <body> y se posiciona a mano porque la
+   planilla tiene scroll propio: dentro de la fila quedaria recortado. */
+let _svDD=null,_svDDCleanup=null,_svDDBtn=null;
+function _svCatCerrar(instant){
+  if(!_svDD)return;
+  const el=_svDD,cl=_svDDCleanup,b=_svDDBtn;
+  _svDD=null;_svDDCleanup=null;_svDDBtn=null;
+  if(cl)cl();
+  if(b)b.classList.remove('is-open');
+  const gs=window.gsap;
+  if(gs&&!instant)gs.to(el,{opacity:0,y:el.classList.contains('up')?5:-5,scale:.985,duration:.14,ease:'power2.in',onComplete:function(){el.remove();}});
+  else el.remove();
+}
+function _svCatAbrir(btn,f,host){
+  if(_svDDBtn===btn){ _svCatCerrar(); return; }
+  _svCatCerrar(true);
+  const SRCH='<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>';
+  const WR='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14.9 6.1a3.9 3.9 0 0 0-5 5l-5.85 5.85a2.05 2.05 0 1 0 2.9 2.9L11.8 14a3.9 3.9 0 0 0 5-5l-2.55 2.55-2.3-.6-.6-2.3z"/></svg>';
+  const PLUS='<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>';
+  const dd=document.createElement('div');dd.className='svcat';
+  dd.innerHTML='<div class="svcat__head">'+SRCH+'<input class="svcat__inp" type="text" placeholder="Buscar servicio…" autocomplete="off" aria-label="Buscar servicio en el catálogo"></div>'+
+    '<div class="svcat__list" role="listbox"></div>'+
+    '<div class="svcat__foot"><button type="button" class="svcat__new">'+PLUS+'Agregar un servicio al catálogo</button></div>';
+  document.body.appendChild(dd);
+  const inp=dd.querySelector('.svcat__inp'),lista=dd.querySelector('.svcat__list'),pie=dd.querySelector('.svcat__foot');
+  let cursor=0;
+
+  function ubicar(){
+    const r=btn.getBoundingClientRect(),h=dd.offsetHeight||300;
+    const arriba=(r.bottom+h+10>window.innerHeight)&&(r.top-h-10>0);
+    dd.classList.toggle('up',arriba);
+    dd.style.left=Math.max(8,Math.min(r.left,window.innerWidth-dd.offsetWidth-8))+'px';
+    dd.style.top=(arriba?Math.max(8,r.top-h-6):r.bottom+6)+'px';
+  }
+  /* animar solo cuando corresponde: GSAP, al parsear transformaciones de las
+     opciones recien creadas, SACA EL FOCO del buscador. Animarlas en cada tecla
+     dejaba el input sin foco y el teclado sin efecto (ademas del parpadeo). */
+  function pintar(animar){
+    const q=_svCatNorm(inp.value);
+    const todos=_svCatLista();
+    const vis=q?todos.filter(function(x){return x.indexOf(q)>=0;}):todos;
+    if(cursor>=vis.length)cursor=Math.max(0,vis.length-1);
+    lista.innerHTML=vis.length
+      ? vis.map(function(x,i){return '<button type="button" class="svcat__opt'+(x===_svCatNorm(f.obs)?' is-sel':'')+(i===cursor?' is-cursor':'')+'" data-v="'+_escp(x)+'" role="option"><span class="svcat__opt-ic">'+WR+'</span><span class="svcat__opt-t">'+_escp(x)+'</span></button>';}).join('')
+      : '<div class="svcat__empty">No hay ningún servicio con ese nombre</div>';
+    lista.querySelectorAll('.svcat__opt').forEach(function(b){
+      b.addEventListener('click',function(){ elegir(b.dataset.v); });
+    });
+    const gs=window.gsap;
+    if(animar&&gs){const op=lista.querySelectorAll('.svcat__opt');if(op.length)gs.fromTo(op,{opacity:0,y:4},{opacity:1,y:0,duration:.2,stagger:.022,ease:'power2.out',clearProps:'all'});}
+  }
+  function elegir(v){
+    f.obs=v;
+    const t=btn.querySelector('.svr__pick-t');
+    if(t){t.textContent=v;t.classList.remove('is-ph');}
+    _svRefrescarFt(host);
+    _svCatCerrar();
+    const gs=window.gsap;
+    if(gs)gs.fromTo(btn,{scale:.97},{scale:1,duration:.3,ease:'back.out(2.4)',clearProps:'transform'});
+    // Elegido el servicio, el paso siguiente es el detalle.
+    const tr=btn.closest('.svr__tr'),det=tr&&tr.querySelector('.svr__det');
+    if(det&&!det.disabled)setTimeout(function(){try{det.focus();}catch(_){}} ,120);
+  }
+  function abrirAlta(){
+    pie.innerHTML='<div class="svcat__add"><input type="text" placeholder="Nombre del servicio nuevo" maxlength="80" autocomplete="off" aria-label="Nombre del servicio nuevo"><button type="button">Agregar</button></div>';
+    const ni=pie.querySelector('input'),nb=pie.querySelector('button');
+    const gs=window.gsap;
+    if(gs)gs.fromTo(pie.firstChild,{opacity:0,y:8},{opacity:1,y:0,duration:.26,ease:'power3.out',clearProps:'all'});
+    try{ni.focus();}catch(_){}
+    const confirmar=async function(){
+      nb.disabled=true;
+      const r=await _svCatAgregar(ni.value);
+      nb.disabled=false;
+      if(!r.ok){ showToast(r.msg); if(gs)gs.fromTo(ni,{x:-5},{x:0,duration:.35,ease:'elastic.out(1.1,.4)'}); return; }
+      showToast(r.compartido?'Servicio agregado al catálogo 👍':'Servicio agregado (solo en este navegador)');
+      inp.value='';cursor=0;pintar(true);
+      pie.innerHTML='<button type="button" class="svcat__new">'+PLUS+'Agregar un servicio al catálogo</button>';
+      pie.querySelector('.svcat__new').addEventListener('click',abrirAlta);
+      ubicar();
+    };
+    nb.addEventListener('click',confirmar);
+    ni.addEventListener('keydown',function(e){ if(e.key==='Enter'){e.preventDefault();confirmar();} if(e.key==='Escape'){e.preventDefault();e.stopPropagation();pie.innerHTML='<button type="button" class="svcat__new">'+PLUS+'Agregar un servicio al catálogo</button>';pie.querySelector('.svcat__new').addEventListener('click',abrirAlta);} });
+  }
+  pie.querySelector('.svcat__new').addEventListener('click',abrirAlta);
+
+  inp.addEventListener('input',function(){ cursor=0; pintar(); });
+  inp.addEventListener('keydown',function(e){
+    const op=lista.querySelectorAll('.svcat__opt');
+    if(e.key==='ArrowDown'){e.preventDefault();cursor=Math.min(cursor+1,op.length-1);pintar();}
+    else if(e.key==='ArrowUp'){e.preventDefault();cursor=Math.max(cursor-1,0);pintar();}
+    else if(e.key==='Enter'){e.preventDefault();const b=op[cursor];if(b)elegir(b.dataset.v);}
+    else if(e.key==='Escape'){e.preventDefault();_svCatCerrar();try{btn.focus();}catch(_){}}
+  });
+
+  pintar(true);ubicar();
+  btn.classList.add('is-open');
+  /* El foco va DESPUES de la animacion: GSAP, al medir el panel para animarlo,
+     lo desprende un instante del DOM, y eso le saca el foco a lo que tenga
+     adentro. Enfocar antes dejaba el buscador muerto: escribias y no pasaba
+     nada (el filtro andaba, pero las flechas y Enter no llegaban). */
+  const gs=window.gsap;
+  const foco=function(){try{inp.focus();}catch(_){}};
+  if(gs)gs.fromTo(dd,{opacity:0,y:dd.classList.contains('up')?6:-6,scale:.98},{opacity:1,y:0,scale:1,duration:.22,ease:'power3.out',clearProps:'transform',onComplete:foco});
+  else foco();
+
+  const fuera=function(e){ if(!dd.contains(e.target)&&e.target!==btn&&!btn.contains(e.target))_svCatCerrar(); };
+  const esc=function(e){ if(e.key==='Escape')_svCatCerrar(); };
+  setTimeout(function(){document.addEventListener('mousedown',fuera);},0);
+  document.addEventListener('keydown',esc);
+  window.addEventListener('resize',ubicar);
+  window.addEventListener('scroll',ubicar,true);
+  _svDD=dd;_svDDBtn=btn;
+  _svDDCleanup=function(){document.removeEventListener('mousedown',fuera);document.removeEventListener('keydown',esc);window.removeEventListener('resize',ubicar);window.removeEventListener('scroll',ubicar,true);};
+}
+
 function _svFilaNueva(){
   const ult=_svDraft.filas[_svDraft.filas.length-1];
-  return {uid:_svUid++,fecha:(ult&&ult.fecha)||_svUlt.fecha||_svHOY(),obs:'',monto:0,cl:null,r:null};
+  return {uid:_svUid++,fecha:(ult&&ult.fecha)||_svUlt.fecha||_svHOY(),obs:'',detalle:'',monto:0,cl:null,r:null};
 }
 function _svTotalDraft(){ return _svDraft.filas.reduce(function(a,f){ return a+(+f.monto||0); },0); }
 function _svGuardadas(){ return _svDraft.filas.filter(function(f){ return !!f.cl; }); }
 function _svPendientes(){ return _svDraft.filas.filter(function(f){ return !f.cl && (f.obs||'').trim() && +f.monto>0; }); }
 
 function _svReg(host){
+  /* El catalogo se pide una sola vez, en segundo plano. NO se re-dibuja la
+     planilla al terminar: el desplegable lee la lista recien al abrirse, y
+     redibujar a destiempo te saca el foco o te borra lo que estabas cargando. */
+  if(_svCat===null)_svCatCargar();
   const ts=(transportistas||[]).slice().sort(function(a,b){ return String(a.n||'').localeCompare(String(b.n||''),'es'); });
   if(!_svDraft.filas.length)_svDraft.filas=[_svFilaNueva()];
   const tsel=_svDraft.tsId||_svUlt.tsId||'';
@@ -10706,12 +10858,16 @@ function _svReg(host){
       '</div>'+
     '</div>'+
     '<div class="svr__tbl">'+
-      '<div class="svr__th"><span>Fecha</span><span>Servicio</span><span class="r">Monto</span><span></span></div>'+
+      '<div class="svr__th"><span>Fecha</span><span>Servicio</span><span>Detalle</span><span class="r">Monto</span><span></span></div>'+
       _svDraft.filas.map(function(f,i){
         const ok=!!f.cl;
         return '<div class="svr__tr'+(ok?' is-ok':'')+'" data-uid="'+f.uid+'" style="--i:'+Math.min(i,12)+'">'+
           '<label class="svr__fecha">'+CAL+'<input type="text" inputmode="none" data-k="fecha" value="'+esc(_svDM(f.fecha))+'" readonly aria-label="Fecha del servicio en formato día, mes y año"'+(ok?' disabled':'')+'><input class="svr__date-native" type="date" data-datepick value="'+esc(f.fecha||'')+'" aria-hidden="true" tabindex="-1"'+(ok?' disabled':'')+'></label>'+
-          '<input class="svr__obs" type="text" data-k="obs" value="'+esc(f.obs||'')+'" placeholder="Servicio" maxlength="160" autocomplete="off"'+(ok?' disabled':'')+'>'+
+          '<button type="button" class="svr__pick" data-pick="'+f.uid+'"'+(ok?' disabled':'')+' aria-haspopup="listbox" title="Elegí el servicio de la lista">'+
+            '<span class="svr__pick-t'+(f.obs?'':' is-ph')+'">'+esc(f.obs||'Elegí el servicio')+'</span>'+
+            '<svg class="svr__pick-ar" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>'+
+          '</button>'+
+          '<input class="svr__det" type="text" data-k="detalle" value="'+esc(f.detalle||'')+'" placeholder="Detalle (opcional)" maxlength="160" autocomplete="off"'+(ok?' disabled':'')+'>'+
           '<input class="svr__monto" type="text" data-k="monto" value="'+(+f.monto>0?formatMoney(f.monto):'')+'" placeholder="0" inputmode="numeric" autocomplete="off"'+(ok?' disabled':'')+'>'+
           '<button type="button" class="svr__x" data-del="'+f.uid+'" title="'+(ok?'Quitar el servicio':'Quitar la fila')+'">'+
           '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M18 6L6 18M6 6l12 12"/></svg></button>'+
@@ -10836,15 +10992,28 @@ function _svReg(host){
         const openDatePicker=function(){if(!picker||picker.disabled)return;try{picker.showPicker();}catch(_){try{picker.focus();picker.click();}catch(__){}}};
         inp.addEventListener('click',openDatePicker);
         if(picker)picker.addEventListener('change',function(){if(!picker.value)return;f.fecha=picker.value;inp.value=_svDM(f.fecha);});
-      }else inp.addEventListener('change',function(){ f[k]=inp.value; });
+      }else inp.addEventListener('change',function(){
+        /* El monto se guarda SIEMPRE como numero. Guardar el texto formateado
+           lo arruinaba: +"564.590" en JavaScript es 564,59, asi que al salir
+           del campo un monto con separador de miles se dividia por mil y la
+           planilla pasaba a decir Gs. 565 en vez de Gs. 564.590. */
+        f[k]=(k==='monto')?parseMoney(inp.value):inp.value;
+      });
       inp.addEventListener('keydown',function(e){
         if(k==='fecha'&&(e.key==='Enter'||e.key===' ')){e.preventDefault();const picker=tr.querySelector('[data-datepick]');if(picker&&!picker.disabled){try{picker.showPicker();}catch(_){try{picker.focus();picker.click();}catch(__){}}}return;}
         if(e.key!=='Enter')return;
         e.preventDefault();
-        if(k==='obs'){ const m=tr.querySelector('.svr__monto'); if(m)m.focus(); return; }
+        if(k==='detalle'){ const m=tr.querySelector('.svr__monto'); if(m)m.focus(); return; }
         if(k==='monto'){ _svAgregarFila(host,tr); }
       });
     });
+  });
+
+  host.querySelectorAll('[data-pick]').forEach(function(b){
+    const f=_svDraft.filas.find(function(x){ return x.uid===+b.dataset.pick; });
+    if(!f||b.disabled)return;
+    b.addEventListener('click',function(e){ e.preventDefault(); _svCatAbrir(b,f,host); });
+    b.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' '||e.key==='ArrowDown'){ e.preventDefault(); _svCatAbrir(b,f,host); } });
   });
 
   host.querySelectorAll('[data-del]').forEach(function(b){
@@ -10931,7 +11100,7 @@ async function _svGuardar(host){
       }
       if(!r.clientes)r.clientes=[];
       const cl={id:nextClienteId++,trId:null,tsId:tsId,tsNombre:t.n,trDesc:'',seg:'servicios',
-                rep:null,zona:null,obs:(f.obs||'').trim(),cant:null,km:0,precioKm:0,fijo:false,
+                rep:null,zona:null,obs:(f.obs||'').trim(),detalle:(f.detalle||'').trim()||null,cant:null,km:0,precioKm:0,fijo:false,
                 monto:0,precio:+f.monto||0,gasto:+f.monto||0,pct:0,inc:null,factNro:null};
       r.clientes.push(cl);
       puestas.push({f:f,r:r,cl:cl});
@@ -11165,12 +11334,7 @@ function _svFacturar(g,alTerminar){
       '<p class="cf-msub">'+esc(g.ts)+' · '+_svDM(g.desde)+' al '+_svDM(g.hasta)+'</p></div>'+
       '<button type="button" class="sv-invoice__close" aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>'+
     '</div>'+
-    '<div class="sv-invoice__summary">'+
-      '<div class="sv-invoice__summary-item"><span>Transportadora</span><b title="'+esc(g.ts)+'">'+esc(g.ts)+'</b></div>'+
-      '<div class="sv-invoice__summary-item"><span>Período</span><b>'+_svDM(g.desde)+' — '+_svDM(g.hasta)+'</b></div>'+
-      '<div class="sv-invoice__summary-item"><span>Servicios</span><b>'+g.filas.length+'</b></div>'+
-      '<div class="sv-invoice__summary-total"><span>Total de servicios</span><b>'+_svGs(tot)+'</b></div>'+
-    '</div>'+
+    '<div class="sv-invoice__summary"><span>'+g.filas.length+(g.filas.length===1?' servicio':' servicios')+'</span><b>'+_svGs(tot)+'</b></div>'+
     '<div class="sv-invoice__fields">'+
       '<div class="cf-fld" data-fnro><label for="svfNro">Número de factura <span class="req">*</span></label>'+
         '<div class="sv-invoice__input"><span>N.º</span><input id="svfNro" autocomplete="off" maxlength="40" placeholder="Ej. 0087"></div><span class="cf-fld__err"></span></div>'+
@@ -11178,7 +11342,7 @@ function _svFacturar(g,alTerminar){
         '<div class="sv-invoice__input"><span>Gs.</span><input id="svfMonto" inputmode="numeric" autocomplete="off" value="'+formatMoney(tot)+'" aria-label="Monto de la factura en guaraníes"></div></div>'+
     '</div>'+
     '<div class="cf-live sv-invoice__live" id="svfLive" aria-live="polite"></div>'+
-    '<div class="sv-invoice__foot"><span class="sv-invoice__hint">Al confirmar, se guardará la factura y se abrirá la impresión.</span><div class="sv-invoice__actions">'+
+    '<div class="sv-invoice__foot"><div class="sv-invoice__actions">'+
       '<button type="button" class="cancel">Cancelar</button><button type="button" class="ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5 9.5 17 19 7"/></svg>Registrar e imprimir</button></div></div></div>');
 
   const nro=m.$('#svfNro'), mon=m.$('#svfMonto'), live=m.$('#svfLive'), fld=nro.closest('[data-fnro]');
@@ -11238,6 +11402,45 @@ function _svFacturar(g,alTerminar){
 
 /* ── Impreso ─────────────────────────────────────────────
    Mismo diseño que la planilla de flete: comparten _cfPrintCSS. */
+/* ═══════════════ Catalogo de servicios ═══════════════
+   Los seis de arranque son los que se usan siempre. Lo que se agregue va a la
+   tabla `servicios_catalogo` del proyecto si existe (asi lo ve todo el equipo);
+   si todavia no se corrio el SQL, queda en este navegador y la app sigue
+   andando igual. El SQL esta en db/servicios_catalogo.sql. */
+const SV_CAT_BASE=['SERVICIO DE DESESTIBA','SERVICIO DE GRUA Y TRASLADO DE BOBINAS','SERVICIO DE ABASTECIMIENTO A LDAL','SERVICIO DE ABASTECIMIENTO A LDLQ','SERVICIO DE CARGA DE BASURA','SERVICIO DE CARGA DE CHATARRA'];
+const SV_CAT_LS='cf_servicios_catalogo_v1';
+let _svCat=null,_svCatTabla=null;   // null = todavia no sabemos si la tabla existe
+
+function _svCatLocal(){try{const r=JSON.parse(localStorage.getItem(SV_CAT_LS)||'[]');return Array.isArray(r)?r.filter(x=>typeof x==='string'):[];}catch(_){return[];}}
+function _svCatGuardarLocal(l){try{localStorage.setItem(SV_CAT_LS,JSON.stringify(l));}catch(_){}}
+function _svCatNorm(t){return String(t||'').trim().replace(/\s+/g,' ').toUpperCase();}
+function _svCatLista(){
+  const vistos=new Set(),out=[];
+  (_svCat||[]).concat(SV_CAT_BASE,_svCatLocal()).forEach(function(x){const k=_svCatNorm(x);if(k&&!vistos.has(k)){vistos.add(k);out.push(k);}});
+  return out.sort(function(a,b){return a.localeCompare(b,'es');});
+}
+async function _svCatCargar(){
+  if(_svCat!==null)return;
+  _svCat=[];
+  try{
+    const r=await sb.from('servicios_catalogo').select('nombre').order('nombre');
+    if(r.error)throw r.error;
+    _svCatTabla=true;
+    _svCat=(r.data||[]).map(function(x){return x.nombre;}).filter(Boolean);
+  }catch(_){ _svCatTabla=false; }   // sin tabla: seguimos con los de base + locales
+}
+async function _svCatAgregar(nombre){
+  const n=_svCatNorm(nombre);
+  if(n.length<4)return {ok:false,msg:'Escribí el nombre del servicio'};
+  if(_svCatLista().indexOf(n)>=0)return {ok:false,msg:'Ese servicio ya está en la lista'};
+  if(_svCatTabla){
+    try{ const r=await sb.from('servicios_catalogo').insert({nombre:n}); if(r.error)throw r.error; _svCat.push(n); return {ok:true,compartido:true}; }
+    catch(_){ /* si falla, cae al respaldo local */ }
+  }
+  const l=_svCatLocal(); l.push(n); _svCatGuardarLocal(l);
+  return {ok:true,compartido:false};
+}
+
 function _svPrint(g){
   if(!g||!g.filas.length){ showToast('No hay servicios para imprimir'); return; }
   const logoUrl=new URL('logo-alas-s.a.png',window.location.href).href;
@@ -11251,7 +11454,7 @@ function _svPrint(g){
   const content=
     '<div class="rp-hd"><div class="rp-hd__l"><img class="rp-logo" src="'+logoUrl+'" alt="ALAS"><div><h1>Servicios Adicionales</h1></div></div>'+
     '<div class="co"><span class="co-lbl">Fecha de emisión</span><b>'+_svDM(_svHOY())+'</b></div></div>'+
-    '<div class="meta">'+meta('Transportadora',_escp(g.ts))+meta('Período',_svDM(g.desde)+' al '+_svDM(g.hasta))+
+    '<div class="meta">'+meta('Factura de:',_escp(g.ts))+meta('Período',_svDM(g.desde)+' al '+_svDM(g.hasta))+
       meta('Servicios',String(g.filas.length))+meta('Facturas',lf.length?_escp(lf.join(', ')):'—')+'</div>'+
     '<div class="rp-tbl"><table><thead><tr><th>Fecha</th><th>Servicio</th><th>Factura Nº</th><th class="r">Monto (Gs.)</th></tr></thead><tbody>'+
     '<tr class="grp"><td colspan="4">SERVICIOS ADICIONALES</td></tr>'+body+
