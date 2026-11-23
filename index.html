@@ -6533,8 +6533,12 @@ function showSaveAnim(text){
   #viewServ.stage:has(.rr-ci){overflow:hidden}
   /* La cadena de alto tiene que llegar entera hasta el calendario: stage →
      sv-body → sv-rrep → .rr-ci. Sin esto las celdas del mes quedaban de 20px. */
-  #viewServ.stage:has(.rr-ci){display:flex;flex-direction:column}
-  #viewServ.stage:has(.rr-ci) .sv-body{flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
+  /* OJO: nada de display aca. .stage se oculta con display:none y se muestra
+     con .stage.is-active{display:flex}. Una regla #viewServ.stage:has(...)
+     le gana en peso y no mira is-active, asi que dejaba la vista visible
+     para siempre: al pasar a la Calculadora se veian las dos juntas.
+     El alto ya lo da .stage, que de base es columna flexible. */
+  #viewServ.stage.is-active:has(.rr-ci) .sv-body{flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
   #viewServ .sv-rrep{flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
   /* .rr-ci y no #rrepHost: el mismo componente se dibuja tambien dentro de
      Servicios Adicionales, en otro contenedor. */
