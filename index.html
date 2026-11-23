@@ -60,7 +60,7 @@ body{min-height:100vh;overflow:hidden;font-family:Inter,system-ui,-apple-system,
 }
 
 /* ── Registro: planilla editable ── */
-.svr{position:relative;max-width:900px;margin:0 auto;background:#fff;border:1.5px solid var(--gray-200);border-radius:18px;box-shadow:0 1px 3px rgba(15,36,64,.05);overflow:visible}
+.svr{position:relative;max-width:1240px;margin:0 auto;background:#fff;border:1.5px solid var(--gray-200);border-radius:18px;box-shadow:0 1px 3px rgba(15,36,64,.05);overflow:visible}
 .svr__hd{position:relative;z-index:5;display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1.5px solid var(--gray-100);border-radius:18px 18px 0 0}
 .sv-ts-picker{position:relative;flex:0 1 300px;min-width:230px}
 /* Periodo de la factura, elegido a mano. Lo que se escribe aca es lo que sale
@@ -129,8 +129,9 @@ body{min-height:100vh;overflow:hidden;font-family:Inter,system-ui,-apple-system,
    El servicio tiene ancho fijo porque sale de una lista; el detalle se queda con
    el resto, que es el texto que puede crecer. */
 /* Fecha · Servicio · Almacen · Detalle · Monto · quitar */
-.svr__th,.svr__tr{display:grid;grid-template-columns:138px minmax(0,290px) 104px minmax(0,1fr) 140px 34px;align-items:center;gap:10px}
-@media(max-width:1280px){.svr__th,.svr__tr{grid-template-columns:124px minmax(0,215px) 96px minmax(0,1fr) 116px 30px;gap:8px}}
+.svr__th,.svr__tr{display:grid;grid-template-columns:142px minmax(0,330px) 118px minmax(0,1fr) 150px 34px;align-items:center;gap:12px}
+@media(max-width:1280px){.svr__th,.svr__tr{grid-template-columns:128px minmax(0,300px) 108px minmax(0,1fr) 126px 32px;gap:9px}}
+@media(max-width:980px){.svr__th,.svr__tr{grid-template-columns:120px minmax(0,268px) 100px minmax(0,1fr) 116px 30px;gap:8px}}
 .svr__th{padding:10px 10px 8px}
 .svr__th span{font-size:9.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--gray-400)}
 .svr__th .r,.svr__tr .svr__monto{text-align:right}
@@ -7223,6 +7224,23 @@ function showSaveAnim(text){
   .rrd-ktile__ic svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.9}
   .rrd-ktile__tx{display:flex;flex-direction:column;gap:2px;min-width:0}
   .rrd-ktile__tx small{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--gray-400,#94a3b8)}
+  /* ── Servicios Adicionales: la misma vista, mas compacta ──
+     El Reporte de repartos de flete comparte este renderizador, asi que todo
+     lo de abajo queda encerrado en .sv-rrep y no lo alcanza. */
+  .sv-rrep .rrd-ktile{gap:12px;border-radius:14px;padding:11px 15px;margin-bottom:8px;box-shadow:0 4px 14px rgba(15,23,42,.045)}
+  .sv-rrep .rrd-ktile__ic{width:36px;height:36px;border-radius:11px}
+  .sv-rrep .rrd-ktile__ic svg{width:18px;height:18px}
+  .sv-rrep .rrd-ktile__tx b{font-size:18px}
+  .sv-rrep .rrd-ktile__tx small{font-size:9px}
+  .sv-rrep .rrd-bar{gap:10px;margin-bottom:10px}
+  .sv-rrep .rrd-tablehd{padding:9px 14px}
+  .sv-rrep .rrd-tbl th{padding:9px 14px;font-size:10px}
+  .sv-rrep .rrd-tbl td{padding:8px 14px;font-size:13.5px}
+  .sv-rrep .rrd-hd{margin-bottom:10px}
+  /* La tarjeta de Flete total era 1.45fr y repartia sus dos datos a los
+     extremos: quedaba un hueco muerto en el medio. */
+  .sv-rrep .rrd-topresumen .rrd-resumen-bar,.sv-rrep .rrd-resumen-bar{grid-template-columns:1fr 1fr 1.12fr}
+  .sv-rrep .rrd-resumen-bar .rrd-ktile--total{gap:14px}
   .rrd-ktile__tx b{font-family:Sora,Inter,sans-serif;font-size:22px;font-weight:800;color:var(--gray-900,#0f172a);line-height:1.08;font-variant-numeric:tabular-nums;overflow:hidden;text-overflow:ellipsis}
   /* Colores por KPI (tarjeta blanca): flete total/aprobado azul oscuro, factura verde oscuro */
   .rrd-ktile--k-aprob .rrd-ktile__tx b,.rrd-ktile--k-total .rrd-ktile__tx b{color:#0B5F8D}
@@ -7531,11 +7549,13 @@ function showSaveAnim(text){
 .svr__alm-ph{color:var(--gray-300);font-weight:600}
 .svr__alm-ar{width:14px;height:14px;flex:0 0 auto;margin-left:auto;fill:none;stroke:var(--gray-400);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s}
 .svr__alm.is-open .svr__alm-ar{transform:rotate(180deg)}
-.svalm{position:fixed;z-index:100002;width:188px;background:#fff;border:1px solid var(--gray-200);border-radius:13px;box-shadow:0 20px 46px rgba(15,23,42,.2);overflow:hidden;padding:7px;display:flex;flex-direction:column;gap:3px}
+.svalm{position:fixed;z-index:100002;width:236px;background:#fff;border:1px solid var(--gray-200);border-radius:13px;box-shadow:0 20px 46px rgba(15,23,42,.2);overflow:hidden;padding:7px;display:flex;flex-direction:column;gap:3px}
 .svalm__opt{display:flex;align-items:center;gap:9px;border:0;background:transparent;border-radius:9px;padding:8px 9px;font:inherit;cursor:pointer;text-align:left;transition:background .12s}
 .svalm__opt:hover,.svalm__opt.is-cursor{background:var(--gray-100)}
-.svalm__opt .svr__chip{pointer-events:none}
-.svalm__opt small{color:var(--gray-400);font-size:10.5px;font-weight:700}
+/* El chip manda: nunca se achica ni se recorta; el que cede es el nombre. */
+.svalm__opt .svr__chip{pointer-events:none;flex:0 0 auto;max-width:none;min-width:max-content}
+.svalm__opt .svr__chip>span{overflow:visible;text-overflow:clip;min-width:max-content}
+.svalm__opt small{flex:1 1 auto;min-width:0;color:var(--gray-400);font-size:10.5px;font-weight:700;line-height:1.25}
 
 .svcat{position:fixed;z-index:100002;width:412px;max-width:94vw;background:#fff;border:1px solid var(--gray-200);border-radius:14px;box-shadow:0 22px 52px rgba(15,23,42,.22);overflow:hidden;display:flex;flex-direction:column;max-height:356px}
 .svcat__head{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--gray-100)}
@@ -10040,7 +10060,9 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     const emptySegs=SEGL.filter(sk=>!work.some(w=>!w.del&&w.seg===sk));
     const lbl=_camFilter||'Todos los camiones';
     const filterUI=used.length?('<button type="button" class="rrm-camfilter'+(_camFilter?' on':'')+'" id="rrmCamFilter"><span class="rrm-camfilter__ic">'+TRUCKICON+'</span><span class="rrm-camfilter__t">'+_escp(lbl)+'</span><svg class="rrm-camfilter__arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg></button>'+(_camFilter?'<button type="button" class="rrm-camclear" id="rrmCamClear"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 6L6 18M6 6l12 12"/></svg> Ver todos</button>':'')):'';
-    const addUI=(emptySegs.length&&!_facDeGrupo(g)&&!_facMode)?'<button type="button" class="rrm-addseg" id="rrmAddSeg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg> Agregar servicio</button>':'';
+    /* En Servicios Adicionales este boton ofrecia agregar un segmento de flete
+       (local, interior, transportadora) a una planilla de servicios. */
+    const addUI=(emptySegs.length&&!_facDeGrupo(g)&&!_facMode&&!_soloServicios())?'<button type="button" class="rrm-addseg" id="rrmAddSeg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg> Agregar servicio</button>':'';
     const hayLineas=work.some(w=>!w.del);
     const SIC='<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>';
     const XIC='<svg fill="none" stroke="currentColor" stroke-width="2.6" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>';
@@ -10125,6 +10147,9 @@ function _rrOpenDetail(g,periodLbl,wkObj){
   function dashTabs(){
     const segsPresent=SEGL.filter(sk=>work.some(w=>!w.del&&w.seg===sk));
     if(!segsPresent.length)return '';
+    /* Un solo segmento y todo servicios: "Todos" y "Servicios" son la misma
+       lista, asi que el control no decide nada. */
+    if(segsPresent.length===1&&_soloServicios())return '';
     const SIC={todos:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>',
       local:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>',
       interior:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="6" width="13" height="11" rx="1"/><path d="M14 9h4l3 3v5h-7z"/><circle cx="5" cy="18.5" r="1.7"/><circle cx="17.5" cy="18.5" r="1.7"/></svg>',
@@ -10164,7 +10189,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
         '<td class="rrd-grow">'+(w.detalle?_escp(w.detalle):'<span class="rrd-mut">—</span>')+'</td>'+
         '<td class="r rrd-flete">'+_gs(+w.precio||0)+'</td>'+_facActs(w)+'</tr>').join('');
       const rows=_soloServ?rowsServ():allItems.map(w=>{const isTr=w.seg==='transportadora';const cam=isTr?((+w.cant||0)+' '+_camLbl((+w.cant||0))):camLbl(w);const zn=isTr?'—':(w.zona||(w.seg==='servicios'&&w.obs)||'—');const km=(w.seg==='interior'&&+w.km>0)?(_kmFmt(+w.km)+' km × '+_gs(+w.precioKm||0)):'<span class="rrd-mut">—</span>';return '<tr'+_facRowCls(w)+(_facMode?' data-facrow="'+w.uid+'" style="cursor:pointer"':'')+'>'+dfec(w)+'<td class="rrd-cam"><span class="rrd-cam__ic">'+TRUCKICON+'</span><span class="rrd-cam__t">'+_escp(cam)+'</span></td><td><span class="rrd-segtag rrd-segtag--'+w.seg+'">'+SEGN[w.seg]+'</span></td><td>'+(isTr?'<span class="rrd-mut">—</span>':_escp(w.rep||'Tercerizado'))+'</td><td class="rrd-grow">'+(zn&&zn!=='—'?dchip(zn):'<span class="rrd-mut">—</span>')+'</td><td class="r rrd-det">'+km+'</td><td class="r rrd-flete">'+_gs(+w.precio||0)+'</td>'+_facActs(w)+'</tr>';}).join('')||'<tr><td colspan="8" class="rrd-empty">Sin líneas</td></tr>';
-      const table='<div class="rrd-tablecard">'+'<div class="rrd-tablehd"><div class="rrd-tablehd__t"><span class="rrd-tablehd__dot" style="background:linear-gradient(135deg,#2578b8,#0B5F8D)"></span>Todos los pedidos</div>'+(_facMode?'':'<div class="rrd-cardseg">'+dashTabs()+'</div>')+((!_facMode&&!_facDeGrupo(g))?'<div class="rrd-tablehd__acts"><button class="rrd-hdbtn" data-todosadd="1"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg> Añadir</button>'+(work.some(w=>!w.del&&!w.isNew)?'<button class="rrd-hdbtn rrd-hdbtn--edit" data-todosedit="1"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4z"/></svg> Editar</button>':'')+'</div>':'')+'</div><div class="rrd-tablewrap"><table class="rrd-tbl"><thead>'+(_soloServ
+      const table='<div class="rrd-tablecard">'+'<div class="rrd-tablehd"><div class="rrd-tablehd__t"><span class="rrd-tablehd__dot" style="background:linear-gradient(135deg,#2578b8,#0B5F8D)"></span>'+(_soloServ?'Servicios':'Todos los pedidos')+'</div>'+(_facMode?'':'<div class="rrd-cardseg">'+dashTabs()+'</div>')+((!_facMode&&!_facDeGrupo(g))?'<div class="rrd-tablehd__acts"><button class="rrd-hdbtn" data-todosadd="1"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg> Añadir</button>'+(work.some(w=>!w.del&&!w.isNew)?'<button class="rrd-hdbtn rrd-hdbtn--edit" data-todosedit="1"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4z"/></svg> Editar</button>':'')+'</div>':'')+'</div><div class="rrd-tablewrap"><table class="rrd-tbl"><thead>'+(_soloServ
         ?'<tr><th>Fecha</th><th>Servicio</th><th>Almacén</th><th class="rrd-grow">Detalle</th><th class="r">Flete</th><th class="rrd-facth r">'+(_facMode?'¿Entra?':'Factura')+'</th></tr>'
         :'<tr><th>Fecha</th><th>Camión</th><th>Segmento</th><th>Repartidor</th><th class="rrd-grow">Zona</th><th class="r">Km · Precio/km</th><th class="r">Flete</th><th class="rrd-facth r">'+(_facMode?'¿Entra?':'Factura')+'</th></tr>')+'</thead><tbody>'+rows+'</tbody></table></div></div>';
       const nCam=allItems.reduce((a,w)=>a+camCount(w),0),sub=allItems.reduce((a,w)=>a+(+w.precio||0),0);
