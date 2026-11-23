@@ -169,44 +169,49 @@ body{min-height:100vh;overflow:hidden;font-family:Inter,system-ui,-apple-system,
 @media(max-width:600px){.svr__hd{padding:13px 12px;gap:8px;flex-wrap:wrap}.sv-ts-picker{flex:1 1 100%;min-width:0}.svr__head-actions{width:100%;margin-left:0;justify-content:flex-end}.svr__hd .svr__add{min-width:0;flex:1}.svr__ft{padding:13px 12px;gap:9px;flex-wrap:wrap}.svr__tot{flex:1 1 auto}.svr__tot b{font-size:20px}.svr__ok{order:3}}
 
 /* Factura de servicios: modal corto, claro y con una acción principal. */
-.cf-mbd .cf-mbox.sv-invoice{max-width:510px;width:min(510px,94vw);max-height:92vh;overflow:auto;padding:23px;border:1px solid #e4ebf0;border-radius:20px;box-shadow:0 26px 70px rgba(12,37,57,.24)}
-.sv-invoice__head{display:flex;align-items:center;gap:13px;margin-bottom:18px}
-.sv-invoice__badge{display:grid;place-items:center;width:44px;height:44px;flex:none;border:1px solid #d2e7f3;border-radius:14px;background:linear-gradient(145deg,#f1f9fd,#e5f3fa);color:#0b6c9f}
-.sv-invoice__badge svg{width:21px;height:21px}
+.cf-mbd .cf-mbox.sv-invoice{max-width:640px;width:min(640px,94vw);max-height:92vh;overflow:auto;padding:30px 32px;border:1px solid #e4ebf0;border-radius:24px;box-shadow:0 34px 90px rgba(12,37,57,.28)}
+.sv-invoice__head{display:flex;align-items:center;gap:15px;margin-bottom:22px}
+.sv-invoice__badge{display:grid;place-items:center;width:54px;height:54px;flex:none;border:1px solid #d2e7f3;border-radius:17px;background:linear-gradient(145deg,#f1f9fd,#e5f3fa);color:#0b6c9f;box-shadow:inset 0 1px 0 #fff}
+.sv-invoice__badge svg{width:25px;height:25px}
 .sv-invoice__headcopy{flex:1;min-width:0}
 .sv-invoice__eyebrow{display:block;margin-bottom:3px;color:#4381a2;font-size:9px;font-weight:900;letter-spacing:.11em;text-transform:uppercase}
-.cf-mbox.sv-invoice .sv-invoice__head h3{margin:0;color:#183447;font-size:20px;font-weight:850;letter-spacing:-.45px}
-.sv-invoice__head .cf-msub{margin:5px 0 0;color:#718292;font-size:11.5px;font-weight:600;line-height:1.45}
+.cf-mbox.sv-invoice .sv-invoice__head h3{margin:0;color:#183447;font-size:25px;font-weight:850;letter-spacing:-.6px}
+.sv-invoice__head .cf-msub{margin:5px 0 0;color:#718292;font-size:12.5px;font-weight:600;line-height:1.45}
 .sv-invoice__close{display:grid;place-items:center;width:34px;height:34px;flex:none;border:1px solid #e7edf1;border-radius:10px;background:#fff;color:#7d8c98;cursor:pointer;transition:background .16s,color .16s,border-color .16s,transform .16s}
 .sv-invoice__close:hover{transform:rotate(4deg);border-color:#cfdde6;background:#f6f9fb;color:#29475b}
 .sv-invoice__close svg{width:16px;height:16px}
 /* Una sola linea: cuantos servicios y cuanto suman. Quien y de que periodo ya
    lo dice el subtitulo de arriba; repetirlo abajo era la mitad del alto. */
-.sv-invoice__summary{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 15px;border:1px solid #e3edf3;border-radius:14px;background:#f7fafc}
-.sv-invoice__summary span{color:#657e8e;font-size:11px;font-weight:750}
-.sv-invoice__summary b{color:#075984;font-size:19px;font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:-.4px}
-.sv-invoice__fields{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:17px 0 0}
+/* Dos cifras, no un renglon: cuantos servicios y cuanto suman. Es el dato que
+   se compara contra la factura, asi que se lee de lejos. */
+.sv-invoice__summary{display:grid;grid-template-columns:auto 1fr;gap:18px;padding:18px 20px;border:1px solid #e3edf3;border-radius:17px;background:linear-gradient(180deg,#f9fcfd,#f4f8fb)}
+.sv-invoice__stat{min-width:0;display:flex;flex-direction:column;gap:4px}
+.sv-invoice__stat+.sv-invoice__stat{padding-left:18px;border-left:1px solid #e2ebf1;text-align:right}
+.sv-invoice__stat span{color:#7a8d9a;font-size:9.5px;font-weight:900;letter-spacing:.1em;text-transform:uppercase}
+.sv-invoice__stat b{color:#27475c;font-size:23px;font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:-.5px;line-height:1.05}
+.sv-invoice__stat--tot b{color:#075984;font-size:30px}
+.sv-invoice__fields{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:22px 0 0}
 .sv-invoice__fields .cf-fld{margin:0;min-width:0}
-.sv-invoice__fields .cf-fld label{margin-bottom:1px;color:#526b7c;font-size:11px;font-weight:800}
-.sv-invoice__input{display:flex;align-items:center;height:44px;overflow:hidden;border:1.5px solid #dbe5eb;border-radius:11px;background:#fff;transition:border-color .16s,box-shadow .16s}
+.sv-invoice__fields .cf-fld label{margin-bottom:6px;color:#526b7c;font-size:11.5px;font-weight:800}
+.sv-invoice__input{display:flex;align-items:center;height:54px;overflow:hidden;border:1.5px solid #dbe5eb;border-radius:13px;background:#fff;transition:border-color .16s,box-shadow .16s}
 .sv-invoice__input:focus-within{border-color:#1682b7;box-shadow:0 0 0 3px rgba(22,130,183,.1)}
-.sv-invoice__input>span{display:grid;place-items:center;align-self:stretch;min-width:38px;padding:0 9px;border-right:1px solid #e8eef2;background:#f7fafc;color:#7890a0;font-size:10px;font-weight:850}
-.sv-invoice__input input{width:100%;min-width:0;height:100%;padding:0 11px;border:0;border-radius:0;background:transparent;color:#203c4f;font:inherit;font-size:13px;font-weight:750;outline:0}
+.sv-invoice__input>span{display:grid;place-items:center;align-self:stretch;min-width:46px;padding:0 11px;border-right:1px solid #e8eef2;background:#f7fafc;color:#7890a0;font-size:11px;font-weight:850}
+.sv-invoice__input input{width:100%;min-width:0;height:100%;padding:0 14px;border:0;border-radius:0;background:transparent;color:#203c4f;font:inherit;font-size:16px;font-weight:800;outline:0}
 .sv-invoice__input input::placeholder{color:#b0bdc7;font-weight:550}
 .sv-invoice__fields .cf-fld.is-err .sv-invoice__input{border-color:#e0707a;box-shadow:0 0 0 3px rgba(224,112,122,.1)}
 .sv-invoice__fields .cf-fld__err{display:block;margin-top:3px;font-size:10.5px}
-.sv-invoice__live{margin:12px 0 0!important;padding:10px 12px!important;border:1px solid transparent;border-radius:11px!important;font-size:11.5px!important;line-height:1.4}
+.sv-invoice__live{margin:16px 0 0!important;padding:14px 16px!important;border:1px solid transparent;border-radius:13px!important;font-size:13px!important;line-height:1.4}
 .cf-mbox.sv-invoice .cf-live.ok{flex-direction:row;justify-content:flex-start;text-align:left;gap:8px;padding:10px 12px;background:#eff9f3;color:#1a7b4a;border-color:#d0ebda;box-shadow:none}
 .cf-mbox.sv-invoice .cf-live.bad{background:#fff5f3;color:#b64c3f;border-color:#f3d9d4}
 .cf-mbox.sv-invoice .cf-live.neutral{background:#f5f8fa;color:#718292;border-color:#e5edf2}
-.sv-invoice__foot{display:flex;align-items:center;justify-content:flex-end;gap:12px;margin-top:16px;padding-top:14px;border-top:1px solid #edf1f4}
+.sv-invoice__foot{display:flex;align-items:center;justify-content:flex-end;gap:12px;margin-top:22px;padding-top:20px;border-top:1px solid #edf1f4}
 .sv-invoice__actions{display:flex;align-items:center;justify-content:flex-end;gap:8px}
-.cf-mbox.sv-invoice .sv-invoice__actions button{height:40px;padding:0 14px;border:1px solid transparent;border-radius:10px;font:inherit;font-size:11.5px;font-weight:850;cursor:pointer;transition:transform .16s,box-shadow .16s,background .16s}
+.cf-mbox.sv-invoice .sv-invoice__actions button{height:48px;padding:0 22px;border:1px solid transparent;border-radius:13px;font:inherit;font-size:13.5px;font-weight:850;cursor:pointer;transition:transform .16s,box-shadow .16s,background .16s}
 .cf-mbox.sv-invoice .sv-invoice__actions .cancel{border-color:#e1e8ed;background:#fff;color:#617383}
 .cf-mbox.sv-invoice .sv-invoice__actions .cancel:hover{background:#f7f9fa}
 .cf-mbox.sv-invoice .sv-invoice__actions .ok{display:inline-flex;align-items:center;gap:7px;background:linear-gradient(135deg,#1682c2,#075984);color:#fff;box-shadow:0 7px 16px -7px rgba(7,89,132,.85)}
 /* Sin esto el tilde salia a tamaño natural y se comia el texto del boton. */
-.cf-mbox.sv-invoice .sv-invoice__actions button svg{width:15px;height:15px;flex:0 0 auto}
+.cf-mbox.sv-invoice .sv-invoice__actions button svg{width:17px;height:17px;flex:0 0 auto}
 .cf-mbox.sv-invoice .sv-invoice__actions .ok:hover{transform:translateY(-1px);box-shadow:0 10px 20px -7px rgba(7,89,132,.8)}
 .cf-mbox.sv-invoice .sv-invoice__actions .ok:disabled{opacity:.68;cursor:wait;transform:none;box-shadow:none}
 @media(max-width:520px){.cf-mbd .cf-mbox.sv-invoice{padding:18px}.sv-invoice__fields{grid-template-columns:1fr;gap:10px}.sv-invoice__actions{width:100%}.sv-invoice__actions button{flex:1}}
@@ -11392,7 +11397,10 @@ function _svFacturar(g,alTerminar){
       '<p class="cf-msub">'+esc(g.ts)+' · '+_svDM(g.desde)+' al '+_svDM(g.hasta)+'</p></div>'+
       '<button type="button" class="sv-invoice__close" aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>'+
     '</div>'+
-    '<div class="sv-invoice__summary"><span>'+g.filas.length+(g.filas.length===1?' servicio':' servicios')+'</span><b>'+_svGs(tot)+'</b></div>'+
+    '<div class="sv-invoice__summary">'+
+      '<div class="sv-invoice__stat"><span>'+(g.filas.length===1?'Servicio':'Servicios')+'</span><b>'+g.filas.length+'</b></div>'+
+      '<div class="sv-invoice__stat sv-invoice__stat--tot"><span>Total a facturar</span><b>'+_svGs(tot)+'</b></div>'+
+    '</div>'+
     '<div class="sv-invoice__fields">'+
       '<div class="cf-fld" data-fnro><label for="svfNro">Número de factura <span class="req">*</span></label>'+
         '<div class="sv-invoice__input"><span>N.º</span><input id="svfNro" autocomplete="off" maxlength="40" placeholder="Ej. 0087"></div><span class="cf-fld__err"></span></div>'+
