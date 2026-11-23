@@ -2437,6 +2437,9 @@ function _cfAplicarRol(role){
 const CF_ROL_SOLO_TRANS_VIEW='trans';
 let _lastView=null;
 function showView(v){
+  /* Si se sale de Servicios sin volver a su pestaña Registro, el Reporte
+     quedaria apuntando a un contenedor que ya no esta en pantalla. */
+  if(v!=='serv'&&typeof _svSoltarRrep==='function')_svSoltarRrep();
   // Red de seguridad: aunque se llame a showView desde otro lado, no se sale de Transportistas.
   if(window._alasRole===CF_ROL_SOLO_TRANS&&v!==CF_ROL_SOLO_TRANS_VIEW)v=CF_ROL_SOLO_TRANS_VIEW;
   ['calc','serv','trans','hist','dash','fact','rrep','stats','meta'].forEach(x=>{
@@ -6525,8 +6528,17 @@ function showSaveAnim(text){
     font-family:'Inter',system-ui,sans-serif;color:var(--ci-text)}
   .rr-ci *{box-sizing:border-box}
   #viewRrep.stage{padding:12px 16px}
-  #viewRrep.stage:has(#rrepHost.rr-ci){overflow:hidden}
-  #rrepHost.rr-ci{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;gap:12px}
+  #viewRrep.stage:has(.rr-ci){overflow:hidden}
+  /* La pestaña "Datos registrados" de Servicios usa el mismo componente. */
+  #viewServ.stage:has(.rr-ci){overflow:hidden}
+  /* La cadena de alto tiene que llegar entera hasta el calendario: stage →
+     sv-body → sv-rrep → .rr-ci. Sin esto las celdas del mes quedaban de 20px. */
+  #viewServ.stage:has(.rr-ci){display:flex;flex-direction:column}
+  #viewServ.stage:has(.rr-ci) .sv-body{flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
+  #viewServ .sv-rrep{flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
+  /* .rr-ci y no #rrepHost: el mismo componente se dibuja tambien dentro de
+     Servicios Adicionales, en otro contenedor. */
+  .rr-ci{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;gap:12px}
   /* Las dos filas del encabezado usan la MISMA grilla: la primera columna
      mide lo que la marca (--rr-brand-w, que calcula _cfAlinearTira) y la
      segunda la tira / el filtro. Asi quedan uno debajo del otro sin centrar:
@@ -6766,7 +6778,7 @@ function showSaveAnim(text){
   }
   @media(max-width:900px){
     #viewRrep.stage{overflow-y:auto}
-    #rrepHost.rr-ci{overflow:visible}
+    .rr-ci{overflow:visible}
     .rr-ci .ci-body{grid-template-columns:1fr;min-height:auto}
     .rr-ci .ci-list{max-height:70vh}
     .rr-ci .ci-seg__lbl{font-size:9px}
@@ -9320,6 +9332,20 @@ function _facPlanillaPicker(onPick){
 let _rrMes=(function(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');})();
 let _rrWeek=undefined; // undefined=auto · null=Mes completo · 'YYYY-MM-DD'=semana
 let _rrSeg='todos';    // todos | local | interior | servicios
+/* El Reporte se dibuja normalmente en #rrepHost. Servicios Adicionales lo
+   reusa en su propia pestaña: le cambia el contenedor y le fija el segmento,
+   en vez de tener una copia del calendario y de las planillas. */
+let _rrHostId='rrepHost';
+let _rrFijoSeg=null;
+function _rrHost(){ return document.getElementById(_rrHostId); }
+function _rrSegActivo(){ return _rrFijoSeg||_rrSeg; }
+function _rrVisible(){ const h=_rrHost(); return !!(h&&h.offsetParent); }
+/* Instantanea de "donde estoy mirando": mes, semana, dia, busqueda y filtro de
+   factura. Una por vista, porque son pantallas distintas aunque compartan el
+   componente. */
+let _rrNavRrep=null,_rrNavServ=null;
+function _rrNavTomar(){ return {mes:_rrMes,week:_rrWeek,day:_rrDay,q:_rrQ,fac:_rrFac}; }
+function _rrNavPoner(n){ if(!n)return; _rrMes=n.mes;_rrWeek=n.week;_rrDay=n.day;_rrQ=n.q;_rrFac=n.fac; }
 let _rrTabAnim=false;  // true = el re-render viene de tocar un segmento (anim igual a la planilla)
 let _rrQ='';           // buscador general (transportista o camión)
 let _rrDay=null;       // día seleccionado en el calendario (ISO) o null = todo el mes
@@ -9332,7 +9358,8 @@ let _rrScroll=null;    // scroll de la lista a restaurar en el próximo render
 function _rrCountByDay(){
   const map={};
   (repartos||[]).forEach(r=>{ var d=String(r.fechaISO||'').slice(0,10); if(d.slice(0,7)!==_rrMes) return;
-    (r.clientes||[]).forEach(cl=>{ if(_rrSeg!=='todos'&&(cl.seg||'local')!==_rrSeg) return; map[d]=(map[d]||0)+1; });
+    const _sg=_rrSegActivo();
+    (r.clientes||[]).forEach(cl=>{ if(_sg!=='todos'&&(cl.seg||'local')!==_sg) return; map[d]=(map[d]||0)+1; });
   });
   return map;
 }
@@ -9345,7 +9372,8 @@ function _rrDaysIdx(quiero){
     const dia=String(r.fechaISO||'').slice(0,10);
     if(!dia||!quiero(dia))return;
     let d=porDia[dia]; if(!d)d=porDia[dia]={groups:{},order:[]};
-    (r.clientes||[]).forEach(cl=>{ if(_rrSeg!=='todos'&&(cl.seg||'local')!==_rrSeg) return;
+    const _sg2=_rrSegActivo();
+    (r.clientes||[]).forEach(cl=>{ if(_sg2!=='todos'&&(cl.seg||'local')!==_sg2) return;
       const own=cl.trId?tsOfTruck(cl.trId):null; const ts=(own&&own.n)||cl.tsNombre||'—'; const tsId=(own&&own.id)||cl.tsId;
       let g=d.groups[ts]; if(!g){ g=d.groups[ts]={ts:ts,tsId:tsId,facturaId:null,semDesde:isoWeekRange(dia).desde,lines:[],monto:0,flete:0,reps:[]}; d.order.push(ts); }
       cl._fecha=r.fechaISO||r.fecha||null; cl._repId=r.id; g.lines.push(cl); g.monto+=+cl.monto||0; g.flete+=_cfFleteVal(cl);
@@ -9426,7 +9454,7 @@ function _rrMergeByFactura(list){
 function _rrShiftMonth(delta){const a=_rrMes.split('-').map(Number);const d=new Date(a[0],a[1]-1+delta,1);_rrMes=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');_rrWeek=undefined;_rrDay=null;_rrExpTs=null;renderReporteRepartos();}
 // Buscador general: filtra las tarjetas por transportista o camión (sin re-render, mantiene el foco)
 function _rrApplySearch(){
-  const host=document.getElementById('rrepHost');if(!host)return;
+  const host=_rrHost();if(!host)return;
   const q=(_rrQ||'').trim().toLowerCase();let vis=0;
   host.querySelectorAll('.rr-card').forEach(c=>{const show=!q||(c.dataset.search||'').indexOf(q)>=0;c.style.display=show?'':'none';if(show)vis++;});
   const cnt=host.querySelector('.cf-count');if(cnt)cnt.textContent=vis;
@@ -9454,7 +9482,8 @@ function _rrGroups(weekDesde){
     // Si el reparto YA tiene facturas por-línea, un cliente nuevo (sin factura_id) queda PENDIENTE
     // (no hereda el factura_id del reparto → no se mete en la planilla ya cerrada).
     const _repHasCl=(r.clientes||[]).some(c=>c.factura_id!=null);
-    (r.clientes||[]).forEach(cl=>{if(_rrSeg!=='todos'&&(cl.seg||'local')!==_rrSeg)return;
+    const _sg3=_rrSegActivo();
+    (r.clientes||[]).forEach(cl=>{if(_sg3!=='todos'&&(cl.seg||'local')!==_sg3)return;
       // Agrupar por la transportadora DUEÑA del camión (según trId), no por el tsNombre guardado
       // (así los repartos "Varios" / multi-transportadora se reparten en cada transportadora real).
       const own=cl.trId?tsOfTruck(cl.trId):null;
@@ -9503,9 +9532,9 @@ function _cfMigrateLegacyPerLine(){
 // Diagnóstico: dump del estado de factura_id por reparto/cliente. Uso en consola: _diagFac('CELSO ORTIZ')
 window._diagFac=function(tsFiltro){const rowsD=[];(repartos||[]).forEach(r=>{(r.clientes||[]).forEach(c=>{const o=c.trId?tsOfTruck(c.trId):null;const ts=(o&&o.n)||c.tsNombre||'—';if(tsFiltro&&ts!==tsFiltro)return;rowsD.push({reparto:r.id,fecha:r.fechaISO,ts:ts,rep:c.rep,precio:c.precio,r_factura_id:(r.factura_id===undefined?'(sin campo)':r.factura_id),cl_factura_id:(c.factura_id===undefined?'(sin campo)':c.factura_id)});});});console.log('=== DIAG FACTURA'+(tsFiltro?' · '+tsFiltro:'')+' ===');console.table(rowsD);console.log('facturas registradas:',(window.__cfFac||[]).map(f=>({id:f.id,ts:f.transportadora_nombre,monto:f.monto,semana:f.semana_desde})));return rowsD;};
 function renderReporteRepartos(){
-  const host=document.getElementById('rrepHost');if(!host)return;
+  const host=_rrHost();if(!host)return;
   try{document.querySelectorAll('.ci-tip').forEach(t=>t.remove());}catch(_){} // limpia tooltips huérfanos
-  if(!window.__cfFac){sb.from('fact_facturas').select('*').then(r=>{window.__cfFac=r.data||[];if(document.getElementById('viewRrep').classList.contains('is-active'))renderReporteRepartos();}).catch(()=>{window.__cfFac=[];});}
+  if(!window.__cfFac){sb.from('fact_facturas').select('*').then(r=>{window.__cfFac=r.data||[];if(_rrVisible())renderReporteRepartos();}).catch(()=>{window.__cfFac=[];});}
   _cfResetBackfill();
   _cfMigrateLegacyPerLine();
   const IC={cal:'<svg fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>',
@@ -9547,7 +9576,7 @@ function renderReporteRepartos(){
   // Conteo por segmento para el control superior
   function segCount(k){const prev=_rrSeg;_rrSeg=k;const gs=weeks.reduce((acc,w)=>acc.concat(_rrGroups(w.desde)),[]);_rrSeg=prev;return gs.length;}
   const SEGS=[['todos','Todos',IC.grid],['local','Local',IC.home],['interior','Interior',IC.truck],['servicios','Servicios',IC.wrench],['transportadora','Transportadora',IC.building]];
-  const segBar='<div class="rr-topbar"><span></span>'+
+  const segBar=_rrFijoSeg?'':'<div class="rr-topbar"><span></span>'+
     '<div class="ci-seg">'+SEGS.map(s=>'<button type="button" class="ci-seg__btn'+(_rrSeg===s[0]?' on':'')+'" data-rrseg="'+s[0]+'"><span class="ci-seg__ic">'+s[2]+'</span><span class="ci-seg__col"><span class="ci-seg__lbl">'+s[1]+'</span><span class="ci-seg__n">'+segCount(s[0])+'</span></span></button>').join('')+'</div><span></span></div>';
 
   // Eventos por día (respeta el segmento activo vía _rrDayGroups)
@@ -9612,7 +9641,9 @@ function renderReporteRepartos(){
         '<span class="ci-row__bar"></span>'+
         '<div class="ci-row__main"><div class="ci-row__ttl"><span class="ci-row__name" title="'+_escp(g.ts)+'">'+_escp(g.ts)+'</span><span class="ci-row__segs">'+segChip+'</span></div>'+
           '<div class="ci-row__meta">'+
-            '<span class="ci-pill">'+IC.truckMin+'<span>'+cam+' camion'+(cam===1?'':'es')+'</span></span>'+
+            /* Un servicio adicional no lleva camion: cuando el segmento esta
+               fijado en servicios, el contador cuenta servicios. */
+            '<span class="ci-pill">'+(_rrFijoSeg==='servicios'?IC.wrench:IC.truckMin)+'<span>'+cam+(_rrFijoSeg==='servicios'?(' servicio'+(cam===1?'':'s')):(' camion'+(cam===1?'':'es')))+'</span></span>'+
             perPill+
           '</div></div>'+
         '<span class="ci-row__amt" title="Flete del período">'+_gs(g.flete)+'</span>'+
@@ -9626,7 +9657,7 @@ function renderReporteRepartos(){
   let rttl,rsub;
   if(_rrDay){rttl='Repartos del '+_dispD(_rrDay);rsub=groups.length+' planilla'+(groups.length===1?'':'s');}
   else if(_rrWeek){rttl='Semana '+_dispD(clip(_rrWeek))+' – '+_dispD(clip(_wkHasta(_rrWeek)));rsub=groups.length+' planilla'+(groups.length===1?'':'s');}
-  else{rttl='Repartos de '+monthLbl;rsub=groups.length+' planilla'+(groups.length===1?'':'s')+' · '+MES[a[1]-1];}
+  else{rttl=(_rrFijoSeg==='servicios'?'Servicios de ':'Repartos de ')+monthLbl;rsub=groups.length+' planilla'+(groups.length===1?'':'s')+' · '+MES[a[1]-1];}
   const rightH='<div class="ci-panel"><div class="ci-phead"><div class="ci-phead__ico">'+IC.truck+'</div>'+
       '<div class="ci-phead__meta"><div class="t">'+rttl+'</div><div class="s">'+rsub+'</div></div>'+
       ((_rrDay||_rrWeek)?'<button class="ci-phead__hoy" data-rrvermes type="button">Ver el mes</button>':'')+'</div>'+
@@ -9775,7 +9806,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
   const TRUCKICON='<svg viewBox="0 0 24 24"><rect x="2.5" y="7" width="11" height="8" rx="1"/><path d="M13.5 9.5H17l3.5 3.5V15h-7z"/><circle cx="7" cy="17.5" r="1.6"/><circle cx="17.5" cy="17.5" r="1.6"/></svg>';
   const tsObj=(typeof transportistas!=='undefined'?transportistas:[]).find(t=>t.n===g.ts);
   const trucks=(tsObj&&tsObj.trucks)||[];
-  const host=document.getElementById('rrepHost');if(!host)return;
+  const host=_rrHost();if(!host)return;
   const bd=document.createElement('div');bd.className='rr-detail';host.className='cf-host';host.innerHTML='';host.appendChild(bd);
   try{(document.scrollingElement||document.documentElement).scrollTop=0;}catch(_){}
   // Arrastrar y soltar (tipo Trello): mover un camión a otra columna cambia su segmento.
@@ -10672,7 +10703,7 @@ function renderServicios(){
   document.querySelectorAll('#svTabs [data-svtab]').forEach(function(b){
     b.classList.toggle('is-active',b.dataset.svtab===_svTab);
   });
-  if(_svTab==='reg')_svReg(host); else _svDatos(host,lin);
+  if(_svTab==='reg'){ _svSoltarRrep(); _svReg(host); } else _svDatos(host);
 }
 
 /* ── Pestaña: Registro ───────────────────────────────────── */
@@ -11152,7 +11183,29 @@ async function _svFacturarDraft(host){
 }
 
 /* ── Pestaña: Datos registrados ──────────────────────────── */
-function _svDatos(host,lin){
+/* Datos registrados = el MISMO componente del Reporte de repartos (calendario
+   del mes + planillas desplegables), con el segmento fijado en servicios. Se
+   reusa en vez de copiarse: una copia de esas ~970 lineas se iba a separar de
+   la original a la primera correccion, como ya pasa con las dos de ACUSE. */
+function _svDatos(host){
+  host.innerHTML='<div class="sv-rrep"><div id="svRrepHost"></div></div>';
+  if(_rrHostId!=='svRrepHost'){
+    _rrNavRrep=_rrNavTomar();
+    _rrNavPoner(_rrNavServ||{mes:_rrMes,week:null,day:null,q:'',fac:'todos'});
+  }
+  _rrHostId='svRrepHost';
+  _rrFijoSeg='servicios';
+  if(typeof renderReporteRepartos==='function')renderReporteRepartos();
+}
+
+/* Vuelve a dejar el Reporte en su lugar al salir de esta pestaña. */
+function _svSoltarRrep(){
+  if(_rrHostId==='svRrepHost'){ _rrNavServ=_rrNavTomar(); _rrNavPoner(_rrNavRrep); }
+  _rrHostId='rrepHost'; _rrFijoSeg=null;
+}
+
+/* La tabla plana anterior, por si hace falta volver a ella. */
+function _svDatosTabla(host,lin){
   const meses={}; lin.forEach(function(x){ const k=String(x.iso||'').slice(0,7); if(k)meses[k]=1; });
   const lMes=Object.keys(meses).sort().reverse();
   const tss={}; lin.forEach(function(x){ tss[x.ts]=1; });
