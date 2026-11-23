@@ -7212,7 +7212,7 @@ function showSaveAnim(text){
   .rrd-cam__ic svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.7}
   .rrd-cam__t{vertical-align:middle}
   /* Mismo chip degradado que en la planilla de carga. */
-  .rrd-alm{display:inline-flex;align-items:center;padding:4px 11px;border-radius:999px;background:linear-gradient(135deg,#1a86c8 0%,#0b5f8d 58%,#084b70 100%);color:#fff;font-size:11px;font-weight:850;letter-spacing:.5px;font-variant-numeric:tabular-nums;box-shadow:0 3px 9px -3px rgba(8,75,112,.7),inset 0 1px 0 rgba(255,255,255,.2)}
+  .rrd-alm,.rrd-service-chip{display:inline-flex;align-items:center;padding:4px 11px;border-radius:999px;background:linear-gradient(135deg,#1a86c8 0%,#0b5f8d 58%,#084b70 100%);color:#fff;font-size:11px;font-weight:850;letter-spacing:.5px;font-variant-numeric:tabular-nums;box-shadow:0 3px 9px -3px rgba(8,75,112,.7),inset 0 1px 0 rgba(255,255,255,.2)}
   .rrd-chip{display:inline-block;padding:3px 10px;border-radius:999px;background:var(--gray-100,#f1f5f9);color:var(--gray-600);font-size:11.5px;font-weight:700}
   .rrd-mut{color:var(--gray-300)}
   .rrd-fec{color:var(--gray-500);font-variant-numeric:tabular-nums}
@@ -10194,6 +10194,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     const _fdm=f=>{const s=String(f||'');return s.length>=10?(s.slice(8,10)+'/'+s.slice(5,7)):'—';};
     const dfec=w=>'<td class="rrd-fec">'+CAL+(w.fecha?_fdm(w.fecha):'—')+'</td>';
     const dchip=t=>'<span class="rrd-chip">'+_escp(t)+'</span>';
+    const serviceChip=t=>'<span class="rrd-service-chip">'+_escp(t)+'</span>';
     // Acciones de factura (aprobada / selección / borrar): SOLO en la vista "Todos"
     const facReg2=!!_facDeGrupo(g);
     const _facActs=w=>{
@@ -10208,7 +10209,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
          las columnas que corresponden: servicio, almacen y detalle. */
       const _soloServ=allItems.length>0&&allItems.every(w=>(w.seg||'local')==='servicios');
       const rowsServ=()=>allItems.map(w=>'<tr'+_facRowCls(w)+(_facMode?' data-facrow="'+w.uid+'" style="cursor:pointer"':'')+'>'+dfec(w)+
-        '<td>'+(w.obs?dchip(w.obs):'<span class="rrd-mut">—</span>')+'</td>'+
+        '<td>'+(w.obs?serviceChip(w.obs):'<span class="rrd-mut">—</span>')+'</td>'+
         '<td>'+(w.almacen?('<span class="rrd-alm">'+_escp(w.almacen)+'</span>'):'<span class="rrd-mut">—</span>')+'</td>'+
         '<td class="rrd-grow">'+(w.detalle?_escp(w.detalle):'<span class="rrd-mut">—</span>')+'</td>'+
         '<td class="r rrd-flete">'+_gs(+w.precio||0)+'</td>'+_facActs(w)+'</tr>').join('');
@@ -10258,11 +10259,11 @@ function _rrOpenDetail(g,periodLbl,wkObj){
       const rowCls=w=>'';
       if(isTr)rowsHtml=items.map(w=>'<tr'+rowCls(w)+' data-dashrow="'+w.uid+'">'+dfec(w)+'<td class="rrd-cam rrd-grow"><span class="rrd-cam__ic">'+TRUCKICON+'</span><span class="rrd-cam__t">'+((+w.cant||0)+' '+_camLbl((+w.cant||0)))+'</span></td><td class="r">'+(+w.cant||0)+'</td><td class="r rrd-flete">'+_gs(+w.precio||0)+'</td>'+acts(w)+'</tr>').join('');
       else if(soloServ)rowsHtml=items.map(w=>'<tr'+rowCls(w)+' data-dashrow="'+w.uid+'">'+dfec(w)+
-        '<td>'+(w.obs?dchip(w.obs):'<span class="rrd-mut">—</span>')+'</td>'+
+        '<td>'+(w.obs?serviceChip(w.obs):'<span class="rrd-mut">—</span>')+'</td>'+
         '<td>'+(w.almacen?('<span class="rrd-alm">'+_escp(w.almacen)+'</span>'):'<span class="rrd-mut">—</span>')+'</td>'+
         '<td class="rrd-grow">'+(w.detalle?_escp(w.detalle):'<span class="rrd-mut">—</span>')+'</td>'+
         '<td class="r rrd-flete">'+_gs(+w.precio||0)+'</td>'+acts(w)+'</tr>').join('');
-      else rowsHtml=items.map(w=>{const km=(isInt&&+w.km>0)?(_kmFmt(+w.km)+' km × '+_gs(+w.precioKm||0)):'—';return '<tr'+rowCls(w)+' data-dashrow="'+w.uid+'">'+dfec(w)+'<td class="rrd-cam"><span class="rrd-cam__ic">'+TRUCKICON+'</span><span class="rrd-cam__t">'+_escp(camLbl(w))+'</span></td><td>'+_escp(w.rep||'Tercerizado')+'</td><td class="rrd-grow">'+(w.zona?dchip(w.zona):(isServ&&w.obs?dchip(w.obs):'<span class="rrd-mut">—</span>'))+'</td>'+(isInt?'<td class="r rrd-det">'+km+'</td>':'')+'<td class="r rrd-flete">'+_gs(+w.precio||0)+'</td>'+acts(w)+'</tr>';}).join('');
+      else rowsHtml=items.map(w=>{const km=(isInt&&+w.km>0)?(_kmFmt(+w.km)+' km × '+_gs(+w.precioKm||0)):'—';return '<tr'+rowCls(w)+' data-dashrow="'+w.uid+'">'+dfec(w)+'<td class="rrd-cam"><span class="rrd-cam__ic">'+TRUCKICON+'</span><span class="rrd-cam__t">'+_escp(camLbl(w))+'</span></td><td>'+_escp(w.rep||'Tercerizado')+'</td><td class="rrd-grow">'+(w.zona?dchip(w.zona):(isServ&&w.obs?serviceChip(w.obs):'<span class="rrd-mut">—</span>'))+'</td>'+(isInt?'<td class="r rrd-det">'+km+'</td>':'')+'<td class="r rrd-flete">'+_gs(+w.precio||0)+'</td>'+acts(w)+'</tr>';}).join('');
       if(!rowsHtml)rowsHtml='<tr><td colspan="9" class="rrd-empty">Sin líneas</td></tr>';
     }
     let hdActs;
