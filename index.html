@@ -11327,8 +11327,6 @@ function renderServicios(){
 /* El registro es una planilla: se eligen transportadora y servicios; Registrar
    factura guarda las filas pendientes y abre la conciliacion de la factura. */
 let _svDraft={tsId:'',filas:[]};
-/* Para abrir el selector de transportadora una sola vez, no en cada repintado. */
-let _svTsYaPedido=false;
 let _svFactBusy=false;
 let _svUid=1;
 let _svTsOutsideBound=false;
@@ -11839,11 +11837,6 @@ function _svReg(host){
       const t=document.getElementById('svTsTrigger');
       if(t){t.focus();t.click();}
     });
-    /* Una sola vez por sesion: si entras sin nada cargado, se abre solo. */
-    if(!_svTsYaPedido&&!_svDraft.filas.some(function(f){return (f.obs||'').trim()||+f.monto>0;})){
-      _svTsYaPedido=true;
-      setTimeout(function(){ const t=document.getElementById('svTsTrigger'); if(t&&!_svDraft.tsId)t.click(); },420);
-    }
   }
 
   host.querySelectorAll('[data-per]').forEach(function(inp){
