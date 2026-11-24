@@ -5400,6 +5400,8 @@ function renderCalReparto(r){
   let seg=_calRepSeg[r.id]||'todos';if(seg!=='todos'&&!present.includes(seg))seg='todos';
   // Conjunto filtrado por el segmento activo — los KPIs se calculan de ESTE conjunto
   const vis=cl.filter(c=>seg==='todos'||(c.seg||'local')===seg);
+  const servicesOnly=vis.length>0&&vis.every(c=>(c.seg||'local')==='servicios');
+  const hasServices=vis.some(c=>(c.seg||'local')==='servicios');
   const showKm=vis.some(c=>(c.seg||'local')==='interior');
   const kMonto=vis.reduce((s,c)=>s+(+c.monto||0),0);
   const kFlete=vis.reduce((s,c)=>s+((c.precio||c.gasto)||0),0);
@@ -5412,28 +5414,47 @@ function renderCalReparto(r){
   const over=incVal!==null?!incOk:(_difObj>0);
   // KPIs PRO (reflejan el segmento filtrado)
   const tile=(cls,ic,lbl,val)=>'<div class="rrd-ktile '+cls+'"><span class="rrd-ktile__ic">'+ic+'</span><div class="rrd-ktile__tx"><small>'+lbl+'</small><b>'+val+'</b></div></div>';
-  const kpis='<div class="rrd-resumen-bar crd-kpis">'+
-    tile('rrd-ktile--cam',TRUCK,'Camiones',_nnum(kCam))+
-    tile('rrd-ktile--k-fac',CLIP,'Monto repartido',fmtGs(kMonto))+
-    tile('rrd-ktile--k-total',COINS,'Flete',fmtGs(kFlete))+
-    tile('rrd-ktile--inc'+(incVal===null?'':(incOk?' ok':' over')),PCT,'Incidencia',incTxt)+
-    '<div class="rrd-ktile rrd-ktile--obj crd-obj '+(over?'over':'ok')+'"><span class="rrd-ktile__ic">'+STATS+'</span><div class="rrd-ktile__tx"><b class="crd-obj__t">'+(over?'Sobre el objetivo (3%)':'Dentro del objetivo (3%)')+'</b>'+(over?'<small class="crd-obj__d">+'+fmtGs(_difObj)+'</small>':'')+'</div></div>'+
-    '</div>';
+  const kpis=servicesOnly
+    ? '<div class="rrd-resumen-bar crd-kpis crd-kpis--services">'+tile('rrd-ktile--cam',TRUCK,'Servicios',_nnum(kCam))+tile('rrd-ktile--k-total',COINS,'Flete de servicios',fmtGs(kFlete))+'</div>'
+    : '<div class="rrd-resumen-bar crd-kpis">'+
+      tile('rrd-ktile--cam',TRUCK,'Camiones',_nnum(kCam))+
+      tile('rrd-ktile--k-fac',CLIP,'Monto repartido',fmtGs(kMonto))+
+      tile('rrd-ktile--k-total',COINS,'Flete',fmtGs(kFlete))+
+      tile('rrd-ktile--inc'+(incVal===null?'':(incOk?' ok':' over')),PCT,'Incidencia',incTxt)+
+      '<div class="rrd-ktile rrd-ktile--obj crd-obj '+(over?'over':'ok')+'"><span class="rrd-ktile__ic">'+STATS+'</span><div class="rrd-ktile__tx"><b class="crd-obj__t">'+(over?'Sobre el objetivo (3%)':'Dentro del objetivo (3%)')+'</b>'+(over?'<small class="crd-obj__d">+'+fmtGs(_difObj)+'</small>':'')+'</div></div>'+
+      '</div>';
   // Pestañas de segmento (Todos + presentes)
   const tabs='<div class="rrd-tabs crd-tabs"><button class="rrd-tab'+(seg==='todos'?' on':'')+'" data-calseg="'+r.id+':todos"><span class="rrd-tab__dot rrd-tab__dot--all"></span>Todos<span class="rrd-tab__n">'+cl.length+'</span></button>'+present.map(sk=>{const n=cl.filter(c=>(c.seg||'local')===sk).length;return '<button class="rrd-tab'+(seg===sk?' on':'')+'" data-calseg="'+r.id+':'+sk+'"><span class="rrd-tab__dot" style="background:'+SEGDOT[sk]+'"></span>'+SEGN[sk]+'<span class="rrd-tab__n">'+n+'</span></button>';}).join('')+'</div>';
-  const nCols=showKm?8:7;
-  const rows=vis.map(c=>{const sk=c.seg||'local';const fl=(c.precio||c.gasto)||0;const hasInc=c.inc!==null&&c.inc!==undefined;const clOk=hasInc&&c.inc<3;
+  const nCols=servicesOnly?5:(showKm?8:7);
+  const _calServiceFields=c=>{
+    const raw=String(c.obs||c.servicio||'').trim();
+    const detail=String(c.detalle||'').trim();
+    if(detail)return{service:raw,detail:detail};
+    // En repartos antiguos, el texto libre podía quedar guardado en obs.
+    const parsed=typeof _dashServicioCampos==='function'?_dashServicioCampos(c):null;
+    if(parsed&&parsed.servicio)return{service:String(parsed.servicio).trim(),detail:String(parsed.detalle||'').trim()};
+    return{service:raw,detail:''};
+  };
+  const _calDate=String(calDayIso||r.fechaISO||'').slice(0,10).split('-').reverse().join('/')||'—';
+  const rows=vis.map(c=>{const sk=c.seg||'local';const fl=(c.precio||c.gasto)||0;const hasInc=sk!=='servicios'&&c.inc!==null&&c.inc!==undefined;const clOk=hasInc&&c.inc<3;
+    if(servicesOnly){const sf=_calServiceFields(c);return '<tr><td class="rrd-fec">'+_calDate+'</td><td>'+(sf.service?'<span class="rrd-service-chip">'+esc(sf.service)+'</span>':'<span class="rrd-mut">—</span>')+'</td><td>'+(c.almacen?'<span class="rrd-alm">'+esc(c.almacen)+'</span>':'<span class="rrd-mut">—</span>')+'</td><td class="rrd-grow">'+(sf.detail?esc(sf.detail):'<span class="rrd-mut">—</span>')+'</td><td class="r rrd-flete">'+fmtGs(fl)+'</td></tr>';}
     const km=(sk==='interior'&&+c.km>0)?(_nnum(+c.km)+' km × '+fmtGs(+c.precioKm||0)):'<span class="rrd-mut">—</span>';
-    return '<tr><td class="rrd-cam"><span class="rrd-cam__ic">'+TRUCK+'</span><span class="rrd-cam__t">'+esc(c.trDesc||c.nombre||'—')+'</span></td>'+
+    const sf=sk==='servicios'?_calServiceFields(c):null;
+    const camCell=sf?(sf.service?'<span class="rrd-service-chip">'+esc(sf.service)+'</span>':'<span class="rrd-mut">—</span>'):'<span class="rrd-cam__ic">'+TRUCK+'</span><span class="rrd-cam__t">'+esc(c.trDesc||c.nombre||'—')+'</span>';
+    const repCell=sf?(c.almacen?'<span class="rrd-alm">'+esc(c.almacen)+'</span>':'<span class="rrd-mut">—</span>'):(c.rep?esc(c.rep):'<span class="rrd-mut">Tercerizado</span>');
+    const zoneCell=sf?(sf.detail?esc(sf.detail):'<span class="rrd-mut">—</span>'):(c.zona?'<span class="rrd-chip">'+esc(c.zona)+'</span>':'<span class="rrd-mut">—</span>');
+    return '<tr><td class="rrd-cam">'+camCell+'</td>'+
       '<td><span class="rrd-segtag rrd-segtag--'+sk+'">'+SEGN[sk]+'</span></td>'+
-      '<td>'+(c.rep?esc(c.rep):'<span class="rrd-mut">Tercerizado</span>')+'</td>'+
-      '<td class="rrd-grow">'+(c.zona?'<span class="rrd-chip">'+esc(c.zona)+'</span>':'<span class="rrd-mut">—</span>')+'</td>'+
+      '<td>'+repCell+'</td>'+
+      '<td class="rrd-grow">'+zoneCell+'</td>'+
       (showKm?'<td class="r rrd-det">'+km+'</td>':'')+
-      '<td class="r">'+fmtGs(c.monto||0)+'</td>'+
+      '<td class="r">'+(sf?'<span class="rrd-mut">—</span>':fmtGs(c.monto||0))+'</td>'+
       '<td class="r rrd-flete">'+(fl?fmtGs(fl):'—')+'</td>'+
       '<td class="r crt-inc '+(hasInc?(clOk?'ok':'over'):'')+'">'+(hasInc?c.inc.toFixed(2)+'%':'—')+'</td></tr>';
   }).join('')||'<tr><td colspan="'+nCols+'" class="rrd-empty">Sin líneas en este segmento</td></tr>';
-  const thead='<tr><th>Camión</th><th>Segmento</th><th>Repartidor</th><th class="rrd-grow">Zona</th>'+(showKm?'<th class="r">Km · Precio/km</th>':'')+'<th class="r">Monto</th><th class="r">Flete</th><th class="r">Incid.</th></tr>';
+  const thead=servicesOnly
+    ? '<tr><th>Fecha de registro</th><th>Servicio</th><th>Almacén</th><th class="rrd-grow">Detalle</th><th class="r">Flete</th></tr>'
+    : '<tr><th>'+(hasServices?'Camión / Servicio':'Camión')+'</th><th>Segmento</th><th>'+(hasServices?'Repartidor / Almacén':'Repartidor')+'</th><th class="rrd-grow">'+(hasServices?'Zona / Detalle':'Zona')+'</th>'+(showKm?'<th class="r">Km · Precio/km</th>':'')+'<th class="r">Monto</th><th class="r">Flete</th><th class="r">Incid.</th></tr>';
   const acts='<div class="cal-rep-actions crd-barrow__acts">'+
       '<button class="cal-rep-btn edit" type="button" data-editr="'+r.id+'"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="15" height="15"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>Editar</button>'+
       '<button class="cal-rep-btn del" type="button" data-delr="'+r.id+'" title="Eliminar"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="15" height="15"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>'+
@@ -7481,7 +7502,7 @@ function showSaveAnim(text){
   .cal-rep--pro .crd-kpis .rrd-ktile{min-width:170px}
   /* En el calendario, los KPI y las acciones se adaptan al ancho real de cada planilla. */
   .cal-rep--pro{container-type:inline-size;container-name:cal-reparto}
-  .cal-rep--pro .crd-kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin:0 0 11px}
+  .cal-rep--pro .crd-kpis{display:grid;width:min(100%,1320px);grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin:0 auto 11px}
   .cal-rep--pro .crd-kpis .rrd-ktile{min-width:0;min-height:68px;margin:0;padding:10px 12px;gap:9px;border-radius:14px}
   .cal-rep--pro .crd-kpis .rrd-ktile__ic{width:36px;height:36px;flex:0 0 36px;border-radius:11px}
   .cal-rep--pro .crd-kpis .rrd-ktile__ic svg{width:18px;height:18px}
@@ -7489,10 +7510,13 @@ function showSaveAnim(text){
   .cal-rep--pro .crd-kpis .rrd-ktile__tx small{font-size:9px;letter-spacing:.45px;white-space:nowrap}
   .cal-rep--pro .crd-kpis .rrd-ktile__tx b{font-size:clamp(15px,1.1cqi,19px);line-height:1.12;white-space:nowrap}
   .cal-rep--pro .crd-kpis .rrd-ktile--obj .rrd-ktile__tx b{font-size:13px;white-space:normal}
-  @container cal-reparto (max-width:1240px){.cal-rep--pro .crd-kpis{grid-template-columns:repeat(4,minmax(0,1fr))}}
+  @container cal-reparto (max-width:1240px){.cal-rep--pro .crd-kpis{width:100%;grid-template-columns:repeat(4,minmax(0,1fr))}}
   @container cal-reparto (max-width:980px){.cal-rep--pro .crd-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}}
   @container cal-reparto (max-width:700px){.cal-rep--pro .crd-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
   @container cal-reparto (max-width:460px){.cal-rep--pro .crd-kpis{grid-template-columns:minmax(0,1fr)}}
+  .cal-rep--pro .crd-kpis--services{width:min(100%,640px);grid-template-columns:repeat(2,minmax(0,1fr))}
+  @container cal-reparto (max-width:700px){.cal-rep--pro .crd-kpis--services{width:100%;grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @container cal-reparto (max-width:420px){.cal-rep--pro .crd-kpis--services{grid-template-columns:minmax(0,1fr)}}
   .rrd-ktile--cam .rrd-ktile__tx b{color:#0B5F8D}
   /* Tile Objetivo: solo el estado (verde/rojo), un poco más grande, sin valor grande aparte */
   .rrd-ktile--obj .rrd-ktile__tx b{font-size:14.5px;line-height:1.2}
@@ -7504,14 +7528,14 @@ function showSaveAnim(text){
   .crd-barrow .crd-tabs{margin:0;justify-self:center}
   .crd-barrow__acts{grid-column:3;justify-self:end;display:flex;gap:8px}
   @media(max-width:760px){.crd-barrow{grid-template-columns:1fr;justify-items:center}.crd-barrow__sp{display:none}.crd-barrow__acts{grid-column:1;justify-self:center}}
-  .cal-rep--pro .crd-barrow{grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:8px;margin-bottom:11px}
+  .cal-rep--pro .crd-barrow{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:9px;margin-bottom:11px}
+  .cal-rep--pro .crd-barrow__sp{display:none}
   .cal-rep--pro .crd-barrow .crd-tabs{max-width:100%;gap:4px;padding:4px;border-radius:12px}
   .cal-rep--pro .crd-barrow .rrd-tab{gap:6px;padding:6px 10px;font-size:12px;border-radius:9px}
   .cal-rep--pro .crd-barrow .rrd-tab__n{min-width:18px;height:18px;font-size:10px}
-  .cal-rep--pro .crd-barrow .crd-barrow__acts{grid-column:3;justify-self:end;gap:6px}
+  .cal-rep--pro .crd-barrow .crd-barrow__acts{grid-column:auto;justify-self:auto;gap:6px}
   .cal-rep--pro .crd-barrow .cal-rep-btn{height:32px;padding:0 11px;font-size:11.5px}
-  @container cal-reparto (max-width:850px){.cal-rep--pro .crd-barrow{grid-template-columns:minmax(0,1fr) auto}.cal-rep--pro .crd-barrow__sp{display:none}.cal-rep--pro .crd-barrow .crd-tabs{grid-column:1;justify-self:center}.cal-rep--pro .crd-barrow .crd-barrow__acts{grid-column:2;justify-self:end}}
-  @container cal-reparto (max-width:560px){.cal-rep--pro .crd-barrow{grid-template-columns:minmax(0,1fr);justify-items:center;row-gap:7px}.cal-rep--pro .crd-barrow .crd-tabs,.cal-rep--pro .crd-barrow .crd-barrow__acts{grid-column:1;justify-self:center}.cal-rep--pro .crd-barrow .rrd-tab{padding:6px 8px;font-size:11px}}
+  @container cal-reparto (max-width:560px){.cal-rep--pro .crd-barrow{row-gap:7px}.cal-rep--pro .crd-barrow .rrd-tab{padding:6px 8px;font-size:11px}}
   .cal-rep--pro .crd-tablewrap{overflow-x:auto}
   /* Camión y segmento con el mismo chip azul PRO del reporte; el icono va dentro del chip. */
   .cal-rep--pro:not(.cal-rep--edit) .rrd-tbl:not(.rrd-tbl--edit) .rrd-cam__ic{position:relative;z-index:1;width:20px;height:20px;margin-right:-20px;background:transparent;border-color:transparent;color:#fff;box-shadow:none}
