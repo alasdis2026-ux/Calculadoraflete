@@ -404,37 +404,43 @@ body{min-height:100vh;overflow:hidden;font-family:Inter,system-ui,-apple-system,
 .sidebar-user svg{width:21px;height:21px;stroke-width:1.6;flex-shrink:0}
 .sidebar-user .label{font-size:12px;font-weight:600;letter-spacing:.1px;opacity:0;transform:translateX(-8px);transition:opacity var(--alas-dur-normal) var(--alas-ease) 60ms,transform var(--alas-dur-normal) var(--alas-ease) 60ms}
 .sidebar:hover .sidebar-user .label{opacity:1;transform:translateX(0)}
-.sidebar-item{position:relative}
-.alas-online-badge{position:absolute;z-index:2;right:7px;top:50%;transform:translateY(-50%);display:flex;align-items:center;justify-content:flex-end;min-width:25px;height:28px;padding:0 1px;border:0;border-radius:999px;background:transparent;cursor:pointer;transition:transform .2s var(--alas-ease-spring);-webkit-tap-highlight-color:transparent}
-.alas-online-badge:hover,.alas-online-badge:focus-visible{transform:translateY(-50%) scale(1.06);outline:none}
-.alas-online-badge:focus-visible{filter:drop-shadow(0 0 3px rgba(255,255,255,.8))}
-.alas-online-badge__avatar{position:relative;display:grid;place-items:center;width:24px;height:24px;flex:none;margin-left:-7px;overflow:visible;border:2px solid #fff;border-radius:50%;background:linear-gradient(145deg,hsl(var(--avatar-hue,202) 76% 58%),hsl(var(--avatar-hue,202) 80% 34%));color:#fff;box-shadow:0 2px 6px rgba(5,39,61,.22);font-size:8px;font-weight:900;letter-spacing:.01em}
-.alas-online-badge__avatar:first-child{margin-left:0}
-.alas-online-badge__avatar img,.alas-presence-avatar img{width:100%;height:100%;display:block;object-fit:cover;border-radius:50%}
-.alas-online-badge__avatar i{position:absolute;right:-1px;bottom:-1px;width:8px;height:8px;border:1.5px solid #fff;border-radius:50%;background:#24c77a;box-shadow:0 0 0 1px rgba(36,199,122,.15)}
-.alas-online-badge__more{display:grid;place-items:center;min-width:21px;height:21px;margin-left:-5px;padding:0 4px;border:2px solid #fff;border-radius:999px;background:#eaf3fa;color:#46647a;box-shadow:0 2px 5px rgba(5,39,61,.16);font-size:8px;font-weight:900}
-.sidebar:not(:hover) .alas-online-badge{right:2px;top:5px;transform:none;width:12px;min-width:12px;height:12px;padding:0;border:1.5px solid rgba(255,255,255,.95);border-radius:50%;background:#c9f7dc;box-shadow:0 0 0 1px rgba(8,111,75,.16)}
-.sidebar:not(:hover) .alas-online-badge:hover,.sidebar:not(:hover) .alas-online-badge:focus-visible{transform:scale(1.15)}
-.sidebar:not(:hover) .alas-online-badge__avatar,.sidebar:not(:hover) .alas-online-badge__more{display:none}
-.alas-presence-tip{position:fixed;z-index:10000;width:min(300px,calc(100vw - 24px));max-height:min(390px,calc(100vh - 24px));overflow:auto;border:1px solid rgba(209,226,238,.95);border-radius:17px;background:rgba(255,255,255,.985);box-shadow:0 20px 55px rgba(6,37,59,.22),0 3px 10px rgba(6,37,59,.08);opacity:0;visibility:hidden;pointer-events:none;transform-origin:left center;will-change:transform,opacity}
-.alas-presence-tip.is-open{visibility:visible;pointer-events:auto;opacity:1;transform:translate3d(0,0,0) scale(1)}
-.alas-presence-tip__head{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid #edf2f6;background:linear-gradient(135deg,#fbfdff,#fff)}
-.alas-presence-tip__avatars{display:flex;align-items:center;min-width:32px;padding-left:1px}
-.alas-presence-avatar{position:relative;display:grid;place-items:center;width:29px;height:29px;flex:none;margin-left:-8px;overflow:visible;border:2px solid #fff;border-radius:50%;background:linear-gradient(145deg,hsl(var(--avatar-hue,202) 76% 58%),hsl(var(--avatar-hue,202) 80% 34%));color:#fff;box-shadow:0 1px 4px rgba(5,39,61,.14);font-size:9px;font-weight:850}
+.alas-presence-dock{position:fixed;z-index:500;top:18px;right:24px}
+.alas-presence-trigger{display:flex;align-items:center;gap:9px;min-height:38px;padding:5px 8px 5px 7px;border:1px solid rgba(204,220,233,.9);border-radius:999px;background:rgba(255,255,255,.95);color:#3b5569;box-shadow:0 5px 18px rgba(15,47,70,.1);backdrop-filter:blur(12px);cursor:pointer;transition:border-color .2s,box-shadow .2s,transform .2s var(--alas-ease-spring)}
+.alas-presence-trigger:hover,.alas-presence-trigger:focus-visible,.alas-presence-dock.is-open .alas-presence-trigger{border-color:#b4d5e8;box-shadow:0 8px 22px rgba(15,47,70,.14);outline:none}
+.alas-presence-trigger:active{transform:scale(.98)}
+.alas-presence-trigger__avatars{display:flex;align-items:center;padding-left:1px}
+.alas-presence-avatar{position:relative;display:grid;place-items:center;width:25px;height:25px;flex:none;margin-left:-7px;overflow:visible;border:2px solid #fff;border-radius:50%;background:linear-gradient(145deg,hsl(var(--avatar-hue,202) 76% 58%),hsl(var(--avatar-hue,202) 80% 34%));color:#fff;box-shadow:0 1px 4px rgba(5,39,61,.14);font-size:8px;font-weight:850}
 .alas-presence-avatar:first-child{margin-left:0}
-.alas-presence-avatar--more{background:#edf3f7;color:#60798c;font-size:8px;box-shadow:none}
+.alas-presence-avatar img{width:100%;height:100%;display:block;object-fit:cover;border-radius:50%}
 .alas-presence-avatar i{position:absolute;right:-1px;bottom:-1px;width:8px;height:8px;border:1.5px solid #fff;border-radius:50%;background:#22bf75}
+.alas-presence-avatar--more{background:#edf3f7;color:#60798c;font-size:8px;box-shadow:none}
+.alas-presence-trigger__label{font-size:10px;font-weight:800;letter-spacing:.01em;white-space:nowrap}
+.alas-presence-trigger__dot{width:7px;height:7px;flex:none;border-radius:50%;background:#22bf75;box-shadow:0 0 0 3px #e8f8ef}
+.alas-presence-trigger__count{display:grid;place-items:center;min-width:21px;height:21px;padding:0 5px;border-radius:999px;background:#eff6f9;color:#49667b;font-size:10px;font-weight:850}
+.alas-presence-tip{position:absolute;top:calc(100% + 9px);right:0;width:min(340px,calc(100vw - 24px));max-height:min(68vh,520px);overflow:hidden;border:1px solid rgba(209,226,238,.95);border-radius:17px;background:rgba(255,255,255,.985);box-shadow:0 20px 55px rgba(6,37,59,.2),0 3px 10px rgba(6,37,59,.07);opacity:0;visibility:hidden;pointer-events:none;transform-origin:top right;will-change:transform,opacity}
+.alas-presence-tip.is-open{visibility:visible;pointer-events:auto;opacity:1;transform:translate3d(0,0,0) scale(1)}
+.alas-presence-tip__head{display:flex;align-items:center;gap:10px;padding:13px 14px;border-bottom:1px solid #edf2f6;background:linear-gradient(135deg,#fbfdff,#fff)}
+.alas-presence-tip__avatars{display:flex;align-items:center;min-width:32px;padding-left:1px}
 .alas-presence-tip__title{min-width:0;flex:1;color:#244258;font-size:12px;font-weight:800;letter-spacing:-.01em}
-.alas-presence-tip__title small{display:block;margin-top:3px;color:#8a9baa;font-size:9px;font-weight:750;letter-spacing:.08em;text-transform:uppercase}
+.alas-presence-tip__title small{display:block;margin-top:3px;color:#8a9baa;font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase}
 .alas-presence-tip__count{padding:4px 7px;border:1px solid #d6efe1;border-radius:999px;background:#f2faf5;color:#278158;font-size:9px;font-weight:800;white-space:nowrap}
-.alas-presence-tip__list{display:grid;gap:1px;padding:6px}
-.alas-presence-person{display:flex;align-items:center;gap:9px;min-width:0;padding:7px 8px;border-radius:11px;transition:background .16s ease}
+.alas-presence-tip__close{display:grid;place-items:center;width:25px;height:25px;flex:none;border-radius:8px;background:#f1f5f8;color:#718494;font-size:17px;line-height:1;cursor:pointer}
+.alas-presence-tip__close:hover{background:#e6eef3;color:#355269}
+.alas-presence-tip__groups{max-height:min(56vh,430px);overflow:auto;padding:5px 7px 8px;overscroll-behavior:contain}
+.alas-presence-group{padding:6px 3px 3px}
+.alas-presence-group__head{display:flex;align-items:center;gap:7px;padding:4px 6px 5px;color:#8192a1;font-size:9px;font-weight:850;letter-spacing:.08em;text-transform:uppercase}
+.alas-presence-group__dot{width:6px;height:6px;border-radius:50%;background:#1eae72;box-shadow:0 0 0 3px #eaf8f0}
+.alas-presence-group__name{flex:1}
+.alas-presence-group__num{color:#9aa9b5;font-size:9px;letter-spacing:0}
+.alas-presence-group__here{padding:3px 6px;border-radius:999px;background:#edf5ff;color:#4b82a7;font-size:8px;letter-spacing:.02em}
+.alas-presence-person{display:flex;align-items:center;gap:9px;min-width:0;padding:6px 8px;border-radius:10px;transition:background .16s ease}
 .alas-presence-person:hover{background:#f6f9fb}
-.alas-presence-person__copy{min-width:0;flex:1;color:#344b5d;font-size:11px;font-weight:750;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.alas-presence-person__copy small{display:block;margin-top:3px;color:#91a0ad;font-size:9px;font-weight:600}
+.alas-presence-person__copy{min-width:0;flex:1;color:#344b5d;font-size:10.5px;font-weight:750;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.alas-presence-person__copy small{display:block;margin-top:2px;color:#91a0ad;font-size:9px;font-weight:600}
 .alas-presence-person__you{padding:3px 6px;border-radius:999px;background:#eff6ff;color:#4380ad;font-size:9px;font-weight:800}
-.alas-presence-tip__empty{padding:14px;color:#8292a0;font-size:11px;text-align:center}
-@media(prefers-reduced-motion:reduce){.alas-presence-person,.alas-online-badge{transition:none!important}}
+.alas-presence-tip__empty{padding:18px;color:#8292a0;font-size:11px;text-align:center}
+@media(max-width:700px){.alas-presence-dock{top:10px;right:12px}.alas-presence-trigger{min-height:34px;padding:4px 6px}.alas-presence-trigger__label{display:none}.alas-presence-tip{max-width:calc(100vw - 20px)}}
+@media(prefers-reduced-motion:reduce){.alas-presence-person,.alas-presence-trigger{transition:none!important}}
 
 /* ── Buttons ── */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:40px;padding:9px 18px;border-radius:10px;font-size:13.5px;font-weight:700;white-space:nowrap;transition:background var(--fast),box-shadow var(--alas-dur-normal) var(--alas-ease-spring),transform var(--alas-dur-normal) var(--alas-ease-spring),border-color var(--fast),color var(--fast),opacity var(--fast)}
@@ -2560,61 +2566,55 @@ function _cfAplicarRol(role){
 const CF_ROL_SOLO_TRANS_VIEW='trans';
 let _lastView='calc';
 const _cfPresenceLabels={dash:'Reporte general',stats:'Estadísticas del gasto',calc:'Calculadora de flete',serv:'Servicios adicionales',fact:'Facturas',trans:'Transportistas',meta:'Meta repartidores',rrep:'Calculadora de flete',hist:'Facturas'};
-const _cfPresence={channel:null,userId:'',name:'',avatarUrl:'',section:'calc',ready:false,tip:null,tipFor:null,hideTimer:null,tipTween:null};
+const _cfPresence={channel:null,userId:'',name:'',avatarUrl:'',section:'calc',ready:false,dock:null,trigger:null,tip:null,pinned:false,hideTimer:null,tipTween:null};
 function _cfPresenceSection(view){return view==='rrep'?'calc':(view==='hist'?'fact':(_cfPresenceLabels[view]?view:'calc'));}
-function _cfPresenceList(section){
+function _cfPresenceAll(){
   if(!_cfPresence.channel||!_cfPresence.ready)return [];
   const state=_cfPresence.channel.presenceState()||{},byUser=new Map(),all=[];
   Object.keys(state).forEach(function(key){(state[key]||[]).forEach(function(meta){if(meta&&meta.userId&&meta.visible!==false)all.push(meta);});});
   all.sort(function(a,b){return (+b.updatedAt||0)-(+a.updatedAt||0);});
   all.forEach(function(person){const id=String(person.userId);if(!byUser.has(id))byUser.set(id,person);});
-  return Array.from(byUser.values()).filter(function(person){return person.section===section;}).sort(function(a,b){return String(a.name||'').localeCompare(String(b.name||''),'es');});
+  const order=['dash','stats','calc','serv','fact','trans','meta'];
+  return Array.from(byUser.values()).sort(function(a,b){const d=order.indexOf(a.section)-order.indexOf(b.section);return d||String(a.name||'').localeCompare(String(b.name||''),'es');});
 }
+function _cfPresenceList(section){return _cfPresenceAll().filter(function(person){return person.section===section;});}
 function _cfPresenceInitials(name){return String(name||'AL').replace(/[-_]+/g,' ').trim().split(/\s+/).slice(0,2).map(function(p){return p.charAt(0);}).join('').toUpperCase()||'AL';}
 function _cfPresenceHue(person){const s=String(person&&((person.userId)||person.name)||'AL');let h=0;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))|0;return 188+(Math.abs(h)%126);}
 function _cfPresenceSafeAvatar(src){if(!src)return '';try{const u=new URL(String(src),window.location.href);return(u.protocol==='https:'||u.origin===window.location.origin)?u.href:'';}catch(_){return '';}}
 function _cfPresenceAvatarHtml(person,className,online){const src=_cfPresenceSafeAvatar(person&&person.avatarUrl),hue=_cfPresenceHue(person);return '<span class="'+className+'" style="--avatar-hue:'+hue+'">'+(src?'<img src="'+_escp(src)+'" alt="" loading="lazy" referrerpolicy="no-referrer">':'<b>'+_escp(_cfPresenceInitials(person&&person.name))+'</b>')+(online?'<i aria-label="En línea"></i>':'')+'</span>';}
-function _cfPresenceRenderTip(section){
+function _cfPresenceRenderTip(){
   if(!_cfPresence.tip)return;
-  const people=_cfPresenceList(section),label=_cfPresenceLabels[section]||'este apartado';
+  const people=_cfPresenceAll(),sections=['dash','stats','calc','serv','fact','trans','meta'].map(function(key){return{key:key,people:people.filter(function(p){return p.section===key;})};}).filter(function(group){return group.people.length;});
   const avatars=people.slice(0,3).map(function(person){return _cfPresenceAvatarHtml(person,'alas-presence-avatar',false);}).join('')+(people.length>3?'<span class="alas-presence-avatar alas-presence-avatar--more">+'+(people.length-3)+'</span>':'');
-  _cfPresence.tip.innerHTML='<div class="alas-presence-tip__head"><span class="alas-presence-tip__avatars">'+avatars+'</span><span class="alas-presence-tip__title">Personas conectadas<small>'+_escp(label)+'</small></span><span class="alas-presence-tip__count">'+people.length+' en línea</span></div>'+
-    (people.length?'<div class="alas-presence-tip__list">'+people.map(function(person){const mine=String(person.userId)===_cfPresence.userId;return '<div class="alas-presence-person">'+_cfPresenceAvatarHtml(person,'alas-presence-avatar',true)+'<span class="alas-presence-person__copy">'+_escp(person.name||'Operador')+'<small>En '+_escp(label.toLowerCase())+'</small></span>'+(mine?'<span class="alas-presence-person__you">Tú</span>':'')+'</div>';}).join('')+'</div>':'<div class="alas-presence-tip__empty">No hay personas conectadas en este apartado.</div>');
+  const groups=sections.map(function(group){return '<section class="alas-presence-group"><div class="alas-presence-group__head"><i class="alas-presence-group__dot"></i><span class="alas-presence-group__name">'+_escp(_cfPresenceLabels[group.key])+'</span><span class="alas-presence-group__num">'+group.people.length+'</span>'+(group.key===_cfPresence.section?'<span class="alas-presence-group__here">Aquí</span>':'')+'</div>'+group.people.map(function(person){const mine=String(person.userId)===_cfPresence.userId;return '<div class="alas-presence-person">'+_cfPresenceAvatarHtml(person,'alas-presence-avatar',true)+'<span class="alas-presence-person__copy">'+_escp(person.name||'Operador')+'<small>'+(mine?'Tu sesión actual':'Conectado ahora')+'</small></span>'+(mine?'<span class="alas-presence-person__you">Tú</span>':'')+'</div>';}).join('')+'</section>';}).join('');
+  _cfPresence.tip.innerHTML='<div class="alas-presence-tip__head"><span class="alas-presence-tip__avatars">'+avatars+'</span><span class="alas-presence-tip__title">Equipo en línea<small>'+people.length+' persona'+(people.length===1?'':'s')+' · '+sections.length+' apartado'+(sections.length===1?'':'s')+'</small></span><span class="alas-presence-tip__count">EN VIVO</span><button class="alas-presence-tip__close" type="button" data-presence-close aria-label="Cerrar">×</button></div><div class="alas-presence-tip__groups">'+(groups||'<div class="alas-presence-tip__empty">No hay otras personas conectadas.</div>')+'</div>';
 }
-function _cfPresenceShowTip(section,animate){
+function _cfPresenceShowTip(animate){
   const tip=_cfPresence.tip;if(!tip)return;
-  clearTimeout(_cfPresence.hideTimer);_cfPresence.tipFor=section;_cfPresenceRenderTip(section);
-  const badge=document.querySelector('.sidebar-item[data-nav="'+section+'"] .alas-online-badge');if(!badge)return;
-  const wasOpen=tip.classList.contains('is-open'),r=badge.getBoundingClientRect();tip.classList.add('is-open');tip.setAttribute('aria-hidden','false');
-  const tr=tip.getBoundingClientRect(),left=Math.max(12,Math.min(r.right+10,window.innerWidth-tr.width-12)),top=Math.max(12,Math.min(r.top+r.height/2-tr.height/2,window.innerHeight-tr.height-12));
-  tip.style.left=left+'px';tip.style.top=top+'px';
+  clearTimeout(_cfPresence.hideTimer);_cfPresenceRenderTip();
+  const wasOpen=tip.classList.contains('is-open');tip.classList.add('is-open');if(_cfPresence.dock)_cfPresence.dock.classList.add('is-open');tip.setAttribute('aria-hidden','false');if(_cfPresence.trigger)_cfPresence.trigger.setAttribute('aria-expanded','true');
   const gs=window.gsap,reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if(animate===false)return;
   if(_cfPresence.tipTween){_cfPresence.tipTween.kill();_cfPresence.tipTween=null;}
   if(wasOpen){if(gs&&!reduced)gs.set(tip,{autoAlpha:1,y:0,scale:1,clearProps:'opacity,transform,visibility'});return;}
   if(!gs||reduced)return;
   const tl=gs.timeline();_cfPresence.tipTween=tl;
-  tl.fromTo(tip,{autoAlpha:0,y:9,scale:.975},{autoAlpha:1,y:0,scale:1,duration:.28,ease:'power3.out',clearProps:'opacity,transform,visibility'});
+  tl.fromTo(tip,{autoAlpha:0,y:-7,scale:.975},{autoAlpha:1,y:0,scale:1,duration:.28,ease:'power3.out',clearProps:'opacity,transform,visibility'});
   const av=tip.querySelectorAll('.alas-presence-tip__avatars .alas-presence-avatar');if(av.length)tl.fromTo(av,{autoAlpha:0,scale:.68},{autoAlpha:1,scale:1,duration:.32,stagger:.045,ease:'back.out(1.8)',clearProps:'transform,opacity,visibility'},'-=.15');
   const rows=tip.querySelectorAll('.alas-presence-person');if(rows.length)tl.fromTo(rows,{autoAlpha:0,x:-5},{autoAlpha:1,x:0,duration:.2,stagger:.035,ease:'power2.out',clearProps:'all'},'-=.2');
 }
-function _cfPresenceHideTipSoon(){clearTimeout(_cfPresence.hideTimer);_cfPresence.hideTimer=setTimeout(function(){const tip=_cfPresence.tip;if(!tip)return;const finish=function(){tip.classList.remove('is-open');tip.setAttribute('aria-hidden','true');_cfPresence.tipFor=null;_cfPresence.tipTween=null;if(window.gsap)window.gsap.set(tip,{clearProps:'opacity,transform,visibility'});tip.style.opacity='';tip.style.visibility='';tip.style.transform='';};const gs=window.gsap,reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;if(gs&&!reduced&&tip.classList.contains('is-open')){if(_cfPresence.tipTween)_cfPresence.tipTween.kill();_cfPresence.tipTween=gs.to(tip,{autoAlpha:0,y:4,scale:.99,duration:.14,ease:'power2.in',onComplete:finish});}else finish();},150);}
+function _cfPresenceHideTipNow(){clearTimeout(_cfPresence.hideTimer);_cfPresence.pinned=false;const tip=_cfPresence.tip;if(!tip)return;const finish=function(){tip.classList.remove('is-open');if(_cfPresence.dock)_cfPresence.dock.classList.remove('is-open');tip.setAttribute('aria-hidden','true');if(_cfPresence.trigger)_cfPresence.trigger.setAttribute('aria-expanded','false');_cfPresence.tipTween=null;if(window.gsap)window.gsap.set(tip,{clearProps:'opacity,transform,visibility'});tip.style.opacity='';tip.style.visibility='';tip.style.transform='';};const gs=window.gsap,reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;if(gs&&!reduced&&tip.classList.contains('is-open')){if(_cfPresence.tipTween)_cfPresence.tipTween.kill();_cfPresence.tipTween=gs.to(tip,{autoAlpha:0,y:-4,scale:.99,duration:.14,ease:'power2.in',onComplete:finish});}else finish();}
+function _cfPresenceHideTipSoon(){if(_cfPresence.pinned)return;clearTimeout(_cfPresence.hideTimer);_cfPresence.hideTimer=setTimeout(_cfPresenceHideTipNow,150);}
 function _cfPresenceKeepTip(){clearTimeout(_cfPresence.hideTimer);if(_cfPresence.tipTween){_cfPresence.tipTween.kill();_cfPresence.tipTween=null;const gs=window.gsap;if(gs)gs.set(_cfPresence.tip,{autoAlpha:1,y:0,scale:1,clearProps:'opacity,transform,visibility'});}}
 function _cfPresenceRender(){
-  document.querySelectorAll('.sidebar-item[data-nav]').forEach(function(item){
-    const section=_cfPresenceSection(item.dataset.nav),people=_cfPresenceList(section);let badge=item.querySelector('.alas-online-badge'),created=false;
-    if(!people.length){if(badge)badge.remove();return;}
-    if(!badge){badge=document.createElement('span');badge.className='alas-online-badge';badge.setAttribute('role','button');badge.setAttribute('tabindex','0');item.appendChild(badge);created=true;
-      badge.addEventListener('pointerenter',function(e){e.stopPropagation();_cfPresenceShowTip(section);});badge.addEventListener('pointerleave',_cfPresenceHideTipSoon);
-      badge.addEventListener('focus',function(){_cfPresenceShowTip(section);});badge.addEventListener('blur',_cfPresenceHideTipSoon);
-      badge.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();_cfPresenceShowTip(section);});
-      badge.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();e.stopPropagation();_cfPresenceShowTip(section);}if(e.key==='Escape')_cfPresenceHideTipSoon();});
-    }
-    badge.innerHTML=people.slice(0,2).map(function(person){return _cfPresenceAvatarHtml(person,'alas-online-badge__avatar',true);}).join('')+(people.length>2?'<span class="alas-online-badge__more">+'+(people.length-2)+'</span>':'');
-    badge.setAttribute('aria-label',people.length+' '+(people.length===1?'persona conectada':'personas conectadas')+' en '+(_cfPresenceLabels[section]||section)+'. Ver quién está en línea.');
-    if(created&&window.gsap&&!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)){window.gsap.fromTo(badge.querySelectorAll('.alas-online-badge__avatar,.alas-online-badge__more'),{autoAlpha:0,scale:.72,y:3},{autoAlpha:1,scale:1,y:0,duration:.3,stagger:.035,ease:'back.out(1.7)',clearProps:'transform,opacity,visibility'});}
-  });
-  if(_cfPresence.tipFor){if(_cfPresenceList(_cfPresence.tipFor).length)_cfPresenceShowTip(_cfPresence.tipFor,false);else _cfPresenceHideTipSoon();}
+  if(!_cfPresence.dock)return;
+  const people=_cfPresenceAll();_cfPresence.dock.hidden=!people.length;
+  if(!people.length){if(_cfPresence.tip&&_cfPresence.tip.classList.contains('is-open'))_cfPresenceHideTipNow();return;}
+  const avatars=people.slice(0,3).map(function(person){return _cfPresenceAvatarHtml(person,'alas-presence-avatar',true);}).join('')+(people.length>3?'<span class="alas-presence-avatar alas-presence-avatar--more">+'+(people.length-3)+'</span>':'');
+  _cfPresence.dock.querySelector('.alas-presence-trigger__avatars').innerHTML=avatars;
+  _cfPresence.dock.querySelector('.alas-presence-trigger__count').textContent=people.length>99?'99+':String(people.length);
+  _cfPresence.trigger.setAttribute('aria-label',people.length+' '+(people.length===1?'persona':'personas')+' en línea. Ver por apartado.');
+  if(_cfPresence.tip&&_cfPresence.tip.classList.contains('is-open'))_cfPresenceShowTip(false);
 }
 function _cfPresenceTrack(){
   if(!_cfPresence.channel||!_cfPresence.ready)return Promise.resolve();
@@ -2628,8 +2628,18 @@ function _cfPresenceInit(user){
   if(_cfPresence.channel||!sb||typeof sb.channel!=='function'||!user)return;
   const identity=String(user.userId||user.email||user.name||'').trim();if(!identity)return;
   _cfPresence.userId=identity;_cfPresence.name=String(user.name||user.email||'Operador');_cfPresence.avatarUrl=String(user.avatarUrl||user.avatar_url||user.picture||user.photoURL||'');_cfPresence.section=_cfPresenceSection(_lastView);
-  _cfPresence.tip=document.createElement('div');_cfPresence.tip.className='alas-presence-tip';_cfPresence.tip.setAttribute('role','tooltip');_cfPresence.tip.setAttribute('aria-hidden','true');document.body.appendChild(_cfPresence.tip);
+  _cfPresence.dock=document.createElement('div');_cfPresence.dock.className='alas-presence-dock';_cfPresence.dock.hidden=true;
+  _cfPresence.dock.innerHTML='<button type="button" class="alas-presence-trigger" aria-haspopup="dialog" aria-expanded="false" aria-label="Ver personas conectadas"><span class="alas-presence-trigger__avatars"></span><span class="alas-presence-trigger__dot"></span><span class="alas-presence-trigger__label">En línea</span><span class="alas-presence-trigger__count">0</span></button><div class="alas-presence-tip" role="dialog" aria-label="Equipo conectado" aria-hidden="true"></div>';
+  document.body.appendChild(_cfPresence.dock);_cfPresence.trigger=_cfPresence.dock.querySelector('.alas-presence-trigger');_cfPresence.tip=_cfPresence.dock.querySelector('.alas-presence-tip');
+  _cfPresence.trigger.addEventListener('pointerenter',function(e){if(e.pointerType==='mouse'){_cfPresence.pinned=false;_cfPresence.dock.classList.remove('is-open');_cfPresenceShowTip(true);}});_cfPresence.trigger.addEventListener('pointerleave',_cfPresenceHideTipSoon);
+  _cfPresence.trigger.addEventListener('focus',function(){_cfPresenceShowTip(true);});_cfPresence.trigger.addEventListener('blur',_cfPresenceHideTipSoon);
+  _cfPresence.trigger.addEventListener('click',function(){_cfPresence.pinned=true;_cfPresenceShowTip(true);});
+  _cfPresence.trigger.addEventListener('keydown',function(e){if(e.key==='Escape')_cfPresenceHideTipNow();});
   _cfPresence.tip.addEventListener('pointerenter',_cfPresenceKeepTip);_cfPresence.tip.addEventListener('pointerleave',_cfPresenceHideTipSoon);
+  _cfPresence.tip.addEventListener('focusin',_cfPresenceKeepTip);_cfPresence.tip.addEventListener('focusout',function(e){if(!_cfPresence.tip.contains(e.relatedTarget))_cfPresenceHideTipSoon();});
+  _cfPresence.tip.addEventListener('click',function(e){if(e.target.closest('[data-presence-close]'))_cfPresenceHideTipNow();});
+  document.addEventListener('pointerdown',function(e){if(_cfPresence.dock&&!_cfPresence.dock.contains(e.target))_cfPresenceHideTipNow();});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&_cfPresence.tip&&_cfPresence.tip.classList.contains('is-open'))_cfPresenceHideTipNow();});
   const tab=Math.random().toString(36).slice(2,10),key=identity+':'+tab;
   // Presencia pública solo para coordinación visual; no usar estos datos para autorizar acciones.
   _cfPresence.channel=sb.channel('alas-calculadora-presence-v1',{config:{presence:{key:key}}})
