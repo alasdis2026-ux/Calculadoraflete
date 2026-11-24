@@ -10415,7 +10415,14 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     m.$('.ok').addEventListener('click',()=>{m.close();delItem(w);});}
   const isEditing=()=>work.some(w=>w.edit||w.isNew||w.del);
   const camCount=w=>w.seg==='transportadora'?(+w.cant||0):1;
-  const totalCam=()=>work.filter(w=>!w.del).reduce((s,w)=>s+camCount(w),0);
+  // Vista previa del tablero: reemplaza temporalmente el segmento editado por
+  // sus borradores para que los conteos incluyan altas y cambios sin guardar.
+  const dashPreview=()=>{
+    const rows=work.filter(w=>!w.del&&(!_dashEdit||!_dashDraft||w.seg!==_dashSeg));
+    if(_dashEdit&&_dashDraft)(_dashDraft||[]).filter(d=>!d.del).forEach(d=>rows.push(Object.assign({},d,{uid:d.uid||('draft:'+d.k),seg:d.seg||_dashSeg,precio:_dfFlete(d)})));
+    return rows;
+  };
+  const totalCam=()=>dashPreview().reduce((s,w)=>s+camCount(w),0);
   function totals(){const arr=work.filter(w=>!w.del);const m=arr.reduce((s,x)=>s+(+x.monto||0),0),f=arr.reduce((s,x)=>s+(+x.precio||0),0);return{m,f,inc:m>0?f/m*100:null};}
   // Fila de lectura (con botón para editar solo esa)
   function rowHTML(w,idx){const isTr=w.seg==='transportadora';const fl=+w.precio||0;
@@ -10585,22 +10592,23 @@ function _rrOpenDetail(g,periodLbl,wkObj){
   function _dashChart(items,isServ){const zc={};items.forEach(w=>{const z=w.zona||(isServ&&w.obs)||'—';if(z&&z!=='—')zc[z]=(zc[z]||0)+1;});const zarr=Object.keys(zc).map(z=>({z,n:zc[z]})).sort((a,b)=>b.n-a.n).slice(0,7);const zmax=Math.max(1,...zarr.map(x=>x.n));return '<div class="rrd-card rrd-zonas"><div class="rrd-card__t">'+(isServ?'Servicios más frecuentes':'Zonas más frecuentes')+'</div>'+(zarr.length?zarr.map(x=>'<div class="rrd-zrow"><span class="rrd-zname" title="'+_escp(x.z)+'">'+_escp(x.z)+'</span><div class="rrd-ztrack"><div class="rrd-zfill" style="width:'+Math.max(9,x.n/zmax*100).toFixed(1)+'%"></div></div><span class="rrd-zn">'+x.n+'</span></div>').join(''):'<div class="rrd-zempty">Sin datos</div>')+'</div>';}
   // Pestañas de segmento (se muestran en la barra superior, centradas)
   function dashTabs(){
-    const segsPresent=SEGL.filter(sk=>work.some(w=>!w.del&&w.seg===sk));
+    const preview=dashPreview();
+    const segsPresent=SEGL.filter(sk=>preview.some(w=>w.seg===sk));
     if(!segsPresent.length)return '';
     /* Un solo segmento y todo servicios: "Todos" y "Servicios" son la misma
        lista, asi que el control no decide nada. */
-    if(segsPresent.length===1&&_soloServicios())return '';
+    if(segsPresent.length===1&&preview.every(w=>(w.seg||'local')==='servicios'))return '';
     const SIC={todos:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>',
       local:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>',
       interior:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="6" width="13" height="11" rx="1"/><path d="M14 9h4l3 3v5h-7z"/><circle cx="5" cy="18.5" r="1.7"/><circle cx="17.5" cy="18.5" r="1.7"/></svg>',
       servicios:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.2 5.2l2.1 2.1M16.7 16.7l2.1 2.1M18.8 5.2l-2.1 2.1M7.3 16.7l-2.1 2.1"/></svg>',
       transportadora:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M6 21V5a1 1 0 011-1h6a1 1 0 011 1v16"/><path d="M14 21V9h4a1 1 0 011 1v11"/><path d="M9 8h1M9 12h1M9 16h1"/></svg>'};
-    const totalN=work.filter(w=>!w.del).reduce((a,w)=>a+camCount(w),0);
+    const totalN=preview.reduce((a,w)=>a+camCount(w),0);
     const btn=(key,lbl,n)=>'<button type="button" class="rrd-segbtn'+(_dashSeg===key?' on':'')+'" data-dashseg="'+key+'"><span class="rrd-segbtn__ic">'+SIC[key]+'</span><span class="rrd-segbtn__col"><span class="rrd-segbtn__lbl">'+lbl+'</span><span class="rrd-segbtn__n">'+n+'</span></span></button>';
-    return '<div class="rrd-segctrl">'+btn('todos','Todos',totalN)+segsPresent.map(s=>btn(s,SEGN[s],work.filter(w=>!w.del&&w.seg===s).reduce((a,w)=>a+camCount(w),0))).join('')+'</div>';
+    return '<div class="rrd-segctrl">'+btn('todos','Todos',totalN)+segsPresent.map(s=>btn(s,SEGN[s],preview.filter(w=>w.seg===s).reduce((a,w)=>a+camCount(w),0))).join('')+'</div>';
   }
   function dashBody(){
-    const segsPresent=SEGL.filter(sk=>work.some(w=>!w.del&&w.seg===sk));
+    const segsPresent=SEGL.filter(sk=>dashPreview().some(w=>w.seg===sk));
     if(!segsPresent.length)return '<div class="rre-board"><div class="rre-board-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 3h13v13H1zm13 5h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg><b>Todavía no hay servicios cargados</b><span>Usá «+ Servicio de reparto» para empezar.</span></div></div>';
     // Si estamos editando un segmento NUEVO (aún sin líneas en work), no cancelar la edición ni
     // resetear _dashSeg: el borrador (_dashDraft) tiene las filas nuevas y debe seguir mostrándose.
@@ -10948,13 +10956,22 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     bd.querySelectorAll('[data-dashcancel]').forEach(b=>b.addEventListener('click',()=>_dashExitEdit()));
     bd.querySelectorAll('[data-dashsave]').forEach(b=>b.addEventListener('click',()=>_dashSaveEdit()));
     const _DD=k=>(_dashDraft||[]).find(x=>x.k===+k);
+    const _dashRefreshLive=()=>{
+      const preview=dashPreview();
+      bd.querySelectorAll('.rrd-segbtn').forEach(b=>{const key=b.dataset.dashseg,items=key==='todos'?preview:preview.filter(w=>w.seg===key),n=items.reduce((s,w)=>s+camCount(w),0),el=b.querySelector('.rrd-segbtn__n');if(el&&el.textContent!==String(n)){el.textContent=n;pop(el);}});
+      const current=preview.filter(w=>(_dashSeg==='todos'||(w.seg||'local')===_dashSeg)&&(!_camFilter||camLbl(w)===_camFilter));
+      const stats=bd.querySelectorAll('.rrd-ktile--total .rrd-total__stat .rrd-ktile__tx b');
+      const subtotal=current.reduce((s,w)=>s+(+w.precio||0),0),count=current.reduce((s,w)=>s+camCount(w),0);
+      if(stats[0]&&stats[0].textContent!==_gs(subtotal)){stats[0].textContent=_gs(subtotal);pop(stats[0]);}
+      if(stats[1]&&stats[1].textContent!==_nnum(count)){stats[1].textContent=_nnum(count);pop(stats[1]);}
+    };
     const _updDashFlete=d=>{const fi=bd.querySelector('.rrd-fflete[data-dk="'+d.k+'"]');if(!fi)return;if(_dfKm(d)){fi.value=_nnum(Math.round(d.km*d.precioKm));fi.readOnly=true;fi.classList.add('is-auto');}else{fi.readOnly=false;fi.classList.remove('is-auto');fi.value=d.precio?_nnum(d.precio):'';}};
     bd.querySelectorAll('.rrd-fdate').forEach(i=>i.addEventListener('change',()=>{const d=_DD(i.dataset.dk);if(d)d.fecha=i.value||null;const lbl=i.parentNode&&i.parentNode.querySelector('.rrd-datelbl__t');if(lbl){const v=i.value;lbl.textContent=v&&v.length>=10?(v.slice(8,10)+'/'+v.slice(5,7)):'—';}}));
     bd.querySelectorAll('.rrd-datewrap').forEach(wp=>wp.addEventListener('click',()=>{const inp=wp.querySelector('.rrd-fdate');if(inp){try{inp.showPicker?inp.showPicker():inp.focus();}catch(_){try{inp.focus();}catch(__){}}}}));
-    bd.querySelectorAll('.rrd-fkm').forEach(i=>i.addEventListener('input',()=>{const d=_DD(i.dataset.dk);if(d){d.km=_kmParse(i.value);_updDashFlete(d);}}));
-    bd.querySelectorAll('.rrd-fpkm').forEach(i=>i.addEventListener('input',()=>{const d=_DD(i.dataset.dk);if(d){d.precioKm=parseInt(i.value.replace(/\D/g,''),10)||0;i.value=d.precioKm?_nnum(d.precioKm):'';_updDashFlete(d);}}));
-    bd.querySelectorAll('.rrd-fflete').forEach(i=>i.addEventListener('input',()=>{const d=_DD(i.dataset.dk);if(d&&!i.readOnly){d.precio=parseInt(i.value.replace(/\D/g,''),10)||0;i.value=d.precio?_nnum(d.precio):'';}}));
-    bd.querySelectorAll('.rrd-fcant').forEach(i=>i.addEventListener('input',()=>{const d=_DD(i.dataset.dk);if(d)d.cant=parseInt(i.value.replace(/\D/g,''),10)||0;}));
+    bd.querySelectorAll('.rrd-fkm').forEach(i=>i.addEventListener('input',()=>{const d=_DD(i.dataset.dk);if(d){d.km=_kmParse(i.value);_updDashFlete(d);_dashRefreshLive();}}));
+    bd.querySelectorAll('.rrd-fpkm').forEach(i=>i.addEventListener('input',()=>{const d=_DD(i.dataset.dk);if(d){d.precioKm=parseInt(i.value.replace(/\D/g,''),10)||0;i.value=d.precioKm?_nnum(d.precioKm):'';_updDashFlete(d);_dashRefreshLive();}}));
+    bd.querySelectorAll('.rrd-fflete').forEach(i=>i.addEventListener('input',()=>{const d=_DD(i.dataset.dk);if(d&&!i.readOnly){d.precio=parseInt(i.value.replace(/\D/g,''),10)||0;i.value=d.precio?_nnum(d.precio):'';_dashRefreshLive();}}));
+    bd.querySelectorAll('.rrd-fcant').forEach(i=>i.addEventListener('input',()=>{const d=_DD(i.dataset.dk);if(d){d.cant=parseInt(i.value.replace(/\D/g,''),10)||0;_dashRefreshLive();}}));
     bd.querySelectorAll('.rrd-fobs').forEach(i=>i.addEventListener('input',()=>{const d=_DD(i.dataset.dk);if(d)d.obs=i.value;}));
     bd.querySelectorAll('.rrd-erowdel').forEach(b=>b.addEventListener('click',()=>{const d=_DD(b.dataset.dk);if(!d)return;_dashSel.delete(+b.dataset.dk);const tr=b.closest('tr'),gs=window.gsap;const go=()=>{d.del=true;render('filter');};if(gs&&tr)gs.to(tr,{opacity:0,x:22,duration:.2,ease:'power2.in',onComplete:go});else go();}));
     // Multi-selección de filas (borrar varias a la vez)
@@ -11003,7 +11020,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     const nCam=totalCam();
     // KPI por segmento: "Flete total" y "Camiones" siguen la pestaña activa (Local / Interior / …)
     // y el filtro de camión, igual que la tabla. En "Todos" es el total del grupo.
-    const _kpiSegW=work.filter(w=>!w.del&&(_dashSeg==='todos'||(w.seg||'local')===_dashSeg)&&(!_camFilter||camLbl(w)===_camFilter));
+    const _kpiSegW=dashPreview().filter(w=>(_dashSeg==='todos'||(w.seg||'local')===_dashSeg)&&(!_camFilter||camLbl(w)===_camFilter));
     const _kpiSub=_kpiSegW.reduce((a,w)=>a+(+w.precio||0),0);
     const _kpiCam=_kpiSegW.reduce((a,w)=>a+camCount(w),0);
     const back=editing
