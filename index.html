@@ -234,6 +234,10 @@ body{min-height:100vh;overflow:hidden;font-family:Inter,system-ui,-apple-system,
 .sv-invoice__stat b{color:#27475c;font-size:23px;font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:-.5px;line-height:1.05}
 .sv-invoice__stat--tot b{color:#075984;font-size:30px}
 .sv-invoice__fields{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:22px 0 0}
+.sv-invoice--freight .sv-invoice__fields{margin-top:18px}
+.sv-invoice--freight .sv-invoice__input input[readonly]{color:#15803d;font-weight:900;cursor:default;background:#f4fbf6}
+.sv-invoice--freight .sv-invoice__head .cf-fld label{font-size:9px}
+@media(max-width:520px){.sv-invoice--freight .sv-invoice__head.cf-fhead{flex-direction:row;align-items:center;flex-wrap:wrap}.sv-invoice--freight .cf-fhead__date{width:100%;margin-left:0}}
 .sv-invoice__fields .cf-fld{margin:0;min-width:0}
 .sv-invoice__fields .cf-fld label{margin-bottom:6px;color:#526b7c;font-size:11.5px;font-weight:800}
 .sv-invoice__input{display:flex;align-items:center;height:54px;overflow:hidden;border:1.5px solid #dbe5eb;border-radius:13px;background:#fff;transition:border-color .16s,box-shadow .16s}
@@ -9664,6 +9668,7 @@ function _cfOpenFacturaModal(existing,preset){
   let preSel=!!(repsList&&preset&&preset.preselected);
   let repSel=repsList?new Set(repsList.map(r=>r.id)):null;
   const repFlete=()=>repsList?repsList.filter(r=>repSel.has(r.id)).reduce((s,r)=>s+(+r.flete||0),0):(sel?sel.flete:0);
+  const autoMonto=!!(!editing&&preset&&preset.autoMonto&&preSel);
   const subTxt=editing?'Cambiá el Nº, monto o fecha. La planilla queda fija para conservar sus líneas vinculadas.'
     :(locked?'Cargá los datos de la factura para esta planilla.':'Cargá los datos y elegí la planilla (transportista + semana) que corresponde.');
   // Al editar: bloque de motivo del cambio. Solo se exige si algún dato cambió.
@@ -9674,31 +9679,47 @@ function _cfOpenFacturaModal(existing,preset){
       '<span class="cf-mot__tx"><b>'+mm.l+'</b><span>'+mm.d+'</span></span></button>';}).join('')+'</div>'+
     '<div class="cf-fld" data-fld id="cf_motfld"><input id="cf_motnota" placeholder="Nota (opcional): contá en una línea qué pasó" autocomplete="off" maxlength="180"><span class="cf-fld__err"></span></div>'+
   '</div>'):'';
-  const m=_cfModalOpen('<div class="cf-mbox cf-mbox--form">'+
-    '<div class="cf-fhead"><div class="cf-fhead__l"><h3>'+(editing?'Editar factura':'Registrar factura')+'</h3><p class="cf-msub">'+subTxt+'</p></div>'+
-      '<div class="cf-fld cf-fhead__date"><label for="cf_ffecha">Fecha</label><input id="cf_ffecha" type="date"></div></div>'+
-    '<div class="cf-sec"><div class="cf-sec__t">'+_ic('doc')+'Datos de la factura</div>'+
-      '<div class="cf-grid2">'+
-        '<div class="cf-fld" data-fld><label for="cf_fnro">Nº de factura</label><input id="cf_fnro" placeholder="001-001-0000000" autocomplete="off"><span class="cf-fld__err"></span></div>'+
-        '<div class="cf-fld" data-fld><label for="cf_fmonto">Monto (Gs.)</label><input id="cf_fmonto" inputmode="numeric" placeholder="0"><span class="cf-fld__err"></span></div>'+
-      '</div></div>'+
-    '<div class="cf-sec cf-sec--pl"><div class="cf-sec__t">'+_ic('truck')+'Planilla vinculada</div>'+
-      '<div class="cf-fld" data-fld><button type="button" class="cf-plbtn" id="cf_plbtn"></button><span class="cf-fld__err"></span></div>'+
-      '<div class="cf-live neutral" id="cf_flive">Elegí la planilla y el monto para compararlo con el flete.</div>'+
-    '</div>'+
-    (repsList?'<div class="cf-sec" id="cf_reps_section"><div class="cf-sec__t">'+_ic('truck')+(preSel?'Repartos incluidos':'Repartos a facturar')+'</div><div class="cf-reps'+(preSel?' cf-reps--ro':'')+'" id="cf_reps"></div></div>':'')+
-    motivoSec+
-    '<div class="cf-mfoot"><button class="cancel">'+(locked?'Regresar':'Cancelar')+'</button><button class="ok">'+(editing?'Guardar cambios':'Guardar factura')+'</button></div></div>');
+  const autoTotal=autoMonto?Math.round(repFlete()):0;
+  const modalHTML=autoMonto
+    ? '<div class="cf-mbox cf-mbox--form sv-invoice sv-invoice--freight">'+
+      '<div class="sv-invoice__head cf-fhead"><span class="sv-invoice__badge">'+_ic('doc')+'</span>'+
+        '<div class="sv-invoice__headcopy"><span class="sv-invoice__eyebrow">Reporte de repartos</span><h3>Registrar factura</h3>'+
+          '<p class="cf-msub">'+_escp(sel.ts)+' · '+_dispD(sel.semDesde)+' al '+_dispD(sel.semHasta)+'</p></div>'+
+        '<div class="cf-fld cf-fhead__date"><label for="cf_ffecha">Fecha de registro</label><input id="cf_ffecha" type="date"></div></div>'+
+      '<div class="sv-invoice__summary"><div class="sv-invoice__stat"><span>Repartos incluidos</span><b>'+repsList.length+'</b></div>'+
+        '<div class="sv-invoice__stat sv-invoice__stat--tot"><span>Total a facturar</span><b>'+_gs(autoTotal)+'</b></div></div>'+
+      '<div class="sv-invoice__fields">'+
+        '<div class="cf-fld" data-fld><label for="cf_fnro">Nº de factura</label><div class="sv-invoice__input"><span>N.º</span><input id="cf_fnro" placeholder="001-001-0000000" autocomplete="off"></div><span class="cf-fld__err"></span></div>'+
+        '<div class="cf-fld" data-fld><label for="cf_fmonto">Monto calculado</label><div class="sv-invoice__input"><span>Gs.</span><input id="cf_fmonto" inputmode="numeric" value="'+_nnum(autoTotal)+'" readonly aria-label="Monto calculado automáticamente desde los repartos"></div><span class="cf-fld__err"></span></div></div>'+
+      '<div class="cf-live sv-invoice__live neutral" id="cf_flive" aria-live="polite">El monto se calcula desde los repartos de esta planilla.</div>'+
+      '<div class="sv-invoice__foot"><div class="sv-invoice__actions"><button type="button" class="cancel">Regresar</button><button type="button" class="ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5 9.5 17 19 7"/></svg>Guardar factura</button></div></div></div>'
+    : '<div class="cf-mbox cf-mbox--form">'+
+      '<div class="cf-fhead"><div class="cf-fhead__l"><h3>'+(editing?'Editar factura':'Registrar factura')+'</h3><p class="cf-msub">'+subTxt+'</p></div>'+
+        '<div class="cf-fld cf-fhead__date"><label for="cf_ffecha">Fecha</label><input id="cf_ffecha" type="date"></div></div>'+
+      '<div class="cf-sec"><div class="cf-sec__t">'+_ic('doc')+'Datos de la factura</div>'+
+        '<div class="cf-grid2">'+
+          '<div class="cf-fld" data-fld><label for="cf_fnro">Nº de factura</label><input id="cf_fnro" placeholder="001-001-0000000" autocomplete="off"><span class="cf-fld__err"></span></div>'+
+          '<div class="cf-fld" data-fld><label for="cf_fmonto">Monto (Gs.)</label><input id="cf_fmonto" inputmode="numeric" placeholder="0"><span class="cf-fld__err"></span></div>'+
+        '</div></div>'+
+      '<div class="cf-sec cf-sec--pl"><div class="cf-sec__t">'+_ic('truck')+'Planilla vinculada</div>'+
+        '<div class="cf-fld" data-fld><button type="button" class="cf-plbtn" id="cf_plbtn"></button><span class="cf-fld__err"></span></div>'+
+        '<div class="cf-live neutral" id="cf_flive">Elegí la planilla y el monto para compararlo con el flete.</div>'+
+      '</div>'+
+      (repsList?'<div class="cf-sec" id="cf_reps_section"><div class="cf-sec__t">'+_ic('truck')+(preSel?'Repartos incluidos':'Repartos a facturar')+'</div><div class="cf-reps'+(preSel?' cf-reps--ro':'')+'" id="cf_reps"></div></div>':'')+
+      motivoSec+
+      '<div class="cf-mfoot"><button class="cancel">'+(locked?'Regresar':'Cancelar')+'</button><button class="ok">'+(editing?'Guardar cambios':'Guardar factura')+'</button></div></div>';
+  const m=_cfModalOpen(modalHTML);
   const nroI=m.$('#cf_fnro'),feI=m.$('#cf_ffecha'),mo=m.$('#cf_fmonto'),plBtn=m.$('#cf_plbtn'),live=m.$('#cf_flive');
-  const nroF=nroI.closest('[data-fld]'),moF=mo.closest('[data-fld]'),plF=plBtn.closest('[data-fld]');
+  const nroF=nroI.closest('[data-fld]'),moF=mo.closest('[data-fld]'),plF=plBtn&&plBtn.closest('[data-fld]');
   feI.value=(editing&&existing.fecha)?existing.fecha:(typeof todayISO==='function'?todayISO():new Date().toISOString().slice(0,10));
   if(editing){nroI.value=existing.nro||'';mo.value=existing.monto?_nnum(existing.monto):'';}
   function renderPlBtn(){
+    if(!plBtn)return;
     if(sel){plBtn.classList.add('set');plBtn.innerHTML='<span class="cf-plbtn__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6.5" width="12" height="9" rx="1"/><path d="M13.5 9h4.2l3.3 3.3V15.5h-7.5z"/><circle cx="6" cy="17.5" r="1.8"/><circle cx="17.5" cy="17.5" r="1.8"/></svg></span><span class="cf-plbtn__main"><span class="cf-plbtn__ts">'+_escp(sel.ts)+'</span><span class="cf-plbtn__sub">'+_dispD(sel.semDesde)+' al '+_dispD(sel.semHasta)+' · flete '+_gs(repFlete())+'</span></span>'+((locked||editing)?'':'<span class="cf-plbtn__act">Cambiar</span>');}
     else{plBtn.classList.remove('set');plBtn.innerHTML='<span class="cf-plbtn__ph">— Elegir planilla —</span><span class="cf-plbtn__act">Elegir</span>';}
   }
-  if(locked||editing){plBtn.disabled=true;plBtn.classList.add('cf-plbtn--locked');}
-  function updLive(){const wasOk=live.classList.contains('ok');const v=parseInt(mo.value.replace(/[^\d]/g,''),10)||0;if(!sel){live.className='cf-live neutral';live.textContent='Elegí la planilla y el monto para compararlo con el flete.';return;}if(!v){live.className='cf-live neutral';live.textContent='Ingresá el monto para compararlo con el flete ('+_gs(repFlete())+').';return;}if(Math.round(v)===Math.round(repFlete())){live.className='cf-live ok';live.innerHTML='<span class="cf-live__badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span><span class="cf-live__t">¡Coincide con el flete!</span><span class="cf-live__s">La factura quedará conciliada</span>';if(!wasOk){const g=window.gsap;if(g){const bdg=live.querySelector('.cf-live__badge'),pth=live.querySelector('svg path');g.fromTo(live,{scale:.92},{scale:1,duration:.5,ease:'back.out(2)',clearProps:'transform'});if(bdg)g.fromTo(bdg,{scale:0,rotate:-30},{scale:1,rotate:0,duration:.6,ease:'back.out(3)',delay:.04,clearProps:'transform'});if(pth&&pth.getTotalLength){const L=pth.getTotalLength();g.fromTo(pth,{strokeDasharray:L,strokeDashoffset:L},{strokeDashoffset:0,duration:.42,delay:.24,ease:'power2.out'});}g.from(live.querySelectorAll('.cf-live__t,.cf-live__s'),{opacity:0,y:8,duration:.4,stagger:.06,delay:.2,ease:'power2.out',clearProps:'all'});}}}else{live.className='cf-live diff';live.textContent='▲ No coincide: flete '+_gs(repFlete())+' vs factura '+_gs(v)+'.';}}
+  if(plBtn&&(locked||editing)){plBtn.disabled=true;plBtn.classList.add('cf-plbtn--locked');}
+  function updLive(){const wasOk=live.classList.contains('ok'),base='cf-live'+(autoMonto?' sv-invoice__live':''),v=parseInt(mo.value.replace(/[^\d]/g,''),10)||0;if(!sel){live.className=base+' neutral';live.textContent='Elegí la planilla y el monto para compararlo con el flete.';return;}if(!v){live.className=base+' neutral';live.textContent='Ingresá el monto para compararlo con el flete ('+_gs(repFlete())+').';return;}if(Math.round(v)===Math.round(repFlete())){live.className=base+' ok';live.innerHTML=autoMonto?'<b>Coincide</b> con el total de los repartos · '+_gs(repFlete()):'<span class="cf-live__badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span><span class="cf-live__t">¡Coincide con el flete!</span><span class="cf-live__s">La factura quedará conciliada</span>';if(!wasOk){const g=window.gsap;if(g){const bdg=live.querySelector('.cf-live__badge'),pth=live.querySelector('svg path');g.fromTo(live,{scale:.92},{scale:1,duration:.5,ease:'back.out(2)',clearProps:'transform'});if(bdg)g.fromTo(bdg,{scale:0,rotate:-30},{scale:1,rotate:0,duration:.6,ease:'back.out(3)',delay:.04,clearProps:'transform'});if(pth&&pth.getTotalLength){const L=pth.getTotalLength();g.fromTo(pth,{strokeDasharray:L,strokeDashoffset:L},{strokeDashoffset:0,duration:.42,delay:.24,ease:'power2.out'});}g.from(live.querySelectorAll('.cf-live__t,.cf-live__s'),{opacity:0,y:8,duration:.4,stagger:.06,delay:.2,ease:'power2.out',clearProps:'all'});}}}else{live.className=base+' diff';live.textContent='▲ No coincide: flete '+_gs(repFlete())+' vs factura '+_gs(v)+'.';}}
   function renderReps(){const host=m.$('#cf_reps');if(!host)return;
     if(preSel){host.innerHTML=repsList.map(r=>{const dd=r.fechaISO?String(r.fechaISO).slice(0,10).split('-').reverse().join('/'):'—';return '<div class="cf-rep cf-rep--ro on"><span class="cf-rep__chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></span><span class="cf-rep__d">'+dd+'</span><span class="cf-rep__f">'+_gs(+r.flete||0)+'</span></div>';}).join('')+'<div class="cf-rep-sum"><span>Total a facturar</span><b>'+_gs(repFlete())+'</b></div>';return;}
     host.innerHTML=repsList.map(r=>{const on=repSel.has(r.id);const dd=r.fechaISO?String(r.fechaISO).slice(0,10).split('-').reverse().join('/'):'—';return '<label class="cf-rep'+(on?' on':'')+'"><input type="checkbox" data-rid="'+r.id+'"'+(on?' checked':'')+'><span class="cf-rep__chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></span><span class="cf-rep__d">'+dd+'</span><span class="cf-rep__f">'+_gs(+r.flete||0)+'</span></label>';}).join('')+'<div class="cf-rep-sum"><span>Seleccionado</span><b>'+_gs(repFlete())+'</b></div>';host.querySelectorAll('[data-rid]').forEach(c=>c.addEventListener('change',()=>{const id=+c.dataset.rid;if(c.checked)repSel.add(id);else repSel.delete(id);renderReps();renderPlBtn();updLive();}));}
@@ -9734,7 +9755,7 @@ function _cfOpenFacturaModal(existing,preset){
   });
   if(editing)feI.addEventListener('change',updMot);
   renderPlBtn();updLive();updMot();if(repsList)renderReps();
-  plBtn.addEventListener('click',()=>_facPlanillaPicker(pick=>{sel=pick;repsList=(pick.reps||[]).slice();preSel=!!(repsList&&repsList.length);repSel=preSel?new Set(repsList.map(r=>r.id)):null;if(preSel&&!m.$('#cf_reps_section')){const ps=m.$('.cf-sec--pl');if(ps)ps.insertAdjacentHTML('afterend','<div class="cf-sec" id="cf_reps_section"><div class="cf-sec__t">'+_ic('truck')+'Repartos incluidos</div><div class="cf-reps cf-reps--ro" id="cf_reps"></div></div>');}_cfClearVal(plF);renderPlBtn();renderReps();updLive();}));
+  if(plBtn)plBtn.addEventListener('click',()=>_facPlanillaPicker(pick=>{sel=pick;repsList=(pick.reps||[]).slice();preSel=!!(repsList&&repsList.length);repSel=preSel?new Set(repsList.map(r=>r.id)):null;if(preSel&&!m.$('#cf_reps_section')){const ps=m.$('.cf-sec--pl');if(ps)ps.insertAdjacentHTML('afterend','<div class="cf-sec" id="cf_reps_section"><div class="cf-sec__t">'+_ic('truck')+'Repartos incluidos</div><div class="cf-reps cf-reps--ro" id="cf_reps"></div></div>');}_cfClearVal(plF);renderPlBtn();renderReps();updLive();}));
   nroI.addEventListener('input',()=>{nroI.value.trim()?_cfSetOk(nroF):_cfClearVal(nroF);updMot();});
   mo.addEventListener('input',()=>{const n=parseInt(mo.value.replace(/[^\d]/g,''),10)||0;mo.value=n?_nnum(n):'';n>0?_cfSetOk(moF):_cfClearVal(moF);updLive();updMot();});
   m.$('.cancel').addEventListener('click',()=>{m.close();if(locked&&preset&&typeof preset.onBack==='function')setTimeout(preset.onBack,150);});
@@ -9744,7 +9765,7 @@ function _cfOpenFacturaModal(existing,preset){
     let bad=false;
     if(!nro){_cfSetErr(nroF,'Falta un pequeño detalle: el Nº de la factura.');bad=true;}
     if(!(monto>0)){_cfSetErr(moF,'Che, ingresá el monto de la factura.');bad=true;}
-    if(!sel){_cfSetErr(plF,'Elegí a qué planilla corresponde.');bad=true;}
+    if(!sel){if(plF)_cfSetErr(plF,'Elegí a qué planilla corresponde.');bad=true;}
     if(bad){showToast('Revisá los campos marcados 👀');return;}
     // captureOnly: solo devolver Nº+monto (no persiste; la conciliación se hace aprobando líneas después)
     if(preset&&preset.captureOnly){m.close();if(typeof preset.onCapture==='function')preset.onCapture(nro,monto,fecha);return;}
@@ -9752,7 +9773,7 @@ function _cfOpenFacturaModal(existing,preset){
     // Al registrar una factura nueva se pregunta antes: dejarla como corresponde o volver
     // a corregirla. Si no coincide con la planilla hay que indicar el motivo.
     const _flete=repFlete();
-    if(!editing && !_obsAlta){
+    if(!editing && !_obsAlta && !autoMonto){
       _facConfirmarRegistro(
         {ts:sel.ts,periodo:_dispD(sel.semDesde)+' al '+_dispD(sel.semHasta),flete:_flete,monto:monto,nro:nro},
         function(obs){ _obsAlta=obs||{ok:true}; m.$('button.ok').click(); });
@@ -10916,9 +10937,28 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     bd.querySelectorAll('.cancel').forEach(b=>b.addEventListener('click',()=>goBack()));
     bd.querySelectorAll('.cancel-edit').forEach(b=>b.addEventListener('click',()=>{buildWork();render('toggle');}));
     const pr=bd.querySelector('.print');if(pr)pr.addEventListener('click',()=>{const t=totals();_cfPrint({id:null,tsNombre:g.ts,semanaDesde:pD||(wkObj?wkObj.desde:null),semanaHasta:pH||(wkObj?wkObj.hasta:null),clientes:g.lines,totalMonto:t.m,totalFlete:t.f,incTotal:t.inc,factura_id:(g.facturaId!=null?g.facturaId:null)});});
-    // "Registrar factura" → permite elegir las líneas de la planilla.
-    // Registrar factura: PRIMERO Nº+monto, después se aprueban las líneas contra ese monto
-    const fac=bd.querySelector('.rrm-act--fac');if(fac)fac.addEventListener('click',()=>{if(!work.some(w=>!w.del)){showToast('No hay repartos pendientes para facturar');return;}_cfOpenFacturaModal(null,{ts:g.ts,semDesde:pD||wkObj.desde,semHasta:pH||wkObj.hasta,flete:work.filter(w=>!w.del).reduce((s,w)=>s+(+w.precio||0),0),captureOnly:true,onCapture:(nro,monto)=>{_facNro=nro;_facMonto=+monto||0;_facSel=new Set();_facMode=true;_dashSeg='todos';render('filter');}});});
+    // Desde el resumen, registrar incluye todas las líneas y calcula el total automáticamente.
+    const fac=bd.querySelector('.rrm-act--fac');
+    if(fac)fac.addEventListener('click',function(){
+      const lineas=work.filter(w=>!w.del);
+      if(!lineas.length){showToast('No hay repartos pendientes para facturar');return;}
+      if(lineas.some(w=>!w.ref||w.ref.id==null||w.repId==null)){showToast('Actualizá la planilla antes de registrar la factura.');return;}
+      const desde=pD||wkObj.desde,hasta=pH||wkObj.hasta;
+      const flete=lineas.reduce((s,w)=>s+(+w.precio||0),0);
+      if(!(flete>0)){showToast('La planilla no tiene un flete mayor a cero para facturar.');return;}
+      _cfOpenFacturaModal(null,{
+        ts:g.ts,tsId:g.tsId,semDesde:desde,semHasta:hasta,flete:flete,preselected:true,autoMonto:true,
+        reps:lineas.map(function(w){return {id:w.ref.id,repId:w.repId,cl:w.ref,fechaISO:w.fecha,flete:+w.precio||0};}),
+        onRegistered:function(facId){
+          const rr=_rrRangeLines(g.ts,desde,hasta,facId,g.tsId);
+          if(!rr.lines.length){renderReporteRepartos();return;}
+          const sum=_rrSumLines(rr.lines);
+          const fresh=Object.assign({},g,{facturaId:facId,lines:rr.lines,reps:rr.reps,monto:sum.monto,flete:sum.flete,perDesde:desde,perHasta:hasta});
+          _rrOpenDetail(fresh,_dispD(desde)+' al '+_dispD(hasta),wkObj);
+          showToast('Factura registrada. Podés imprimirla más tarde desde el resumen.');
+        }
+      });
+    });
     // Cancelar la aprobación (descarta; nada se persiste hasta registrar)
     bd.querySelectorAll('[data-faccancel]').forEach(b=>b.addEventListener('click',()=>{_facMode=false;_facSel=new Set();_facMonto=0;_facNro='';render('filter');}));
     bd.querySelectorAll('[data-facall]').forEach(b=>b.addEventListener('click',()=>{const cand=work.filter(w=>!w.del);const allSel=cand.length>0&&cand.every(w=>_facSel.has(w.uid));_facSel=allSel?new Set():new Set(cand.map(w=>w.uid));render('filter');}));
