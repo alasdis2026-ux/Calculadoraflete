@@ -7414,8 +7414,9 @@ function showSaveAnim(text){
   .rrd-tbl--edit .xls-pick>span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   /* En edición la tabla usa un ancho cómodo, con scroll interno en pantallas chicas. */
   .rrd-tbl--edit{width:100%;min-width:1120px;max-width:1500px;margin:0 auto}
-  /* Evita que el flex del contenedor estire las filas para llenar todo el alto disponible. */
-  .rrd-tablecard.is-editing .rrd-tablewrap{display:block;overflow:auto}
+  /* Centra la tabla sin estirar su altura; el scroll queda dentro del contenedor. */
+  .rrd-tablecard.is-editing .rrd-tablewrap{display:flex;align-items:flex-start;justify-content:center;overflow:auto}
+  @media(max-width:1000px){.rrd-tablecard.is-editing .rrd-tablewrap{justify-content:flex-start}}
   /* Bloom verde en las celdas de flete (monto) al editar */
   .rrd-tbl--edit .rrd-fflete{color:#15803d;font-weight:800;background:rgba(21,128,61,.10);border-color:rgba(21,128,61,.40);box-shadow:0 0 0 3px rgba(21,128,61,.10),0 4px 16px rgba(21,128,61,.22)}
   .rrd-tbl--edit .rrd-fflete::placeholder{color:rgba(21,128,61,.55)}
@@ -7425,6 +7426,8 @@ function showSaveAnim(text){
   .rrd-tbl--edit .rrd-fflete.is-auto:hover{background:rgba(21,128,61,.10);border-color:rgba(21,128,61,.40);box-shadow:0 0 0 3px rgba(21,128,61,.10),0 4px 16px rgba(21,128,61,.22)}
   .rrd-tbl--edit .rrd-fflete:focus{background:#fff;border-color:#15803d;box-shadow:0 0 0 3px rgba(21,128,61,.20),0 6px 22px rgba(21,128,61,.34)}
   .rrd-tbl--edit .xls-pick{width:auto;min-width:110px;max-width:200px}
+  .rrd-tbl--edit .xls-pick[data-pick="tr"]{max-width:420px}
+  .rrd-tbl--edit:not(.rrd-tbl--servicios-edit) th:nth-child(3),.rrd-tbl--edit:not(.rrd-tbl--servicios-edit) td:nth-child(3){min-width:340px}
   .rrd-tbl--edit .rrd-fflete{width:118px}
   .rrd-tbl--edit .rrd-fcant{width:88px}
   .rrd-tbl--edit .rrd-fobs{width:190px}
@@ -8160,7 +8163,8 @@ function showSaveAnim(text){
   #viewRrep .rr-detail .rrd-tablecard>.rrd-tablewrap,
   #viewServ .rr-detail .rrd-tablecard>.rrd-tablewrap{flex:1 1 auto;min-height:0;max-height:none;overflow:auto;overscroll-behavior:contain}
   #rrepHost .rrd-tablecard.is-editing .rrd-tablewrap:has(.rrd-tbl--servicios-edit),
-  .sv-rrep .rrd-tablecard.is-editing .rrd-tablewrap:has(.rrd-tbl--servicios-edit){display:block;justify-content:initial;overflow:auto}
+  .sv-rrep .rrd-tablecard.is-editing .rrd-tablewrap:has(.rrd-tbl--servicios-edit){display:flex;align-items:flex-start;justify-content:center;overflow:auto}
+  @media(max-width:1000px){#rrepHost .rrd-tablecard.is-editing .rrd-tablewrap:has(.rrd-tbl--servicios-edit),.sv-rrep .rrd-tablecard.is-editing .rrd-tablewrap:has(.rrd-tbl--servicios-edit){justify-content:flex-start}}
   .rr-detail .rrd-tbl--servicios-edit{width:100%;min-width:1120px;max-width:1500px;margin:0 auto;table-layout:fixed}
   .rr-detail .rrd-tbl--servicios-edit th:nth-child(1),.rr-detail .rrd-tbl--servicios-edit td:nth-child(1){width:10%}
   .rr-detail .rrd-tbl--servicios-edit th:nth-child(2),.rr-detail .rrd-tbl--servicios-edit td:nth-child(2){width:11%}
