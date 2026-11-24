@@ -8074,12 +8074,17 @@ let _cfReporte={};      // {mes:{...manual...}} desde fact_reporte
 // Arranca en el mes actual (editable directo); "Total" (null) es una opción aparte para ver el acumulado
 let _cfRepMes=(function(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');})();
 function _cfMonthKeys(){const s=new Set();(repartos||[]).forEach(r=>{const k=(r.fechaISO||'').slice(0,7);if(k)s.add(k);});return[...s].sort().reverse();}
-// ¿La planilla (transportadora dueña del camión + semana) de esta línea tiene factura registrada?
-function _cfFacturada(cl,fechaISO){if(!fechaISO)return false;const wk=(typeof isoWeekRange==='function')?isoWeekRange(fechaISO):null;if(!wk)return false;const own=cl.trId?tsOfTruck(cl.trId):null;const ts=(own&&own.n)||cl.tsNombre||'—';return !!_facLegacy(ts,wk.desde,(own&&own.id)||cl.tsId);}
-// ¿El reparto está facturado? (por factura_id explícito, o factura legacy de su transportadora+semana)
-function _repFacturado(r){if(!r)return false;if(r.factura_id!=null)return !!_facById(r.factura_id);if(!r.fechaISO)return false;const wk=(typeof isoWeekRange==='function')?isoWeekRange(r.fechaISO):null;if(!wk)return false;return (r.clientes||[]).some(c=>{const own=c.trId?tsOfTruck(c.trId):null;const ts=(own&&own.n)||c.tsNombre||'—';return !!_facLegacy(ts,wk.desde,(own&&own.id)||c.tsId);});}
-// Facturado POR LÍNEA (cliente): usa cl.factura_id, con fallback al del reparto y a legacy por ts+semana.
-function _clFacturado(cl,r){const _repHasCl=r&&(r.clientes||[]).some(c=>c.factura_id!=null);const fid=(cl&&cl.factura_id!=null)?cl.factura_id:(_repHasCl?null:(r&&r.factura_id));if(fid!=null)return !!_facById(fid);if(!r||!r.fechaISO)return false;const wk=(typeof isoWeekRange==='function')?isoWeekRange(r.fechaISO):null;if(!wk)return false;const own=cl.trId?tsOfTruck(cl.trId):null;const ts=(own&&own.n)||cl.tsNombre||'—';return !!_facLegacy(ts,wk.desde,(own&&own.id)||cl.tsId);}
+// Una línea nueva puede declarar que está pendiente aunque exista una factura legacy
+// para esa transportadora y semana. Esto evita que las altas posteriores se adhieran
+// a una factura que ya estaba cerrada.
+function _lineaFacturaPendiente(cl){return !!(cl&&cl.factura_id==null&&cl.factura_excluida===true);}
+// ¿La planilla semanal de esta línea tiene factura registrada?
+function _cfFacturada(cl,fechaISO){if(!cl||cl.factura_id!=null)return !!(cl&&cl.factura_id!=null&&_facById(cl.factura_id));if(_lineaFacturaPendiente(cl)||!fechaISO)return false;const wk=(typeof isoWeekRange==='function')?isoWeekRange(fechaISO):null;if(!wk)return false;const own=cl.trId?tsOfTruck(cl.trId):null;const ts=(own&&own.n)||cl.tsNombre||'—';return !!_facLegacy(ts,wk.desde,(own&&own.id)||cl.tsId);}
+// ¿El reparto contiene alguna línea facturada? Las líneas pendientes explícitas
+// no heredan el vínculo legacy de otra línea o del reparto padre.
+function _repFacturado(r){if(!r)return false;const cls=r.clientes||[];if(!cls.length)return r.factura_id!=null&&!!_facById(r.factura_id);return cls.some(c=>_clFacturado(c,r));}
+// Facturado POR LÍNEA: vínculo propio, excepción pendiente, padre o legacy por transportista+semana.
+function _clFacturado(cl,r){if(!cl)return false;if(cl.factura_id!=null)return !!_facById(cl.factura_id);if(_lineaFacturaPendiente(cl))return false;const fid=_facIdDeLinea(cl,r);if(fid==='__ambigua__'||fid==='__huerfana__'||fid==='__huérfana__')return true;if(fid!=null)return !!_facById(fid);return false;}
 function _repTieneVinculoFactura(r){if(!r)return false;if(r.factura_id!=null)return true;return (r.clientes||[]).some(cl=>cl&&(cl.factura_id!=null||_facIdDeLinea(cl,r)!=null));}
 function _cfRepName(n){n=String(n||'').trim();if(!n||/tercerizado/i.test(n)||/^sin\s+repartidor$/i.test(n))return '';return n.toUpperCase();}
 // Flete oficial de una línea: usa la misma reconstrucción de Interior que el Reporte de Repartos.
@@ -9180,6 +9185,7 @@ function _tsFacSplit(ts,semDesde,tsId){if(!semDesde)return false;return (reparto
 function _facLegacy(ts,semDesde,tsId){if(!semDesde||_tsFacSplit(ts,semDesde,tsId))return null;return _facByTsSem(ts,semDesde,tsId)||null;}
 // Devuelve el ID de factura de una línea. Los vínculos huérfanos y las semanas legacy
 // ambiguas se bloquean para no ofrecerlas como pendientes y volver a facturarlas.
+let _rrFacLookupCache=null;
 function _facIdDeLinea(cl,r){
   if(!cl||!r)return null;
   if(_lineaFacturaPendiente(cl))return null;
@@ -9189,9 +9195,15 @@ function _facIdDeLinea(cl,r){
   if(!r.fechaISO)return null;
   const wk=(typeof isoWeekRange==='function')?isoWeekRange(r.fechaISO):null;if(!wk)return null;
   const own=cl.trId?tsOfTruck(cl.trId):null,ts=(own&&own.n)||cl.tsNombre||'—';
-  const tsId=(own&&own.id)||cl.tsId;if(_tsFacSplit(ts,wk.desde,tsId))return null;
-  if(_facCountByTsSem(ts,wk.desde,tsId)>1)return '__ambigua__';
-  const legacy=_facLegacy(ts,wk.desde,tsId);return legacy?legacy.id:null;
+  const tsId=(own&&own.id)||cl.tsId,key=(tsId!=null?'i:'+String(tsId):'n:'+_facNorm(ts))+'|'+wk.desde;
+  if(_rrFacLookupCache&&_rrFacLookupCache.has(key))return _rrFacLookupCache.get(key);
+  let resolved=null;
+  if(!_tsFacSplit(ts,wk.desde,tsId)){
+    const matches=_facCandidatesByTsSem(ts,wk.desde,tsId);
+    if(matches.length>1)resolved='__ambigua__';else if(matches.length===1)resolved=matches[0].id;
+  }
+  if(_rrFacLookupCache)_rrFacLookupCache.set(key,resolved);
+  return resolved;
 }
 // Factura del grupo: por línea, padre o legacy. Las referencias ambiguas/huérfanas
 // quedan bloqueadas para evitar editar o volver a facturar líneas sin resolver.
@@ -9875,6 +9887,17 @@ async function _cfMigrateLegacyPerLine(){
 // Diagnóstico: dump del estado de factura_id por reparto/cliente. Uso en consola: _diagFac('CELSO ORTIZ')
 window._diagFac=function(tsFiltro){const rowsD=[];(repartos||[]).forEach(r=>{(r.clientes||[]).forEach(c=>{const o=c.trId?tsOfTruck(c.trId):null;const ts=(o&&o.n)||c.tsNombre||'—';if(tsFiltro&&ts!==tsFiltro)return;rowsD.push({reparto:r.id,fecha:r.fechaISO,ts:ts,rep:c.rep,precio:c.precio,r_factura_id:(r.factura_id===undefined?'(sin campo)':r.factura_id),cl_factura_id:(c.factura_id===undefined?'(sin campo)':c.factura_id)});});});console.log('=== DIAG FACTURA'+(tsFiltro?' · '+tsFiltro:'')+' ===');console.table(rowsD);console.log('facturas registradas:',(window.__cfFac||[]).map(f=>({id:f.id,ts:f.transportadora_nombre,monto:f.monto,semana:f.semana_desde})));return rowsD;};
 function renderReporteRepartos(){
+  const prevCache=_rrFacLookupCache;
+  _rrFacLookupCache=new Map();
+  try{return _renderReporteRepartos();}
+  catch(e){
+    console.error('[render del reporte de repartos]',e);
+    const host=_rrHost();
+    if(host)host.innerHTML='<div class="ci-empty" style="padding:48px 20px"><h4>No se pudo cargar el reporte</h4><p>Recargá la vista. Si el problema continúa, revisá la consola.</p></div>';
+  }
+  finally{_rrFacLookupCache=prevCache;}
+}
+function _renderReporteRepartos(){
   const host=_rrHost();if(!host)return;
   try{document.querySelectorAll('.ci-tip').forEach(t=>t.remove());}catch(_){} // limpia tooltips huérfanos
   if(!window.__cfFac){sb.from('fact_facturas').select('*').then(r=>{window.__cfFac=r.data||[];if(_rrVisible())renderReporteRepartos();}).catch(()=>{window.__cfFac=[];});}
