@@ -8955,6 +8955,18 @@ function _facLineas(f){
   out.sort((a,b)=>String(a.fecha||'').localeCompare(String(b.fecha||'')));
   return out;
 }
+function _cfFacturaErrorUsuario(err){
+  const raw=[err&&err.message,err&&err.details,err&&err.hint].filter(Boolean).join(' ');
+  const code=String(err&&err.code||'');
+  if(/semana_(desde|hasta)/i.test(raw)&&(/does not exist|could not find|schema cache|column/i.test(raw)||code==='42703'||code==='PGRST204')){
+    return 'La base todavía no tiene las columnas del período de factura. En Supabase ejecutá Calculadora de flete/facturas-semana.sql y recargá la app.';
+  }
+  if(code==='42501'||/row-level security|permission denied|not allowed/i.test(raw)){
+    return 'La base rechazó la factura por permisos. Revisá las políticas y permisos de fact_facturas y repartos en Supabase.';
+  }
+  const detail=raw.trim();
+  return detail?('No pude registrar la factura: '+detail.slice(0,260)):'No pude registrar la factura. Revisá la conexión e intentá de nuevo.';
+}
 // Crea la factura y la vincula a líneas concretas. Ante un error revierte lo ya guardado
 // para no dejar una factura parcialmente asociada.
 async function _cfInsertFacturaConLineas(row,refs){
@@ -10743,12 +10755,29 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     // Cancelar la aprobación (descarta; nada se persiste hasta imprimir)
     bd.querySelectorAll('[data-faccancel]').forEach(b=>b.addEventListener('click',()=>{_facMode=false;_facSel=new Set();_facMonto=0;_facNro='';render('filter');}));
     bd.querySelectorAll('[data-facall]').forEach(b=>b.addEventListener('click',()=>{const cand=work.filter(w=>!w.del);const allSel=cand.length>0&&cand.every(w=>_facSel.has(w.uid));_facSel=allSel?new Set():new Set(cand.map(w=>w.uid));render('filter');}));
-    // Imprimir (habilitado al conciliar): crea la factura, asigna las líneas aprobadas y luego imprime
-    bd.querySelectorAll('[data-facprint]').forEach(b=>b.addEventListener('click',async()=>{const selW=work.filter(w=>!w.del&&_facSel.has(w.uid));const tot=selW.reduce((s,w)=>s+(+w.precio||0),0);if(!(_facMonto>0&&tot===_facMonto)){showToast('El flete aprobado no coincide con la factura 🚫');return;}if(b.classList.contains('is-loading'))return;const _ov=b.innerHTML;b.classList.add('is-loading');b.disabled=true;b.innerHTML='<span class="cf-spin"></span>Registrando…';
-      try{const row={nro:_facNro,fecha:(typeof todayISO==='function'?todayISO():new Date().toISOString().slice(0,10)),monto:_facMonto,transportadora_id:g.tsId||((transportistas||[]).find(t=>_facNorm(t.n)===_facNorm(g.ts))||{}).id||null,transportadora_nombre:g.ts,semana_desde:pD||wkObj.desde,semana_hasta:pH||wkObj.hasta};
-        const refs=selW.map(w=>({repartoId:w.repId,lineId:w.ref&&w.ref.id}));if(refs.some(x=>x.repartoId==null||x.lineId==null))throw new Error('Una línea seleccionada ya no está disponible. Actualizá la vista.');
-        const facId=await _cfInsertFacturaConLineas(row,refs);
-        try{const fr=await sb.from('fact_facturas').select('*');window.__cfFac=fr.data||[];}catch(_){}
+    // Primero guarda la factura. La impresión ocurre después y sus errores no deben
+    // hacer creer que el registro falló ni provocar que el usuario la duplique.
+    bd.querySelectorAll('[data-facprint]').forEach(b=>b.addEventListener('click',async()=>{
+      const selW=work.filter(w=>!w.del&&_facSel.has(w.uid));
+      const tot=selW.reduce((s,w)=>s+(+w.precio||0),0);
+      if(!(_facMonto>0&&tot===_facMonto)){showToast('El flete aprobado no coincide con la factura 🚫');return;}
+      if(b.classList.contains('is-loading'))return;
+      const _ov=b.innerHTML;
+      b.classList.add('is-loading');b.disabled=true;b.innerHTML='<span class="cf-spin"></span>Registrando…';
+      let facId;
+      try{
+        const row={nro:_facNro,fecha:(typeof todayISO==='function'?todayISO():new Date().toISOString().slice(0,10)),monto:_facMonto,transportadora_id:g.tsId||((transportistas||[]).find(t=>_facNorm(t.n)===_facNorm(g.ts))||{}).id||null,transportadora_nombre:g.ts,semana_desde:pD||wkObj.desde,semana_hasta:pH||wkObj.hasta};
+        const refs=selW.map(w=>({repartoId:w.repId,lineId:w.ref&&w.ref.id}));
+        if(refs.some(x=>x.repartoId==null||x.lineId==null))throw new Error('Una línea seleccionada ya no está disponible. Actualizá la vista.');
+        facId=await _cfInsertFacturaConLineas(row,refs);
+      }catch(e){
+        console.error('[factura de flete] registro fallido',e);
+        showToast(_cfFacturaErrorUsuario(e),7000);
+        b.disabled=false;b.classList.remove('is-loading');b.innerHTML=_ov;
+        return;
+      }
+      try{
+        try{const fr=await sb.from('fact_facturas').select('*');if(!fr.error)window.__cfFac=fr.data||[];}catch(_){}
         const _mt=_facMonto;_facMode=false;_facSel=new Set();_facMonto=0;_facNro='';
         _cfCheckBurst('Registrado',true);
         // La planilla recién facturada se recarga por su período, que puede cruzar semanas.
@@ -10757,11 +10786,14 @@ function _rrOpenDetail(g,periodLbl,wkObj){
         if(_rr2.lines.length){
           const _s2=_rrSumLines(_rr2.lines);
           const fresh=Object.assign({},g,{facturaId:facId,lines:_rr2.lines,reps:_rr2.reps,monto:_s2.monto,flete:_s2.flete,perDesde:_fd,perHasta:_fh});
-          _cfPrint({id:facId,tsNombre:g.ts,semanaDesde:_fd,semanaHasta:_fh,clientes:fresh.lines,totalMonto:_mt,totalFlete:fresh.flete,incTotal:null,factura_id:facId});
           _rrOpenDetail(fresh,_dispD(_fd)+' al '+_dispD(_fh),wkObj);
-        }
-        else renderReporteRepartos();
-      }catch(e){console.error(e);showToast('Uy, no pude registrar. Probá de nuevo.');b.disabled=false;b.classList.remove('is-loading');b.innerHTML=_ov;}
+          _cfPrint({id:facId,tsNombre:g.ts,semanaDesde:_fd,semanaHasta:_fh,clientes:fresh.lines,totalMonto:_mt,totalFlete:fresh.flete,incTotal:null,factura_id:facId});
+        }else renderReporteRepartos();
+      }catch(e){
+        console.error('[factura de flete] registrada; falló la apertura de impresión',e);
+        try{renderReporteRepartos();}catch(_){}
+        showToast('La factura quedó registrada. No pude abrir la impresión; buscala en el reporte y usá Imprimir.',7000);
+      }
     }));
     bd.querySelectorAll('.rre-vadd').forEach(b=>b.addEventListener('click',()=>{addRow(b.dataset.seg);render('add');}));
     bd.querySelectorAll('[data-editseg]').forEach(b=>b.addEventListener('click',()=>openSegEdit(b.dataset.editseg)));

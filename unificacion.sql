@@ -41,9 +41,13 @@ create table if not exists fact_facturas (
   transportadora_id     bigint,
   transportadora_nombre text,
   monto                 numeric default 0,
+  semana_desde          date,
+  semana_hasta          date,
   planilla_id           bigint,          -- ref lógica → repartos.id
   created_at            timestamptz default now()
 );
+alter table fact_facturas add column if not exists semana_desde date;
+alter table fact_facturas add column if not exists semana_hasta date;
 create index if not exists idx_fact_facturas_planilla on fact_facturas(planilla_id);
 
 -- ============================================================
