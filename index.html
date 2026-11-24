@@ -7042,11 +7042,11 @@ function showSaveAnim(text){
   .rrd-edbadge{display:inline-flex;align-items:center;gap:6px;flex:0 0 auto;font-family:Inter,sans-serif;font-size:11.5px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#B45309;background:#FEF3C7;border:1px solid rgba(180,83,9,.25);border-radius:999px;padding:4px 11px}
   .rrd-edbadge i{width:7px;height:7px;border-radius:999px;background:#F59E0B;box-shadow:0 0 0 3px rgba(245,158,11,.2);animation:cfDotPulse 1.6s ease-in-out infinite}
   .rrm-act--save{box-shadow:0 6px 16px rgba(11,95,141,.28)}
-  .rrd-back{display:inline-flex;align-items:center;gap:6px;flex:0 0 auto;border:1.5px solid var(--gray-200,#e2e8f0);background:#fff;border-radius:11px;padding:9px 15px;font:inherit;font-size:13px;font-weight:800;color:var(--gray-700,#334155);cursor:pointer;transition:border-color .15s,color .15s,transform .15s,box-shadow .15s}
+  .rrd-back{display:inline-flex;align-items:center;justify-content:center;gap:6px;flex:0 0 auto;min-width:96px;min-height:40px;overflow:visible;white-space:nowrap;border:1.5px solid var(--gray-200,#e2e8f0);background:#fff;border-radius:11px;padding:9px 15px;font:inherit;font-size:13px;font-weight:800;color:var(--gray-700,#334155);cursor:pointer;transition:border-color .15s,color .15s,box-shadow .15s}
   .rrd-back svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
-  .rrd-back:hover{border-color:var(--primary);color:var(--primary);transform:translateX(-2px);box-shadow:0 4px 12px rgba(11,95,141,.1)}
-  .rrd-ttl{min-width:0}
-  .rrd-ttl h2{margin:0;display:flex;align-items:center;gap:10px;min-width:0;font-family:Sora,Inter,sans-serif;font-size:22px;font-weight:800;color:var(--primary);white-space:nowrap}
+  .rrd-back:hover{border-color:var(--primary);color:var(--primary);box-shadow:0 4px 12px rgba(11,95,141,.1)}
+  .rrd-ttl{flex:1 1 auto;min-width:0}
+  .rrd-ttl h2{margin:0;display:flex;align-items:center;gap:10px;min-width:0;overflow:hidden;text-overflow:ellipsis;font-family:Sora,Inter,sans-serif;font-size:22px;font-weight:800;color:var(--primary);white-space:nowrap}
   .rr-detail.is-editing .rrd-ttl h2{font-size:24px}
   .rrd-acts{justify-self:end;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
   @media(max-width:1040px){.rrd-topbar{flex-wrap:wrap}.rrd-left{flex:1 1 100%}.rrd-acts{flex:1 1 100%}}
