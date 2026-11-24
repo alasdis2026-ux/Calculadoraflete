@@ -2263,9 +2263,11 @@ async function dbSaveReparto(snap){
     inc_total:snap.incTotal,gasto_permitido:snap.gastoPermitido||0,
     diferencia:snap.diferencia||0,zona:snap.zona||null,clientes:snap.clientes
   };
-  if(snap.id!==null){
-    const{error}=await sb.from('repartos').update(row).eq('id',snap.id);
-    if(error)throw error;return snap.id;
+  if(snap.id!=null){
+    const{data,error}=await sb.from('repartos').update(row).eq('id',snap.id).select('id');
+    if(error)throw error;
+    if(!data||!data.length)throw new Error('El reparto no existe o no hay permiso para actualizarlo. Recargá los datos e intentá de nuevo.');
+    return data[0].id;
   }else{
     const{data,error}=await sb.from('repartos').insert(row).select('id').single();
     if(error)throw error;return data.id;
@@ -3863,7 +3865,7 @@ document.getElementById('btnGuardar').addEventListener('click',async()=>{
     totalMonto:c.totalMonto,incTotal:c.incTotal,
     gastoPermitido:c.gastoPermitido,diferencia:c.diferencia,
     zona:'',
-    clientes:c.clientes.map(cl=>({id:cl.id,trId:cl.trId,tsId:cl.tsId,trDesc:cl.trDesc,tsNombre:cl.tsNombre,seg:cl.seg||'local',rep:(cl.seg==='transportadora'?(cl.rep||null):(cl.rep||'Tercerizado')),zona:cl.zona||null,peso:cl.peso||0,km:cl.km||0,precioKm:cl.precioKm||0,fijo:!!cl.fijo,monto:cl.monto,precio:cl.precio,gasto:cl.gasto,inc:cl.inc,pct:cl.pct,factura_id:(cl.id!=null&&_prevCl[cl.id]&&_prevCl[cl.id].factura_id!=null)?_prevCl[cl.id].factura_id:null})),
+    clientes:c.clientes.map(cl=>{const prev=cl.id!=null?_prevCl[cl.id]:null;return {id:cl.id,trId:cl.trId,tsId:cl.tsId,trDesc:cl.trDesc,tsNombre:cl.tsNombre,seg:cl.seg||'local',rep:(cl.seg==='transportadora'?(cl.rep||null):(cl.rep||'Tercerizado')),zona:cl.zona||null,peso:cl.peso||0,km:cl.km||0,precioKm:cl.precioKm||0,fijo:!!cl.fijo,monto:cl.monto,precio:cl.precio,gasto:cl.gasto,inc:cl.inc,pct:cl.pct,factura_id:prev&&prev.factura_id!=null?prev.factura_id:null,factura_excluida:prev?prev.factura_excluida===true:true};}),
   };
   const isNew=currentReparto.id===null;
   const _gbOrig=_gb?_gb.innerHTML:'';
@@ -4949,7 +4951,8 @@ async function openCalModal(iso){
   calDayIso=iso; calEditRepId=null; calWork=null;
   document.getElementById('viewHist').classList.add('is-dayview');
   const wrap=document.getElementById('calDayWrap');
-  // Si el día tiene varios repartos, se unen automáticamente en uno solo
+  // Si el día tiene varios repartos pendientes, se pueden unir. Los que ya tienen
+  // factura se mantienen separados para no mezclar líneas ni perder sus vínculos.
   try{ if(calDayRepartos().length>1) await _calMergeDayData(); }catch(e){ console.error(e); }
   renderCalDay(false);
   const g=window.gsap;
@@ -5148,6 +5151,7 @@ function calOpenPick(btn){
 // Une automáticamente todos los repartos del día en uno solo (sin render; devuelve true si unió)
 async function _calMergeDayData(){
   const list=calDayRepartos();if(list.length<2)return false;
+  if(list.some(r=>_repTieneVinculoFactura(r)))return false;
   const base=list.slice().sort((a,b)=>(a.id||0)-(b.id||0))[0];
   const others=list.filter(r=>r!==base);
   base.clientes=base.clientes||[];
@@ -5213,7 +5217,7 @@ async function calSaveEdit(){
       renderCalDay('toggle');return;
     }
     const _origMap={};(r.clientes||[]).forEach(c=>{if(c&&c.id!=null)_origMap[c.id]=c;});
-    const newClientes=rows.map(function(w){const tr=(ts.trucks||[]).find(t=>t.id===w.trId);const kmEntered=+w.km||0;const isIntFijo=w.seg==='interior'&&(!!w.fijo||!(kmEntered>0));const km=(w.seg==='interior'&&!isIntFijo)?kmEntered:0;const pkm=(km>0&&+w.precio>0)?Math.round(+w.precio/km):0;const _o=w.cId!=null?_origMap[w.cId]:null;return {id:w.cId||nextClienteId++,trId:w.trId,tsId:w.tsId||r.tsId,tsNombre:w.tsNombre||r.tsNombre,seg:w.seg,rep:(w.rep||'').trim()||'Tercerizado',zona:(w.zona||'').trim()||null,peso:+w.peso||0,km:km,precioKm:pkm,fijo:isIntFijo,obs:w.obs||null,cant:w.cant||null,monto:w.monto,precio:w.precio,gasto:w.precio,trDesc:tr?tr.d:(w.trDesc||''),pct:0,inc:(w.monto>0&&w.precio>0?w.precio/w.monto*100:null),factura_id:(_o&&_o.factura_id!=null)?_o.factura_id:null};});
+    const newClientes=rows.map(function(w){const tr=(ts.trucks||[]).find(t=>t.id===w.trId);const kmEntered=+w.km||0;const isIntFijo=w.seg==='interior'&&(!!w.fijo||!(kmEntered>0));const km=(w.seg==='interior'&&!isIntFijo)?kmEntered:0;const pkm=(km>0&&+w.precio>0)?Math.round(+w.precio/km):0;const _o=w.cId!=null?_origMap[w.cId]:null;return {id:w.cId||nextClienteId++,trId:w.trId,tsId:w.tsId||r.tsId,tsNombre:w.tsNombre||r.tsNombre,seg:w.seg,rep:(w.rep||'').trim()||'Tercerizado',zona:(w.zona||'').trim()||null,peso:+w.peso||0,km:km,precioKm:pkm,fijo:isIntFijo,obs:w.obs||null,cant:w.cant||null,monto:w.monto,precio:w.precio,gasto:w.precio,trDesc:tr?tr.d:(w.trDesc||''),pct:0,inc:(w.monto>0&&w.precio>0?w.precio/w.monto*100:null),factura_id:(_o&&_o.factura_id!=null)?_o.factura_id:null,factura_excluida:_o?(_o.factura_excluida===true):true};});
     const tM=newClientes.reduce((s,c)=>s+(+c.monto||0),0);
     const tF=newClientes.reduce((s,c)=>s+(+c.precio||0),0);
     const iT=tM>0?tF/tM*100:null;const gp=Math.round(tM*0.03);const dif=tF-gp;
@@ -8904,16 +8908,16 @@ function _facMismoTs(f,ts,tsId){if(!f)return false;if(f.transportadora_id!=null&
 function _wkHasta(sd){const p=sd.split('-').map(Number),d=new Date(p[0],p[1]-1,p[2]+6);return _isoD(d);}
 function _facSem(f){return f.semana_desde||((f.fecha&&typeof isoWeekRange==='function')?isoWeekRange(f.fecha).desde:null);}
 // Flete agregado de un transportista en una semana (para conciliar)
-function _fleteDe(ts,semDesde,tsId){let f=0;if(!semDesde)return 0;(repartos||[]).forEach(r=>{const wk=(r.fechaISO&&typeof isoWeekRange==='function')?isoWeekRange(r.fechaISO):null;if(!wk||wk.desde!==semDesde)return;(r.clientes||[]).forEach(cl=>{const own=cl.trId?tsOfTruck(cl.trId):null;const name=(own&&own.n)||cl.tsNombre||'—',lineTsId=(own&&own.id)||cl.tsId;const same=tsId!=null&&lineTsId!=null?String(tsId)===String(lineTsId):_facNorm(name)===_facNorm(ts);if(same)f+=_cfFleteVal(cl);});});return f;}
+function _fleteDe(ts,semDesde,tsId){let f=0;if(!semDesde)return 0;const legacy=_facByTsSem(ts,semDesde,tsId);(repartos||[]).forEach(r=>{const wk=(r.fechaISO&&typeof isoWeekRange==='function')?isoWeekRange(r.fechaISO):null;if(!wk||wk.desde!==semDesde)return;(r.clientes||[]).forEach(cl=>{const own=cl.trId?tsOfTruck(cl.trId):null;const name=(own&&own.n)||cl.tsNombre||'—',lineTsId=(own&&own.id)||cl.tsId;const same=tsId!=null&&lineTsId!=null?String(tsId)===String(lineTsId):_facNorm(name)===_facNorm(ts);if(!same)return;const fid=_facIdDeLinea(cl,r);if(legacy&&fid!=null&&String(fid)===String(legacy.id))f+=_cfFleteVal(cl);});});return f;}
 // Flete real de UNA factura: suma las líneas (clientes) asignadas a esa factura. null si no hay ninguna (factura legacy).
-function _fleteDeFactura(facId){if(facId==null)return null;let f=0,any=false;(repartos||[]).forEach(r=>{const repTieneVinculos=(r.clientes||[]).some(c=>c&&c.factura_id!=null);(r.clientes||[]).forEach(cl=>{const fid=(cl.factura_id!=null)?cl.factura_id:(repTieneVinculos?null:r.factura_id);if(fid!=null&&String(fid)===String(facId)){f+=_cfFleteVal(cl);any=true;}});});return any?f:null;}
+function _fleteDeFactura(facId){if(facId==null)return null;let f=0,any=false;(repartos||[]).forEach(r=>{const repTieneVinculos=(r.clientes||[]).some(c=>c&&c.factura_id!=null);(r.clientes||[]).forEach(cl=>{if(_lineaFacturaPendiente(cl))return;const fid=(cl.factura_id!=null)?cl.factura_id:(repTieneVinculos?null:r.factura_id);if(fid!=null&&String(fid)===String(facId)){f+=_cfFleteVal(cl);any=true;}});});return any?f:null;}
 // "Cierra" una factura: ata (factura_id) todas las líneas de esa transportadora+semana que aún no
 // tengan factura, para que los repartos que se agreguen después NO la alteren.
 async function _claimLineasFactura(ts,semDesde,facId,tsId){
   const plans=[];
   (repartos||[]).forEach(r=>{const wk=(r.fechaISO&&typeof isoWeekRange==='function')?isoWeekRange(r.fechaISO):null;if(!wk||wk.desde!==semDesde)return;
     const originals=JSON.parse(JSON.stringify(r.clientes||[]));let changed=false;
-    const next=originals.map(cl=>{const own=cl&&cl.trId?tsOfTruck(cl.trId):null;const name=(own&&own.n)||(cl&&cl.tsNombre)||'—',lineTsId=(own&&own.id)||(cl&&cl.tsId);const sameTs=tsId!=null&&lineTsId!=null?String(tsId)===String(lineTsId):_facNorm(name)===_facNorm(ts);const parent=r.factura_id==null||String(r.factura_id)===String(facId);if(cl&&sameTs&&parent&&cl.factura_id==null){cl=Object.assign({},cl,{factura_id:facId});changed=true;}return cl;});
+    const next=originals.map(cl=>{const own=cl&&cl.trId?tsOfTruck(cl.trId):null;const name=(own&&own.n)||(cl&&cl.tsNombre)||'—',lineTsId=(own&&own.id)||(cl&&cl.tsId);const sameTs=tsId!=null&&lineTsId!=null?String(tsId)===String(lineTsId):_facNorm(name)===_facNorm(ts);const parent=r.factura_id==null||String(r.factura_id)===String(facId);if(cl&&sameTs&&parent&&cl.factura_id==null&&cl.factura_excluida!==true){cl=Object.assign({},cl,{factura_id:facId,factura_excluida:false});changed=true;}return cl;});
     if(changed)plans.push({rr:r,originales:originals,next:next,parentFacturaId:r.factura_id||null});});
   const saved=[];
   try{for(const p of plans){await dbUpdateFacturaLinks(p.rr.id,p.next,null);p.rr.clientes=p.next;p.rr.factura_id=null;saved.push(p);}}
@@ -8936,9 +8940,10 @@ function _facLineas(f){
     const wk=(r.fechaISO&&typeof isoWeekRange==='function')?isoWeekRange(r.fechaISO):null;
     const repTieneVinculos=(r.clientes||[]).some(c=>c&&c.factura_id!=null);
     (r.clientes||[]).forEach(cl=>{
+      if(_lineaFacturaPendiente(cl))return;
       const fid=(cl.factura_id!=null)?cl.factura_id:(repTieneVinculos?null:r.factura_id);
       let covered;
-      if(explicit){covered=(fid!=null&&String(fid)===String(f.id));}
+      if(explicit){const lineFid=_facIdDeLinea(cl,r);covered=(lineFid!=null&&String(lineFid)===String(f.id));}
       else{const own=cl.trId?tsOfTruck(cl.trId):null;const name=(own&&own.n)||cl.tsNombre||'—',lineTsId=(own&&own.id)||cl.tsId;const sameTs=f.transportadora_id!=null&&lineTsId!=null?String(f.transportadora_id)===String(lineTsId):_facNorm(name)===_facNorm(ts);covered=!!legacy&&String(legacy.id)===String(f.id)&&fid==null&&sameTs&&!!wk&&wk.desde===sd;}
       if(covered)out.push({fecha:r.fechaISO,repId:r.id,cl:cl});
     });
@@ -8974,7 +8979,7 @@ async function _cfInsertFacturaConLineas(row,refs){
     if(ins.error&&row.cambios){const base={};Object.keys(row).forEach(k=>{if(!['motivo_cambio','motivo_nota','cambiada_at','cambios'].includes(k))base[k]=row[k];});ins=await sb.from('fact_facturas').insert(base).select('id').single();if(!ins.error)showToast('Registré la factura, pero no el motivo: falta correr facturas-motivo.sql');}
     if(ins.error)throw ins.error;facId=ins.data&&ins.data.id;if(facId==null)throw new Error('La base no devolvió el ID de la factura.');
     for(const p of plans){
-      const next=p.originales.map(c=>p.lineIds.has(String(c.id))?Object.assign({},c,{factura_id:facId}):c);
+      const next=p.originales.map(c=>p.lineIds.has(String(c.id))?Object.assign({},c,{factura_id:facId,factura_excluida:false}):c);
       await dbUpdateFacturaLinks(p.rr.id,next,null);
       p.rr.clientes=next;p.rr.factura_id=null;saved.push(p);
     }
@@ -8995,7 +9000,7 @@ async function _cfDesvincularYEliminarFactura(facId){
       const linked=(rr.clientes||[]).some(c=>c&&c.factura_id!=null&&String(c.factura_id)===id);
       if(!parent&&!linked)continue;
       const originales=JSON.parse(JSON.stringify(rr.clientes||[]));
-      const next=originales.map(c=>c&&c.factura_id!=null&&String(c.factura_id)===id?Object.assign({},c,{factura_id:null}):c);
+      const next=originales.map(c=>c&&c.factura_id!=null&&String(c.factura_id)===id?Object.assign({},c,{factura_id:null,factura_excluida:true}):c);
       const oldParent=rr.factura_id||null;
       await dbUpdateFacturaLinks(rr.id,next,parent?null:oldParent);
       rr.clientes=next;if(parent)rr.factura_id=null;saved.push({rr:rr,clientes:originales,parentFacturaId:oldParent});
@@ -9177,9 +9182,10 @@ function _facLegacy(ts,semDesde,tsId){if(!semDesde||_tsFacSplit(ts,semDesde,tsId
 // ambiguas se bloquean para no ofrecerlas como pendientes y volver a facturarlas.
 function _facIdDeLinea(cl,r){
   if(!cl||!r)return null;
+  if(_lineaFacturaPendiente(cl))return null;
   const repTieneVinculos=(r.clientes||[]).some(x=>x&&x.factura_id!=null);
   const raw=(cl.factura_id!=null)?cl.factura_id:(repTieneVinculos?null:r.factura_id);
-  if(raw!=null){const f=_facById(raw);return f?f.id:'__huerfana__';}
+  if(raw!=null){const f=_facById(raw);if(!f)return '__huerfana__';const own=cl.trId?tsOfTruck(cl.trId):null,ts=(own&&own.n)||cl.tsNombre||'—',tsId=(own&&own.id)||cl.tsId;if(!_facMismoTs(f,ts,tsId))return cl.factura_id!=null?'__huerfana__':null;return f.id;}
   if(!r.fechaISO)return null;
   const wk=(typeof isoWeekRange==='function')?isoWeekRange(r.fechaISO):null;if(!wk)return null;
   const own=cl.trId?tsOfTruck(cl.trId):null,ts=(own&&own.n)||cl.tsNombre||'—';
@@ -9187,11 +9193,12 @@ function _facIdDeLinea(cl,r){
   if(_facCountByTsSem(ts,wk.desde,tsId)>1)return '__ambigua__';
   const legacy=_facLegacy(ts,wk.desde,tsId);return legacy?legacy.id:null;
 }
-// Factura del grupo: por factura_id explícito, o legacy (ts+semana) si no hay split.
-function _facDeGrupo(g){if(!g)return null;if(g.facturaId!=null)return _facById(g.facturaId);return _facLegacy(g.ts,g.semDesde,g.tsId);}
+// Factura del grupo: por línea, padre o legacy. Las referencias ambiguas/huérfanas
+// quedan bloqueadas para evitar editar o volver a facturar líneas sin resolver.
+function _facDeGrupo(g){if(!g)return null;if(g.facturaId!=null){if(g.facturaId==='__ambigua__')return{_revision:'ambigua',monto:0};if(g.facturaId==='__huerfana__'||g.facturaId==='__huérfana__')return{_revision:'huerfana',monto:0};return _facById(g.facturaId)||{_revision:'huerfana',monto:0};}if(g.facturaExcluida)return null;const f=_facLegacy(g.ts,g.semDesde,g.tsId);if(f)return f;if(_facCountByTsSem(g.ts,g.semDesde,g.tsId)>1)return{_revision:'ambigua',monto:0};return null;}
 // Chip binario Falta/Registrada para una tarjeta de planilla — según la factura del grupo
 function _facChipDe(g,semDesde){
-  if(semDesde){return _facDeGrupo(g)
+  if(semDesde){const f=_facDeGrupo(g);if(f&&f._revision)return '<span class="cf-chip falta"><i class="cf-dot"></i>Factura por revisar</span>';return f
     ?'<span class="cf-chip reg"><i class="cf-dot"></i>Factura registrada</span>'
     :'<span class="cf-chip falta"><i class="cf-dot"></i>Falta factura</span>';}
   const wks=[...new Set((g.reps||[]).map(r=>(r.fechaISO&&typeof isoWeekRange==='function')?isoWeekRange(r.fechaISO).desde:null).filter(Boolean))];
@@ -9246,7 +9253,7 @@ async function renderFacturas(){
     (nSin?kpi('k5','Sin planilla',nSin,'falta vincular','sin'):'')+
   '</div>';
   const nav='<div class="rr-mnav"><button data-facm="-1" aria-label="Mes anterior">‹</button><span>'+_mesLbl(_facMes)+'</span><button data-facm="1" aria-label="Mes siguiente">›</button><button class="rr-mnav__today" data-factoday type="button">Semana actual</button></div>';
-  const chips='<section class="fac-week-panel"><div class="fac-section-heading"><div><span class="fac-kicker">PERÍODO DE FACTURACIÓN</span><b>Seleccioná una semana</b></div><small>'+(_facWeek?'Semana seleccionada':'Vista mensual')+'</small></div><div class="rr-chips"><button class="rr-chip'+(!_facWeek?' on':'')+'" data-facw="">Mes completo</button>'+weeks.map(w=>'<button class="rr-chip'+(_facWeek===w.desde?' on':'')+'" data-facw="'+w.desde+'">'+_shD(w.desde)+'–'+_shD(w.hasta)+'</button>').join('')+'</div></section>';
+  const chips='<section class="fac-week-panel"><div class="fac-section-heading"><span class="fac-kicker">PERÍODO</span></div><div class="rr-chips"><button class="rr-chip'+(!_facWeek?' on':'')+'" data-facw="">Mes completo</button>'+weeks.map(w=>'<button class="rr-chip'+(_facWeek===w.desde?' on':'')+'" data-facw="'+w.desde+'">'+_shD(w.desde)+'–'+_shD(w.hasta)+'</button>').join('')+'</div></section>';
   let table;
   if(!view.length&&(_facEst||_q)){table='<div class="cf-card"><div class="cf-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><b>Ninguna factura coincide con el filtro</b><span>Probá con otro texto o tocá «Registradas» para ver todas.</span></div></div>';}
   else if(!shown.length){table='<div class="cf-card"><div class="cf-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 3h14a1 1 0 011 1v17l-3-2-3 2-3-2-3 2-3-2V4a1 1 0 011-1z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><b>No hay facturas en este período</b><span>Registrá una y elegí la planilla del transportista que corresponde.</span></div></div>';}
@@ -9269,8 +9276,8 @@ async function renderFacturas(){
   const buscador='<div class="cf-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>'+
     '<input type="text" id="facQ" placeholder="Buscar Nº o transportadora…" autocomplete="off" value="'+_escp(_facQ)+'">'+
     '<button type="button" class="cf-search__clr" id="facQClr" title="Limpiar"'+(_facQ?'':' hidden')+'><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>';
-  const listHead='<div class="fac-list-head"><div><b>Comprobantes del período</b><small>Tocá una factura para revisar su conciliación y los repartos vinculados.</small></div><span class="fac-list-count">'+view.length+' '+(view.length===1?'factura visible':'facturas visibles')+'</span></div>';
-  host.innerHTML='<div class="cf-hd fac-page-head"><div class="fac-brandline"><span class="fac-brand-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M14 3v5h5M8 12h8M8 16h6"/></svg></span><div class="fac-title-copy"><span class="fac-kicker">CONTROL DE LIQUIDACIONES</span><h2><img src="logo-alas-s.a.png">Facturas registradas</h2><p>Consultá el estado de cada factura y sus planillas asociadas.</p></div></div><button class="cf-btn" id="cfNewFac"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Registrar factura</button></div><div class="fac-tools">'+nav+buscador+'</div>'+chips+kpis+'<section class="fac-list-panel">'+listHead+table+'</section>';
+  const listHead='<div class="fac-list-head"><b>Facturas</b><span class="fac-list-count">'+view.length+' '+(view.length===1?'visible':'visibles')+'</span></div>';
+  host.innerHTML='<div class="cf-hd fac-page-head"><div class="fac-brandline"><div class="fac-title-copy"><h2><img src="logo-alas-s.a.png">Facturas registradas</h2></div></div><button class="cf-btn" id="cfNewFac"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Registrar factura</button></div><div class="fac-tools">'+nav+buscador+'</div>'+chips+kpis+'<section class="fac-list-panel">'+listHead+table+'</section>';
   document.getElementById('cfNewFac').addEventListener('click',()=>_cfOpenFacturaModal(null));
   host.querySelectorAll('[data-facm]').forEach(b=>b.addEventListener('click',()=>{const a=_facMes.split('-').map(Number),d=new Date(a[0],a[1]-1+(+b.dataset.facm),1);_facMes=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');_facWeek=null;renderFacturas();}));
   const facToday=host.querySelector('[data-factoday]');if(facToday)facToday.addEventListener('click',()=>{const d=new Date();_facMes=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');_facWeek=null;renderFacturas();});
@@ -9705,9 +9712,11 @@ function _rrDaysIdx(quiero){
     const _sg2=_rrSegActivo();
     (r.clientes||[]).forEach(cl=>{ if(_sg2!=='todos'&&(cl.seg||'local')!==_sg2) return;
       const own=cl.trId?tsOfTruck(cl.trId):null; const ts=(own&&own.n)||cl.tsNombre||'—'; const tsId=(own&&own.id)||cl.tsId;
-      const key=tsId!=null?'i:'+String(tsId):'n:'+_facNorm(ts);let g=d.groups[key]; if(!g){ g=d.groups[key]={ts:ts,tsId:tsId,facturaId:null,semDesde:isoWeekRange(dia).desde,lines:[],monto:0,flete:0,reps:[]}; d.order.push(key); }
+      const fid=_facIdDeLinea(cl,r);
+      const key=(tsId!=null?'i:'+String(tsId):'n:'+_facNorm(ts))+'|'+(fid==null?'':String(fid));let g=d.groups[key]; if(!g){ g=d.groups[key]={ts:ts,tsId:tsId,facturaId:fid,facturaExcluida:false,semDesde:isoWeekRange(dia).desde,lines:[],monto:0,flete:0,reps:[]}; d.order.push(key); }
+      if(_lineaFacturaPendiente(cl))g.facturaExcluida=true;
       cl._fecha=r.fechaISO||r.fecha||null; cl._repId=r.id; g.lines.push(cl); g.monto+=+cl.monto||0; g.flete+=_cfFleteVal(cl);
-      if(!g.reps.some(x=>x.id===r.id)) g.reps.push({id:r.id,fecha:r.fecha,fechaISO:r.fechaISO,factura_id:r.factura_id});
+      if(!g.reps.some(x=>x.id===r.id)) g.reps.push({id:r.id,fecha:r.fecha,fechaISO:r.fechaISO,factura_id:fid});
     });
   });
   const out={};
@@ -9733,14 +9742,11 @@ function _rrRangeLines(ts,desde,hasta,facId,tsId){
   (repartos||[]).forEach(r=>{
     const f=String(r.fechaISO||'').slice(0,10);
     if(!f||f<desde||f>hasta)return;
-    const _repHasCl=(r.clientes||[]).some(c=>c.factura_id!=null);
     (r.clientes||[]).forEach(cl=>{
       const own=cl.trId?tsOfTruck(cl.trId):null;
       const nm=(own&&own.n)||cl.tsNombre||'—',lineTsId=(own&&own.id)||cl.tsId;
       const sameTs=tsId!=null&&lineTsId!=null?String(tsId)===String(lineTsId):_facNorm(nm)===_facNorm(ts);if(!sameTs)return;
-      const rawFid=(cl.factura_id!=null)?cl.factura_id:(_repHasCl?null:r.factura_id);
-      let fid=null;
-      if(rawFid!=null){const _f=_facById(rawFid);if(_facMismoTs(_f,nm,(own&&own.id)||cl.tsId||tsId))fid=rawFid;}
+      const fid=_facIdDeLinea(cl,r);
       if(fid!==want)return;
       cl._fecha=r.fechaISO||r.fecha||null;cl._repId=r.id;
       lines.push(cl);
@@ -9809,24 +9815,18 @@ function _rrGroups(weekDesde){
     // Corte por mes: aunque la semana cruce (ej. 27/07–02/08), cada reparto queda en SU mes
     if((r.fechaISO||'').slice(0,7)!==_rrMes)return;
     if(weekDesde){if(!wk||wk.desde!==weekDesde)return;}
-    // Si el reparto YA tiene facturas por-línea, un cliente nuevo (sin factura_id) queda PENDIENTE
-    // (no hereda el factura_id del reparto → no se mete en la planilla ya cerrada).
-    const _repHasCl=(r.clientes||[]).some(c=>c.factura_id!=null);
     const _sg3=_rrSegActivo();
     (r.clientes||[]).forEach(cl=>{if(_sg3!=='todos'&&(cl.seg||'local')!==_sg3)return;
       // Agrupar por la transportadora DUEÑA del camión (según trId), no por el tsNombre guardado
       // (así los repartos "Varios" / multi-transportadora se reparten en cada transportadora real).
       const own=cl.trId?tsOfTruck(cl.trId):null;
       const ts=(own&&own.n)||cl.tsNombre||'—';const tsId=(own&&own.id)||cl.tsId;
-      // Además de por transportadora, separar por factura (una semana puede tener varias planillas/facturas)
-      // La factura del reparto SOLO aplica a la transportadora dueña de esa factura
-      // (evita que un reparto "Varios" con factura de una transportadora parta mal a las otras).
-      // Factura POR LÍNEA (cliente): cada camión/línea puede entrar en distinta factura.
-      // Fallback al factura_id del reparto para las facturas viejas (registradas por fecha).
-      const rawFid=(cl.factura_id!=null)?cl.factura_id:(_repHasCl?null:r.factura_id);
-      let fid=null;if(rawFid!=null){const _f=_facById(rawFid);if(_facMismoTs(_f,ts,tsId))fid=rawFid;}
+      // Separar por transportadora y por factura. Las facturas antiguas sin vínculo
+      // por línea se resuelven por transportadora+semana; una línea nueva pendiente
+      // no hereda esa factura.
+      const fid=_facIdDeLinea(cl,r);
       const key=(tsId!=null?'i:'+String(tsId):'n:'+_facNorm(ts))+'|'+(fid==null?'':String(fid));
-      const g=groups[key]||(groups[key]={ts:ts,tsId:tsId,facturaId:fid,semDesde:(weekDesde||(wk?wk.desde:null)),lines:[],monto:0,flete:0,reps:[]});cl._fecha=r.fechaISO||r.fecha||null;cl._repId=r.id;g.lines.push(cl);g.monto+=+cl.monto||0;g.flete+=_cfFleteVal(cl);if(!g.reps.some(x=>x.id===r.id))g.reps.push({id:r.id,fecha:r.fecha,fechaISO:r.fechaISO,factura_id:fid});});
+      const g=groups[key]||(groups[key]={ts:ts,tsId:tsId,facturaId:fid,semDesde:(weekDesde||(wk?wk.desde:null)),facturaExcluida:false,lines:[],monto:0,flete:0,reps:[]});if(_lineaFacturaPendiente(cl))g.facturaExcluida=true;cl._fecha=r.fechaISO||r.fecha||null;cl._repId=r.id;g.lines.push(cl);g.monto+=+cl.monto||0;g.flete+=_cfFleteVal(cl);if(!g.reps.some(x=>x.id===r.id))g.reps.push({id:r.id,fecha:r.fecha,fechaISO:r.fechaISO,factura_id:fid});});
   });
   return Object.values(groups).sort((a,b)=>b.flete-a.flete);
 }
@@ -9849,10 +9849,10 @@ async function _cfMigrateLegacyPerLine(){
       if(!r.fechaISO)return;const wk=(typeof isoWeekRange==='function')?isoWeekRange(r.fechaISO):null;if(!wk)return;
       const originals=JSON.parse(JSON.stringify(r.clientes||[]));let changed=false;
       const next=originals.map(cl=>{
-        if(!cl||cl.factura_id!=null||_cfFleteVal(cl)<=0)return cl;
+        if(!cl||cl.factura_id!=null||cl.factura_excluida===true||_cfFleteVal(cl)<=0)return cl;
         const own=cl.trId?tsOfTruck(cl.trId):null,ts=(own&&own.n)||cl.tsNombre||'—',tsId=(own&&own.id)||cl.tsId,named=byKey.get('n:'+_facNorm(ts)+'|'+wk.desde)||[],exact=(tsId!=null&&byKey.get('i:'+String(tsId)+'|'+wk.desde))||[],matches=tsId==null?named:exact.concat(named.filter(f=>f.transportadora_id==null&&!exact.some(x=>String(x.id)===String(f.id))));
         if(matches.length>1){ambiguous++;return cl;}
-        if(matches.length===1){if(r.factura_id!=null&&String(r.factura_id)!==String(matches[0].id))return cl;changed=true;return Object.assign({},cl,{factura_id:matches[0].id});}
+        if(matches.length===1){if(r.factura_id!=null&&String(r.factura_id)!==String(matches[0].id))return cl;changed=true;return Object.assign({},cl,{factura_id:matches[0].id,factura_excluida:false});}
         return cl;
       });
       if(changed)plans.push({rr:r,originales:originals,next:next,parentFacturaId:r.factura_id||null});
@@ -9905,7 +9905,7 @@ function renderReporteRepartos(){
   const today=_isoD(new Date());
   const _mFirst=_rrMes+'-01',_mLast=_isoD(new Date(a[0],a[1],0));
   const clip=iso=>iso<_mFirst?_mFirst:(iso>_mLast?_mLast:iso);
-  const stOf=g=>_facDeGrupo(g)?'realizado':'programado';
+  const stOf=g=>{const f=_facDeGrupo(g);return f&&!f._revision?'realizado':'programado';};
 
   // Alcance: día > semana > mes
   // En semana y mes se unifican las facturas que abarcan varias semanas; la vista de
@@ -9933,7 +9933,7 @@ function renderReporteRepartos(){
     for(let i=0;i<7;i++){const dd=new Date(base);dd.setDate(base.getDate()+i);const iso=_isoD(dd);const inM=iso.slice(0,7)===_rrMes;const wknd=i>=5;
       const evs=(inM?(evByDay[iso]||[]):[]).filter(g=>_rrFac==='todos'||stOf(g)===_rrFac);
       const shown=evs.slice(0,3);
-      const evHtml=shown.map(g=>{const st=stOf(g);const id=iso+'|'+g.ts;window.__rrEvMap[id]={ts:g.ts,cam:g.lines.reduce((s,l)=>s+((l.seg||'local')==='transportadora'?(+l.cant||1):1),0),flete:g.flete,st:st,iso:iso};
+      const evHtml=shown.map(g=>{const st=stOf(g);const id=iso+'|'+g.ts+'|'+String(g.facturaId||'');window.__rrEvMap[id]={ts:g.ts,cam:g.lines.reduce((s,l)=>s+((l.seg||'local')==='transportadora'?(+l.cant||1):1),0),flete:g.flete,st:st,iso:iso};
         return '<div class="ci-ev st-'+st+'" data-ev="'+_escp(id)+'"><span class="ci-ev__bar"></span><span class="ci-ev__t">'+_escp(g.ts)+'</span></div>';}).join('');
       cells+='<div class="ci-cell'+(inM?'':' out')+(wknd&&inM?' wknd':'')+(iso===today?' today':'')+(iso===_rrDay?' sel':'')+'" data-iso="'+iso+'">'+
         '<div class="ci-cell__top"><span class="ci-cell__d">'+dd.getDate()+'</span></div>'+
@@ -9962,7 +9962,7 @@ function renderReporteRepartos(){
 
   let rowsH;
   if(!groups.length){rowsH='<div class="ci-empty"><div class="ci-empty__ic">'+IC.truck+'</div><h4>'+(_rrDay?'Sin repartos este día':(_rrWeek?'Sin planillas esta semana':'Sin planillas este mes'))+'</h4><p>Elegí otra fecha o cargá un flete en la Calculadora.</p></div>';}
-  else{rowsH=groups.map((g,i)=>{const st=stOf(g);const facd=st==='realizado';
+  else{rowsH=groups.map((g,i)=>{const st=stOf(g);const facState=_facDeGrupo(g);const facd=st==='realizado';
     const cam=g.lines.reduce((s,l)=>s+((l.seg||'local')==='transportadora'?(+l.cant||1):1),0);
     // Una planilla con período propio muestra sus fechas reales, sin recortarlas al mes.
     const _pA=g.perDesde||clip(g.semDesde), _pB=g.perHasta||clip(_wkHasta(g.semDesde));
@@ -9990,7 +9990,7 @@ function renderReporteRepartos(){
             perPill+
           '</div></div>'+
         '<span class="ci-row__amt" title="Flete del período">'+_gs(g.flete)+'</span>'+
-        '<span class="ci-badge-st st-'+st+'">'+(facd?IC.chk+'Facturado':'<i class="ci-bdot"></i>Pendiente')+'</span>'+
+        '<span class="ci-badge-st st-'+st+'">'+(facd?IC.chk+'Facturado':(facState&&facState._revision?'Factura por revisar':'<i class="ci-bdot"></i>Pendiente'))+'</span>'+
         '<span class="ci-row__chev">'+IC.chevronD+'</span>'+
       '</div>'+
       '<div class="ci-row-exp" hidden></div>'+
@@ -10365,10 +10365,10 @@ function _rrOpenDetail(g,periodLbl,wkObj){
   const _dfKm=d=>(d.seg||_dashSeg)==='interior'&&(+d.km>0)&&(+d.precioKm>0);
   const _dfFlete=d=>_dfKm(d)?Math.round(d.km*d.precioKm):(+d.precio||0);
   function _dashBlank(){const isTr=_dashSeg==='transportadora',tr=(trucks||[])[0]||null;return {k:_dashDK++,uid:null,isNew:true,seg:_dashSeg,trId:isTr?null:(tr?tr.id:null),trDesc:isTr?'':(tr?tr.d:''),tsId:tsObj?tsObj.id:g.tsId,tsNombre:g.ts,rep:'',zona:'',fecha:_defFecha(),km:0,precioKm:0,precio:0,obs:'',cant:1,del:false};}
-  function _dashEnterEdit(sk,autoAdd){if(_facDeGrupo(g)){showToast('Esta planilla ya está facturada · no se puede modificar');return;}_dashSeg=sk;_dashDK=1;_dashSel.clear();_dashDraft=work.filter(w=>!w.del&&w.seg===sk).map(w=>({k:_dashDK++,uid:w.uid,isNew:!!w.isNew,seg:w.seg||sk,trId:w.trId,trDesc:w.trDesc,tsId:w.tsId,tsNombre:w.tsNombre,rep:w.rep||'',zona:w.zona||'',fecha:w.fecha||null,km:+w.km||0,precioKm:+w.precioKm||0,precio:+w.precio||0,obs:w.obs||'',cant:+w.cant||1,del:false}));_dashEdit=true;if(autoAdd)_dashDraft.push(_dashBlank());render('filter');}
+  function _dashEnterEdit(sk,autoAdd){const lock=_facDeGrupo(g);if(lock){showToast(lock._revision?'La factura de esta planilla necesita revisión antes de modificarla.':'Esta planilla ya está facturada · no se puede modificar');return;}_dashSeg=sk;_dashDK=1;_dashSel.clear();_dashDraft=work.filter(w=>!w.del&&w.seg===sk).map(w=>({k:_dashDK++,uid:w.uid,isNew:!!w.isNew,seg:w.seg||sk,trId:w.trId,trDesc:w.trDesc,tsId:w.tsId,tsNombre:w.tsNombre,rep:w.rep||'',zona:w.zona||'',fecha:w.fecha||null,km:+w.km||0,precioKm:+w.precioKm||0,precio:+w.precio||0,obs:w.obs||'',cant:+w.cant||1,del:false}));_dashEdit=true;if(autoAdd)_dashDraft.push(_dashBlank());render('filter');}
   function _dashExitEdit(){_dashEdit=false;_dashDraft=null;_dashSel.clear();render('filter');}
   // Desde "Todos": si hay 1 segmento entra directo; si hay varios, muestra un modal PRO para elegir
-  function _dashPickSeg(isAdd){if(_facDeGrupo(g)){showToast('Esta planilla ya está facturada · no se puede modificar');return;}const present=SEGL.filter(sk=>work.some(w=>!w.del&&w.seg===sk));if(present.length<=1){_dashEnterEdit(present[0]||'local',isAdd);return;}_openSegModal(present,isAdd);}
+  function _dashPickSeg(isAdd){const lock=_facDeGrupo(g);if(lock){showToast(lock._revision?'La factura de esta planilla necesita revisión antes de modificarla.':'Esta planilla ya está facturada · no se puede modificar');return;}const present=SEGL.filter(sk=>work.some(w=>!w.del&&w.seg===sk));if(present.length<=1){_dashEnterEdit(present[0]||'local',isAdd);return;}_openSegModal(present,isAdd);}
   function _openSegModal(segs,isAdd){
     const SEGICON={local:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 15.4V7.6a1 1 0 0 1 1-1h8.1a1 1 0 0 1 1 1v7.8"/><path d="M12.6 9.6h3.3a2 2 0 0 1 1.5.68l2.1 2.4a2 2 0 0 1 .5 1.32v1.4"/><path d="M2.5 15.4h1.5M8.7 15.4h4.6M18.4 15.4h2.1"/><circle cx="6.4" cy="16.1" r="1.95"/><circle cx="16.2" cy="16.1" r="1.95"/></svg>',interior:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.55" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="5" width="12.5" height="10" rx="1"/><path d="M14 8.2h3.7a2 2 0 0 1 1.55.75l2.05 2.55a2 2 0 0 1 .45 1.25V15H14z"/><path d="M4.2 17.4h1M8.6 17.4h7.1M19.7 17.4h1"/><circle cx="6.3" cy="17.4" r="2"/><circle cx="18" cy="17.4" r="2"/><path d="M4.4 8.4h7M4.4 11.6h7"/></svg>',servicios:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14.9 6.1a3.9 3.9 0 0 0-5 5l-5.85 5.85a2.05 2.05 0 1 0 2.9 2.9L11.8 14a3.9 3.9 0 0 0 5-5l-2.55 2.55-2.3-.6-.6-2.3z"/></svg>',transportadora:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.55" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 15.3V6.9a1 1 0 0 1 1-1h9.3a1 1 0 0 1 1 1v8.4"/><path d="M12.8 9.4h3.5a2 2 0 0 1 1.52.7l2.28 2.7a2 2 0 0 1 .42 1.24v1.26"/><path d="M1.5 15.3h1.1M8 15.3h5.6M19.2 15.3h1.8"/><circle cx="5.4" cy="16.1" r="1.9"/><circle cx="16.6" cy="16.1" r="1.9"/></svg>'};
     const ov=document.createElement('div');ov.className='segmodal-ov';
@@ -10403,7 +10403,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     alive.filter(d=>!d.uid).forEach(d=>{const w={uid:_wuid++,ref:null,repId:targetRepId(),tsId:d.tsId||(tsObj?tsObj.id:g.tsId),tsNombre:d.tsNombre||g.ts,monto:0,del:false,isNew:true,edit:false};_applyLineToWork(w,d,tseg(d));work.unshift(w);});
     _dashEdit=false;_dashDraft=null;await save(null,true);}
   function _dashResumen(lbl,nLines,nCam,sub){
-    const _fg=_facDeGrupo(g);const facReg=_fg?(+_fg.monto||0):null;
+    const _fg=_facDeGrupo(g);const facReg=_fg&&!_fg._revision?(+_fg.monto||0):null;
     const CLIP='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>';
     const COINS='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.66 3.58 3 8 3s8-1.34 8-3V6M4 12v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/></svg>';
     const CHECK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>';
@@ -10526,10 +10526,10 @@ function _rrOpenDetail(g,periodLbl,wkObj){
       else rowsHtml=items.map(w=>{const km=(isInt&&+w.km>0)?(_kmFmt(+w.km)+' km × '+_gs(+w.precioKm||0)):'—';return '<tr'+rowCls(w)+' data-dashrow="'+w.uid+'">'+dfec(w)+'<td class="rrd-cam"><span class="rrd-cam__ic">'+TRUCKICON+'</span><span class="rrd-cam__t">'+_escp(camLbl(w))+'</span></td><td>'+_escp(w.rep||'Tercerizado')+'</td><td class="rrd-grow">'+(w.zona?dchip(w.zona):(isServ&&w.obs?serviceChip(w.obs):'<span class="rrd-mut">—</span>'))+'</td>'+(isInt?'<td class="r rrd-det">'+km+'</td>':'')+'<td class="r rrd-flete">'+_gs(+w.precio||0)+'</td>'+acts(w)+'</tr>';}).join('');
       if(!rowsHtml)rowsHtml='<tr><td colspan="9" class="rrd-empty">Sin líneas</td></tr>';
     }
-    let hdActs;
+    let hdActs;const _facLock=_facDeGrupo(g);
     if(editing)hdActs='<button class="rrd-hdbtn rrd-hdbtn--del" data-dashdelsel="1"'+(_dashSel.size?'':' style="display:none"')+'><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg> <span class="rrd-delseln">Borrar ('+_dashSel.size+')</span></button><button class="rrd-hdbtn rrd-hdbtn--cancel" data-dashcancel="1">Cancelar</button><button class="rrd-hdbtn" data-dashaddline="1"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg> Agregar</button><button class="rrd-hdbtn rrd-hdbtn--save" data-dashsave="1"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> Guardar</button>';
     else if(_facMode)hdActs='<span class="rrd-hdlock rrd-hdlock--sel"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg> Elegí qué repartos entran</span>';
-    else if(_facDeGrupo(g))hdActs='<span class="rrd-hdlock"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><rect x="4.5" y="11" width="15" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg> Facturada · conciliada</span>';
+    else if(_facLock)hdActs='<span class="rrd-hdlock"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><rect x="4.5" y="11" width="15" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg> '+(_facLock._revision?'Factura por revisar':'Facturada · conciliada')+'</span>';
     else hdActs='<button class="rrd-hdbtn" data-dashadd="'+sk+'"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg> Añadir</button>'+(items.some(w=>!w.isNew)?'<button class="rrd-hdbtn rrd-hdbtn--edit" data-dashedit="'+sk+'"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4z"/></svg> Editar</button>':'');
     const table='<div class="rrd-tablecard'+(editing?' is-editing':'')+'">'+'<div class="rrd-tablehd"><div class="rrd-tablehd__t"><span class="rrd-tablehd__dot" style="background:'+SEGDOT[sk]+'"></span>'+(editing?'Editando '+SEGN[sk]:'Detalle de '+SEGN[sk])+'</div>'+(_facMode?'':'<div class="rrd-cardseg">'+dashTabs()+'</div>')+'<div class="rrd-tablehd__acts">'+hdActs+'</div></div><div class="rrd-tablewrap"><table class="rrd-tbl'+(editing?' rrd-tbl--edit':'')+'"><thead>'+thead+'</thead><tbody>'+rowsHtml+'</tbody></table></div></div>';
     const src=editing?(_dashDraft||[]).filter(d=>!d.del):items;
@@ -10580,7 +10580,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
       const isIntFijo=w.seg==='interior'&&!!w.fijo;
       const km=(w.seg==='interior'&&!isIntFijo)?(w.km||0):0,pkm=(w.seg==='interior'&&!isIntFijo)?(w.precioKm||0):0;
       const targetRep=w.fecha?repForDate(w.fecha):null;
-      if(w.isNew){const r=targetRep||repartos.find(x=>x.id===w.repId);if(!r)return;if(!r.clientes)r.clientes=[];r.clientes.push({id:nextClienteId++,trId:isTr?null:w.trId,tsId:tsObj?tsObj.id:g.tsId,seg:w.seg,rep:isTr?null:((w.rep||'').trim()||'Tercerizado'),zona:isTr?null:((w.zona||'').trim()||null),obs:(w.seg==='servicios'?(w.obs||'').trim():'')||null,cant:isTr?cant:null,km:km,precioKm:pkm,fijo:isIntFijo,monto:isTr?0:w.monto,precio:w.precio,gasto:w.precio,trDesc:trD,tsNombre:g.ts,pct:0,inc:(w.monto>0&&w.precio>0?w.precio/w.monto*100:null)});affected.add(r);}
+      if(w.isNew){const r=targetRep||repartos.find(x=>x.id===w.repId);if(!r)return;if(!r.clientes)r.clientes=[];r.clientes.push({id:nextClienteId++,trId:isTr?null:w.trId,tsId:tsObj?tsObj.id:g.tsId,seg:w.seg,rep:isTr?null:((w.rep||'').trim()||'Tercerizado'),zona:isTr?null:((w.zona||'').trim()||null),obs:(w.seg==='servicios'?(w.obs||'').trim():'')||null,cant:isTr?cant:null,km:km,precioKm:pkm,fijo:isIntFijo,monto:isTr?0:w.monto,precio:w.precio,gasto:w.precio,trDesc:trD,tsNombre:g.ts,pct:0,inc:(w.monto>0&&w.precio>0?w.precio/w.monto*100:null),factura_excluida:true});affected.add(r);}
       else if(w.ref){let curr=repartos.find(x=>x.id===w.repId);if(targetRep&&curr&&targetRep!==curr){const _ix=(curr.clientes||[]).indexOf(w.ref);if(_ix>=0)curr.clientes.splice(_ix,1);if(!targetRep.clientes)targetRep.clientes=[];targetRep.clientes.push(w.ref);affected.add(curr);curr=targetRep;}w.ref.monto=isTr?0:w.monto;w.ref.precio=w.precio;w.ref.gasto=w.precio;w.ref.seg=w.seg;w.ref.km=km;w.ref.precioKm=pkm;w.ref.fijo=isIntFijo;w.ref.rep=isTr?null:((w.rep||'').trim()||'Tercerizado');w.ref.zona=isTr?null:((w.zona||'').trim()||null);w.ref.obs=(w.seg==='servicios'?(w.obs||'').trim():'')||null;w.ref.cant=isTr?cant:null;if(isTr){w.ref.trId=null;w.ref.trDesc=trD;}else if(w.trId){w.ref.trId=w.trId;w.ref.trDesc=tr?tr.d:w.ref.trDesc;w.ref.tsId=tsObj?tsObj.id:w.ref.tsId;}w.ref.inc=(w.monto>0&&w.precio>0?w.precio/w.monto*100:null);affected.add(curr);}});
     const svOrig=sv?sv.innerHTML:null;if(sv){sv.disabled=true;sv.classList.add('is-loading');sv.innerHTML='<span class="cf-spin"></span>Guardando…';}
     let _pill=null;
@@ -11034,6 +11034,7 @@ function _svFact(x){
   let f=null;
   try{
     if(x.c&&x.c.factura_id!=null)f=_facById(x.c.factura_id);
+    if(!f&&_lineaFacturaPendiente(x.c))return null;
     if(!f&&x.r&&x.r.factura_id!=null)f=_facById(x.r.factura_id);
     if(!f&&x.wk&&typeof _facLegacy==='function')f=_facLegacy(x.ts,x.wk.desde);
   }catch(_){}
@@ -11758,7 +11759,7 @@ async function _svGuardar(host){
   const tocados=[], creados=[], puestas=[];
   try{
     nuevas.forEach(function(f){
-      let r=(repartos||[]).find(function(x){ return x.fechaISO===f.fecha && x.tsId===tsId; });
+      let r=(repartos||[]).find(function(x){ return x.fechaISO===f.fecha && x.tsId===tsId && !_repTieneVinculoFactura(x); });
       if(!r){
         r={id:null,fecha:(typeof isoToDisplay==='function'?isoToDisplay(f.fecha):f.fecha),fechaISO:f.fecha,
            tsId:tsId,tsNombre:t.n,trId:null,trDesc:'',km:0,precio:0,tipo:'km',
@@ -11769,7 +11770,7 @@ async function _svGuardar(host){
       const cl={id:nextClienteId++,trId:null,tsId:tsId,tsNombre:t.n,trDesc:'',seg:'servicios',
                 rep:null,zona:null,obs:(f.obs||'').trim(),detalle:(f.detalle||'').trim()||null,almacen:(f.almacen||'').trim()||null,
                 per_desde:_svDraft.perD||null,per_hasta:_svDraft.perH||null,cant:null,km:0,precioKm:0,fijo:false,
-                monto:0,precio:+f.monto||0,gasto:+f.monto||0,pct:0,inc:null,factNro:null};
+                monto:0,precio:+f.monto||0,gasto:+f.monto||0,pct:0,inc:null,factNro:null,factura_excluida:true};
       r.clientes.push(cl);
       puestas.push({f:f,r:r,cl:cl});
       if(tocados.indexOf(r)<0)tocados.push(r);
