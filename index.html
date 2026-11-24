@@ -2671,7 +2671,13 @@ function showView(v){
   if(v==='rrep')renderReporteRepartos();
   if(v==='stats')_cfOpenStats();
   if(v==='meta')renderMetaRep();
-  if(v==='serv'){renderServicios();_svAsegurarFacturas();}
+  if(v==='serv'){
+    /* Registro es la pantalla de entrada del módulo. El reporte sigue
+       disponible en su pestaña, pero no debe reaparecer al volver al módulo. */
+    _svTab='reg';
+    renderServicios();
+    _svAsegurarFacturas();
+  }
   _cfPresenceSetView(v);
   // Los apartados ya conservan sus datos en memoria. Entrar sin ocultar/mover
   // cada bloque evita el parpadeo y deja el cambio de vista inmediato.
@@ -11603,13 +11609,15 @@ function _svLineas(){
 
 function renderServicios(){
   const host=document.getElementById('svBody'); if(!host)return;
+  /* Dibujar primero el formulario evita que un fallo al calcular los datos
+     del reporte deje el calendario anterior ocupando la pestaña Registro. */
+  if(_svTab==='reg'){ _svSoltarRrep(); _svReg(host); } else _svDatos(host);
   const lin=_svLineas();
   const n=document.getElementById('svCount');
   if(n)n.textContent=lin.length+(lin.length===1?' servicio':' servicios');
   document.querySelectorAll('#svTabs [data-svtab]').forEach(function(b){
     b.classList.toggle('is-active',b.dataset.svtab===_svTab);
   });
-  if(_svTab==='reg'){ _svSoltarRrep(); _svReg(host); } else _svDatos(host);
 }
 
 /* ── Pestaña: Registro ───────────────────────────────────── */
@@ -12682,8 +12690,10 @@ function _svPrint(g){
   if(!t)return;
   t.addEventListener('click',function(e){
     const b=e.target.closest('[data-svtab]');
-    if(!b||b.dataset.svtab===_svTab)return;
-    _svTab=b.dataset.svtab;
+    if(!b)return;
+    if(b.dataset.svtab!==_svTab)_svTab=b.dataset.svtab;
+    /* Repinta también la pestaña activa si el contenido compartido quedó
+       desincronizado después de navegar o recuperar el estado. */
     renderServicios();
   });
 })();
