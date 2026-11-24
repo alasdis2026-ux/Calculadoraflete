@@ -7479,6 +7479,20 @@ function showSaveAnim(text){
   .cal-rep--pro .cal-rep-hd{margin-bottom:14px;min-height:34px}
   .cal-rep--pro .crd-kpis{margin-bottom:14px}
   .cal-rep--pro .crd-kpis .rrd-ktile{min-width:170px}
+  /* En el calendario, los KPI y las acciones se adaptan al ancho real de cada planilla. */
+  .cal-rep--pro{container-type:inline-size;container-name:cal-reparto}
+  .cal-rep--pro .crd-kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin:0 0 11px}
+  .cal-rep--pro .crd-kpis .rrd-ktile{min-width:0;min-height:68px;margin:0;padding:10px 12px;gap:9px;border-radius:14px}
+  .cal-rep--pro .crd-kpis .rrd-ktile__ic{width:36px;height:36px;flex:0 0 36px;border-radius:11px}
+  .cal-rep--pro .crd-kpis .rrd-ktile__ic svg{width:18px;height:18px}
+  .cal-rep--pro .crd-kpis .rrd-ktile__tx{min-width:0}
+  .cal-rep--pro .crd-kpis .rrd-ktile__tx small{font-size:9px;letter-spacing:.45px;white-space:nowrap}
+  .cal-rep--pro .crd-kpis .rrd-ktile__tx b{font-size:clamp(15px,1.1cqi,19px);line-height:1.12;white-space:nowrap}
+  .cal-rep--pro .crd-kpis .rrd-ktile--obj .rrd-ktile__tx b{font-size:13px;white-space:normal}
+  @container cal-reparto (max-width:1240px){.cal-rep--pro .crd-kpis{grid-template-columns:repeat(4,minmax(0,1fr))}}
+  @container cal-reparto (max-width:980px){.cal-rep--pro .crd-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}}
+  @container cal-reparto (max-width:700px){.cal-rep--pro .crd-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @container cal-reparto (max-width:460px){.cal-rep--pro .crd-kpis{grid-template-columns:minmax(0,1fr)}}
   .rrd-ktile--cam .rrd-ktile__tx b{color:#0B5F8D}
   /* Tile Objetivo: solo el estado (verde/rojo), un poco más grande, sin valor grande aparte */
   .rrd-ktile--obj .rrd-ktile__tx b{font-size:14.5px;line-height:1.2}
@@ -7490,7 +7504,20 @@ function showSaveAnim(text){
   .crd-barrow .crd-tabs{margin:0;justify-self:center}
   .crd-barrow__acts{grid-column:3;justify-self:end;display:flex;gap:8px}
   @media(max-width:760px){.crd-barrow{grid-template-columns:1fr;justify-items:center}.crd-barrow__sp{display:none}.crd-barrow__acts{grid-column:1;justify-self:center}}
+  .cal-rep--pro .crd-barrow{grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:8px;margin-bottom:11px}
+  .cal-rep--pro .crd-barrow .crd-tabs{max-width:100%;gap:4px;padding:4px;border-radius:12px}
+  .cal-rep--pro .crd-barrow .rrd-tab{gap:6px;padding:6px 10px;font-size:12px;border-radius:9px}
+  .cal-rep--pro .crd-barrow .rrd-tab__n{min-width:18px;height:18px;font-size:10px}
+  .cal-rep--pro .crd-barrow .crd-barrow__acts{grid-column:3;justify-self:end;gap:6px}
+  .cal-rep--pro .crd-barrow .cal-rep-btn{height:32px;padding:0 11px;font-size:11.5px}
+  @container cal-reparto (max-width:850px){.cal-rep--pro .crd-barrow{grid-template-columns:minmax(0,1fr) auto}.cal-rep--pro .crd-barrow__sp{display:none}.cal-rep--pro .crd-barrow .crd-tabs{grid-column:1;justify-self:center}.cal-rep--pro .crd-barrow .crd-barrow__acts{grid-column:2;justify-self:end}}
+  @container cal-reparto (max-width:560px){.cal-rep--pro .crd-barrow{grid-template-columns:minmax(0,1fr);justify-items:center;row-gap:7px}.cal-rep--pro .crd-barrow .crd-tabs,.cal-rep--pro .crd-barrow .crd-barrow__acts{grid-column:1;justify-self:center}.cal-rep--pro .crd-barrow .rrd-tab{padding:6px 8px;font-size:11px}}
   .cal-rep--pro .crd-tablewrap{overflow-x:auto}
+  /* Camión y segmento con el mismo chip azul PRO del reporte; el icono va dentro del chip. */
+  .cal-rep--pro:not(.cal-rep--edit) .rrd-tbl:not(.rrd-tbl--edit) .rrd-cam__ic{position:relative;z-index:1;width:20px;height:20px;margin-right:-20px;background:transparent;border-color:transparent;color:#fff;box-shadow:none}
+  .cal-rep--pro:not(.cal-rep--edit) .rrd-tbl:not(.rrd-tbl--edit) .rrd-cam__ic svg{width:13px;height:13px}
+  .cal-rep--pro:not(.cal-rep--edit) .rrd-tbl:not(.rrd-tbl--edit) .rrd-cam__t{display:inline-flex;align-items:center;max-width:min(380px,100%);padding:4px 10px 4px 30px;border-radius:999px;background:linear-gradient(135deg,#1a86c8 0%,#0b5f8d 58%,#084b70 100%);color:#fff;font-size:11px;font-weight:850;letter-spacing:.25px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:0 3px 9px -3px rgba(8,75,112,.7),inset 0 1px 0 rgba(255,255,255,.2);vertical-align:middle}
+  .cal-rep--pro:not(.cal-rep--edit) .rrd-tbl:not(.rrd-tbl--edit) .rrd-segtag{display:inline-flex;align-items:center;padding:3px 9px;border-radius:999px;background:linear-gradient(135deg,#1a86c8 0%,#0b5f8d 58%,#084b70 100%);color:#fff;font-size:10px;font-weight:850;letter-spacing:.35px;box-shadow:0 3px 9px -3px rgba(8,75,112,.65),inset 0 1px 0 rgba(255,255,255,.18)}
   /* Tabla de edición compacta (detalle del día) — que entre sin scroll horizontal */
   .cal-rep-table--compact{width:100%;table-layout:auto}
   .cal-rep-table--compact th{padding:8px 9px;font-size:9.5px}
