@@ -12409,7 +12409,7 @@ function _svPrint(g){
     '<tr class="grp"><td colspan="6">SERVICIOS ADICIONALES</td></tr>'+body+
     '<tr class="total"><td colspan="5">TOTAL GENERAL</td><td class="r">'+_gs(g.total)+'</td></tr>'+
     '</tbody></table></div>'+
-    '<div class="foot"><div class="firmas"><div class="firma"><div class="ln"></div><span>JEFE DE DISTRIBUCIÓN</span></div><div class="firma"><div class="ln"></div><span>JEFE DE ADMINISTRACIÓN</span></div></div>'+
+    '<div class="foot"><div class="firmas"><div class="firma"><div class="ln"></div><span>JEFE DE LOGÍSTICA</span></div></div>'+
     '<div class="resumen"><h3>Resumen</h3><div class="rr"><span>Servicios</span><b>'+g.filas.length+'</b></div>'+
     '<div class="rr"><span>Con factura</span><b>'+g.filas.filter(function(x){ return !!_svFact(x); }).length+'</b></div>'+
     '<div class="rr"><span>Total</span><b>'+_gs(g.total)+'</b></div></div></div>';
@@ -12532,7 +12532,7 @@ function _cfPrint(r){
         :'<tr><th>Fecha</th><th>Camión</th><th>Zona</th><th>Detalle</th><th class="r">Flete (Gs.)</th></tr>')+'</thead><tbody>'+body+
     '<tr class="total"><td colspan="'+(nCols-1)+'">TOTAL GENERAL</td><td class="r">'+_gs(totF)+'</td></tr>'+
     '</tbody></table></div>'+
-    '<div class="foot"><div class="firmas"><div class="firma"><div class="ln"></div><span>JEFE DE DISTRIBUCIÓN</span></div><div class="firma"><div class="ln"></div><span>JEFE DE LOGÍSTICA</span></div></div>'+
+    '<div class="foot"><div class="firmas"><div class="firma"><div class="ln"></div><span>JEFE DE LOGÍSTICA</span></div></div>'+
     '<div class="resumen"><h3>Resumen</h3><div class="rr"><span>'+(soloServ?'Servicios':'Camiones')+'</span><b>'+totN+'</b></div>'+(totKm>0?'<div class="rr"><span>Km total</span><b>'+_nnum(totKm)+' km</b></div>':'')+'<div class="rr"><span>Flete total</span><b>Gs. '+_nnum(totF)+'</b></div>'+(f?'<div class="rr" style="border-top:1px solid #dde6ef;margin-top:5px;padding-top:6px"><span>Monto factura</span><b>Gs. '+_nnum(f.monto)+'</b></div>':'')+'</div></div>';
   // Impresión 100% confiable: iframe aislado con dimensiones reales fuera de pantalla
   // (un iframe 0x0 no imprime en Chrome). Fallback a ventana nueva si el iframe falla.
