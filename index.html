@@ -8118,6 +8118,10 @@ function showSaveAnim(text){
   #rrepHost .rr-detail .rrd-tbl:not(.rrd-tbl--edit) .rrd-cam__ic{background:linear-gradient(135deg,#e7f2fb,#d7e9f7);color:#0B5F8D;border:1px solid rgba(11,95,141,.1)}
   #rrepHost .rr-detail .rrd-tbl:not(.rrd-tbl--edit) .rrd-cam__t,
   .sv-rrep .rrd-tbl:not(.rrd-tbl--edit) .rrd-cam__t{display:inline-flex;align-items:center;max-width:280px;padding:4px 10px;border-radius:999px;background:linear-gradient(135deg,#1a86c8 0%,#0b5f8d 58%,#084b70 100%);color:#fff;font-size:11px;font-weight:850;letter-spacing:.25px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:0 3px 9px -3px rgba(8,75,112,.7),inset 0 1px 0 rgba(255,255,255,.2)}
+  /* Integra el icono del camión dentro del chip azul en el reporte de repartos. */
+  #rrepHost .rr-detail .rrd-tbl:not(.rrd-tbl--edit) .rrd-cam__ic{position:relative;z-index:1;width:20px;height:20px;margin-right:-20px;background:transparent;border-color:transparent;color:#fff;box-shadow:none}
+  #rrepHost .rr-detail .rrd-tbl:not(.rrd-tbl--edit) .rrd-cam__ic svg{width:13px;height:13px}
+  #rrepHost .rr-detail .rrd-tbl:not(.rrd-tbl--edit) .rrd-cam__t{padding-left:30px}
   #rrepHost .rr-detail .rrd-tbl:not(.rrd-tbl--edit) .rrd-segtag{display:inline-flex;align-items:center;padding:3px 9px;border-radius:999px;background:linear-gradient(135deg,#1a86c8 0%,#0b5f8d 58%,#084b70 100%);color:#fff;font-size:10px;font-weight:850;letter-spacing:.35px;box-shadow:0 3px 9px -3px rgba(8,75,112,.65),inset 0 1px 0 rgba(255,255,255,.18)}
 
   /* Servicios adicionales: mismo balance de KPI y acciones que el reporte de flete. */
