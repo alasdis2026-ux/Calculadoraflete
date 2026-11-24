@@ -1638,6 +1638,48 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .check-svg.show .check-mark{stroke-dashoffset:0}
 .save-label{font-family:Sora,Inter,sans-serif;font-size:25px;font-weight:800;color:var(--accent);letter-spacing:-.4px;text-align:center;opacity:0;transform:translateY(8px);transition:opacity .3s .25s,transform .35s var(--alas-ease-spring) .25s}
 .save-label.show{opacity:1;transform:translateY(0)}
+  /* Desplegable minimalista del reporte de Servicios adicionales. */
+  #viewServ .rr-ci .ci-rowwrap.open{border-radius:11px;box-shadow:0 8px 22px rgba(15,36,64,.09)}
+  #viewServ .rr-ci .ci-rowwrap.open .ci-row{border-top-left-radius:11px;border-top-right-radius:11px;background:#fff;box-shadow:inset 0 0 0 1px #dce7f0}
+  #viewServ .rr-ci .ci-rowwrap.open .ci-row::after{display:none}
+  #viewServ .rr-ci .ci-row-exp{border-color:#dce7f0;border-bottom-left-radius:11px;border-bottom-right-radius:11px;background:#fff}
+  #viewServ .rr-ci .ci-exp-in--services{padding:10px 12px 12px;background:#fff}
+  #viewServ .rr-ci .ci-exp-in--services .ci-exp-bar{gap:10px;margin-bottom:9px;padding-bottom:9px;border-bottom:1px solid #edf2f7}
+  #viewServ .rr-ci .ci-exp-summary{display:flex;align-items:center;gap:8px;min-width:0;color:#64748b;font-size:11.5px;font-weight:700}
+  #viewServ .rr-ci .ci-exp-summary__count{white-space:nowrap}
+  #viewServ .rr-ci .ci-exp-summary__sep{color:#c1cbd5}
+  #viewServ .rr-ci .ci-exp-summary__total{display:inline-flex;align-items:baseline;gap:5px;min-width:0}
+  #viewServ .rr-ci .ci-exp-summary__total b{color:#15803d;font-size:13px;font-weight:850;font-variant-numeric:tabular-nums}
+  #viewServ .rr-ci .ci-exp-summary__total span{color:#8492a2;font-size:10px;font-weight:600}
+  #viewServ .rr-ci .ci-exp-in--services .ci-ver{height:30px;padding:0 11px;border:1px solid #d7e7f3;border-radius:8px;background:#f2f8fc;color:#0b5f8d;font-size:11.5px;box-shadow:none}
+  #viewServ .rr-ci .ci-exp-in--services .ci-ver:hover{filter:none;background:#e8f3fa;border-color:#bdd8ea}
+  #viewServ .rr-ci .ci-exp-in--services .ci-btbl-wrap{max-height:260px;overflow:auto;border-color:#e3ebf2;border-radius:9px}
+  #viewServ .rr-ci .ci-exp-in--services .ci-btbl--servicios{table-layout:fixed;font-size:12px}
+  #viewServ .rr-ci .ci-exp-in--services .ci-btbl--servicios th,
+  #viewServ .rr-ci .ci-exp-in--services .ci-btbl--servicios td{padding:7px 10px}
+  #viewServ .rr-ci .ci-exp-in--services .ci-btbl--servicios th{background:#f8fafc;color:#8a99a8;font-size:9px;letter-spacing:.35px}
+  #viewServ .rr-ci .ci-exp-in--services .ci-btbl--servicios th.col-fecha,
+  #viewServ .rr-ci .ci-exp-in--services .ci-btbl--servicios td.b-fecha{width:92px}
+  #viewServ .rr-ci .ci-exp-in--services .ci-btbl--servicios th.r,
+  #viewServ .rr-ci .ci-exp-in--services .ci-btbl--servicios td.r{width:118px}
+  #viewServ .rr-ci .ci-exp-in--services .ci-btbl--servicios td.b-fecha{color:#64748b;font-size:11.5px;font-variant-numeric:tabular-nums}
+  #viewServ .rr-ci .ci-exp-in--services .ci-btbl--servicios td.b-service{line-height:1.35}
+  #viewServ .rr-ci .ci-exp-in--services .ci-btbl--servicios .rrd-service-chip{display:inline-flex;max-width:100%;padding:3px 8px;font-size:9.5px;letter-spacing:.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:middle}
+  #viewServ .rr-ci .ci-exp-in--services .ci-btbl--servicios td.r{color:#15803d;font-size:12px;font-weight:800;font-variant-numeric:tabular-nums}
+  #viewServ .rr-ci .ci-exp-in--services .ci-btbl--servicios tbody tr:hover td{background:#f8fbfd}
+  @media(max-width:640px){
+    #viewServ .rr-ci .ci-exp-in--services{padding:9px}
+    #viewServ .rr-ci .ci-exp-in--services .ci-exp-bar{align-items:center}
+    #viewServ .rr-ci .ci-exp-summary{gap:6px;font-size:10.5px}
+    #viewServ .rr-ci .ci-exp-summary__total b{font-size:12px}
+    #viewServ .rr-ci .ci-exp-summary__total span{font-size:9px}
+    #viewServ .rr-ci .ci-exp-in--services .ci-btbl--servicios th,
+    #viewServ .rr-ci .ci-exp-in--services .ci-btbl--servicios td{padding:6px 7px}
+    #viewServ .rr-ci .ci-exp-in--services .ci-btbl--servicios th.col-fecha,
+    #viewServ .rr-ci .ci-exp-in--services .ci-btbl--servicios td.b-fecha{width:82px}
+    #viewServ .rr-ci .ci-exp-in--services .ci-btbl--servicios th.r,
+    #viewServ .rr-ci .ci-exp-in--services .ci-btbl--servicios td.r{width:104px}
+  }
 </style>
 </head>
 <body>
@@ -10121,7 +10163,8 @@ function _renderReporteRepartos(){
       if(soloServicios){const servicio=String(cl.obs||cl.zona||'').trim(),almacen=String(cl.almacen||'').trim();return '<tr><td class="b-fecha">'+fe+'</td><td class="b-service" title="'+_escp(servicio)+'">'+(servicio?'<span class="rrd-service-chip">'+_escp(servicio)+'</span>':'<span class="rrd-mut">—</span>')+'</td>'+(mostrarAlmacen?'<td class="b-warehouse" title="'+_escp(almacen)+'">'+(almacen?_escp(almacen):'<span class="rrd-mut">—</span>')+'</td>':'')+'<td class="r">'+_gs(_cfFleteVal(cl))+'</td></tr>';}
       return '<tr><td class="b-fecha">'+fe+'</td><td class="b-cam" title="'+_escp(cl.trDesc||'')+'">'+cam+'</td><td class="b-rz" title="'+zona+'">'+zona+'</td><td class="r">'+_gs(_cfFleteVal(cl))+'</td></tr>';}).join('');
     const thead=soloServicios?'<thead><tr><th class="col-fecha">Fecha</th><th>Servicio</th>'+(mostrarAlmacen?'<th>Almacén</th>':'')+'<th class="r">Monto</th></tr></thead>':'<thead><tr><th class="col-fecha">Fecha</th><th class="col-cam">Camión</th><th class="col-zona">Zona</th><th class="r">Monto</th></tr></thead>';
-    return '<div class="ci-exp-in"><div class="ci-exp-bar"><span>'+g.lines.length+' línea'+(g.lines.length===1?'':'s')+' · <b>'+_gs(g.flete)+'</b> de flete</span><button class="ci-ver" type="button" data-rrver>'+IC.list+' Ver resumen</button></div>'+
+    const expHeader=soloServicios?'<div class="ci-exp-summary"><span class="ci-exp-summary__count">'+g.lines.length+' línea'+(g.lines.length===1?'':'s')+'</span><span class="ci-exp-summary__sep">·</span><span class="ci-exp-summary__total"><b>'+_gs(g.flete)+'</b><span>Total de flete</span></span></div>':'<span>'+g.lines.length+' línea'+(g.lines.length===1?'':'s')+' · <b>'+_gs(g.flete)+'</b> de flete</span>';
+    return '<div class="ci-exp-in'+(soloServicios?' ci-exp-in--services':'')+'"><div class="ci-exp-bar">'+expHeader+'<button class="ci-ver" type="button" data-rrver>'+IC.list+' Ver resumen</button></div>'+
       '<div class="ci-btbl-wrap"><table class="ci-btbl'+(soloServicios?' ci-btbl--servicios':'')+'">'+thead+'<tbody>'+rows+'</tbody></table></div></div>';
   }
   function openResumen(g){const _l=host.querySelector('.ci-list');_rrBack={week:_rrWeek,day:_rrDay,fac:_rrFac,q:_rrQ,scroll:_l?_l.scrollTop:0};
