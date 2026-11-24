@@ -12405,7 +12405,7 @@ function _svPrint(g){
     })()+
     '<div class="meta">'+meta('Factura de:',_escp(g.ts))+meta('Período',_svDM(perD)+' al '+_svDM(perH))+
       meta('Facturas',lf.length?_escp(lf.join(', ')):'—')+'</div>'+
-    '<div class="rp-tbl"><table><thead><tr><th>Fecha</th><th>Servicio</th><th>Almacén</th><th>Detalle</th><th>Factura Nº</th><th class="r">Monto (Gs.)</th></tr></thead><tbody>'+
+    '<div class="rp-tbl"><table><thead><tr><th>Fecha de registro</th><th>Servicio</th><th>Almacén</th><th>Detalle</th><th>Factura Nº</th><th class="r">Monto (Gs.)</th></tr></thead><tbody>'+
     '<tr class="grp"><td colspan="6">SERVICIOS ADICIONALES</td></tr>'+body+
     '<tr class="total"><td colspan="5">TOTAL GENERAL</td><td class="r">'+_gs(g.total)+'</td></tr>'+
     '</tbody></table></div>'+
@@ -12526,10 +12526,10 @@ function _cfPrint(r){
         : meta('Semana',wk?dd(wk.desde)+' al '+dd(wk.hasta):'—'))+
       meta('Factura Nº',f?_escp(f.nro||'—'):'—')+'</div>'+
     '<div class="rp-tbl"><table><thead>'+(soloServ
-      ?'<tr><th>Fecha</th><th>Servicio</th><th>Almacén</th><th>Detalle</th><th class="r">Flete (Gs.)</th></tr>'
+      ?'<tr><th>Fecha de registro</th><th>Servicio</th><th>Almacén</th><th>Detalle</th><th class="r">Flete (Gs.)</th></tr>'
       :conServicios
-        ?'<tr><th>Fecha</th><th>Camión</th><th>Zona / almacén</th><th>Servicio</th><th>Detalle</th><th class="r">Flete (Gs.)</th></tr>'
-        :'<tr><th>Fecha</th><th>Camión</th><th>Zona</th><th>Detalle</th><th class="r">Flete (Gs.)</th></tr>')+'</thead><tbody>'+body+
+        ?'<tr><th>Fecha de registro</th><th>Camión</th><th>Zona / almacén</th><th>Servicio</th><th>Detalle</th><th class="r">Flete (Gs.)</th></tr>'
+        :'<tr><th>Fecha de registro</th><th>Camión</th><th>Zona</th><th>Detalle</th><th class="r">Flete (Gs.)</th></tr>')+'</thead><tbody>'+body+
     '<tr class="total"><td colspan="'+(nCols-1)+'">TOTAL GENERAL</td><td class="r">'+_gs(totF)+'</td></tr>'+
     '</tbody></table></div>'+
     '<div class="foot"><div class="firmas"><div class="firma"><div class="ln"></div><span>JEFE DE LOGÍSTICA</span></div></div>'+
