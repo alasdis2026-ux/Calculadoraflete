@@ -8144,6 +8144,22 @@ function showSaveAnim(text){
   .sv-rrep .rr-detail .rrd-bar--center{justify-content:center;gap:10px}
   .sv-rrep .rr-detail .rrd-bar--center .rrm-filterbar{flex:1 1 100%;justify-content:center;max-width:100%;gap:10px}
   .sv-rrep .rr-detail .rrd-tablehd__acts{justify-self:center;justify-content:center;gap:8px}
+
+  /* En el detalle de planilla, solo se desplaza el cuerpo de la tabla. */
+  #viewRrep.stage:has(.rr-detail),#viewServ.stage:has(.rr-detail){min-height:0;overflow:hidden}
+  #viewRrep.stage.is-active:has(.rr-detail) #rrepHost,
+  #viewServ.stage.is-active:has(.rr-detail) .sv-body{flex:1 1 auto;min-height:0;overflow:hidden}
+  #viewServ.stage.is-active:has(.rr-detail) .sv-rrep{flex:1 1 auto;min-height:0;overflow:hidden}
+  #viewRrep #rrepHost:has(.rr-detail),
+  #viewServ .sv-rrep #svRrepHost:has(.rr-detail){display:flex;flex:1 1 auto;flex-direction:column;min-height:0;overflow:hidden}
+  #viewRrep .rr-detail,#viewServ .rr-detail{display:flex;flex:1 1 auto;flex-direction:column;min-height:0;overflow:hidden}
+  #viewRrep .rr-detail>.rrd-topbar,#viewRrep .rr-detail>.rrd-kpibar,#viewRrep .rr-detail>.rrd-bar,
+  #viewServ .rr-detail>.rrd-topbar,#viewServ .rr-detail>.rrd-kpibar,#viewServ .rr-detail>.rrd-bar{flex-shrink:0}
+  #viewRrep .rr-detail .rrm-body,#viewServ .rr-detail .rrm-body{display:flex;flex:1 1 0;flex-direction:column;min-height:0;max-height:none;overflow:hidden}
+  #viewRrep .rr-detail .rrd-dash,#viewServ .rr-detail .rrd-dash{display:flex;flex:1 1 auto;flex-direction:column;min-height:0}
+  #viewRrep .rr-detail .rrd-tablecard,#viewServ .rr-detail .rrd-tablecard{display:flex;flex:1 1 auto;flex-direction:column;min-height:0;overflow:hidden}
+  #viewRrep .rr-detail .rrd-tablecard>.rrd-tablewrap,
+  #viewServ .rr-detail .rrd-tablecard>.rrd-tablewrap{flex:1 1 auto;min-height:0;max-height:none;overflow:auto;overscroll-behavior:contain}
   @media(max-width:1180px){
     .sv-rrep .rr-detail .rrd-topresumen .rrd-resumen-bar{width:min(100%,780px);grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
     .sv-rrep .rr-detail .rrd-topresumen .rrd-ktile--total{grid-column:1/-1;width:min(100%,520px);justify-self:center}
