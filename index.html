@@ -260,6 +260,7 @@ body{min-height:100vh;overflow:hidden;font-family:Inter,system-ui,-apple-system,
 /* Sin esto el tilde salia a tamaño natural y se comia el texto del boton. */
 .cf-mbox.sv-invoice .sv-invoice__actions button svg{width:17px;height:17px;flex:0 0 auto}
 .cf-mbox.sv-invoice .sv-invoice__actions .ok:hover{transform:translateY(-1px);box-shadow:0 10px 20px -7px rgba(7,89,132,.8)}
+.cf-mbox.sv-invoice--freight .sv-invoice__actions .ok:disabled{opacity:.48;cursor:not-allowed;box-shadow:none;transform:none}
 .cf-mbox.sv-invoice .sv-invoice__actions .ok:disabled{opacity:.68;cursor:wait;transform:none;box-shadow:none}
 @media(max-width:520px){.cf-mbd .cf-mbox.sv-invoice{padding:18px}.sv-invoice__fields{grid-template-columns:1fr;gap:10px}.sv-invoice__actions{width:100%}.sv-invoice__actions button{flex:1}}
 /* Entrada escalonada de cada parte del formulario. */
@@ -9720,7 +9721,7 @@ function _cfOpenFacturaModal(existing,preset){
         '<div class="cf-fld" data-fld><label for="cf_fnro">Nº de factura</label><div class="sv-invoice__input"><span>N.º</span><input id="cf_fnro" placeholder="001-001-0000000" autocomplete="off"></div><span class="cf-fld__err"></span></div>'+
         '<div class="cf-fld" data-fld><label for="cf_fmonto">Monto calculado</label><div class="sv-invoice__input"><span>Gs.</span><input id="cf_fmonto" inputmode="numeric" value="'+_nnum(autoTotal)+'" readonly aria-label="Monto calculado automáticamente desde los repartos"></div><span class="cf-fld__err"></span></div></div>'+
       '<div class="cf-live sv-invoice__live neutral" id="cf_flive" aria-live="polite">El monto se calcula desde los repartos de esta planilla.</div>'+
-      '<div class="sv-invoice__foot"><div class="sv-invoice__actions"><button type="button" class="cancel">Regresar</button><button type="button" class="ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5 9.5 17 19 7"/></svg>Guardar factura</button></div></div></div>'
+      '<div class="sv-invoice__foot"><div class="sv-invoice__actions"><button type="button" class="cancel">Regresar</button><button type="button" class="ok" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5 9.5 17 19 7"/></svg>Guardar factura</button></div></div></div>'
     : '<div class="cf-mbox cf-mbox--form">'+
       '<div class="cf-fhead"><div class="cf-fhead__l"><h3>'+(editing?'Editar factura':'Registrar factura')+'</h3><p class="cf-msub">'+subTxt+'</p></div>'+
         '<div class="cf-fld cf-fhead__date"><label for="cf_ffecha">Fecha</label><input id="cf_ffecha" type="date"></div></div>'+
@@ -9739,6 +9740,7 @@ function _cfOpenFacturaModal(existing,preset){
   const m=_cfModalOpen(modalHTML);
   const nroI=m.$('#cf_fnro'),feI=m.$('#cf_ffecha'),mo=m.$('#cf_fmonto'),plBtn=m.$('#cf_plbtn'),live=m.$('#cf_flive');
   const nroF=nroI.closest('[data-fld]'),moF=mo.closest('[data-fld]'),plF=plBtn&&plBtn.closest('[data-fld]');
+  const saveBtn=m.$('button.ok');
   feI.value=(editing&&existing.fecha)?existing.fecha:(typeof todayISO==='function'?todayISO():new Date().toISOString().slice(0,10));
   if(editing){nroI.value=existing.nro||'';mo.value=existing.monto?_nnum(existing.monto):'';}
   function renderPlBtn(){
@@ -9784,7 +9786,7 @@ function _cfOpenFacturaModal(existing,preset){
   if(editing)feI.addEventListener('change',updMot);
   renderPlBtn();updLive();updMot();if(repsList)renderReps();
   if(plBtn)plBtn.addEventListener('click',()=>_facPlanillaPicker(pick=>{sel=pick;repsList=(pick.reps||[]).slice();preSel=!!(repsList&&repsList.length);repSel=preSel?new Set(repsList.map(r=>r.id)):null;if(preSel&&!m.$('#cf_reps_section')){const ps=m.$('.cf-sec--pl');if(ps)ps.insertAdjacentHTML('afterend','<div class="cf-sec" id="cf_reps_section"><div class="cf-sec__t">'+_ic('truck')+'Repartos incluidos</div><div class="cf-reps cf-reps--ro" id="cf_reps"></div></div>');}_cfClearVal(plF);renderPlBtn();renderReps();updLive();}));
-  nroI.addEventListener('input',()=>{nroI.value.trim()?_cfSetOk(nroF):_cfClearVal(nroF);updMot();});
+  nroI.addEventListener('input',()=>{const tieneNro=!!nroI.value.trim();tieneNro?_cfSetOk(nroF):_cfClearVal(nroF);if(autoMonto&&!saveBtn.classList.contains('is-loading'))saveBtn.disabled=!tieneNro;updMot();});
   mo.addEventListener('input',()=>{const n=parseInt(mo.value.replace(/[^\d]/g,''),10)||0;mo.value=n?_nnum(n):'';n>0?_cfSetOk(moF):_cfClearVal(moF);updLive();updMot();});
   m.$('.cancel').addEventListener('click',()=>{m.close();if(locked&&preset&&typeof preset.onBack==='function')setTimeout(preset.onBack,150);});
   // 'button.ok' y no '.ok': #cf_flive también lleva la clase 'ok' cuando el monto coincide.
