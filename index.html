@@ -404,6 +404,34 @@ body{min-height:100vh;overflow:hidden;font-family:Inter,system-ui,-apple-system,
 .sidebar-user svg{width:21px;height:21px;stroke-width:1.6;flex-shrink:0}
 .sidebar-user .label{font-size:12px;font-weight:600;letter-spacing:.1px;opacity:0;transform:translateX(-8px);transition:opacity var(--alas-dur-normal) var(--alas-ease) 60ms,transform var(--alas-dur-normal) var(--alas-ease) 60ms}
 .sidebar:hover .sidebar-user .label{opacity:1;transform:translateX(0)}
+.sidebar-item{position:relative}
+.alas-online-badge{position:absolute;z-index:2;right:7px;top:50%;transform:translateY(-50%);display:flex;align-items:center;justify-content:center;gap:4px;min-width:21px;height:20px;padding:0 5px;border:1px solid rgba(255,255,255,.72);border-radius:999px;background:linear-gradient(145deg,#e8fff2,#c9f7dc);color:#087447;box-shadow:0 3px 9px rgba(2,35,54,.22);cursor:pointer;transition:transform .2s var(--alas-ease-spring),box-shadow .2s,background .2s}
+.alas-online-badge:hover,.alas-online-badge:focus-visible{transform:translateY(-50%) scale(1.1);box-shadow:0 5px 13px rgba(2,35,54,.3);outline:none}
+.alas-online-badge__dot{width:6px;height:6px;flex:none;border-radius:50%;background:#13a66a;box-shadow:0 0 0 2px rgba(19,166,106,.14);animation:alas-online-pulse 2.2s ease-in-out infinite}
+.alas-online-badge__count{font-size:10px;font-weight:900;line-height:1}
+.sidebar:not(:hover) .alas-online-badge{right:2px;top:5px;transform:none;width:12px;min-width:12px;height:12px;padding:0;border-width:1.5px;background:#c9f7dc}
+.sidebar:not(:hover) .alas-online-badge:hover,.sidebar:not(:hover) .alas-online-badge:focus-visible{transform:scale(1.15)}
+.sidebar:not(:hover) .alas-online-badge__dot{width:7px;height:7px;box-shadow:none}
+.sidebar:not(:hover) .alas-online-badge__count{display:none}
+.alas-presence-tip{position:fixed;z-index:10000;width:min(290px,calc(100vw - 24px));max-height:min(390px,calc(100vh - 24px));overflow:auto;border:1px solid rgba(209,226,238,.95);border-radius:16px;background:rgba(255,255,255,.98);box-shadow:0 18px 50px rgba(6,37,59,.24),0 3px 9px rgba(6,37,59,.08);opacity:0;visibility:hidden;pointer-events:none;transform:translate3d(-8px,5px,0) scale(.98);transform-origin:left center;transition:opacity .18s ease,transform .24s var(--alas-ease),visibility .18s}
+.alas-presence-tip.is-open{opacity:1;visibility:visible;pointer-events:auto;transform:translate3d(0,0,0) scale(1)}
+.alas-presence-tip__head{display:flex;align-items:center;gap:10px;padding:13px 14px;border-bottom:1px solid #e8eff5;background:linear-gradient(135deg,#f6fbff,#fff)}
+.alas-presence-tip__live{display:grid;place-items:center;width:32px;height:32px;flex:none;border:1px solid #ccebd9;border-radius:11px;background:#ebfaf1;color:#118151}
+.alas-presence-tip__live svg{width:16px;height:16px}
+.alas-presence-tip__title{min-width:0;flex:1;color:#17415d;font-size:12px;font-weight:850}
+.alas-presence-tip__title small{display:block;margin-top:3px;color:#8193a3;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.alas-presence-tip__count{padding:4px 7px;border:1px solid #caecd9;border-radius:999px;background:#effaf3;color:#12804e;font-size:10px;font-weight:850;white-space:nowrap}
+.alas-presence-tip__list{display:grid;gap:2px;padding:7px}
+.alas-presence-person{display:flex;align-items:center;gap:9px;min-width:0;padding:8px;border-radius:11px;animation:alas-online-in .24s var(--alas-ease) both}
+.alas-presence-person:hover{background:#f4f8fb}
+.alas-presence-person__avatar{display:grid;place-items:center;width:30px;height:30px;flex:none;border:1px solid rgba(255,255,255,.85);border-radius:10px;background:linear-gradient(145deg,#1686c0,#0b5f8d);color:#fff;font-size:10px;font-weight:900;box-shadow:0 3px 8px rgba(11,95,141,.18)}
+.alas-presence-person__copy{min-width:0;flex:1;color:#2e4255;font-size:11.5px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.alas-presence-person__copy small{display:block;margin-top:3px;color:#8a9baa;font-size:9.5px;font-weight:650}
+.alas-presence-person__you{padding:3px 6px;border-radius:999px;background:#edf5ff;color:#2473b3;font-size:9px;font-weight:850}
+.alas-presence-tip__empty{padding:14px;color:#8292a0;font-size:11px;text-align:center}
+@keyframes alas-online-pulse{0%,100%{box-shadow:0 0 0 2px rgba(19,166,106,.12)}50%{box-shadow:0 0 0 4px rgba(19,166,106,.06)}}
+@keyframes alas-online-in{from{opacity:0;transform:translateY(5px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+@media(prefers-reduced-motion:reduce){.alas-online-badge__dot,.alas-presence-person{animation:none!important}.alas-presence-tip,.alas-online-badge{transition:none!important}}
 
 /* ── Buttons ── */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:40px;padding:9px 18px;border-radius:10px;font-size:13.5px;font-weight:700;white-space:nowrap;transition:background var(--fast),box-shadow var(--alas-dur-normal) var(--alas-ease-spring),transform var(--alas-dur-normal) var(--alas-ease-spring),border-color var(--fast),color var(--fast),opacity var(--fast)}
@@ -2528,6 +2556,73 @@ function _cfAplicarRol(role){
 }
 const CF_ROL_SOLO_TRANS_VIEW='trans';
 let _lastView='calc';
+const _cfPresenceLabels={dash:'Reporte general',stats:'Estadísticas del gasto',calc:'Calculadora de flete',serv:'Servicios adicionales',fact:'Facturas',trans:'Transportistas',meta:'Meta repartidores',rrep:'Calculadora de flete',hist:'Facturas'};
+const _cfPresence={channel:null,userId:'',name:'',section:'calc',ready:false,tip:null,tipFor:null,hideTimer:null};
+function _cfPresenceSection(view){return view==='rrep'?'calc':(view==='hist'?'fact':(_cfPresenceLabels[view]?view:'calc'));}
+function _cfPresenceList(section){
+  if(!_cfPresence.channel||!_cfPresence.ready)return [];
+  const state=_cfPresence.channel.presenceState()||{},byUser=new Map(),all=[];
+  Object.keys(state).forEach(function(key){(state[key]||[]).forEach(function(meta){if(meta&&meta.userId&&meta.visible!==false)all.push(meta);});});
+  all.sort(function(a,b){return (+b.updatedAt||0)-(+a.updatedAt||0);});
+  all.forEach(function(person){const id=String(person.userId);if(!byUser.has(id))byUser.set(id,person);});
+  return Array.from(byUser.values()).filter(function(person){return person.section===section;}).sort(function(a,b){return String(a.name||'').localeCompare(String(b.name||''),'es');});
+}
+function _cfPresenceInitials(name){return String(name||'AL').trim().split(/\s+/).slice(0,2).map(function(p){return p.charAt(0);}).join('').toUpperCase()||'AL';}
+function _cfPresenceRenderTip(section){
+  if(!_cfPresence.tip)return;
+  const people=_cfPresenceList(section),label=_cfPresenceLabels[section]||'este apartado';
+  _cfPresence.tip.innerHTML='<div class="alas-presence-tip__head"><span class="alas-presence-tip__live"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M8.5 12.3 10.8 14.5 15.7 9.5"/></svg></span><span class="alas-presence-tip__title">Personas conectadas<small>'+_escp(label)+'</small></span><span class="alas-presence-tip__count">'+people.length+' en línea</span></div>'+
+    (people.length?'<div class="alas-presence-tip__list">'+people.map(function(person,i){const mine=String(person.userId)===_cfPresence.userId;return '<div class="alas-presence-person" style="animation-delay:'+Math.min(i*35,210)+'ms"><span class="alas-presence-person__avatar">'+_escp(_cfPresenceInitials(person.name))+'</span><span class="alas-presence-person__copy">'+_escp(person.name||'Operador')+'<small>Trabajando en '+_escp(label.toLowerCase())+'</small></span>'+(mine?'<span class="alas-presence-person__you">Tú</span>':'')+'</div>';}).join('')+'</div>':'<div class="alas-presence-tip__empty">No hay personas conectadas en este apartado.</div>');
+}
+function _cfPresenceShowTip(section){
+  const tip=_cfPresence.tip;if(!tip)return;
+  clearTimeout(_cfPresence.hideTimer);_cfPresence.tipFor=section;_cfPresenceRenderTip(section);
+  const badge=document.querySelector('.sidebar-item[data-nav="'+section+'"] .alas-online-badge');if(!badge)return;
+  const r=badge.getBoundingClientRect();tip.classList.add('is-open');tip.setAttribute('aria-hidden','false');
+  const tr=tip.getBoundingClientRect(),left=Math.max(12,Math.min(r.right+10,window.innerWidth-tr.width-12)),top=Math.max(12,Math.min(r.top+r.height/2-tr.height/2,window.innerHeight-tr.height-12));
+  tip.style.left=left+'px';tip.style.top=top+'px';
+}
+function _cfPresenceHideTipSoon(){clearTimeout(_cfPresence.hideTimer);_cfPresence.hideTimer=setTimeout(function(){if(_cfPresence.tip){_cfPresence.tip.classList.remove('is-open');_cfPresence.tip.setAttribute('aria-hidden','true');}_cfPresence.tipFor=null;},150);}
+function _cfPresenceRender(){
+  document.querySelectorAll('.sidebar-item[data-nav]').forEach(function(item){
+    const section=_cfPresenceSection(item.dataset.nav),people=_cfPresenceList(section);let badge=item.querySelector('.alas-online-badge');
+    if(!people.length){if(badge)badge.remove();return;}
+    if(!badge){badge=document.createElement('span');badge.className='alas-online-badge';badge.setAttribute('role','button');badge.setAttribute('tabindex','0');badge.innerHTML='<i class="alas-online-badge__dot"></i><b class="alas-online-badge__count"></b>';item.appendChild(badge);
+      badge.addEventListener('pointerenter',function(e){e.stopPropagation();_cfPresenceShowTip(section);});badge.addEventListener('pointerleave',_cfPresenceHideTipSoon);
+      badge.addEventListener('focus',function(){_cfPresenceShowTip(section);});badge.addEventListener('blur',_cfPresenceHideTipSoon);
+      badge.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();_cfPresenceShowTip(section);});
+      badge.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();e.stopPropagation();_cfPresenceShowTip(section);}if(e.key==='Escape')_cfPresenceHideTipSoon();});
+    }
+    badge.querySelector('.alas-online-badge__count').textContent=people.length>9?'9+':String(people.length);
+    badge.setAttribute('aria-label',people.length+' '+(people.length===1?'persona conectada':'personas conectadas')+' en '+(_cfPresenceLabels[section]||section)+'. Ver quién está en línea.');
+  });
+  if(_cfPresence.tipFor){if(_cfPresenceList(_cfPresence.tipFor).length)_cfPresenceShowTip(_cfPresence.tipFor);else _cfPresenceHideTipSoon();}
+}
+function _cfPresenceTrack(){
+  if(!_cfPresence.channel||!_cfPresence.ready)return Promise.resolve();
+  return _cfPresence.channel.track({userId:_cfPresence.userId,name:_cfPresence.name,section:_cfPresence.section,visible:document.visibilityState!=='hidden',updatedAt:Date.now()}).catch(function(e){console.warn('[presencia online] no pude actualizar estado',e);});
+}
+function _cfPresenceSetView(view){
+  const next=_cfPresenceSection(view);if(next===_cfPresence.section)return;
+  _cfPresence.section=next;_cfPresenceTrack().then(_cfPresenceRender);
+}
+function _cfPresenceInit(user){
+  if(_cfPresence.channel||!sb||typeof sb.channel!=='function'||!user)return;
+  const identity=String(user.userId||user.email||user.name||'').trim();if(!identity)return;
+  _cfPresence.userId=identity;_cfPresence.name=String(user.name||user.email||'Operador');_cfPresence.section=_cfPresenceSection(_lastView);
+  _cfPresence.tip=document.createElement('div');_cfPresence.tip.className='alas-presence-tip';_cfPresence.tip.setAttribute('role','tooltip');_cfPresence.tip.setAttribute('aria-hidden','true');document.body.appendChild(_cfPresence.tip);
+  _cfPresence.tip.addEventListener('pointerenter',function(){clearTimeout(_cfPresence.hideTimer);});_cfPresence.tip.addEventListener('pointerleave',_cfPresenceHideTipSoon);
+  const tab=Math.random().toString(36).slice(2,10),key=identity+':'+tab;
+  // Presencia pública solo para coordinación visual; no usar estos datos para autorizar acciones.
+  _cfPresence.channel=sb.channel('alas-calculadora-presence-v1',{config:{presence:{key:key}}})
+    .on('presence',{event:'sync'},_cfPresenceRender)
+    .subscribe(function(status){
+      if(status==='SUBSCRIBED'){_cfPresence.ready=true;_cfPresenceTrack().then(_cfPresenceRender);}
+      else if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'||status==='CLOSED'){_cfPresence.ready=false;_cfPresenceRender();}
+    });
+  document.addEventListener('visibilitychange',function(){_cfPresenceTrack().then(_cfPresenceRender);});
+  window.addEventListener('pagehide',function(){if(_cfPresence.channel)_cfPresence.channel.untrack();});
+}
 function showView(v){
   /* Si se sale de Servicios sin volver a su pestaña Registro, el Reporte
      quedaria apuntando a un contenedor que ya no esta en pantalla. */
@@ -2549,6 +2644,7 @@ function showView(v){
   if(v==='stats')_cfOpenStats();
   if(v==='meta')renderMetaRep();
   if(v==='serv'){renderServicios();_svAsegurarFacturas();}
+  _cfPresenceSetView(v);
   // Los apartados ya conservan sus datos en memoria. Entrar sin ocultar/mover
   // cada bloque evita el parpadeo y deja el cambio de vista inmediato.
 }
@@ -5479,6 +5575,7 @@ async function initApp(){
   window._alasIsAdmin=(ssoUser.role==='admin');
   applyPriceRestrictions();
   _cfAplicarRol(ssoUser.role);
+  _cfPresenceInit(ssoUser);
   const nameEl=document.getElementById('ssoUserName');
   const chipEl=document.getElementById('ssoUserChip');
   if(nameEl)nameEl.textContent=ssoUser.name||ssoUser.email||'Usuario';
@@ -9146,15 +9243,22 @@ async function _cfInsertFacturaConLineas(row,refs){
   const selected=new Map();
   (refs||[]).forEach(x=>{const rid=x&&x.repartoId,lid=x&&x.lineId,index=x&&Number.isInteger(x.lineIndex)?x.lineIndex:null;if(rid==null||(index==null&&lid==null))throw new Error('Una línea seleccionada ya no está disponible.');const k=String(rid),refKey=index==null?'id:'+String(lid):'i:'+index;if(!selected.has(k))selected.set(k,new Map());if(selected.get(k).has(refKey))throw new Error('Hay una línea duplicada en la selección.');selected.get(k).set(refKey,{lineIndex:index,lineId:lid});});
   if(!selected.size)throw new Error('Seleccioná al menos una línea pendiente para la factura.');
+  // La vista puede quedar abierta mientras otra persona actualiza un reparto.
+  // Leer el JSON actual evita rechazar una factura por una copia vieja del navegador.
+  const fresh=await sb.from('repartos').select('id,clientes,factura_id').in('id',Array.from(selected.keys()));
+  if(fresh.error)throw fresh.error;
+  const freshById=new Map((fresh.data||[]).map(x=>[String(x.id),x]));
   const plans=[];
   selected.forEach((lineRefs,rid)=>{
-    const rr=(repartos||[]).find(x=>String(x.id)===rid);if(!rr)throw new Error('Un reparto seleccionado ya no existe. Actualizá la vista e intentá de nuevo.');
-    const originales=JSON.parse(JSON.stringify(rr.clientes||[]));
+    const local=(repartos||[]).find(x=>String(x.id)===rid),current=freshById.get(rid);if(!local||!current)throw new Error('No encontré uno de los repartos en la base. Recargá la vista e intentá de nuevo.');
+    const originales=JSON.parse(JSON.stringify(Array.isArray(current.clientes)?current.clientes:[]));
     const matches=Array.from(lineRefs.values()).map(ref=>{
-      if(ref.lineIndex!=null){const cl=originales[ref.lineIndex];if(!cl||(ref.lineId!=null&&String(cl.id)!==String(ref.lineId)))return null;return {cl:cl,index:ref.lineIndex};}
-      const found=[];originales.forEach((cl,index)=>{if(String(cl.id)===String(ref.lineId))found.push({cl:cl,index:index});});return found.length===1?found[0]:null;
+      if(ref.lineIndex!=null){const cl=originales[ref.lineIndex];if(cl&&(ref.lineId==null||String(cl.id)===String(ref.lineId)))return {cl:cl,index:ref.lineIndex};}
+      if(ref.lineId!=null){const found=[];originales.forEach((cl,index)=>{if(String(cl.id)===String(ref.lineId))found.push({cl:cl,index:index});});return found.length===1?found[0]:null;}
+      return null;
     });
-    if(matches.some(x=>!x))throw new Error('Una de las líneas ya no coincide con la planilla cargada. Cerrá y volvé a abrir el detalle para actualizarlo.');
+    if(matches.some(x=>!x))throw new Error('Una de las líneas cambió mientras la planilla estaba abierta. Recargá el detalle y volvé a registrar la factura.');
+    const rr=Object.assign({},local,{clientes:originales,factura_id:current.factura_id});
     matches.forEach(match=>{
       const cl=match.cl;
       const linked=_facIdDeLinea(cl,rr);if(linked!=null&&linked!=='__ambigua__'&&linked!=='__huerfana__'&&linked!=='__huérfana__')throw new Error('Una de las líneas ya fue facturada. Actualizá la vista.');
@@ -9164,7 +9268,7 @@ async function _cfInsertFacturaConLineas(row,refs){
       const fecha=String(rr.fechaISO||'').slice(0,10),desde=String(row.semana_desde||''),hasta=String(row.semana_hasta||row.semana_desde||'');
       if(!fecha||(desde&&fecha<desde)||(hasta&&fecha>hasta))throw new Error('Una línea está fuera del período de la planilla seleccionada.');
     });
-    plans.push({rr:rr,originales:originales,lineIndexes:new Set(matches.map(x=>x.index)),parentFacturaId:rr.factura_id||null});
+    plans.push({rr:local,originales:originales,lineIndexes:new Set(matches.map(x=>x.index)),parentFacturaId:current.factura_id||null});
   });
   let facId=null;const saved=[];
   try{
@@ -9417,7 +9521,7 @@ function _planillasDe(mes,weekDesde,mesCut,opts){
     const wk=(r.fechaISO&&typeof isoWeekRange==='function')?isoWeekRange(r.fechaISO):null;if(!wk)return;
     if(mesCut&&(r.fechaISO||'').slice(0,7)!==mesCut)return;
     if(weekDesde){if(wk.desde!==weekDesde)return;}else if(mes){if((r.fechaISO||'').slice(0,7)!==mes)return;}
-    (r.clientes||[]).forEach(cl=>{if(opts.pendingOnly&&_facIdDeLinea(cl,r)!=null)return;const own=cl.trId?tsOfTruck(cl.trId):null;const ts=(own&&own.n)||cl.tsNombre||'—';const tsId=(own&&own.id)||cl.tsId;const k=(tsId!=null?'i:'+String(tsId):'n:'+_facNorm(ts))+'|'+wk.desde;const g=groups[k]||(groups[k]={ts:ts,tsId:tsId,semDesde:wk.desde,semHasta:wk.hasta,cam:0,monto:0,flete:0,lines:[]});g.cam+=_cfCamCountVal(cl);g.monto+=+cl.monto||0;g.flete+=_cfFleteVal(cl);g.lines.push({repartoId:r.id,fechaISO:r.fechaISO,cl:cl});});
+    (r.clientes||[]).forEach((cl,lineIndex)=>{if(opts.pendingOnly&&_facIdDeLinea(cl,r)!=null)return;const own=cl.trId?tsOfTruck(cl.trId):null;const ts=(own&&own.n)||cl.tsNombre||'—';const tsId=(own&&own.id)||cl.tsId;const k=(tsId!=null?'i:'+String(tsId):'n:'+_facNorm(ts))+'|'+wk.desde;const g=groups[k]||(groups[k]={ts:ts,tsId:tsId,semDesde:wk.desde,semHasta:wk.hasta,cam:0,monto:0,flete:0,lines:[]});g.cam+=_cfCamCountVal(cl);g.monto+=+cl.monto||0;g.flete+=_cfFleteVal(cl);g.lines.push({repartoId:r.id,lineIndex:lineIndex,fechaISO:r.fechaISO,cl:cl});});
   });
   return Object.values(groups).filter(g=>!opts.pendingOnly||g.lines.length>0).sort((a,b)=>b.flete-a.flete);
 }
@@ -9752,7 +9856,7 @@ function _cfOpenFacturaModal(existing,preset){
     else{plBtn.classList.remove('set');plBtn.innerHTML='<span class="cf-plbtn__ph">— Elegir planilla —</span><span class="cf-plbtn__act">Elegir</span>';}
   }
   if(plBtn&&(locked||editing)){plBtn.disabled=true;plBtn.classList.add('cf-plbtn--locked');}
-  function updLive(){const wasOk=live.classList.contains('ok'),base='cf-live'+(autoMonto?' sv-invoice__live':''),v=parseInt(mo.value.replace(/[^\d]/g,''),10)||0;if(!sel){live.className=base+' neutral';live.textContent='Elegí la planilla y el monto para compararlo con el flete.';return;}if(!v){live.className=base+' neutral';live.textContent='Ingresá el monto para compararlo con el flete ('+_gs(repFlete())+').';return;}if(Math.round(v)===Math.round(repFlete())){live.className=base+' ok';live.innerHTML=autoMonto?'<b>Coincide</b> con el total de los repartos · '+_gs(repFlete()):'<span class="cf-live__badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span><span class="cf-live__t">¡Coincide con el flete!</span><span class="cf-live__s">La factura quedará conciliada</span>';if(!wasOk){const g=window.gsap;if(g){const bdg=live.querySelector('.cf-live__badge'),pth=live.querySelector('svg path');g.fromTo(live,{scale:.92},{scale:1,duration:.5,ease:'back.out(2)',clearProps:'transform'});if(bdg)g.fromTo(bdg,{scale:0,rotate:-30},{scale:1,rotate:0,duration:.6,ease:'back.out(3)',delay:.04,clearProps:'transform'});if(pth&&pth.getTotalLength){const L=pth.getTotalLength();g.fromTo(pth,{strokeDasharray:L,strokeDashoffset:L},{strokeDashoffset:0,duration:.42,delay:.24,ease:'power2.out'});}g.from(live.querySelectorAll('.cf-live__t,.cf-live__s'),{opacity:0,y:8,duration:.4,stagger:.06,delay:.2,ease:'power2.out',clearProps:'all'});}}}else{live.className=base+' diff';live.textContent='▲ No coincide: flete '+_gs(repFlete())+' vs factura '+_gs(v)+'.';}}
+  function updLive(){live.removeAttribute('role');const wasOk=live.classList.contains('ok'),base='cf-live'+(autoMonto?' sv-invoice__live':''),v=parseInt(mo.value.replace(/[^\d]/g,''),10)||0;if(!sel){live.className=base+' neutral';live.textContent='Elegí la planilla y el monto para compararlo con el flete.';return;}if(!v){live.className=base+' neutral';live.textContent='Ingresá el monto para compararlo con el flete ('+_gs(repFlete())+').';return;}if(Math.round(v)===Math.round(repFlete())){live.className=base+' ok';live.innerHTML=autoMonto?'<b>Coincide</b> con el total de los repartos · '+_gs(repFlete()):'<span class="cf-live__badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span><span class="cf-live__t">¡Coincide con el flete!</span><span class="cf-live__s">La factura quedará conciliada</span>';if(!wasOk){const g=window.gsap;if(g){const bdg=live.querySelector('.cf-live__badge'),pth=live.querySelector('svg path');g.fromTo(live,{scale:.92},{scale:1,duration:.5,ease:'back.out(2)',clearProps:'transform'});if(bdg)g.fromTo(bdg,{scale:0,rotate:-30},{scale:1,rotate:0,duration:.6,ease:'back.out(3)',delay:.04,clearProps:'transform'});if(pth&&pth.getTotalLength){const L=pth.getTotalLength();g.fromTo(pth,{strokeDasharray:L,strokeDashoffset:L},{strokeDashoffset:0,duration:.42,delay:.24,ease:'power2.out'});}g.from(live.querySelectorAll('.cf-live__t,.cf-live__s'),{opacity:0,y:8,duration:.4,stagger:.06,delay:.2,ease:'power2.out',clearProps:'all'});}}}else{live.className=base+' diff';live.textContent='▲ No coincide: flete '+_gs(repFlete())+' vs factura '+_gs(v)+'.';}}
   function renderReps(){const host=m.$('#cf_reps');if(!host)return;
     if(preSel){host.innerHTML=repsList.map(r=>{const dd=r.fechaISO?String(r.fechaISO).slice(0,10).split('-').reverse().join('/'):'—';return '<div class="cf-rep cf-rep--ro on"><span class="cf-rep__chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></span><span class="cf-rep__d">'+dd+'</span><span class="cf-rep__f">'+_gs(+r.flete||0)+'</span></div>';}).join('')+'<div class="cf-rep-sum"><span>Total a facturar</span><b>'+_gs(repFlete())+'</b></div>';return;}
     host.innerHTML=repsList.map(r=>{const on=repSel.has(r.id);const dd=r.fechaISO?String(r.fechaISO).slice(0,10).split('-').reverse().join('/'):'—';return '<label class="cf-rep'+(on?' on':'')+'"><input type="checkbox" data-rid="'+r.id+'"'+(on?' checked':'')+'><span class="cf-rep__chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></span><span class="cf-rep__d">'+dd+'</span><span class="cf-rep__f">'+_gs(+r.flete||0)+'</span></label>';}).join('')+'<div class="cf-rep-sum"><span>Seleccionado</span><b>'+_gs(repFlete())+'</b></div>';host.querySelectorAll('[data-rid]').forEach(c=>c.addEventListener('change',()=>{const id=+c.dataset.rid;if(c.checked)repSel.add(id);else repSel.delete(id);renderReps();renderPlBtn();updLive();}));}
@@ -9794,6 +9898,7 @@ function _cfOpenFacturaModal(existing,preset){
   m.$('.cancel').addEventListener('click',()=>{m.close();if(locked&&preset&&typeof preset.onBack==='function')setTimeout(preset.onBack,150);});
   // 'button.ok' y no '.ok': #cf_flive también lleva la clase 'ok' cuando el monto coincide.
   m.$('button.ok').addEventListener('click',async()=>{
+    if(live&&live.classList.contains('bad'))updLive();
     const nro=nroI.value.trim(),monto=parseInt(mo.value.replace(/[^\d]/g,''),10)||0,fecha=feI.value||null;
     let bad=false;
     if(!nro){_cfSetErr(nroF,'Falta un pequeño detalle: el Nº de la factura.');bad=true;}
@@ -9849,7 +9954,7 @@ function _cfOpenFacturaModal(existing,preset){
           if(!up.error)showToast('Guardé el cambio, pero no el motivo: falta correr facturas-motivo.sql');
         }
         if(up.error)throw up.error;if(!up.data||!up.data.length){showToast('No pude actualizar la factura (no se encontró o sin permisos).');if(okB){okB.disabled=false;okB.classList.remove('is-loading');okB.textContent=okTxt;}return;}m.close();try{_cfCheckBurst('Registrado',true);}catch(_){}}
-      else{const refs=(repsList||[]).filter(r=>repSel&&repSel.has(r.id)&&r.cl&&r.repId!=null).map(r=>({repartoId:r.repId,lineId:r.cl.id}));
+      else{const refs=(repsList||[]).filter(r=>repSel&&repSel.has(r.id)&&r.cl&&r.repId!=null).map(r=>({repartoId:r.repId,lineId:r.cl.id,lineIndex:r.lineIndex}));
         const facId=await _cfInsertFacturaConLineas(row,refs);_newFacId=facId;m.close();_cfCheckBurst('Registrado',true);}
       // Recarga facturas para refrescar chips/estado antes de volver a la vista.
       await _cfGetFacturas(true);
@@ -9857,7 +9962,7 @@ function _cfOpenFacturaModal(existing,preset){
       if(repsList){if(preset&&typeof preset.onRegistered==='function')preset.onRegistered(_newFacId);else renderReporteRepartos();}
       else if(locked&&preset&&typeof preset.onBack==='function'){preset.onBack();} // volver a la MISMA planilla, listo para imprimir
       else{const _rrep=document.getElementById('viewRrep');if(_rrep&&_rrep.classList.contains('is-active'))renderReporteRepartos(); else renderFacturas();}
-    }catch(e){console.error('[factura guardar]',e);showToast('No pude guardar la factura'+((e&&e.message)?': '+e.message:'. Probá de nuevo.'));if(okB){okB.disabled=false;okB.classList.remove('is-loading');okB.textContent=okTxt;}}
+    }catch(e){console.error('[factura guardar]',e);if(live){live.className='cf-live'+(autoMonto?' sv-invoice__live bad':' diff');live.textContent=_cfFacturaErrorUsuario(e);live.setAttribute('role','alert');}if(okB){okB.disabled=false;okB.classList.remove('is-loading');okB.textContent=okTxt;}}
   });
 }
 
@@ -9877,7 +9982,7 @@ function _facPlanillaPicker(onPick){
     m.$('#fp_body').innerHTML='<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">'+nav+'</div>'+chips+grid;
     m.$('#fp_body').querySelectorAll('[data-pm]').forEach(b=>b.addEventListener('click',()=>{const a=pm.split('-').map(Number),d=new Date(a[0],a[1]-1+(+b.dataset.pm),1);pm=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');pw=null;draw();}));
     m.$('#fp_body').querySelectorAll('[data-pw]').forEach(b=>b.addEventListener('click',()=>{pw=b.dataset.pw||null;draw();}));
-    m.$('#fp_body').querySelectorAll('[data-pick]').forEach(b=>b.addEventListener('click',()=>{const g=groups[+b.dataset.pick];m.close();onPick({ts:g.ts,tsId:g.tsId,semDesde:g.semDesde,semHasta:g.semHasta,flete:g.flete,reps:g.lines.map(x=>({id:x.cl.id,repId:x.repartoId,cl:x.cl,fechaISO:x.fechaISO,flete:_cfFleteVal(x.cl)})),preselected:true});}));
+    m.$('#fp_body').querySelectorAll('[data-pick]').forEach(b=>b.addEventListener('click',()=>{const g=groups[+b.dataset.pick];m.close();onPick({ts:g.ts,tsId:g.tsId,semDesde:g.semDesde,semHasta:g.semHasta,flete:g.flete,reps:g.lines.map(x=>({id:x.cl.id,repId:x.repartoId,lineIndex:x.lineIndex,cl:x.cl,fechaISO:x.fechaISO,flete:_cfFleteVal(x.cl)})),preselected:true});}));
     if(window.gsap)gsap.from(m.$('#fp_body').querySelectorAll('.rr-card'),{opacity:0,y:12,duration:.34,stagger:.03,ease:'power2.out',clearProps:'all'});
   }
   draw();
@@ -10981,7 +11086,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
       if(!(flete>0)){showToast('La planilla no tiene un flete mayor a cero para facturar.');return;}
       _cfOpenFacturaModal(null,{
         ts:g.ts,tsId:g.tsId,semDesde:desde,semHasta:hasta,flete:flete,preselected:true,autoMonto:true,
-        reps:lineas.map(function(w){return {id:w.ref.id,repId:w.repId,cl:w.ref,fechaISO:w.fecha,flete:+w.precio||0};}),
+        reps:lineas.map(function(w){return {id:w.ref.id,repId:w.repId,lineIndex:w.lineIndex,cl:w.ref,fechaISO:w.fecha,flete:+w.precio||0};}),
         onRegistered:function(facId){
           const rr=_rrRangeLines(g.ts,desde,hasta,facId,g.tsId);
           if(!rr.lines.length){renderReporteRepartos();return;}
