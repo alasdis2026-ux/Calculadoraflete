@@ -12404,7 +12404,7 @@ function _svPrint(g){
       return '';
     })()+
     '<div class="meta">'+meta('Factura de:',_escp(g.ts))+meta('Período',_svDM(perD)+' al '+_svDM(perH))+
-      meta('Servicios',String(g.filas.length))+meta('Facturas',lf.length?_escp(lf.join(', ')):'—')+'</div>'+
+      meta('Facturas',lf.length?_escp(lf.join(', ')):'—')+'</div>'+
     '<div class="rp-tbl"><table><thead><tr><th>Fecha</th><th>Servicio</th><th>Almacén</th><th>Detalle</th><th>Factura Nº</th><th class="r">Monto (Gs.)</th></tr></thead><tbody>'+
     '<tr class="grp"><td colspan="6">SERVICIOS ADICIONALES</td></tr>'+body+
     '<tr class="total"><td colspan="5">TOTAL GENERAL</td><td class="r">'+_gs(g.total)+'</td></tr>'+
