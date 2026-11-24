@@ -7412,11 +7412,10 @@ function showSaveAnim(text){
   .rrd-tbl--edit .xls-pick:hover{background:#eef6fc;border-color:rgba(37,120,184,.45)}
   .rrd-tbl--edit .xls-pick.ph{background:rgba(37,120,184,.11);border-color:rgba(37,120,184,.42);box-shadow:0 0 0 3px rgba(37,120,184,.07)}
   .rrd-tbl--edit .xls-pick>span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  /* Tabla de edición compacta (auto-width + centrada como la tabla principal) */
-  .rrd-tbl--edit{width:auto;margin-left:auto;margin-right:auto}
-  /* Centrado robusto de la tabla en edición dentro de la tarjeta */
-  .rrd-tablecard.is-editing .rrd-tablewrap{display:flex;justify-content:center}
-  @media(max-width:1000px){.rrd-tablecard.is-editing .rrd-tablewrap{justify-content:flex-start}}
+  /* En edición la tabla usa un ancho cómodo, con scroll interno en pantallas chicas. */
+  .rrd-tbl--edit{width:100%;min-width:1120px;max-width:1500px;margin:0 auto}
+  /* Evita que el flex del contenedor estire las filas para llenar todo el alto disponible. */
+  .rrd-tablecard.is-editing .rrd-tablewrap{display:block;overflow:auto}
   /* Bloom verde en las celdas de flete (monto) al editar */
   .rrd-tbl--edit .rrd-fflete{color:#15803d;font-weight:800;background:rgba(21,128,61,.10);border-color:rgba(21,128,61,.40);box-shadow:0 0 0 3px rgba(21,128,61,.10),0 4px 16px rgba(21,128,61,.22)}
   .rrd-tbl--edit .rrd-fflete::placeholder{color:rgba(21,128,61,.55)}
@@ -8162,7 +8161,7 @@ function showSaveAnim(text){
   #viewServ .rr-detail .rrd-tablecard>.rrd-tablewrap{flex:1 1 auto;min-height:0;max-height:none;overflow:auto;overscroll-behavior:contain}
   #rrepHost .rrd-tablecard.is-editing .rrd-tablewrap:has(.rrd-tbl--servicios-edit),
   .sv-rrep .rrd-tablecard.is-editing .rrd-tablewrap:has(.rrd-tbl--servicios-edit){display:block;justify-content:initial;overflow:auto}
-  .rr-detail .rrd-tbl--servicios-edit{width:100%;min-width:1120px;margin:0;table-layout:fixed}
+  .rr-detail .rrd-tbl--servicios-edit{width:100%;min-width:1120px;max-width:1500px;margin:0 auto;table-layout:fixed}
   .rr-detail .rrd-tbl--servicios-edit th:nth-child(1),.rr-detail .rrd-tbl--servicios-edit td:nth-child(1){width:10%}
   .rr-detail .rrd-tbl--servicios-edit th:nth-child(2),.rr-detail .rrd-tbl--servicios-edit td:nth-child(2){width:11%}
   .rr-detail .rrd-tbl--servicios-edit th:nth-child(3),.rr-detail .rrd-tbl--servicios-edit td:nth-child(3){width:21%}
