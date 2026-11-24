@@ -384,9 +384,6 @@ body{min-height:100vh;overflow:hidden;font-family:Inter,system-ui,-apple-system,
    _cfAlinearTira), así que los gajos se reparten ese espacio. */
 #viewRrep .cf-tabs .ci-seg__btn{flex:1 1 0;min-width:0}
 #viewRrep .cf-tabs .ci-seg__lbl{overflow:hidden;text-overflow:ellipsis}
-@keyframes cfTabPop{0%{transform:scale(.95)}55%{transform:scale(1.03)}100%{transform:scale(1)}}
-.cf-tabs .ci-seg__btn.is-active.pop{animation:cfTabPop .34s cubic-bezier(.2,.9,.3,1.2)}
-@media(prefers-reduced-motion:reduce){.cf-tabs .ci-seg__btn.is-active.pop{animation:none}}
 @media(max-width:1100px){ .cf-tabs{align-self:stretch} }
 .stage.is-active{display:flex}
 
@@ -992,13 +989,9 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 /* ===== Carrusel 3D (coverflow) ===== */
 .ts-3d{position:relative;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;perspective:2600px;perspective-origin:50% 46%;overflow:hidden;background:radial-gradient(120% 90% at 50% 8%,var(--accent-soft) 0%,transparent 55%)}
 /* Entradas en CSS: no bloquean el hilo como un gsap.from recién hecho el innerHTML. */
-@keyframes cfViewIn1{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
-@keyframes cfViewIn2{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
-.cf-viewin-1{animation:cfViewIn1 .42s cubic-bezier(.16,1,.3,1) backwards;animation-delay:calc(var(--vi,0)*50ms)}
-.cf-viewin-2{animation:cfViewIn2 .42s cubic-bezier(.16,1,.3,1) backwards;animation-delay:calc(var(--vi,0)*50ms)}
 @keyframes ts3cIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 .ts3c-in{animation:ts3cIn .4s cubic-bezier(.2,.7,.3,1) backwards;animation-delay:calc(140ms + var(--i,0)*45ms)}
-@media (prefers-reduced-motion:reduce){.cf-viewin-1,.cf-viewin-2,.ts3c-in{animation:none}}
+@media (prefers-reduced-motion:reduce){.ts3c-in{animation:none}}
 .ts-3d__stage{position:relative;width:100%;height:100%;transform-style:preserve-3d;cursor:grab}
 .ts-3d__stage:active{cursor:grabbing}
 .ts-3d__card{position:absolute;top:50%;left:50%;width:620px;max-width:88vw;height:auto;max-height:86%;min-height:300px;background:#fff;border:1.5px solid var(--gray-200);border-radius:18px;box-shadow:0 30px 70px -24px rgba(15,23,42,.42);display:flex;flex-direction:column;overflow:hidden;cursor:pointer;transition:box-shadow .4s var(--alas-ease,cubic-bezier(.2,.7,.3,1)),border-color .4s var(--alas-ease,cubic-bezier(.2,.7,.3,1))}
@@ -2449,10 +2442,11 @@ function _abrirZonas(btn,obj,onDone,opts){
 
 /* ── Persist (Supabase) ──────────────────────────── */
 async function loadData(){
-  const[tsRes,camRes,repRes]=await Promise.all([
+  const[tsRes,camRes,repRes,repdRes]=await Promise.all([
     sb.from('transportistas').select('id,nombre').eq('activo',true).order('id'),
     sb.from('camiones').select('*').order('transportista_id,id'),
-    sb.from('repartos').select('*').order('id')
+    sb.from('repartos').select('*').order('id'),
+    sb.from('repartidores').select('nombre').eq('activo',true).order('nombre')
   ]);
   if(!tsRes.error&&tsRes.data&&tsRes.data.length){
     const camMap={};
@@ -2477,7 +2471,7 @@ async function loadData(){
       zona:r.zona||'',factura_id:r.factura_id||null,clientes:r.clientes||[]
     }));
   }
-  try{const rr=await sb.from('repartidores').select('nombre').eq('activo',true).order('nombre');if(!rr.error&&rr.data)_repartidores=rr.data.map(x=>x.nombre);}catch(e){}
+  if(!repdRes.error&&repdRes.data)_repartidores=repdRes.data.map(x=>x.nombre);
   if(!_repartidores.length)_repartidores=REPARTIDORES_DEFAULT.slice();
   _syncRepDatalist();
   const maxCid=repartos.flatMap(r=>r.clientes||[]).reduce((m,c)=>Math.max(m,c.id||0),0);
@@ -2533,7 +2527,7 @@ function _cfAplicarRol(role){
   showView(CF_ROL_SOLO_TRANS_VIEW);
 }
 const CF_ROL_SOLO_TRANS_VIEW='trans';
-let _lastView=null;
+let _lastView='calc';
 function showView(v){
   /* Si se sale de Servicios sin volver a su pestaña Registro, el Reporte
      quedaria apuntando a un contenedor que ya no esta en pantalla. */
@@ -2543,19 +2537,10 @@ function showView(v){
   ['calc','serv','trans','hist','dash','fact','rrep','stats','meta'].forEach(x=>{
     document.getElementById('view'+x.charAt(0).toUpperCase()+x.slice(1)).classList.toggle('is-active',x===v);
   });
-  document.querySelectorAll('[data-nav]').forEach(b=>{
-    const on=b.dataset.nav===v, was=b.classList.contains('is-active');
-    b.classList.toggle('is-active',on);
-    if(on&&!was){
-      if(b.classList.contains('cf-tab')){ b.classList.remove('pop'); void b.offsetWidth; b.classList.add('pop'); }
-      else if(window.gsap){const ic=b.querySelector('svg,i');if(ic)gsap.fromTo(ic,{scale:.7},{scale:1,duration:.4,ease:'back.out(2.2)',clearProps:'transform'});}
-    }
-  });
-  const cambia=(v!==_lastView);
+  document.querySelectorAll('[data-nav]').forEach(b=>b.classList.toggle('is-active',b.dataset.nav===v));
   _lastView=v;
-  // El render va ANTES de la animación. Al revés, la entrada arrancaba y a los
-  // pocos frames el hilo se bloqueaba armando la vista: eso es lo que se trababa.
-  // renderTsList ya termina llamando a renderTs3D, no hace falta repetirlo.
+  // Las vistas se reconstruyen desde los datos ya cargados; la navegación no
+  // fuerza animaciones ni lecturas de layout antes del render.
   if(v==='trans'){ selectedTsId=null; const gs=document.getElementById('tsGridState'),ds=document.getElementById('tsDetailState'); if(gs)gs.style.display=''; if(ds)ds.style.display='none'; renderTsList(); }
   if(v==='hist'){setHistView(histViewMode);_cfLoadFac();}
   if(v==='dash')renderReporte();
@@ -2564,29 +2549,13 @@ function showView(v){
   if(v==='stats')_cfOpenStats();
   if(v==='meta')renderMetaRep();
   if(v==='serv'){renderServicios();_svAsegurarFacturas();}
-  if(cambia)_cfEntradaVista(v);
-}
-
-let _cfViewFlip=0;
-/* Entrada en cascada de la vista. Va en CSS y no en gsap.from: un from() recién
-   hecho el innerHTML obliga a Chrome a calcular layout de nuevo por cada tween. */
-function _cfEntradaVista(v){
-  if(typeof reduce==='function'&&reduce())return;
-  const st=document.getElementById('view'+v.charAt(0).toUpperCase()+v.slice(1));
-  if(!st)return;
-  const kids=Array.from(st.children).filter(k=>k.style.display!=='none').slice(0,8);
-  if(!kids.length)return;
-  // Se alternan dos clases con el mismo efecto pero distinto animation-name:
-  // cambiar el nombre reinicia la animación sin tener que forzar un reflow,
-  // que sobre una vista recién armada cuesta decenas de ms.
-  const pon='cf-viewin-'+(_cfViewFlip?1:2), saca='cf-viewin-'+(_cfViewFlip?2:1);
-  _cfViewFlip=!_cfViewFlip;
-  kids.forEach(function(k,i){ k.classList.remove(saca); k.style.setProperty('--vi',i); k.classList.add(pon); });
+  // Los apartados ya conservan sus datos en memoria. Entrar sin ocultar/mover
+  // cada bloque evita el parpadeo y deja el cambio de vista inmediato.
 }
 // Delegado: cubre la barra lateral y la tira de apartados con un solo listener.
 document.addEventListener('click',function(e){
   const b=e.target.closest&&e.target.closest('[data-nav]');
-  if(b)showView(b.dataset.nav);
+  if(b&&!b.classList.contains('is-active'))showView(b.dataset.nav);
 });
 
 /* Tira de apartados. Va en las tres secciones del día a día para poder saltar
@@ -5494,12 +5463,19 @@ function applyPriceRestrictions(){
 
 async function initApp(){
   showLoading();
-  await loadData();
-  const ssoUser=await waitForAlasAuth();
+  const ready=await Promise.allSettled([loadData(),waitForAlasAuth()]);
+  const ssoUser=ready[1].status==='fulfilled'?ready[1].value:null;
   if(!ssoUser){
     const url=(window.ALAS_SSO_CONFIG||{}).launcherUrl||'https://launcher-tawny.vercel.app';
     window.location.replace(url);
     return;
+  }
+  if(ready[0].status==='rejected'){
+    console.error('[inicio] no pude cargar los datos principales',ready[0].reason);
+    if(!transportistas.length)transportistas=JSON.parse(JSON.stringify(SEED));
+    if(!_repartidores.length)_repartidores=REPARTIDORES_DEFAULT.slice();
+    _syncRepDatalist();
+    showToast('No pude actualizar algunos datos. Podés seguir y volver a intentar más tarde.',5000);
   }
   window._alasIsAdmin=(ssoUser.role==='admin');
   applyPriceRestrictions();
@@ -5515,16 +5491,23 @@ async function initApp(){
     if(window.ALASTransition)window.ALASTransition.exitToLauncher(url);
     else window.location.replace(url);
   });
-  hideLoading();
-  if(!window._alasEntered&&window.ALASTransition){
-    window._alasEntered=true;
-    window.ALASTransition.enterProject();
-  }
   // Fecha por defecto: hoy
   const _inpF=document.getElementById('inpFecha');
   if(_inpF){_inpF.value=todayISO();currentReparto.fecha=todayISO();document.getElementById('selFechaGroup').classList.add('is-set');}
   renderClientesTable();
   updateResultCard();
+  // Calentamos los datos de los apartados en segundo plano. Si el usuario los
+  // abre antes de terminar, las vistas comparten estas mismas solicitudes.
+  Promise.allSettled([
+    typeof _cfGetFacturas==='function'?_cfGetFacturas():Promise.resolve([]),
+    typeof _cfCargarReporte==='function'?_cfCargarReporte():Promise.resolve({}),
+    typeof _svCatCargar==='function'?_svCatCargar():Promise.resolve()
+  ]);
+  hideLoading();
+  if(!window._alasEntered&&window.ALASTransition){
+    window._alasEntered=true;
+    window.ALASTransition.enterProject();
+  }
 }
 initApp();
 
@@ -8206,10 +8189,57 @@ function _pct(v){return (v*100).toLocaleString('es-PY',{minimumFractionDigits:2,
 function _mesLbl(mk){const M=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];const p=mk.split('-');return M[+p[1]-1]+' '+p[0];}
 function _escp(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 // Carga las facturas para los chips de estado de las Planillas y re-renderiza si corresponde.
-async function _cfLoadFac(){try{const res=await sb.from('fact_facturas').select('*');window.__cfFac=res.data||[];}catch(e){}const hv=document.getElementById('viewHist');if(hv&&hv.classList.contains('is-active')&&typeof renderHistorial==='function')renderHistorial();}
+let _cfFacCacheAt=0,_cfFacLoadPromise=null;
+async function _cfGetFacturas(force){
+  const cache=Array.isArray(window.__cfFac)?window.__cfFac:null;
+  if(!force&&cache&&_cfFacCacheAt&&Date.now()-_cfFacCacheAt<45000)return cache;
+  if(_cfFacLoadPromise)return force?_cfFacLoadPromise.then(function(){return _cfGetFacturas(true);}):_cfFacLoadPromise;
+  _cfFacLoadPromise=(async function(){
+    const previo=Array.isArray(window.__cfFac)?window.__cfFac:null;
+    const firmaPrev=previo?JSON.stringify(previo):null;
+    try{
+      const res=await sb.from('fact_facturas').select('*');
+      if(res.error)throw res.error;
+      const siguiente=res.data||[],cambio=!previo||firmaPrev!==JSON.stringify(siguiente);
+      window.__cfFac=cambio?siguiente:previo;
+      window.__cfFacLoadError=false;
+      return window.__cfFac;
+    }catch(e){
+      if(!Array.isArray(window.__cfFac))window.__cfFac=[];
+      window.__cfFacLoadError=true;
+      console.warn('[facturas] uso la copia disponible mientras se recupera la conexión',e);
+      return window.__cfFac;
+    }finally{
+      _cfFacCacheAt=Date.now();
+      _cfFacLoadPromise=null;
+    }
+  })();
+  return _cfFacLoadPromise;
+}
+async function _cfLoadFac(force){
+  const before=window.__cfFac;
+  await _cfGetFacturas(!!force);
+  const hv=document.getElementById('viewHist');
+  if(before!==window.__cfFac&&hv&&hv.classList.contains('is-active')&&typeof renderHistorial==='function')renderHistorial();
+}
 
 /* ════════ Datos (de los repartos de Flete) ════════ */
 let _cfReporte={};      // {mes:{...manual...}} desde fact_reporte
+let _cfReporteCacheAt=0,_cfReporteLoadPromise=null;
+async function _cfCargarReporte(force){
+  if(!force&&_cfReporteCacheAt&&Date.now()-_cfReporteCacheAt<45000)return _cfReporte;
+  if(_cfReporteLoadPromise)return _cfReporteLoadPromise;
+  _cfReporteLoadPromise=(async function(){
+    try{
+      const res=await sb.from('fact_reporte').select('*');
+      if(res.error)throw res.error;
+      const data={};(res.data||[]).forEach(function(r){data[r.mes]=r.data||{};});_cfReporte=data;
+    }catch(e){console.warn('[reporte] uso la copia disponible mientras se recupera la conexión',e);}
+    finally{_cfReporteCacheAt=Date.now();_cfReporteLoadPromise=null;}
+    return _cfReporte;
+  })();
+  return _cfReporteLoadPromise;
+}
 // Arranca en el mes actual (editable directo); "Total" (null) es una opción aparte para ver el acumulado
 let _cfRepMes=(function(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');})();
 function _cfMonthKeys(){const s=new Set();(repartos||[]).forEach(r=>{const k=(r.fechaISO||'').slice(0,7);if(k)s.add(k);});return[...s].sort().reverse();}
@@ -8605,9 +8635,8 @@ function _cfGauge(p){p=Math.max(0,Math.min(1,p||0));const cx=150,cy=150,r=118;co
 
 async function renderReporte(){
   const host=document.getElementById('repHost');if(!host)return;
-  if(!window.__cfFac){try{const fr=await sb.from('fact_facturas').select('*');window.__cfFac=fr.data||[];}catch(_){window.__cfFac=[];}}
+  await Promise.all([_cfGetFacturas(),_cfCargarReporte()]);
   _cfBackfillFacturas();
-  try{const res=await sb.from('fact_reporte').select('*');_cfReporte={};(res.data||[]).forEach(r=>_cfReporte[r.mes]=r.data||{});}catch(e){console.error('[reporte]',e);}
   const m=_cfReporteModel(_cfRepMes);
   const months=_cfMonthKeys();
   const intKm=_cfLines(_cfRepMes).filter(l=>l.seg==='interior').reduce((s,l)=>s+(+l.km||0),0);
@@ -9391,8 +9420,7 @@ function _planillasDe(mes,weekDesde,mesCut,opts){
 
 async function renderFacturas(){
   const host=document.getElementById('factHost');if(!host)return;
-  let facs=[];try{const res=await sb.from('fact_facturas').select('*').order('id',{ascending:false});facs=res.data||[];}catch(e){console.error('[facturas]',e);}
-  window.__cfFac=facs;
+  const facs=(await _cfGetFacturas()).slice().sort(function(a,b){return (+b.id||0)-(+a.id||0);});
   try{await _cfMigrateLegacyPerLine();}catch(e){console.error('[migración de facturas legacy]',e);showToast('No pude fijar algunos vínculos antiguos; revisá la conexión e intentá de nuevo.');}
   const weeks=_weeksOfMonth(_facMes);
   // "Mes completo" = cualquier semana del mes en vista (incluye la semana que arranca el mes anterior,
@@ -9497,7 +9525,7 @@ function _gastoStats(mk,tsId){
 }
 function _cfOpenStats(){
   const host=document.getElementById('statsHost');if(!host)return;
-  if(!window.__cfFac){sb.from('fact_facturas').select('*').then(r=>{window.__cfFac=r.data||[];if(document.getElementById('statsHost'))_cfOpenStats();}).catch(()=>{window.__cfFac=[];_cfOpenStats();});return;}
+  if(!Array.isArray(window.__cfFac)){_cfGetFacturas().then(()=>{if(document.getElementById('statsHost'))_cfOpenStats();});return;}
   _cfBackfillFacturas();
   const mk=_facMes,s=_gastoStats(mk,_cfStatsTs);
   const allTs=_gastoStats(mk,null).tsList; // todas las que tuvieron gasto este mes (para los botones)
@@ -9819,7 +9847,7 @@ function _cfOpenFacturaModal(existing,preset){
       else{const refs=(repsList||[]).filter(r=>repSel&&repSel.has(r.id)&&r.cl&&r.repId!=null).map(r=>({repartoId:r.repId,lineId:r.cl.id}));
         const facId=await _cfInsertFacturaConLineas(row,refs);_newFacId=facId;m.close();_cfCheckBurst('Registrado',true);}
       // Recarga facturas para refrescar chips/estado antes de volver a la vista.
-      try{const fr=await sb.from('fact_facturas').select('*');window.__cfFac=fr.data||[];}catch(_){window.__cfFac=null;}
+      await _cfGetFacturas(true);
       // Al registrar desde una planilla se QUEDA en la planilla (ya facturada) para imprimir
       if(repsList){if(preset&&typeof preset.onRegistered==='function')preset.onRegistered(_newFacId);else renderReporteRepartos();}
       else if(locked&&preset&&typeof preset.onBack==='function'){preset.onBack();} // volver a la MISMA planilla, listo para imprimir
@@ -10074,7 +10102,7 @@ function renderReporteRepartos(){
 function _renderReporteRepartos(){
   const host=_rrHost();if(!host)return;
   try{document.querySelectorAll('.ci-tip').forEach(t=>t.remove());}catch(_){} // limpia tooltips huérfanos
-  if(!window.__cfFac){sb.from('fact_facturas').select('*').then(r=>{window.__cfFac=r.data||[];if(_rrVisible())renderReporteRepartos();}).catch(()=>{window.__cfFac=[];});}
+  if(!Array.isArray(window.__cfFac)){_cfGetFacturas().then(()=>{if(_rrVisible())renderReporteRepartos();});}
   _cfResetBackfill();
   _cfMigrateLegacyPerLine().catch(e=>console.error('[migración de facturas legacy]',e));
   const IC={cal:'<svg fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>',
@@ -10983,7 +11011,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
         return;
       }
       try{
-        try{const fr=await sb.from('fact_facturas').select('*');if(!fr.error)window.__cfFac=fr.data||[];}catch(_){}
+        await _cfGetFacturas(true);
         _facMode=false;_facSel=new Set();_facMonto=0;_facNro='';
         _cfCheckBurst('Registrado',true);
         // La planilla recién facturada se recarga por su período, que puede cruzar semanas.
@@ -11260,7 +11288,7 @@ function printPlanillaFlete(id){const r=(repartos||[]).find(x=>x.id===id);if(!r)
    número de factura (factNro). `clientes` es una columna JSONB, así que ese
    campo no necesita migración. */
 let _svTab='reg', _svMes=todayISO().slice(0,7), _svTs='', _svQ='';
-let _svFacturasListas=!!(Array.isArray(window.__cfFac)&&window.__cfFac.length),_svFacturasError=false,_svFacturasCargando=null;
+let _svFacturasListas=!!(Array.isArray(window.__cfFac)&&_cfFacCacheAt),_svFacturasError=false,_svFacturasCargando=null;
 // Lo ultimo usado en el formulario: cargar varios servicios seguidos de la
 // misma transportadora es lo normal, y el re-render rehace el formulario.
 let _svUlt={fecha:'',tsId:'',trId:''};
@@ -11274,14 +11302,14 @@ const _svGs=function(n){ const v=Math.round(+n||0); return 'Gs. '+(formatMoney(v
 /* Servicios puede abrirse directamente, antes que cualquier vista cargue las
    facturas. No mostrar «Sin factura» hasta terminar esta consulta. */
 function _svAsegurarFacturas(){
+  if(_cfFacCacheAt){_svFacturasListas=true;_svFacturasError=!!window.__cfFacLoadError;return Promise.resolve(!_svFacturasError);}
   if(_svFacturasListas)return Promise.resolve(true);
   if(_svFacturasCargando)return _svFacturasCargando;
   _svFacturasError=false;
   _svFacturasCargando=(async function(){
     try{
-      const res=await sb.from('fact_facturas').select('*');
-      if(res.error)throw res.error;
-      window.__cfFac=res.data||[];
+      await _cfGetFacturas();
+      if(window.__cfFacLoadError)throw new Error('No pude cargar las facturas.');
       _svFacturasListas=true;
       return true;
     }catch(err){
