@@ -8161,6 +8161,10 @@ function showSaveAnim(text){
   .rr-detail .rrd-tbl--servicios-edit .rrd-almacen-picker .rrd-alm{max-width:100%;padding:3px 7px;font-size:9px;letter-spacing:.2px}
   .rr-detail .rrd-tbl--servicios-edit .rrd-fdetail{width:100%;min-width:0;height:34px;padding:6px 9px;font-size:12px}
   .rr-detail .rrd-tbl--servicios-edit .rrd-fflete{width:100%;min-width:100px;height:34px}
+  /* En Repartos, la tabla usa el ancho que necesita y solo crece hasta el disponible.
+     Se conservan intactas las alturas, el padding vertical y el scroll de filas. */
+  #viewRrep .rr-detail .rrd-tablewrap>.rrd-tbl:not(.rrd-tbl--edit){width:fit-content;min-width:min(100%,960px);max-width:min(100%,1500px);margin-inline:auto}
+  #viewRrep .rr-detail .rrd-tablewrap>.rrd-tbl--edit:not(.rrd-tbl--servicios-edit){width:fit-content;min-width:min(100%,1120px);max-width:min(100%,1500px);margin-inline:auto}
   @media(max-width:1180px){
     .sv-rrep .rr-detail .rrd-topresumen .rrd-resumen-bar{width:min(100%,780px);grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
     .sv-rrep .rr-detail .rrd-topresumen .rrd-ktile--total{grid-column:1/-1;width:min(100%,520px);justify-self:center}
