@@ -10236,8 +10236,18 @@ function _rrOpenDetail(g,periodLbl,wkObj){
       (pEsSemana()?'':'<button type="button" class="rrm-pd__wk" data-pdweek title="Volver a la semana de la planilla">Volver a la semana</button>')+
       extra+'</div>';
   }
-  // Ubica el reparto padre de una línea (g.lines son referencias vivas)
-  function findRepId(cl){for(const rp of (g.reps||[])){const r=repartos.find(x=>x.id===rp.id);if(r&&(r.clientes||[]).indexOf(cl)>=0)return r.id;}return (g.reps&&g.reps[0])?g.reps[0].id:null;}
+  // Cada línea del reporte lleva _repId. La identidad del objeto no es estable
+  // tras re-renderizar o reemplazar el JSON de clientes en memoria.
+  function findRepId(cl){
+    if(!cl||cl.id==null)return null;
+    if(cl._repId!=null){
+      const r=repartos.find(x=>String(x.id)===String(cl._repId));
+      if(!r||(r.clientes||[]).every(c=>String(c.id)!==String(cl.id)))return null;
+      return r.id;
+    }
+    for(const rp of (g.reps||[])){const r=repartos.find(x=>String(x.id)===String(rp.id));if(r&&(r.clientes||[]).some(c=>String(c.id)===String(cl.id)))return r.id;}
+    return null;
+  }
   /* Período de ESTA planilla. Arranca en el de la factura si ya está registrada, y si no
      en la semana. Ampliarlo trae repartos pendientes del mismo transportista de otras
      semanas para poder facturarlos juntos; los repartos conservan su fecha. */
