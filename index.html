@@ -8053,6 +8053,40 @@ function showSaveAnim(text){
   .cf-mfoot .ok:hover{box-shadow:0 8px 22px rgba(11,95,141,.38)}
   .cf-mfoot .ok.cf-ok--warn{background:linear-gradient(180deg,#f59e0b,#d97706);box-shadow:0 5px 16px rgba(217,119,6,.32)}
   .cf-mfoot .ok.cf-ok--warn:hover{box-shadow:0 8px 22px rgba(217,119,6,.4)}
+
+  /* Reporte de repartos: acciones centradas, KPI contenidos y tabla más ejecutiva. */
+  #rrepHost .rr-detail .rrd-topbar{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center}
+  #rrepHost .rr-detail .rrd-left{grid-column:1}
+  #rrepHost .rr-detail .rrd-acts{grid-column:2;justify-self:center;justify-content:center}
+  #rrepHost .rr-detail .rrd-topresumen .rrd-resumen-bar{width:min(100%,1120px);margin:0 auto;grid-template-columns:minmax(0,320px) minmax(0,320px) minmax(0,440px);justify-content:center}
+  #rrepHost .rr-detail .rrd-tablehd{padding:10px 14px;background:linear-gradient(180deg,#fff,#f8fafc)}
+  #rrepHost .rr-detail .rrd-tablehd__acts{justify-self:center;justify-content:center;gap:8px}
+  #rrepHost .rr-detail .rrd-hdbtn{padding:7px 12px;border-radius:9px;font-size:12px}
+  #rrepHost .rr-detail .rrd-tbl:not(.rrd-tbl--edit) th{padding:9px 12px;font-size:10px;letter-spacing:.35px;background:#f8fafc}
+  #rrepHost .rr-detail .rrd-tbl:not(.rrd-tbl--edit) td{padding:8px 12px;font-size:12.5px;line-height:1.25}
+  #rrepHost .rr-detail .rrd-tbl:not(.rrd-tbl--edit) .rrd-cam__ic{width:21px;height:21px;margin-right:6px}
+  #rrepHost .rr-detail .rrd-tbl:not(.rrd-tbl--edit) .rrd-chip{padding:2px 8px;font-size:10.5px}
+  #rrepHost .rr-detail .rrd-tbl:not(.rrd-tbl--edit) .rrd-segtag{padding:2px 8px;font-size:9.5px}
+  #rrepHost .rr-detail .rrd-tbl tbody tr[data-dashrow]:nth-child(even) td{background:#fbfdff}
+  #rrepHost .rr-detail .rrd-tbl tbody tr[data-dashrow]:hover td{background:#f0f7fc}
+  #rrepHost .rr-detail .rrd-bar--center{justify-content:center;gap:10px}
+  #rrepHost .rr-detail .rrd-bar--center .rrm-filterbar{flex:1 1 100%;justify-content:center;max-width:100%;gap:10px}
+  @media(max-width:1180px){
+    #rrepHost .rr-detail .rrd-topresumen .rrd-resumen-bar{width:min(100%,780px);grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+    #rrepHost .rr-detail .rrd-topresumen .rrd-ktile--total{grid-column:1/-1;width:min(100%,520px);justify-self:center}
+  }
+  @media(max-width:1040px){
+    #rrepHost .rr-detail .rrd-topbar{display:flex;flex-wrap:wrap}
+    #rrepHost .rr-detail .rrd-left{flex:1 1 100%}
+    #rrepHost .rr-detail .rrd-acts{flex:1 1 100%;justify-content:center}
+  }
+  @media(max-width:700px){
+    #rrepHost .rr-detail .rrd-topresumen .rrd-resumen-bar{width:min(100%,520px);grid-template-columns:minmax(0,1fr)}
+    #rrepHost .rr-detail .rrd-topresumen .rrd-ktile--total{grid-column:auto;width:100%}
+    #rrepHost .rr-detail .rrd-bar--center .rrm-filterbar{flex:1 1 100%;justify-content:center}
+    #rrepHost .rr-detail .rrd-tablehd{grid-template-columns:1fr;justify-items:center;gap:8px;text-align:center}
+    #rrepHost .rr-detail .rrd-tablehd__t,#rrepHost .rr-detail .rrd-tablehd__acts{grid-column:1;justify-self:center}
+  }
 </style>
 <script>
 /* ════════ Helpers ════════ */
