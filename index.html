@@ -62,9 +62,6 @@ body{min-height:100vh;overflow:hidden;font-family:Inter,system-ui,-apple-system,
 /* ── Registro: planilla editable ── */
 .svr{position:relative;max-width:1240px;margin:0 auto;background:#fff;border:1.5px solid var(--gray-200);border-radius:18px;box-shadow:0 1px 3px rgba(15,36,64,.05);overflow:visible}
 .svr__hd{position:relative;z-index:5;display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1.5px solid var(--gray-100);border-radius:18px 18px 0 0}
-body::before{content:"";position:fixed;inset:0;z-index:4;background:rgba(11,35,54,.25);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);opacity:0;visibility:hidden;transition:opacity .2s ease,visibility .2s ease;pointer-events:auto}
-body.sv-ts-picker-open::before{opacity:1;visibility:visible}
-@media(prefers-reduced-motion:reduce){body::before{transition:none}}
 .sv-ts-picker{position:relative;flex:0 1 300px;min-width:230px}
 /* Periodo de la factura, elegido a mano. Lo que se escribe aca es lo que sale
    impreso; sin tocarlo, la hoja muestra la semana de las fechas, como antes. */
@@ -11340,7 +11337,6 @@ function _svTsReduceMotion(){try{return window.matchMedia('(prefers-reduced-moti
 function _svCloseTsDropdown(instant){
   const pop=document.getElementById('svTsPop'),btn=document.getElementById('svTsTrigger');
   if(!pop||pop.hidden)return;
-  document.body.classList.remove('sv-ts-picker-open');
   if(btn){btn.classList.remove('open');btn.setAttribute('aria-expanded','false');}
   const search=document.getElementById('svTsSearch');if(search)search.setAttribute('aria-expanded','false');
   const g=window.gsap,finish=function(){if(pop.isConnected){pop.hidden=true;if(g)g.set(pop,{clearProps:'opacity,transform'});}};
@@ -11760,7 +11756,7 @@ function _svReg(host){
     if(!pop.hidden){_svCloseTsDropdown(false);return;}
     const g=window.gsap;if(g)g.killTweensOf(pop);
     tsQuery='';tsActive=-1;tsCreateOpen=false;tsCreateValue='';search.value='';
-    document.body.classList.add('sv-ts-picker-open');pop.hidden=false;trigger.classList.add('open');trigger.setAttribute('aria-expanded','true');search.setAttribute('aria-expanded','true');paintTs(false);
+    pop.hidden=false;trigger.classList.add('open');trigger.setAttribute('aria-expanded','true');search.setAttribute('aria-expanded','true');paintTs(false);
     if(g&&!_svTsReduceMotion()){
       g.fromTo(pop,{opacity:0,y:-8,scale:.985},{opacity:1,y:0,scale:1,duration:.24,ease:'back.out(1.35)',clearProps:'opacity,transform'});
       const rows=list.querySelectorAll('.sv-ts-option');if(rows.length)g.fromTo(rows,{opacity:0,y:6},{opacity:1,y:0,duration:.2,stagger:.018,delay:.04,ease:'power2.out',clearProps:'opacity,transform'});
