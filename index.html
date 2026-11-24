@@ -4015,6 +4015,17 @@ document.getElementById('btnGuardar').addEventListener('click',async()=>{
       document.getElementById('btnNewReparto').style.display='';
       document.getElementById('editChipText').textContent='Reparto #'+String(savedId).padStart(4,'0')+' — '+snap.fecha;
     }
+    // Mantener el calendario sincronizado con la fecha recién guardada. Si el
+    // usuario guardó un reparto de otro mes, al entrar al calendario verá ese mes.
+    const _savedIso=String(snap.fechaISO||'').slice(0,10);
+    if(/^\d{4}-\d{2}-\d{2}$/.test(_savedIso)){
+      const [_year,_month,_day]=_savedIso.split('-').map(Number);
+      const _savedDate=new Date(_year,_month-1,_day);
+      if(_savedDate.getFullYear()===_year&&_savedDate.getMonth()===_month-1&&_savedDate.getDate()===_day){
+        calYear=_year;calMonth=_month-1;calSelectedDate=_savedIso;
+        renderCalendar();
+      }
+    }
     _cfCheckBurst(isNew?'Reparto agregado':'Reparto actualizado',true);
   }catch(err){
     console.error('[guardar reparto]',err);showToast('Error al guardar reparto');
@@ -5010,8 +5021,9 @@ const DIAS_CAL=['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domi
 function repByDate(){
   const map=new Map();
   repartos.forEach(r=>{
-    const iso=r.fechaISO||(()=>{const d=parseHistFecha(r.fecha);return d?d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'):null;})();
-    if(!iso)return;
+    const rawDate=r.fechaISO||(()=>{const d=parseHistFecha(r.fecha);return d?d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'):null;})();
+    const iso=String(rawDate||'').slice(0,10);
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(iso))return;
     if(!map.has(iso))map.set(iso,[]);
     map.get(iso).push(r);
   });
