@@ -138,17 +138,12 @@ body{min-height:100vh;overflow:hidden;font-family:Inter,system-ui,-apple-system,
 /* Sin transportadora elegida la planilla no se puede usar todavia. */
 .svr__tbl{padding:6px 10px 10px;transition:opacity .22s}
 .svr.is-sinTs .svr__tbl{opacity:.42;pointer-events:none;filter:grayscale(.35)}
-.svr__pedi{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;margin:10px 10px 0;padding:16px 18px;border:1.5px dashed #a9cfe3;border-radius:15px;background:radial-gradient(ellipse at 50% 0%,#fff 0%,#f3f9fd 78%);text-align:center;box-shadow:inset 0 1px 0 #fff}
-.svr__pedi svg{width:19px;height:19px;flex:none;fill:none;stroke:var(--primary);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
-.svr__pedi b{font-size:12.5px;font-weight:850;color:var(--primary)}
-.svr__pedi span{font-size:11.5px;font-weight:650;color:#5b7b90}
-.svr__pedi button{margin:5px 0 0;flex:none;min-width:210px;height:42px;padding:0 20px;border:0;border-radius:11px;background:linear-gradient(135deg,#1688c9 0%,#0b6698 58%,#084e75 100%);color:#fff;font:inherit;font-size:12px;font-weight:900;letter-spacing:.15px;cursor:pointer;box-shadow:0 9px 20px -8px rgba(11,95,141,.66),inset 0 1px 0 rgba(255,255,255,.24);transition:transform .18s,box-shadow .18s,filter .18s}
-.svr__pedi button:hover{filter:brightness(1.05);transform:translateY(-2px);box-shadow:0 13px 25px -9px rgba(11,95,141,.72),inset 0 1px 0 rgba(255,255,255,.24)}
-.svr__pedi button:focus-visible{outline:3px solid rgba(20,120,184,.24);outline-offset:3px}
-/* El selector pide atencion mientras sea el unico paso posible. */
-.sv-ts-trigger.is-pedido{border-color:var(--primary);box-shadow:0 0 0 4px rgba(11,95,141,.12)}
-@media(prefers-reduced-motion:no-preference){.sv-ts-trigger.is-pedido{animation:svPedi 2.4s ease-in-out infinite}}
-@keyframes svPedi{0%,100%{box-shadow:0 0 0 4px rgba(11,95,141,.12)}50%{box-shadow:0 0 0 7px rgba(11,95,141,.05)}}
+/* El selector superior queda destacado como el siguiente paso, sin mensajes centrales. */
+.sv-ts-trigger.is-pedido{border-color:#0875b5;background:linear-gradient(135deg,#e5f3fc,#f5faff);color:#075985;box-shadow:0 0 0 3px rgba(11,95,141,.14),0 7px 16px -12px rgba(11,95,141,.62)}
+.sv-ts-trigger.is-pedido:hover{border-color:#056493;background:linear-gradient(135deg,#d9edfa,#eff8ff)}
+.sv-ts-trigger.is-pedido .sv-ts-trigger__ic{background:linear-gradient(145deg,#1688c9,#075985);color:#fff;box-shadow:0 3px 8px rgba(11,95,141,.22)}
+.sv-ts-trigger.is-pedido .sv-ts-trigger__name.is-placeholder{color:#075985;font-weight:900}
+.sv-ts-trigger.is-pedido .sv-ts-trigger__arrow{color:#0875b5}
 /* Cinco columnas: Fecha · Servicio (catalogo) · Detalle (libre) · Monto · quitar.
    El servicio tiene ancho fijo porque sale de una lista; el detalle se queda con
    el resto, que es el texto que puede crecer. */
@@ -11584,12 +11579,6 @@ function _svReg(host){
           '<span>Registrar factura</span><span class="svr__fac-n" data-svcount'+(acciones?'':' hidden')+'>'+acciones+'</span></button>'+
       '</div>'+
     '</div>'+
-    (sinTs?'<div class="svr__pedi">'+
-      '<svg viewBox="0 0 24 24"><path d="M3 7h11v11H3zM14 10h4l3 4v4h-7z"/><circle cx="7.5" cy="18" r="1.8"/><circle cx="17.5" cy="18" r="1.8"/></svg>'+
-      '<b>Elegí primero de quién es la factura</b>'+
-      '<span>Después cargás los servicios.</span>'+
-      '<button type="button" id="svPediTs">Elegir transportadora</button>'+
-    '</div>':'')+
     '<div class="svr__tbl">'+
       '<div class="svr__th"><span>Fecha</span><span>Servicio</span><span>Almacén</span><span>Detalle</span><span class="r">Monto</span><span></span></div>'+
       _svDraft.filas.map(function(f,i){
@@ -11832,11 +11821,6 @@ function _svReg(host){
     /* Se apagan los controles de la planilla, no los del encabezado: el
        periodo y el selector tienen que seguir disponibles. */
     host.querySelectorAll('.svr__tbl input,.svr__tbl button,.svr__tbl select').forEach(function(el){ el.disabled=true; });
-    const pedi=document.getElementById('svPediTs');
-    if(pedi)pedi.addEventListener('click',function(){
-      const t=document.getElementById('svTsTrigger');
-      if(t){t.focus();t.click();}
-    });
   }
 
   host.querySelectorAll('[data-per]').forEach(function(inp){
