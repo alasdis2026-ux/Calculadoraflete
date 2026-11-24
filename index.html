@@ -126,14 +126,14 @@ body{min-height:100vh;overflow:hidden;font-family:Inter,system-ui,-apple-system,
 .sv-ts-create__form button:disabled{opacity:.55;cursor:wait}
 .sv-ts-create__form .cf-spin{width:14px;height:14px}
 .svr__tbl,.svr__ft{position:relative;z-index:1}
-@media(max-width:600px){.svr__hd{padding:13px 12px;gap:8px;flex-wrap:wrap}.sv-ts-picker{flex:1 1 100%;min-width:0}.svr__hd>.svr__fac{margin-left:0}.sv-ts-pop{width:min(390px,calc(100vw - 28px))}}
-.svr__fac{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 15px;border:1px solid #0b6594;border-radius:11px;background:linear-gradient(135deg,#1682c2,#075984);font:inherit;font-size:12px;font-weight:850;color:#fff;cursor:pointer;white-space:nowrap;box-shadow:0 7px 16px -9px rgba(7,89,132,.85),inset 0 1px 0 rgba(255,255,255,.16);transition:border-color .18s,color .18s,background .18s,transform .18s,box-shadow .18s}
-.svr__fac svg{width:15px;height:15px}
-.svr__fac-n{display:grid;place-items:center;min-width:21px;height:21px;padding:0 6px;border-radius:7px;background:rgba(255,255,255,.2);font-size:10px;font-weight:900;font-variant-numeric:tabular-nums}
-.svr__fac-n[hidden]{display:none}
-.svr__fac:not(:disabled):hover{border-color:#064e75;color:#fff;background:linear-gradient(135deg,#0f70aa,#064c73);box-shadow:0 10px 20px -8px rgba(7,89,132,.65);transform:translateY(-1px)}
-.svr__fac:focus-visible{outline:3px solid rgba(20,120,184,.22);outline-offset:3px}
-.svr__fac:disabled{border-color:#dce4ea;background:linear-gradient(135deg,#a8bdca,#8ea9b8);color:#fff;box-shadow:none;cursor:not-allowed}
+@media(max-width:600px){.svr__hd{padding:13px 12px;gap:8px;flex-wrap:wrap}.sv-ts-picker{flex:1 1 100%;min-width:0}.svr__hd>.svr__save{margin-left:0}.sv-ts-pop{width:min(390px,calc(100vw - 28px))}}
+.svr__save{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 15px;border:1px solid #0b6594;border-radius:11px;background:linear-gradient(135deg,#1682c2,#075984);font:inherit;font-size:12px;font-weight:850;color:#fff;cursor:pointer;white-space:nowrap;box-shadow:0 7px 16px -9px rgba(7,89,132,.85),inset 0 1px 0 rgba(255,255,255,.16);transition:border-color .18s,color .18s,background .18s,transform .18s,box-shadow .18s}
+.svr__save svg{width:15px;height:15px}
+.svr__save-n{display:grid;place-items:center;min-width:21px;height:21px;padding:0 6px;border-radius:7px;background:rgba(255,255,255,.2);font-size:10px;font-weight:900;font-variant-numeric:tabular-nums}
+.svr__save-n[hidden]{display:none}
+.svr__save:not(:disabled):hover{border-color:#064e75;color:#fff;background:linear-gradient(135deg,#0f70aa,#064c73);box-shadow:0 10px 20px -8px rgba(7,89,132,.65);transform:translateY(-1px)}
+.svr__save:focus-visible{outline:3px solid rgba(20,120,184,.22);outline-offset:3px}
+.svr__save:disabled{border-color:#dce4ea;background:linear-gradient(135deg,#a8bdca,#8ea9b8);color:#fff;box-shadow:none;cursor:not-allowed}
 
 /* Sin transportadora elegida la planilla no se puede usar todavia. */
 .svr__tbl{padding:6px 10px 10px;transition:opacity .22s}
@@ -11319,8 +11319,8 @@ function renderServicios(){
 }
 
 /* ── Pestaña: Registro ───────────────────────────────────── */
-/* El registro es una planilla: se eligen transportadora y servicios; Registrar
-   factura guarda las filas pendientes y abre la conciliacion de la factura. */
+/* El registro guarda servicios adicionales; la factura se registra luego
+   desde «Ver resumen» en la planilla compartida. */
 let _svDraft={tsId:'',filas:[]};
 let _svFactBusy=false;
 let _svUid=1;
@@ -11544,10 +11544,10 @@ function _svReg(host){
   if(!_svDraft.filas.length)_svDraft.filas=[_svFilaNueva()];
   const tsel=_svDraft.tsId||_svUlt.tsId||'';
   _svDraft.tsId=tsel;
-  const guardadas=_svGuardadas().length, pend=_svPendientes().length, acciones=guardadas+pend;
+  const pend=_svPendientes().length, acciones=pend;
   const CAL='<svg class="svr-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>';
   const selectedTs=ts.find(function(t){ return String(t.id)===tsel; });
-  /* Primero se elige de quien es la factura: es el orden del trabajo real. */
+  /* Primero se elige la transportadora a la que pertenecen los servicios. */
   const sinTs=!selectedTs;
 
   host.innerHTML='<div class="svr'+(sinTs?' is-sinTs':'')+'">'+
@@ -11574,9 +11574,9 @@ function _svReg(host){
       '</div>'+
       '<div class="svr__head-actions">'+
         '<button type="button" class="svr__add" id="svAdd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Agregar servicio</button>'+
-      '<button type="button" class="svr__fac" id="svRegFac"'+(acciones&&!_svFactBusy?'':' disabled title="'+(_svFactBusy?'Guardando servicios…':'Agregá un servicio con su monto')+'"')+'>'+
-          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z"/><path d="M14 2v6h6M9 13h6M9 17h6"/></svg>'+
-          '<span>Registrar factura</span><span class="svr__fac-n" data-svcount'+(acciones?'':' hidden')+'>'+acciones+'</span></button>'+
+      '<button type="button" class="svr__save" id="svSaveServices"'+(acciones&&!_svFactBusy?'':' disabled title="'+(_svFactBusy?'Guardando servicios…':'Completá un servicio para guardar')+'"')+'>'+
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M5 3h12l4 4v13a1 1 0 01-1 1H4a1 1 0 01-1-1V4a1 1 0 011-1z"/><path d="M7 3v6h10V3M7 21v-7h10v7"/></svg>'+
+          '<span>Guardar servicios</span><span class="svr__save-n" data-svcount'+(acciones?'':' hidden')+'>'+acciones+'</span></button>'+
       '</div>'+
     '</div>'+
     '<div class="svr__tbl">'+
@@ -11875,15 +11875,15 @@ function _svReg(host){
     b.addEventListener('click',function(){ _svQuitarFila(host,+b.dataset.del); });
   });
   document.getElementById('svAdd').addEventListener('click',function(){ _svAgregarFila(host); });
-  const bf=document.getElementById('svRegFac');
-  if(bf)bf.addEventListener('click',function(){ _svFacturarDraft(host); });
+  const bf=document.getElementById('svSaveServices');
+  if(bf)bf.addEventListener('click',function(){ _svGuardarDraft(host); });
 }
 
 /* El pie se actualiza solo: rearmar la planilla en cada tecla perderia el foco. */
 function _svRefrescarFt(host){
   const t=host.querySelector('.svr__tot b'); if(t)t.textContent=_svGs(_svTotalDraft());
-  const n=_svGuardadas().length+_svPendientes().length;
-  const b=document.getElementById('svRegFac'); if(b)b.disabled=!n||_svFactBusy;
+  const n=_svPendientes().length;
+  const b=document.getElementById('svSaveServices'); if(b)b.disabled=!n||_svFactBusy;
   const c=document.querySelector('[data-svcount]'); if(c){c.textContent=n;c.hidden=!n;}
 }
 
@@ -11969,7 +11969,7 @@ async function _svGuardar(host){
   const nuevas=_svPendientes();
   if(!nuevas.length)return true;
 
-  const btn=document.getElementById('svRegFac'); const txt=btn?btn.innerHTML:'';
+  const btn=document.getElementById('svSaveServices'); const txt=btn?btn.innerHTML:'';
   if(btn){ btn.disabled=true; btn.innerHTML='<span class="cf-spin"></span>Guardando…'; }
   const tocados=[], creados=[], puestas=[];
   try{
@@ -12005,35 +12005,20 @@ async function _svGuardar(host){
   }
 }
 
-/* Registrar la factura de lo que se acaba de cargar. */
-async function _svFacturarDraft(host){
+/* Guarda los servicios desde el formulario; la factura se registra desde
+   «Ver resumen» en la planilla compartida. */
+async function _svGuardarDraft(host){
   if(_svFactBusy)return;
-  const pending=_svPendientes();
-  if(!_svGuardadas().length&&!pending.length){ showToast('Cargá al menos un servicio con su monto'); return; }
+  if(!_svPendientes().length){ showToast('Completá al menos un servicio y su monto para guardar'); return; }
   const tsId=+(_svDraft.tsId||0);
   if(!tsId){ showToast('Elegí la transportadora'); const s=document.getElementById('svTsTrigger'); if(s)s.focus(); return; }
   _svFactBusy=true;
   _svRefrescarFt(host);
-  if(pending.length){
-    const guardo=await _svGuardar(host);
-    if(!guardo){ _svFactBusy=false; _svRefrescarFt(host); return; }
-  }
-  const g=_svGuardadas();
-  if(!g.length){ _svFactBusy=false; _svRefrescarFt(host); showToast('Cargá al menos un servicio con su monto'); return; }
-  const isos=g.map(function(f){ return f.fecha; }).sort();
-  const t=(transportistas||[]).find(function(x){ return x.id===tsId; });
-  const imprimir={
-    ts:(t&&t.n)||'—',desde:isos[0],hasta:isos[isos.length-1],
-    total:g.reduce(function(a,f){ return a+(+f.monto||0); },0),
-    filas:g.map(function(f){ return {c:f.cl,r:f.r,iso:f.fecha}; })
-  };
-  _svFactBusy=false;
-  _svRefrescarFt(host);
-  _svFacturar({
-    ts:imprimir.ts,desde:imprimir.desde,hasta:imprimir.hasta,total:imprimir.total,filas:imprimir.filas
-  },function(){ _svPrint(imprimir); _svDraft={tsId:_svDraft.tsId,filas:[]}; renderServicios(); });
+  let guardo=false;
+  try{ guardo=await _svGuardar(host); }
+  finally{ _svFactBusy=false; _svRefrescarFt(host); }
+  if(guardo)showToast('Servicios guardados. Registrá la factura desde Ver resumen de la planilla.');
 }
-
 /* ── Pestaña: Datos registrados ──────────────────────────── */
 /* Datos registrados = el MISMO componente del Reporte de repartos (calendario
    del mes + planillas desplegables), con el segmento fijado en servicios. Se
