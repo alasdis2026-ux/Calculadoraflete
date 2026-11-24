@@ -10333,6 +10333,9 @@ function _rrOpenDetail(g,periodLbl,wkObj){
   const trucks=(tsObj&&tsObj.trucks)||[];
   const host=_rrHost();if(!host)return;
   const bd=document.createElement('div');bd.className='rr-detail';host.className='cf-host';host.innerHTML='';host.appendChild(bd);
+  if((g.lines||[]).some(cl=>(cl.seg||'local')==='servicios')&&_svCat===null){
+    _svCatCargar().then(()=>{if(host.contains(bd)&&!_dashEdit)_rrOpenDetail(g,periodLbl,wkObj);});
+  }
   try{(document.scrollingElement||document.documentElement).scrollTop=0;}catch(_){}
   // Arrastrar y soltar (tipo Trello): mover un camión a otra columna cambia su segmento.
   const _dragBoard=()=>bd.querySelector('.rre-board');
@@ -10560,7 +10563,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
   const _dfKm=d=>(d.seg||_dashSeg)==='interior'&&(+d.km>0)&&(+d.precioKm>0);
   const _dfFlete=d=>_dfKm(d)?Math.round(d.km*d.precioKm):(+d.precio||0);
   function _dashBlank(){const isTr=_dashSeg==='transportadora',isServ=_dashSeg==='servicios',tr=(trucks||[])[0]||null;return {k:_dashDK++,uid:null,isNew:true,seg:_dashSeg,trId:(isTr||isServ)?null:(tr?tr.id:null),trDesc:(isTr||isServ)?'':(tr?tr.d:''),tsId:tsObj?tsObj.id:g.tsId,tsNombre:g.ts,rep:'',zona:'',fecha:_defFecha(),km:0,precioKm:0,precio:0,obs:'',almacen:'',detalle:'',cant:1,del:false};}
-  function _dashEnterEdit(sk,autoAdd){const lock=_facDeGrupo(g);if(lock){showToast(lock._revision?'La factura de esta planilla necesita revisión antes de modificarla.':'Esta planilla ya está facturada · no se puede modificar');return;}_dashSeg=sk;_dashDK=1;_dashSel.clear();_dashDraft=work.filter(w=>!w.del&&w.seg===sk).map(w=>({k:_dashDK++,uid:w.uid,isNew:!!w.isNew,seg:w.seg||sk,trId:sk==='servicios'?null:w.trId,trDesc:sk==='servicios'?'':w.trDesc,tsId:w.tsId,tsNombre:w.tsNombre,rep:sk==='servicios'?'':(w.rep||''),zona:sk==='servicios'?'':(w.zona||''),fecha:w.fecha||null,km:+w.km||0,precioKm:+w.precioKm||0,precio:+w.precio||0,obs:w.obs||w.zona||'',almacen:w.almacen||'',detalle:w.detalle||'',cant:+w.cant||1,del:false}));_dashEdit=true;if(autoAdd)_dashDraft.push(_dashBlank());render('filter');}
+  async function _dashEnterEdit(sk,autoAdd){const lock=_facDeGrupo(g);if(lock){showToast(lock._revision?'La factura de esta planilla necesita revisión antes de modificarla.':'Esta planilla ya está facturada · no se puede modificar');return;}if(sk==='servicios')await _svCatCargar();_dashSeg=sk;_dashDK=1;_dashSel.clear();_dashDraft=work.filter(w=>!w.del&&w.seg===sk).map(w=>{const sf=sk==='servicios'?_dashServicioCampos(w):null;return {k:_dashDK++,uid:w.uid,isNew:!!w.isNew,seg:w.seg||sk,trId:sk==='servicios'?null:w.trId,trDesc:sk==='servicios'?'':w.trDesc,tsId:w.tsId,tsNombre:w.tsNombre,rep:sk==='servicios'?'':(w.rep||''),zona:sk==='servicios'?'':(w.zona||''),fecha:w.fecha||null,km:+w.km||0,precioKm:+w.precioKm||0,precio:+w.precio||0,obs:sf?sf.servicio:(w.obs||w.zona||''),almacen:w.almacen||'',detalle:sf?sf.detalle:(w.detalle||''),cant:+w.cant||1,del:false};});_dashEdit=true;if(autoAdd)_dashDraft.push(_dashBlank());render('filter');}
   function _dashExitEdit(){_dashEdit=false;_dashDraft=null;_dashSel.clear();render('filter');}
   // Desde "Todos": si hay 1 segmento entra directo; si hay varios, muestra un modal PRO para elegir
   function _dashPickSeg(isAdd){const lock=_facDeGrupo(g);if(lock){showToast(lock._revision?'La factura de esta planilla necesita revisión antes de modificarla.':'Esta planilla ya está facturada · no se puede modificar');return;}const present=SEGL.filter(sk=>work.some(w=>!w.del&&w.seg===sk));if(present.length<=1){_dashEnterEdit(present[0]||'local',isAdd);return;}_openSegModal(present,isAdd);}
@@ -10664,11 +10667,11 @@ function _rrOpenDetail(g,periodLbl,wkObj){
          siempre vacias y el servicio termina metido en Zona. En ese caso van
          las columnas que corresponden: servicio, almacen y detalle. */
       const _soloServ=allItems.length>0&&allItems.every(w=>(w.seg||'local')==='servicios');
-      const rowsServ=()=>allItems.map(w=>'<tr'+_facRowCls(w)+(_facMode?' data-facrow="'+w.uid+'" style="cursor:pointer"':'')+'>'+dfec(w)+
-        '<td>'+(w.obs?serviceChip(w.obs):'<span class="rrd-mut">—</span>')+'</td>'+
+      const rowsServ=()=>allItems.map(w=>{const sf=_dashServicioCampos(w);return '<tr'+_facRowCls(w)+(_facMode?' data-facrow="'+w.uid+'" style="cursor:pointer"':'')+'>'+dfec(w)+
+        '<td>'+(sf.servicio?serviceChip(sf.servicio):'<span class="rrd-mut">—</span>')+'</td>'+
         '<td>'+(w.almacen?('<span class="rrd-alm">'+_escp(w.almacen)+'</span>'):'<span class="rrd-mut">—</span>')+'</td>'+
-        '<td class="rrd-grow">'+(w.detalle?_escp(w.detalle):'<span class="rrd-mut">—</span>')+'</td>'+
-        '<td class="r rrd-flete">'+_gs(+w.precio||0)+'</td>'+_facActs(w)+'</tr>').join('');
+        '<td class="rrd-grow">'+(sf.detalle?_escp(sf.detalle):'<span class="rrd-mut">—</span>')+'</td>'+
+        '<td class="r rrd-flete">'+_gs(+w.precio||0)+'</td>'+_facActs(w)+'</tr>';}).join('');
       const rows=_soloServ?rowsServ():allItems.map(w=>{const isTr=w.seg==='transportadora';const cam=isTr?((+w.cant||0)+' '+_camLbl((+w.cant||0))):camLbl(w);const zn=isTr?'—':(w.zona||(w.seg==='servicios'&&w.obs)||'—');const km=(w.seg==='interior'&&+w.km>0)?(_kmFmt(+w.km)+' km × '+_gs(+w.precioKm||0)):'<span class="rrd-mut">—</span>';return '<tr'+_facRowCls(w)+(_facMode?' data-facrow="'+w.uid+'" style="cursor:pointer"':'')+'>'+dfec(w)+'<td class="rrd-cam"><span class="rrd-cam__ic">'+TRUCKICON+'</span><span class="rrd-cam__t">'+_escp(cam)+'</span></td><td><span class="rrd-segtag rrd-segtag--'+w.seg+'">'+SEGN[w.seg]+'</span></td><td>'+(isTr?'<span class="rrd-mut">—</span>':_escp(w.rep||'Tercerizado'))+'</td><td class="rrd-grow">'+(zn&&zn!=='—'?dchip(zn):'<span class="rrd-mut">—</span>')+'</td><td class="r rrd-det">'+km+'</td><td class="r rrd-flete">'+_gs(+w.precio||0)+'</td>'+_facActs(w)+'</tr>';}).join('')||'<tr><td colspan="8" class="rrd-empty">Sin líneas</td></tr>';
       const table='<div class="rrd-tablecard">'+'<div class="rrd-tablehd"><div class="rrd-tablehd__t"><span class="rrd-tablehd__dot" style="background:linear-gradient(135deg,#2578b8,#0B5F8D)"></span>'+(_soloServ?'Servicios':'Todos los pedidos')+'</div>'+(_facMode?'':'<div class="rrd-cardseg">'+dashTabs()+'</div>')+((!_facMode&&!_facDeGrupo(g))?'<div class="rrd-tablehd__acts"><button class="rrd-hdbtn" data-todosadd="1"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg> Añadir</button>'+(work.some(w=>!w.del&&!w.isNew)?'<button class="rrd-hdbtn rrd-hdbtn--edit" data-todosedit="1"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4z"/></svg> Editar</button>':'')+'</div>':'')+'</div><div class="rrd-tablewrap"><table class="rrd-tbl"><thead>'+(_soloServ
         ?'<tr><th>Fecha</th><th>Servicio</th><th>Almacén</th><th class="rrd-grow">Detalle</th><th class="r">Flete</th><th class="rrd-facth r">'+(_facMode?'¿Entra?':'Factura')+'</th></tr>'
@@ -10707,7 +10710,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
         const segCell='<td><button type="button" class="xls-pick rrd-segpick'+((d.seg&&d.seg!==sk)?' moved':'')+'" data-segpick="'+d.k+'"><span>'+SEGN[d.seg||sk]+'</span>'+CHV+'</button></td>';
         let c;
         if(isTr)c=fecCell+'<td><span class="rrd-mut">Transportadora (total)</span></td><td class="r"><input class="xls-in r rrd-fin rrd-fcant" data-dk="'+d.k+'" inputmode="numeric" placeholder="0" value="'+(d.cant||'')+'"></td>'+fleteCell+'<td class="rrd-actc"><input type="checkbox" class="rrd-selrow" data-dk="'+d.k+'"'+(_dashSel.has(d.k)?' checked':'')+'>'+dtrash(d.k)+'</td>';
-        else if(soloServ){const servPick='<button type="button" class="xls-pick rrd-service-picker'+(d.obs?'':' ph')+'" data-dk="'+d.k+'" data-pick="service"><span>'+(d.obs?'<span class="rrd-service-chip">'+_escp(d.obs)+'</span>':'Elegí servicio')+'</span>'+CHV+'</button>';const almLabel=d.almacen?('<span class="rrd-alm">'+_escp(d.almacen)+'</span>'):'Elegir almacén';const almPick='<button type="button" class="xls-pick rrd-almacen-picker'+(d.almacen?'':' ph')+'" data-dk="'+d.k+'" data-pick="almacen"><span>'+almLabel+'</span>'+CHV+'</button>';const detailCell='<td><input class="xls-in rrd-fin rrd-fdetail" data-dk="'+d.k+'" maxlength="160" placeholder="Detalle (opcional)" value="'+_escp(d.detalle||'')+'"></td>';c=fecCell+segCell+'<td>'+servPick+'</td><td>'+almPick+'</td>'+detailCell+fleteCell+'<td class="rrd-actc"><input type="checkbox" class="rrd-selrow" data-dk="'+d.k+'"'+(_dashSel.has(d.k)?' checked':'')+'>'+dtrash(d.k)+'</td>';}
+        else if(soloServ){const servPick='<button type="button" class="xls-pick rrd-service-picker'+(d.obs?'':' ph')+'" data-dk="'+d.k+'" data-pick="service"><span>'+(d.obs?'<span class="rrd-service-chip">'+_escp(d.obs)+'</span>':'Elegí servicio')+'</span>'+CHV+'</button>';const almLabel=d.almacen?('<span class="rrd-alm">'+_escp(d.almacen)+'</span>'):'Elegir almacén';const almPick='<button type="button" class="xls-pick rrd-almacen-picker'+(d.almacen?'':' ph')+'" data-dk="'+d.k+'" data-pick="almacen"><span>'+almLabel+'</span>'+CHV+'</button>';const detailCell='<td><input class="xls-in rrd-fin rrd-fdetail" data-dk="'+d.k+'" maxlength="160" placeholder="Ej.: pago de 3 ayudantes" value="'+_escp(d.detalle||'')+'"></td>';c=fecCell+segCell+'<td>'+servPick+'</td><td>'+almPick+'</td>'+detailCell+fleteCell+'<td class="rrd-actc"><input type="checkbox" class="rrd-selrow" data-dk="'+d.k+'"'+(_dashSel.has(d.k)?' checked':'')+'>'+dtrash(d.k)+'</td>';}
         else{const _rInt=(d.seg||sk)==='interior';const zcell=((d.seg||sk)==='servicios')?('<td><input class="xls-in rrd-fin rrd-fobs" data-dk="'+d.k+'" placeholder="—" value="'+_escp(d.obs||'')+'"></td>'):('<td>'+pk('zona')+'</td>');const kmcell=showKmCol?(_rInt?('<td class="r"><div class="rrd-kmedit"><input class="xls-in r rrd-fin rrd-fkm" data-dk="'+d.k+'" inputmode="decimal" placeholder="Km" value="'+(d.km?_kmFmt(d.km):'')+'"><span>×</span><input class="xls-in r rrd-fin rrd-fpkm" data-dk="'+d.k+'" inputmode="numeric" placeholder="Precio por km" value="'+(d.precioKm?_nnum(d.precioKm):'')+'"></div></td>'):'<td class="r"><span class="rrd-mut">—</span></td>'):'';c=fecCell+segCell+'<td>'+pk('tr')+'</td><td>'+pk('rep')+'</td>'+zcell+kmcell+fleteCell+'<td class="rrd-actc"><input type="checkbox" class="rrd-selrow" data-dk="'+d.k+'"'+(_dashSel.has(d.k)?' checked':'')+'>'+dtrash(d.k)+'</td>';}
         return '<tr data-dk="'+d.k+'">'+c+'</tr>';}).join('')||'<tr><td colspan="'+(soloServ?'7':'8')+'" class="rrd-empty">Sin líneas — agregá una.</td></tr>';
     }else{
@@ -10716,11 +10719,11 @@ function _rrOpenDetail(g,periodLbl,wkObj){
       const acts=w=>facReadReg?'':'<td class="rrd-facc rrd-facc--slim"><button class="rrd-facdel" data-dashdel="'+w.uid+'" data-tip="Eliminar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M10 11v6M14 11v6"/></svg></button></td>';
       const rowCls=w=>'';
       if(isTr)rowsHtml=items.map(w=>'<tr'+rowCls(w)+' data-dashrow="'+w.uid+'">'+dfec(w)+'<td class="rrd-cam rrd-grow"><span class="rrd-cam__ic">'+TRUCKICON+'</span><span class="rrd-cam__t">'+((+w.cant||0)+' '+_camLbl((+w.cant||0)))+'</span></td><td class="r">'+(+w.cant||0)+'</td><td class="r rrd-flete">'+_gs(+w.precio||0)+'</td>'+acts(w)+'</tr>').join('');
-      else if(soloServ)rowsHtml=items.map(w=>'<tr'+rowCls(w)+' data-dashrow="'+w.uid+'">'+dfec(w)+
-        '<td>'+(w.obs?serviceChip(w.obs):'<span class="rrd-mut">—</span>')+'</td>'+
+      else if(soloServ)rowsHtml=items.map(w=>{const sf=_dashServicioCampos(w);return '<tr'+rowCls(w)+' data-dashrow="'+w.uid+'">'+dfec(w)+
+        '<td>'+(sf.servicio?serviceChip(sf.servicio):'<span class="rrd-mut">—</span>')+'</td>'+
         '<td>'+(w.almacen?('<span class="rrd-alm">'+_escp(w.almacen)+'</span>'):'<span class="rrd-mut">—</span>')+'</td>'+
-        '<td class="rrd-grow">'+(w.detalle?_escp(w.detalle):'<span class="rrd-mut">—</span>')+'</td>'+
-        '<td class="r rrd-flete">'+_gs(+w.precio||0)+'</td>'+acts(w)+'</tr>').join('');
+        '<td class="rrd-grow">'+(sf.detalle?_escp(sf.detalle):'<span class="rrd-mut">—</span>')+'</td>'+
+        '<td class="r rrd-flete">'+_gs(+w.precio||0)+'</td>'+acts(w)+'</tr>';}).join('');
       else rowsHtml=items.map(w=>{const km=(isInt&&+w.km>0)?(_kmFmt(+w.km)+' km × '+_gs(+w.precioKm||0)):'—';return '<tr'+rowCls(w)+' data-dashrow="'+w.uid+'">'+dfec(w)+'<td class="rrd-cam"><span class="rrd-cam__ic">'+TRUCKICON+'</span><span class="rrd-cam__t">'+_escp(camLbl(w))+'</span></td><td>'+_escp(w.rep||'Tercerizado')+'</td><td class="rrd-grow">'+(w.zona?dchip(w.zona):(isServ&&w.obs?serviceChip(w.obs):'<span class="rrd-mut">—</span>'))+'</td>'+(isInt?'<td class="r rrd-det">'+km+'</td>':'')+'<td class="r rrd-flete">'+_gs(+w.precio||0)+'</td>'+acts(w)+'</tr>';}).join('');
       if(!rowsHtml)rowsHtml='<tr><td colspan="9" class="rrd-empty">Sin líneas</td></tr>';
     }
@@ -11607,7 +11610,7 @@ function _svReg(host){
               : '<span class="svr__alm-ph">Almacén</span>')+
             '<svg class="svr__alm-ar" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>'+
           '</button>'+
-          '<input class="svr__det" type="text" data-k="detalle" value="'+esc(f.detalle||'')+'" placeholder="Detalle (opcional)" maxlength="160" autocomplete="off"'+dis+'>'+
+          '<input class="svr__det" type="text" data-k="detalle" value="'+esc(f.detalle||'')+'" placeholder="Ej.: pago de 3 ayudantes" maxlength="160" autocomplete="off"'+dis+'>'+
           '<input class="svr__monto" type="text" data-k="monto" value="'+(+f.monto>0?formatMoney(f.monto):'')+'" placeholder="0" inputmode="numeric" autocomplete="off"'+dis+'>'+
           '<div class="svr__acts">'+
           (ok?('<button type="button" class="svr__ed'+(edit?' is-save':'')+'" data-edit="'+f.uid+'" title="'+(edit?'Guardar los cambios':'Corregir este servicio')+'" aria-label="'+(edit?'Guardar los cambios':'Corregir este servicio')+'">'+
@@ -12334,7 +12337,7 @@ function _svFacturar(g,alTerminar){
    andando igual. El SQL esta en db/servicios_catalogo.sql. */
 const SV_CAT_BASE=['SERVICIO DE DESESTIBA','SERVICIO DE GRUA Y TRASLADO DE BOBINAS','SERVICIO DE ABASTECIMIENTO A LDAL','SERVICIO DE ABASTECIMIENTO A LDLQ','SERVICIO DE CARGA DE BASURA','SERVICIO DE CARGA DE CHATARRA'];
 const SV_CAT_LS='cf_servicios_catalogo_v1';
-let _svCat=null,_svCatTabla=null;   // null = todavia no sabemos si la tabla existe
+let _svCat=null,_svCatTabla=null,_svCatLoad=null;   // null = todavia no sabemos si la tabla existe
 
 function _svCatLocal(){try{const r=JSON.parse(localStorage.getItem(SV_CAT_LS)||'[]');return Array.isArray(r)?r.filter(x=>typeof x==='string'):[];}catch(_){return[];}}
 function _svCatGuardarLocal(l){try{localStorage.setItem(SV_CAT_LS,JSON.stringify(l));}catch(_){}}
@@ -12345,14 +12348,25 @@ function _svCatLista(){
   return out.sort(function(a,b){return a.localeCompare(b,'es');});
 }
 async function _svCatCargar(){
+  if(_svCatLoad)return _svCatLoad;
   if(_svCat!==null)return;
   _svCat=[];
-  try{
-    const r=await sb.from('servicios_catalogo').select('nombre').order('nombre');
-    if(r.error)throw r.error;
-    _svCatTabla=true;
-    _svCat=(r.data||[]).map(function(x){return x.nombre;}).filter(Boolean);
-  }catch(_){ _svCatTabla=false; }   // sin tabla: seguimos con los de base + locales
+  _svCatLoad=(async function(){
+    try{
+      const r=await sb.from('servicios_catalogo').select('nombre').order('nombre');
+      if(r.error)throw r.error;
+      _svCatTabla=true;
+      _svCat=(r.data||[]).map(function(x){return x.nombre;}).filter(Boolean);
+    }catch(_){ _svCatTabla=false; }   // sin tabla: seguimos con los de base + locales
+  })();
+  return _svCatLoad;
+}
+function _dashServicioCampos(w){
+  const raw=String((w&&w.obs)|| (w&&w.zona)||'').trim();
+  const norm=_svCatNorm(raw),esTipo=!!norm&&_svCatLista().some(function(x){return _svCatNorm(x)===norm;});
+  const previo=String((w&&w.detalle)||'').trim(),textoLibre=esTipo?'':raw;
+  const detalle=[previo,textoLibre].filter(function(x,i,a){return x&&a.findIndex(function(y){return _svCatNorm(y)===_svCatNorm(x);})===i;}).join(' · ').slice(0,160);
+  return {servicio:esTipo?norm:'',detalle:detalle};
 }
 async function _svCatAgregar(nombre){
   const n=_svCatNorm(nombre);
