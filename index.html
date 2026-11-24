@@ -10916,15 +10916,14 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     bd.querySelectorAll('.cancel').forEach(b=>b.addEventListener('click',()=>goBack()));
     bd.querySelectorAll('.cancel-edit').forEach(b=>b.addEventListener('click',()=>{buildWork();render('toggle');}));
     const pr=bd.querySelector('.print');if(pr)pr.addEventListener('click',()=>{const t=totals();_cfPrint({id:null,tsNombre:g.ts,semanaDesde:pD||(wkObj?wkObj.desde:null),semanaHasta:pH||(wkObj?wkObj.hasta:null),clientes:g.lines,totalMonto:t.m,totalFlete:t.f,incTotal:t.inc,factura_id:(g.facturaId!=null?g.facturaId:null)});});
-    // "Registrar factura" → entra en MODO SELECCIÓN (todos los repartos marcados por defecto)
+    // "Registrar factura" → permite elegir las líneas de la planilla.
     // Registrar factura: PRIMERO Nº+monto, después se aprueban las líneas contra ese monto
     const fac=bd.querySelector('.rrm-act--fac');if(fac)fac.addEventListener('click',()=>{if(!work.some(w=>!w.del)){showToast('No hay repartos pendientes para facturar');return;}_cfOpenFacturaModal(null,{ts:g.ts,semDesde:pD||wkObj.desde,semHasta:pH||wkObj.hasta,flete:work.filter(w=>!w.del).reduce((s,w)=>s+(+w.precio||0),0),captureOnly:true,onCapture:(nro,monto)=>{_facNro=nro;_facMonto=+monto||0;_facSel=new Set();_facMode=true;_dashSeg='todos';render('filter');}});});
-    // Cancelar la aprobación (descarta; nada se persiste hasta imprimir)
+    // Cancelar la aprobación (descarta; nada se persiste hasta registrar)
     bd.querySelectorAll('[data-faccancel]').forEach(b=>b.addEventListener('click',()=>{_facMode=false;_facSel=new Set();_facMonto=0;_facNro='';render('filter');}));
     bd.querySelectorAll('[data-facall]').forEach(b=>b.addEventListener('click',()=>{const cand=work.filter(w=>!w.del);const allSel=cand.length>0&&cand.every(w=>_facSel.has(w.uid));_facSel=allSel?new Set():new Set(cand.map(w=>w.uid));render('filter');}));
-    // Primero guarda la factura. La impresión ocurre después y sus errores no deben
-    // hacer creer que el registro falló ni provocar que el usuario la duplique.
-    bd.querySelectorAll('[data-facprint]').forEach(b=>b.addEventListener('click',async()=>{
+    // Guarda la factura sin abrir la impresión; esta queda disponible desde el resumen.
+    bd.querySelectorAll('[data-facregister]').forEach(b=>b.addEventListener('click',async()=>{
       const selW=work.filter(w=>!w.del&&_facSel.has(w.uid));
       const tot=selW.reduce((s,w)=>s+(+w.precio||0),0);
       if(!(_facMonto>0&&tot===_facMonto)){showToast('El flete aprobado no coincide con la factura 🚫');return;}
@@ -10945,7 +10944,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
       }
       try{
         try{const fr=await sb.from('fact_facturas').select('*');if(!fr.error)window.__cfFac=fr.data||[];}catch(_){}
-        const _mt=_facMonto;_facMode=false;_facSel=new Set();_facMonto=0;_facNro='';
+        _facMode=false;_facSel=new Set();_facMonto=0;_facNro='';
         _cfCheckBurst('Registrado',true);
         // La planilla recién facturada se recarga por su período, que puede cruzar semanas.
         const _fd=pD||wkObj.desde,_fh=pH||wkObj.hasta;
@@ -10954,12 +10953,12 @@ function _rrOpenDetail(g,periodLbl,wkObj){
           const _s2=_rrSumLines(_rr2.lines);
           const fresh=Object.assign({},g,{facturaId:facId,lines:_rr2.lines,reps:_rr2.reps,monto:_s2.monto,flete:_s2.flete,perDesde:_fd,perHasta:_fh});
           _rrOpenDetail(fresh,_dispD(_fd)+' al '+_dispD(_fh),wkObj);
-          _cfPrint({id:facId,tsNombre:g.ts,semanaDesde:_fd,semanaHasta:_fh,clientes:fresh.lines,totalMonto:_mt,totalFlete:fresh.flete,incTotal:null,factura_id:facId});
         }else renderReporteRepartos();
+        showToast('Factura registrada. Podés imprimirla más tarde desde el resumen.');
       }catch(e){
-        console.error('[factura de flete] registrada; falló la apertura de impresión',e);
+        console.error('[factura de flete] registrada; falló la actualización del resumen',e);
         try{renderReporteRepartos();}catch(_){}
-        showToast('La factura quedó registrada. No pude abrir la impresión; buscala en el reporte y usá Imprimir.',7000);
+        showToast('La factura quedó registrada. Buscá la planilla en el reporte e imprimila cuando quieras.',7000);
       }
     }));
     bd.querySelectorAll('.rre-vadd').forEach(b=>b.addEventListener('click',()=>{addRow(b.dataset.seg);render('add');}));
@@ -10977,7 +10976,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     const _facUpdateBar=()=>{const cand=work.filter(w=>!w.del);const selN=cand.filter(w=>_facSel.has(w.uid)).length;const tot=cand.filter(w=>_facSel.has(w.uid)).reduce((s,w)=>s+(+w.precio||0),0);const conc=(_facMonto>0&&tot===_facMonto);
       const kt=bd.querySelector('.rrd-ktile--aprob');
       if(kt){const kv=kt.querySelector('b');if(kv)kv.textContent=_gs(tot);const kc=kt.querySelector('.rrd-ktile__cnt');if(kc)kc.textContent=selN+' de '+cand.length+' líneas';kt.classList.toggle('ok',conc);kt.classList.toggle('over',_facMonto>0&&tot>_facMonto);const gs2=window.gsap;if(gs2&&!reduce())gs2.fromTo(kt,{scale:1.025},{scale:1,duration:.3,ease:'power2.out'});}
-      const pb=bd.querySelector('[data-facprint]');if(pb){pb.disabled=!conc;pb.setAttribute('title',conc?'':'Aprobá hasta que el flete coincida con la factura');}};
+      const pb=bd.querySelector('[data-facregister]');if(pb){pb.disabled=!conc;pb.setAttribute('title',conc?'':'Aprobá hasta que el flete coincida con la factura');}};
     const _facToggle=uid=>{uid=+uid;const on=!_facSel.has(uid);if(on)_facSel.add(uid);else _facSel.delete(uid);bd.querySelectorAll('[data-facsel="'+uid+'"]').forEach(btn=>{btn.classList.toggle('on',on);btn.setAttribute('data-tip',on?'Entra en la factura':'No entra');const tr=btn.closest('tr');if(tr)tr.classList.toggle('rrd-row-out',!on);const gs=window.gsap;if(gs&&!reduce())gs.fromTo(btn,{scale:.6},{scale:1,duration:.4,ease:'back.out(3)'});});_facUpdateBar();};
     bd.querySelectorAll('[data-facsel]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();_facToggle(b.dataset.facsel);}));
     bd.querySelectorAll('[data-facrow]').forEach(r=>r.addEventListener('click',e=>{if(e.target.closest('button'))return;_facToggle(r.dataset.facrow);}));
@@ -11073,9 +11072,9 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     const _conc=(_facMonto>0&&_selTot===_facMonto); // aprobado === factura → conciliado
     const acts=(editing||_facMode)?''
       :facBtn+(facReg?'<button class="rrm-act rrm-act--print ok print"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6v-8z"/></svg> Imprimir</button>':'');
-    // Modo aprobación (post-registro): Cancelar + Imprimir (habilitado al conciliar)
+    // Modo aprobación: Cancelar + Registrar factura (habilitado al conciliar)
     const _allSel=_cand.length>0&&_cand.every(w=>_facSel.has(w.uid));
-    const _selActs=_facMode?'<div class="rrd-selacts"><button class="rrm-act rrm-selall" data-facall="1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12l4 4 7-8"/><path d="M12 16l1.6 1.6L22 8"/></svg> '+(_allSel?'Quitar todos':'Aprobar todos')+'</button><button class="rrm-act rrm-selcancel" data-faccancel="1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg> Cancelar</button><button class="rrm-act rrm-selgo" data-facprint="1"'+(_conc?'':' disabled')+' title="'+(_conc?'':'Aprobá hasta que el flete coincida con la factura')+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6v-8z"/></svg> Imprimir</button></div>':'';
+    const _selActs=_facMode?'<div class="rrd-selacts"><button class="rrm-act rrm-selall" data-facall="1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12l4 4 7-8"/><path d="M12 16l1.6 1.6L22 8"/></svg> '+(_allSel?'Quitar todos':'Aprobar todos')+'</button><button class="rrm-act rrm-selcancel" data-faccancel="1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg> Cancelar</button><button class="rrm-act rrm-selgo" data-facregister="1"'+(_conc?'':' disabled')+' title="'+(_conc?'':'Aprobá hasta que el flete coincida con la factura')+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M8 13h4M8 17h3M15 15l2 2 4-4"/></svg> Registrar factura</button></div>':'';
     const _fkg=_facDeGrupo(g);const facMonto=_fkg?(+_fkg.monto||0):null;
     const facKpi='<div class="rrm-kpi rrm-kpi--fac"><span>Factura</span><b class="k-fac'+(facMonto==null?' k-nofac':'')+'">'+(facMonto!=null?_gs(facMonto):'Sin registros')+'</b></div>';
     bd.innerHTML=
@@ -12215,7 +12214,7 @@ function _svBotonFac(g,k){
 /* Registrar la factura de un grupo de servicios. Misma idea que la planilla de
    repartos: se carga el número y el monto, y se ve en vivo si el monto coincide
    con el total de los servicios antes de confirmar. */
-function _svFacturar(g,alTerminar){
+function _svFacturar(g){
   if(!g||!g.filas.length)return;
   const tot=Math.round(g.total);
   const m=_cfModalOpen('<div class="cf-mbox cf-mbox--form sv-invoice">'+
@@ -12237,7 +12236,7 @@ function _svFacturar(g,alTerminar){
     '</div>'+
     '<div class="cf-live sv-invoice__live" id="svfLive" aria-live="polite"></div>'+
     '<div class="sv-invoice__foot"><div class="sv-invoice__actions">'+
-      '<button type="button" class="cancel">Cancelar</button><button type="button" class="ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5 9.5 17 19 7"/></svg>Registrar e imprimir</button></div></div></div>');
+      '<button type="button" class="cancel">Cancelar</button><button type="button" class="ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5 9.5 17 19 7"/></svg>Registrar factura</button></div></div></div>');
 
   const nro=m.$('#svfNro'), mon=m.$('#svfMonto'), live=m.$('#svfLive'), fld=nro.closest('[data-fnro]');
   const pinta=function(){
@@ -12276,12 +12275,9 @@ function _svFacturar(g,alTerminar){
           gastoPermitido:r.gastoPermitido,diferencia:r.diferencia,zona:r.zona,clientes:r.clientes});
       }
       m.close();
-      if(alTerminar){ showToast('Factura registrada · preparando impresión'); alTerminar(); }
-      else{
-        if(typeof _cfCheckBurst==='function')_cfCheckBurst('Factura registrada',true);
-        else showToast('Factura registrada');
-        renderServicios();
-      }
+      if(typeof _cfCheckBurst==='function')_cfCheckBurst('Factura registrada',true);
+      else showToast('Factura registrada');
+      renderServicios();
     }catch(err){
       g.filas.forEach(function(x,i){ x.c.factNro=antes[i]; });
       console.error('[flete] no pude registrar la factura del grupo',err);
