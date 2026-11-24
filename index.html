@@ -12491,6 +12491,8 @@ function _cfPrint(r){
     ||null;
   /* Planilla de puros servicios: no hay camion, ni zona, ni km que mostrar. */
   const soloServ=lines.length>0&&lines.every(c=>(c.seg||'local')==='servicios');
+  const conServicios=!soloServ&&lines.some(c=>(c.seg||'local')==='servicios');
+  const nCols=soloServ?5:(conServicios?6:5);
   /* El periodo que se cargo a mano al registrar manda sobre la semana. */
   const perManual=(function(){
     const cp=lines.filter(function(c){return c.per_desde&&c.per_hasta;});
@@ -12505,12 +12507,13 @@ function _cfPrint(r){
     let sM=0,sF=0;
     const ddc=iso=>iso?String(iso).slice(0,10).split('-').reverse().join('/'):'—';
     /* Con un unico segmento, "REPARTO: X" y su subtotal repiten el total. */
-    if(!soloServ)body+='<tr class="grp"><td colspan="5">REPARTO: '+slbl+'</td></tr>';
+    if(!soloServ)body+='<tr class="grp"><td colspan="'+nCols+'">REPARTO: '+slbl+'</td></tr>';
     g.forEach(c=>{const fl=(c.precio||c.gasto)||0;sM+=c.monto||0;sF+=fl;
       const det=sk==='interior'?((+c.km>0)?(_kmFmt(+c.km)+' km × '+_gs(+c.precioKm||0)):'—'):sk==='servicios'?(c.obs?_escp(c.obs):'—'):'—';
-      if(soloServ)body+='<tr><td>'+ddc(c._fecha)+'</td><td>'+_escp(c.obs||'—')+'</td><td>'+_escp(c.almacen||'—')+'</td><td>'+_escp(c.detalle||'—')+'</td><td class="r">'+_gs(fl)+'</td></tr>';
+      if(soloServ)body+='<tr><td>'+ddc(c._fecha)+'</td><td>'+_escp(c.obs||c.zona||'—')+'</td><td>'+_escp(c.almacen||'—')+'</td><td>'+_escp(c.detalle||'—')+'</td><td class="r">'+_gs(fl)+'</td></tr>';
+      else if(conServicios){const esServicio=sk==='servicios',cam=esServicio?'—':(c.trDesc||'—'),zona=esServicio?(c.almacen||'—'):(c.zona||'—'),servicio=esServicio?(c.obs||c.zona||'—'):'—',detalle=esServicio?(c.detalle||'—'):det;body+='<tr><td>'+ddc(c._fecha)+'</td><td>'+_escp(cam)+'</td><td>'+_escp(zona)+'</td><td>'+_escp(servicio)+'</td><td>'+_escp(detalle)+'</td><td class="r">'+_gs(fl)+'</td></tr>';}
       else body+='<tr><td>'+ddc(c._fecha)+'</td><td>'+_escp(c.trDesc||'—')+'</td><td>'+_escp(c.zona||'—')+'</td><td>'+det+'</td><td class="r">'+_gs(fl)+'</td></tr>';});
-    if(!soloServ)body+='<tr class="sub"><td colspan="4">SUBTOTAL '+slbl+'</td><td class="r">'+_gs(sF)+'</td></tr>';
+    if(!soloServ)body+='<tr class="sub"><td colspan="'+(nCols-1)+'">SUBTOTAL '+slbl+'</td><td class="r">'+_gs(sF)+'</td></tr>';
     totM+=sM;totF+=sF;totN+=sk==='transportadora'?g.reduce((s,c)=>s+(+c.cant||1),0):g.length;totKm+=g.reduce((s,c)=>s+(+c.km||0),0);
   });
   const logoUrl=new URL('logo-alas-s.a.png',window.location.href).href;
@@ -12527,8 +12530,10 @@ function _cfPrint(r){
       meta('Factura Nº',f?_escp(f.nro||'—'):'—')+'</div>'+
     '<div class="rp-tbl"><table><thead>'+(soloServ
       ?'<tr><th>Fecha</th><th>Servicio</th><th>Almacén</th><th>Detalle</th><th class="r">Flete (Gs.)</th></tr>'
-      :'<tr><th>Fecha</th><th>Camión</th><th>Zona</th><th>Detalle</th><th class="r">Flete (Gs.)</th></tr>')+'</thead><tbody>'+body+
-    '<tr class="total"><td colspan="4">TOTAL GENERAL</td><td class="r">'+_gs(totF)+'</td></tr>'+
+      :conServicios
+        ?'<tr><th>Fecha</th><th>Camión</th><th>Zona / almacén</th><th>Servicio</th><th>Detalle</th><th class="r">Flete (Gs.)</th></tr>'
+        :'<tr><th>Fecha</th><th>Camión</th><th>Zona</th><th>Detalle</th><th class="r">Flete (Gs.)</th></tr>')+'</thead><tbody>'+body+
+    '<tr class="total"><td colspan="'+(nCols-1)+'">TOTAL GENERAL</td><td class="r">'+_gs(totF)+'</td></tr>'+
     '</tbody></table></div>'+
     '<div class="foot"><div class="firmas"><div class="firma"><div class="ln"></div><span>JEFE DE DISTRIBUCIÓN</span></div><div class="firma"><div class="ln"></div><span>JEFE DE LOGÍSTICA</span></div></div>'+
     '<div class="resumen"><h3>Resumen</h3><div class="rr"><span>'+(soloServ?'Servicios':'Camiones')+'</span><b>'+totN+'</b></div>'+(totKm>0?'<div class="rr"><span>Km total</span><b>'+_nnum(totKm)+' km</b></div>':'')+'<div class="rr"><span>Flete total</span><b>Gs. '+_nnum(totF)+'</b></div>'+(f?'<div class="rr" style="border-top:1px solid #dde6ef;margin-top:5px;padding-top:6px"><span>Monto factura</span><b>Gs. '+_nnum(f.monto)+'</b></div>':'')+'</div></div>';
