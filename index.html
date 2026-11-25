@@ -5824,7 +5824,7 @@ function _calDiaResumenHTML(list){
       :(c.zona?'<span class="rrd-chip">'+esc(c.zona)+'</span>':'<span class="rrd-mut">—</span>');
     const km=(sk==='interior'&&+c.km>0)?_nnum(+c.km)+' km × '+fmtGs(+c.precioKm||0):'<span class="rrd-mut">—</span>';
     const hasInc=sk!=='servicios'&&(+c.monto||0)>0&&fl>0,incLine=hasInc?fl/(+c.monto)*100:null;
-    const actions=seen.has(r.id)?'<span class="rrd-mut">—</span>':('<div class="cal-rep-actions"><button class="cal-rep-btn edit" type="button" data-editr="'+r.id+'" aria-label="Editar reparto"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="15" height="15"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828z"/></svg></button><button class="cal-rep-btn del" type="button" data-delr="'+r.id+'" title="Eliminar reparto">'+CAL_TRASH+'</button></div>');
+    const actions=seen.has(r.id)?'<span class="rrd-mut">—</span>':'<div class="cal-rep-actions"><button class="cal-rep-btn del" type="button" data-delr="'+r.id+'" title="Eliminar reparto">'+CAL_TRASH+'</button></div>';
     seen.add(r.id);
     return '<tr><td><span class="cal-day-tschip" title="'+esc(x.tsName)+'"><span class="cal-day-tschip__ic">'+tsIcon+'</span><span class="cal-day-tschip__name">'+esc(x.tsName)+'</span></span></td><td class="rrd-cam">'+vehicle+'</td><td><span class="rrd-segtag rrd-segtag--'+sk+'">'+LABEL[sk]+'</span></td><td>'+person+'</td><td class="rrd-grow">'+zone+'</td>'+(hasKm?'<td class="r">'+km+'</td>':'')+'<td class="r">'+fmtGs(c.monto||0)+'</td><td class="r rrd-flete">'+fmtGs(fl)+'</td><td class="r crt-inc '+(hasInc?(incLine<3?'ok':'over'):'')+'">'+(hasInc?incLine.toFixed(2)+'%':'—')+'</td><td>'+actions+'</td></tr>';
   }).join('');
