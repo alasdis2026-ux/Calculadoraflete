@@ -831,6 +831,14 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .clients-hd__r{justify-content:flex-end}
 .clients-hd__kbd{display:flex;align-items:center;justify-content:flex-end;gap:6px;color:var(--gray-400);font-size:10.5px;font-weight:700;white-space:nowrap}
 .clients-hd__kbd kbd{padding:2px 5px;border:1px solid var(--gray-200);border-bottom-width:2px;border-radius:5px;background:#fff;color:var(--gray-500);font:inherit;font-size:10px}
+.calc-draft-status{display:flex;align-items:center;gap:7px;padding:6px 10px;border:1px solid #bfdbfe;border-radius:999px;background:#eff6ff;color:#0b5f8d;font-size:10.5px;font-weight:800;white-space:nowrap}
+.calc-draft-status::before{content:"";width:7px;height:7px;border-radius:50%;background:#16a34a;box-shadow:0 0 0 3px rgba(22,163,74,.12);flex-shrink:0}
+.calc-draft-status.is-saving::before{background:#f59e0b;box-shadow:0 0 0 3px rgba(245,158,11,.14);animation:draftPulse 1s ease-in-out infinite}
+.calc-draft-status.is-error{border-color:#fecaca;background:#fef2f2;color:#b91c1c}
+.calc-draft-status.is-error::before{background:#dc2626;box-shadow:0 0 0 3px rgba(220,38,38,.12);animation:none}
+.calc-draft-status[hidden]{display:none}
+.clients-hd.has-local-draft .clients-hd__kbd{display:none}
+@keyframes draftPulse{50%{opacity:.45;transform:scale(.8)}}
 .clients-hd .qadd{flex:0 1 620px;margin:0}
 .qadd{position:relative;flex-shrink:0;width:100%;max-width:620px;margin:0;display:flex;align-items:center}
 .qadd__ic{position:absolute;left:16px;width:19px;height:19px;color:var(--primary);opacity:.55;pointer-events:none;transition:opacity .2s ease,transform .25s cubic-bezier(.2,.8,.2,1)}
@@ -1887,6 +1895,7 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
           <div class="qadd__pop" id="qAddPop" hidden></div>
         </div>
         <div class="clients-hd__r">
+          <span id="calcDraftStatus" class="calc-draft-status" role="status" aria-live="polite" title="Borrador guardado en este navegador. Todavía debes usar Guardar registro para enviarlo a la base de datos." hidden></span>
           <span class="clients-hd__kbd" aria-label="Navegación por teclado: Tab cambia de campo, flechas arriba y abajo cambian de fila, flechas izquierda y derecha recorren botones, Enter avanza al siguiente registro">
             <kbd>Tab</kbd> campo <kbd>↑ ↓</kbd> fila <kbd>← →</kbd> botones <kbd>Enter</kbd> bajar
           </span>
@@ -2444,6 +2453,78 @@ SEED.forEach(ts=>ts.trucks.forEach(tr=>{if(!tr.precio)tr.precio=0;if(!tr.tipo)tr
 let transportistas=[],repartos=[],search='',selectedTsId=null,pendingTsId=null,editingClienteId=null;
 let currentReparto={id:null,tsId:null,trId:null,km:0,zona:'',fecha:'',precio:0,clientes:[]};
 let nextRepartoId=1,nextClienteId=1,nextTsId=5000,nextTrId=9000;
+let _cfDraftKey=null,_cfDraftTimer=0,_cfDraftEnabled=false;
+const _CF_DRAFT_PREFIX='alas:calc-flete:draft:v1:';
+function _cfDraftKeyFor(user){
+  const identity=String(user&&(user.userId||user.email||user.name)||'').trim().toLowerCase();
+  return identity?_CF_DRAFT_PREFIX+encodeURIComponent(identity):null;
+}
+function _cfDraftStatus(message,kind){
+  const el=document.getElementById('calcDraftStatus');
+  const hd=el&&el.closest('.clients-hd');
+  if(!el)return;
+  el.textContent=message||'';
+  el.hidden=!message;
+  el.classList.toggle('is-saving',kind==='saving');
+  el.classList.toggle('is-error',kind==='error');
+  if(hd)hd.classList.toggle('has-local-draft',!!message);
+}
+function _cfDraftSchedule(){
+  if(!_cfDraftKey)return;
+  if(currentReparto.id==null&&!(currentReparto.clientes||[]).length){
+    if(_cfDraftEnabled)_cfDraftClear();
+    return;
+  }
+  _cfDraftEnabled=true;
+  clearTimeout(_cfDraftTimer);
+  _cfDraftStatus('Guardando borrador…','saving');
+  _cfDraftTimer=setTimeout(_cfDraftWrite,180);
+}
+function _cfDraftWrite(){
+  clearTimeout(_cfDraftTimer);_cfDraftTimer=0;
+  if(!_cfDraftKey||!_cfDraftEnabled)return;
+  try{
+    const payload={version:1,savedAt:Date.now(),reparto:JSON.parse(JSON.stringify(currentReparto))};
+    localStorage.setItem(_cfDraftKey,JSON.stringify(payload));
+    const time=new Date(payload.savedAt).toLocaleTimeString('es-PY',{hour:'2-digit',minute:'2-digit'});
+    _cfDraftStatus('Borrador local · '+time,'saved');
+  }catch(err){
+    console.warn('[borrador local] no pude guardar en este navegador',err);
+    _cfDraftStatus('No se pudo guardar el borrador local','error');
+  }
+}
+function _cfDraftFlush(){if(_cfDraftTimer||_cfDraftEnabled)_cfDraftWrite();}
+function _cfDraftClear(){
+  clearTimeout(_cfDraftTimer);_cfDraftTimer=0;_cfDraftEnabled=false;
+  try{if(_cfDraftKey)localStorage.removeItem(_cfDraftKey);}catch(err){console.warn('[borrador local] no pude limpiar el borrador',err);}
+  _cfDraftStatus('','');
+}
+function _cfDraftRestore(user){
+  _cfDraftKey=_cfDraftKeyFor(user);
+  if(!_cfDraftKey)return false;
+  let saved;
+  try{saved=JSON.parse(localStorage.getItem(_cfDraftKey)||'null');}
+  catch(err){console.warn('[borrador local] borrador inválido',err);try{localStorage.removeItem(_cfDraftKey);}catch(_){}return false;}
+  const draft=saved&&saved.version===1&&saved.reparto&&Array.isArray(saved.reparto.clientes)?saved.reparto:null;
+  if(!draft)return false;
+  currentReparto={...draft,clientes:draft.clientes.map((cl,i)=>({...cl,id:cl.id!=null&&Number.isFinite(+cl.id)?+cl.id:i+1}))};
+  const maxCid=currentReparto.clientes.reduce((m,cl)=>Math.max(m,+cl.id||0),0);
+  nextClienteId=Math.max(nextClienteId,maxCid+1);
+  const dateInput=document.getElementById('inpFecha');
+  if(dateInput){dateInput.value=currentReparto.fecha||todayISO();document.getElementById('selFechaGroup').classList.toggle('is-set',!!dateInput.value);}
+  if(currentReparto.id!=null){
+    document.getElementById('editChip').style.display='';
+    document.getElementById('btnNewReparto').style.display='';
+    document.getElementById('editChipText').textContent='Reparto #'+String(currentReparto.id).padStart(4,'0')+' — '+(currentReparto.fecha||'Borrador');
+  }
+  _cfDraftEnabled=true;
+  const when=Number(saved.savedAt)||0;
+  const time=when?new Date(when).toLocaleTimeString('es-PY',{hour:'2-digit',minute:'2-digit'}):'';
+  _cfDraftStatus('Borrador recuperado'+(time?' · '+time:''),'saved');
+  return true;
+}
+window.addEventListener('pagehide',_cfDraftFlush);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')_cfDraftFlush();});
 let _repartidores=[]; // nombres de repartidores (tabla repartidores)
 // Lista base de repartidores (fallback si la tabla `repartidores` está vacía)
 const REPARTIDORES_DEFAULT=['Adilson Galeano','Alberto Britez','Alejandro Alvarenga','Alexis Gimenez','Amilcar Garcia','Angel Denis','Angel Zorrilla','Axel Mendieta','Candido Diaz','Carlos Barreto','Carlos Galeano','Carlos Penayo','Celso Gamarra','Cristhian Santa cruz','Cristhofer Castillo','Cristian Santacruz','Denis Gonzalez','Enrrique Arza','Enzo Rufineli','Eugenio Villar','Francisco del Puerto','Francisco Rivas','Guillermo Mencia','Gustavo Benitez','Jesus Escobar','Joel Benitez','Jorge Estigarribia','Jose Segovia','Juan Balmori','Julio Velilla','Lisandro Lopez','Lucas Maqueda','Maicol Benitez','Manuel Martinez','Marcos Aveiro','Nahuel Castillo','Nestor Miranda','Pedro Riveros','Reinaldo Ferreira','Sebastian Baez','Sergio Aguilera','Tercerizado','Tomas Bernal','Tomas Quiñonez'];
@@ -2514,7 +2595,7 @@ function _abrirZonas(btn,obj,onDone,opts){
     multi:true,
     hint:'Local puede cubrir varias zonas',
     value:()=>_zonasDe(obj),
-    onToggle:v=>{ const z=_zonasDe(obj), i=z.indexOf(v); if(i>=0)z.splice(i,1); else z.push(v); _setZonas(obj,z,seg); onDone(true); },
+    onToggle:v=>{ const z=_zonasDe(obj), i=z.indexOf(v); if(i>=0)z.splice(i,1); else z.push(v); _setZonas(obj,z,seg); _cfDraftSchedule(); onDone(true); },
     onClose:()=>onDone(false)
   }));
 }
@@ -3040,6 +3121,7 @@ function updateSelIcons(){}  // los selectores de arriba ya no existen
 document.getElementById('inpFecha').addEventListener('change',e=>{
   currentReparto.fecha=e.target.value;
   document.getElementById('selFechaGroup').classList.toggle('is-set',!!e.target.value);
+  _cfDraftSchedule();
 });
 
 document.getElementById('btnLimpiarClientes').addEventListener('click',()=>{
@@ -3088,7 +3170,7 @@ function renderClientesTable(){
     `<th class="r" style="width:166px">Precio flete</th>`+
     `<th class="r" style="width:108px">Incidencia</th>`+
     `<th style="width:44px"></th>`;
-  if(!c.clientes.length){tbody.innerHTML='';tfoot.style.display='none';empty.style.display='';return;}
+  if(!c.clientes.length){tbody.innerHTML='';tfoot.style.display='none';empty.style.display='';_cfDraftSchedule();return;}
   empty.style.display='none';tfoot.style.display='';
   tbody.innerHTML=c.clientes.map((cl,i)=>{
     const incClass=cl.inc===null?'na':cl.inc<5?'good':cl.inc<10?'warn':'bad';
@@ -3125,6 +3207,7 @@ function renderClientesTable(){
     <td class="val r" data-col="tot-inc">${c.incTotal!==null?fmtPct(c.incTotal):'—'}</td>
     <td></td>
   </tr>`;
+  _cfDraftSchedule();
 }
 
 /* Navegación de la planilla: Tab recorre las celdas, flechas cambian de fila
@@ -3529,6 +3612,7 @@ document.getElementById('clientesTbody').addEventListener('input',e=>{
     if(isMonto)cl.monto=val; else if(isPrecio)cl.precio=val; else cl.peso=val;
     if(isPeso){const tp=currentReparto.clientes.reduce((s,x)=>s+(+x.peso||0),0);const el=document.querySelector('[data-col="tot-peso"]');if(el)el.textContent=tp>0?formatMoney(tp)+' kg':'—';}
     else{const comp=computeReparto();_updateCalcCells(comp);updateResultCard();updateEstimador(comp);}
+    _cfDraftSchedule();
   }
 });
 
@@ -4182,6 +4266,7 @@ document.getElementById('btnGuardar').addEventListener('click',async()=>{
         renderCalendar();
       }
     }
+    _cfDraftClear();
     _cfCheckBurst(recoveredAsNew?'Guardada como nueva':isNew?'Reparto agregado':'Reparto actualizado',true);
   }catch(err){
     console.error('[guardar reparto]',err);showToast(err&&err.message?err.message:'Error al guardar reparto');
@@ -4191,6 +4276,7 @@ document.getElementById('btnGuardar').addEventListener('click',async()=>{
 });
 
 function clearCurrentReparto(){
+  _cfDraftClear();
   currentReparto={id:null,fecha:todayISO(),clientes:[]};
   const inpF=document.getElementById('inpFecha');
   if(inpF){inpF.value=todayISO();document.getElementById('selFechaGroup').classList.add('is-set');}
@@ -4217,6 +4303,7 @@ function loadForEdit(id){
   document.getElementById('btnNewReparto').style.display='';
   document.getElementById('editChipText').textContent='Reparto #'+r.id.toString().padStart(4,'0')+' — '+r.fecha;
   updateFleteInfo();
+  _cfDraftSchedule();
 }
 
 /* ════════ VIEW 2 — TRANSPORTISTAS ══════════════════ */
@@ -5955,9 +6042,11 @@ async function initApp(){
     if(window.ALASTransition)window.ALASTransition.exitToLauncher(url);
     else window.location.replace(url);
   });
+  // Recuperar la carga local de esta persona antes de dibujar la calculadora.
+  const _draftRestored=_cfDraftRestore(ssoUser);
   // Fecha por defecto: hoy
   const _inpF=document.getElementById('inpFecha');
-  if(_inpF){_inpF.value=todayISO();currentReparto.fecha=todayISO();document.getElementById('selFechaGroup').classList.add('is-set');}
+  if(_inpF&&!_draftRestored){_inpF.value=todayISO();currentReparto.fecha=todayISO();document.getElementById('selFechaGroup').classList.add('is-set');}
   renderClientesTable();
   updateResultCard();
   // Calentamos los datos de los apartados en segundo plano. Si el usuario los
