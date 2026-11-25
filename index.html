@@ -825,9 +825,12 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 #clientesTable th,#clientesTable td{white-space:nowrap}
 #clientesTable .row-truck__lbl,#clientesTable .cl-chip__lbl{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #clientesTable .cl-chip{min-width:0;max-width:100%}
+#clientesTable :is(.row-truck,.cl-chip,.cl-peso-inp,.cl-money-inp,.cl-precio-inp,.del-cl-btn):focus-visible{outline:3px solid rgba(37,120,184,.4);outline-offset:2px;position:relative;z-index:1}
 /* ── Carga rápida de camiones ── */
 .clients-hd__l,.clients-hd__r{flex:1 1 0;min-width:0;display:flex;align-items:center;gap:10px}
 .clients-hd__r{justify-content:flex-end}
+.clients-hd__kbd{display:flex;align-items:center;justify-content:flex-end;gap:6px;color:var(--gray-400);font-size:10.5px;font-weight:700;white-space:nowrap}
+.clients-hd__kbd kbd{padding:2px 5px;border:1px solid var(--gray-200);border-bottom-width:2px;border-radius:5px;background:#fff;color:var(--gray-500);font:inherit;font-size:10px}
 .clients-hd .qadd{flex:0 1 620px;margin:0}
 .qadd{position:relative;flex-shrink:0;width:100%;max-width:620px;margin:0;display:flex;align-items:center}
 .qadd__ic{position:absolute;left:16px;width:19px;height:19px;color:var(--primary);opacity:.55;pointer-events:none;transition:opacity .2s ease,transform .25s cubic-bezier(.2,.8,.2,1)}
@@ -873,6 +876,7 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .qadd__new:hover{background:#eaf3fb}
 .qadd__empty{padding:26px 12px}
 @media(max-width:720px){.qadd__keys{display:none}.qadd input{padding-right:14px}}
+@media(max-width:1050px){.clients-hd__kbd{display:none}}
 .clients-hd h3{font-size:15px;font-weight:800;color:var(--gray-700)}
 .cnt-badge{padding:3px 11px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-size:12px;font-weight:800}
 .incid-col{font-variant-numeric:tabular-nums;font-weight:800;font-size:16px;text-align:right}
@@ -1882,7 +1886,11 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
           <span class="qadd__keys"><kbd>↑↓</kbd><kbd>Enter</kbd></span>
           <div class="qadd__pop" id="qAddPop" hidden></div>
         </div>
-        <div class="clients-hd__r"></div>
+        <div class="clients-hd__r">
+          <span class="clients-hd__kbd" aria-label="Navegación por teclado: Tab cambia de campo, flechas arriba y abajo cambian de fila, flechas izquierda y derecha recorren botones, Enter avanza al siguiente registro">
+            <kbd>Tab</kbd> campo <kbd>↑ ↓</kbd> fila <kbd>← →</kbd> botones <kbd>Enter</kbd> bajar
+          </span>
+        </div>
       </div>
 
       <div class="table-wrap">
@@ -2372,7 +2380,7 @@ async function dbSaveReparto(snap){
   if(snap.id!=null){
     const{data,error}=await sb.from('repartos').update(row).eq('id',snap.id).select('id');
     if(error)throw error;
-    if(!data||!data.length)throw new Error('El reparto no existe o no hay permiso para actualizarlo. Recargá los datos e intentá de nuevo.');
+    if(!data||!data.length){const err=new Error('La planilla que estabas editando ya no existe.');err.code='REPARTO_NOT_FOUND';throw err;}
     return data[0].id;
   }else{
     const{data,error}=await sb.from('repartos').insert(row).select('id').single();
@@ -2493,7 +2501,7 @@ function _setZonas(o,arr,seg){
 function _abrirZonas(btn,obj,onDone,opts){
   opts=opts||{};
   const seg=opts.seg||obj.seg||'local';
-  const base={ search:true, addLabel:opts.addLabel, onAdd:opts.onAdd, onDelete:opts.onDelete,
+  const base={ search:true, keyboard:!!opts.keyboard, addLabel:opts.addLabel, onAdd:opts.onAdd, onDelete:opts.onDelete,
     options:()=>_zonasFor(seg).map(z=>({v:z.n,label:z.n,del:opts.del!==false})) };
   if(!_multiZona(seg)){
     openChipPop(btn,Object.assign({},base,{
@@ -3087,26 +3095,26 @@ function renderClientesTable(){
     return`<tr data-clid="${cl.id}">
       <td class="idx">${i+1}</td>
       <td style="padding:6px 10px">
-        <button type="button" class="row-truck${cl.trId?' is-set':''}" data-clid="${cl.id}" title="${cl.trDesc?esc(cl.trDesc):'Elegir camión'}">
+        <button type="button" class="row-truck${cl.trId?' is-set':''}" data-clid="${cl.id}" title="${cl.trDesc?esc(cl.trDesc):'Elegir camión'}" aria-label="Camión, fila ${i+1}: ${cl.trDesc?esc(cl.trDesc):'elegir camión'}">
           <span class="row-truck__ico">${getTrIco(cl.trDesc||'',16)}</span>
           <span class="row-truck__lbl">${cl.trDesc?esc(cl.trDesc):'Elegir camión'}</span>
           <span class="row-truck__arr"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14"><path d="M6 9l6 6 6-6"/></svg></span>
         </button>
       </td>
       <td style="padding:6px 8px">
-        <button type="button" class="cl-chip cl-segbtn" data-clid="${cl.id}"><span class="cl-chip__dot seg-${cl.seg||'local'}"></span><span class="cl-chip__lbl">${({local:'Local',interior:'Interior',servicios:'Servicios',transportadora:'Transportadora'}[cl.seg||'local'])}</span><svg class="cl-chip__arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg></button>
+        <button type="button" class="cl-chip cl-segbtn" data-clid="${cl.id}" aria-label="Segmento, fila ${i+1}"><span class="cl-chip__dot seg-${cl.seg||'local'}"></span><span class="cl-chip__lbl">${({local:'Local',interior:'Interior',servicios:'Servicios',transportadora:'Transportadora'}[cl.seg||'local'])}</span><svg class="cl-chip__arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg></button>
       </td>
       <td style="padding:6px 8px">
-        <button type="button" class="cl-chip cl-repbtn" data-clid="${cl.id}"><span class="cl-chip__lbl${cl.rep?'':' ph'}">${cl.rep?esc(cl.rep):'— Repartidor —'}</span><svg class="cl-chip__arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg></button>
+        <button type="button" class="cl-chip cl-repbtn" data-clid="${cl.id}" aria-label="Repartidor, fila ${i+1}"><span class="cl-chip__lbl${cl.rep?'':' ph'}">${cl.rep?esc(cl.rep):'— Repartidor —'}</span><svg class="cl-chip__arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg></button>
       </td>
       <td style="padding:6px 8px">
-        <button type="button" class="cl-chip cl-zonabtn" data-clid="${cl.id}" title="${esc(_zonaTxt(cl))}"><span class="cl-chip__lbl${_zonaChip(cl)?'':' ph'}">${_zonaChip(cl)?esc(_zonaChip(cl)):'— Zona —'}</span><svg class="cl-chip__arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg></button>
+        <button type="button" class="cl-chip cl-zonabtn" data-clid="${cl.id}" title="${esc(_zonaTxt(cl))}" aria-label="Zona, fila ${i+1}"><span class="cl-chip__lbl${_zonaChip(cl)?'':' ph'}">${_zonaChip(cl)?esc(_zonaChip(cl)):'— Zona —'}</span><svg class="cl-chip__arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg></button>
       </td>
-      <td style="padding:6px 10px;text-align:right"><input class="cl-peso-inp" type="text" value="${cl.peso>0?formatMoney(cl.peso):''}" placeholder="0" data-clid="${cl.id}" inputmode="numeric"></td>
-      <td style="padding:6px 10px;text-align:right"><input class="cl-money-inp" type="text" value="${cl.monto>0?formatMoney(cl.monto):''}" placeholder="0" data-clid="${cl.id}" inputmode="numeric"></td>
-      <td style="padding:6px 10px;text-align:right"><input class="cl-precio-inp" type="text" value="${cl.precio>0?formatMoney(cl.precio):''}" placeholder="0" data-clid="${cl.id}" inputmode="numeric"></td>
+      <td style="padding:6px 10px;text-align:right"><input class="cl-peso-inp" type="text" value="${cl.peso>0?formatMoney(cl.peso):''}" placeholder="0" data-clid="${cl.id}" inputmode="numeric" aria-label="Peso en kg, fila ${i+1}"></td>
+      <td style="padding:6px 10px;text-align:right"><input class="cl-money-inp" type="text" value="${cl.monto>0?formatMoney(cl.monto):''}" placeholder="0" data-clid="${cl.id}" inputmode="numeric" aria-label="Monto, fila ${i+1}"></td>
+      <td style="padding:6px 10px;text-align:right"><input class="cl-precio-inp" type="text" value="${cl.precio>0?formatMoney(cl.precio):''}" placeholder="0" data-clid="${cl.id}" inputmode="numeric" aria-label="Precio del flete, fila ${i+1}"></td>
       <td class="r incid-col ${incClass}" data-col="incid">${cl.inc!==null?fmtPct(cl.inc):'—'}</td>
-      <td style="padding:6px 8px;text-align:center"><button class="del-cl-btn" type="button" data-delcl="${cl.id}"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg></button></td>
+      <td style="padding:6px 8px;text-align:center"><button class="del-cl-btn" type="button" data-delcl="${cl.id}" aria-label="Quitar camión de la fila ${i+1}"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg></button></td>
     </tr>`;
   }).join('');
   tfoot.innerHTML=`<tr>
@@ -3118,6 +3126,54 @@ function renderClientesTable(){
     <td></td>
   </tr>`;
 }
+
+/* Navegación de la planilla: Tab recorre las celdas, flechas cambian de fila
+   en la misma columna y Enter avanza verticalmente en los campos numéricos. */
+const _calcGridControls='.row-truck,.cl-segbtn,.cl-repbtn,.cl-zonabtn,.cl-peso-inp,.cl-money-inp,.cl-precio-inp,.del-cl-btn';
+function _calcFocusAfter(clId,selector){
+  requestAnimationFrame(()=>{
+    const row=document.querySelector('#clientesTbody tr[data-clid="'+clId+'"]');
+    const el=row&&row.querySelector(selector);
+    if(!el)return;
+    try{el.focus({preventScroll:true});}catch(_){el.focus();}
+    try{el.scrollIntoView({block:'nearest',inline:'nearest'});}catch(_){}
+  });
+}
+document.getElementById('clientesTbody').addEventListener('keydown',e=>{
+  if(e.defaultPrevented||e.altKey||e.ctrlKey||e.metaKey)return;
+  const el=e.target.closest(_calcGridControls);
+  if(!el)return;
+  const row=el.closest('tr[data-clid]');
+  if(!row)return;
+  const rows=Array.from(document.querySelectorAll('#clientesTbody tr[data-clid]'));
+  const rowIndex=rows.indexOf(row);
+  const controlClass=Array.from(el.classList).find(c=>[
+    'row-truck','cl-segbtn','cl-repbtn','cl-zonabtn','cl-peso-inp','cl-money-inp','cl-precio-inp','del-cl-btn'
+  ].includes(c));
+  if(!controlClass)return;
+  const selector='.'+controlClass;
+  if(e.key==='ArrowUp'||e.key==='ArrowDown'){
+    const next=rows[rowIndex+(e.key==='ArrowDown'?1:-1)];
+    const target=next&&next.querySelector(selector);
+    if(target){e.preventDefault();target.focus();target.scrollIntoView({block:'nearest',inline:'nearest'});}
+    return;
+  }
+  if(e.key==='Enter'&&el.matches('.cl-peso-inp,.cl-money-inp,.cl-precio-inp')){
+    e.preventDefault();
+    const next=rows[rowIndex+(e.shiftKey?-1:1)];
+    const target=next&&next.querySelector(selector);
+    if(target){target.focus();target.scrollIntoView({block:'nearest',inline:'nearest'});}
+    return;
+  }
+  // En botones, izquierda/derecha recorren los campos de la fila. En inputs
+  // esas teclas quedan libres para mover el cursor dentro del número.
+  if((e.key==='ArrowLeft'||e.key==='ArrowRight')&&el.tagName==='BUTTON'){
+    const controls=Array.from(row.querySelectorAll(_calcGridControls));
+    const index=controls.indexOf(el);
+    const target=controls[index+(e.key==='ArrowRight'?1:-1)];
+    if(target){e.preventDefault();target.focus();}
+  }
+});
 
 /* Update blue result card */
 const CLIENT_COLORS=['#3B82F6','#10B981','#F59E0B','#8B5CF6','#EC4899','#06B6D4','#F97316','#6366F1'];
@@ -3251,8 +3307,13 @@ function ensureTruckPop(){
     }else if(e.key==='Enter'){
       e.preventDefault();
       const x=_tpList[_tpIdx];
-      if(x)_tpPick(x.tr.id,x.ts.id);
-    }else if(e.key==='Escape'){e.preventDefault();e.stopPropagation();closeTruckPop();}
+      if(x)_tpPick(x.tr.id,x.ts.id,true);
+    }else if(e.key==='Escape'){
+      e.preventDefault();e.stopPropagation();
+      const clId=_truckPopCl&&_truckPopCl.id;
+      closeTruckPop();
+      if(clId!=null)_calcFocusAfter(clId,'.row-truck');
+    }
   }
   document.addEventListener('keydown',_tpKeys,true);
   p.querySelector('.truck-pop__add').addEventListener('click',openNCModal);
@@ -3364,10 +3425,12 @@ function renderTruckPopList(q){
   if(kb)try{kb.scrollIntoView({block:'nearest'});}catch(_){}
 }
 // Elegir un camión de la lista (lo usan el clic y el Enter).
-function _tpPick(trId,tsId){
+function _tpPick(trId,tsId,keyboard){
   if(!_truckPopCl)return;
+  const clId=_truckPopCl.id;
   _truckPopCl.trId=+trId;_truckPopCl.tsId=+tsId;_truckPopCl.seg=_truckSeg(+trId);
   closeTruckPop();renderClientesTable();updateResultCard();
+  if(keyboard)_calcFocusAfter(clId,'.cl-segbtn');
 }
 function _tpDel(trId,tsId){
   const p=_truckPop;
@@ -3476,6 +3539,30 @@ function _ensureChipPop(){
   const p=document.createElement('div');p.className='chip-pop';
   p.innerHTML='<div class="chip-pop__search" style="display:none"><input type="text" placeholder="Buscar…" autocomplete="off"></div><div class="chip-pop__list"></div>';
   document.body.appendChild(p);_chipPop=p;
+  p.addEventListener('keydown',e=>{
+    if(!_chipAnchor||!_chipAnchor.closest('#clientesTbody'))return;
+    if(e.key==='Escape'){
+      e.preventDefault();e.stopPropagation();
+      const anchor=_chipAnchor,clId=anchor.dataset.clid;
+      const selector=Array.from(anchor.classList).find(c=>['cl-segbtn','cl-repbtn','cl-zonabtn'].includes(c));
+      _closeChipPop();
+      if(anchor.isConnected)anchor.focus();else if(clId&&selector)_calcFocusAfter(clId,'.'+selector);
+      return;
+    }
+    const list=p.querySelector('.chip-pop__list');
+    const items=Array.from(list.querySelectorAll('.chip-pop__item,.chip-pop__done'));
+    const search=p.querySelector('.chip-pop__search input');
+    if(e.key==='ArrowDown'||e.key==='ArrowUp'){
+      if(!items.length)return;
+      e.preventDefault();e.stopPropagation();
+      const current=items.indexOf(document.activeElement);
+      const next=current<0?(e.key==='ArrowDown'?0:items.length-1):Math.max(0,Math.min(items.length-1,current+(e.key==='ArrowDown'?1:-1)));
+      items[next].focus();
+    }else if(e.key==='Enter'&&document.activeElement===search){
+      const first=list.querySelector('.chip-pop__item:not(.chip-pop__add)');
+      if(first){e.preventDefault();e.stopPropagation();first.click();}
+    }
+  });
   document.addEventListener('click',e=>{if(_chipPop&&_chipPop.classList.contains('open')&&!_chipPop.contains(e.target)&&!(_chipAnchor&&_chipAnchor.contains(e.target)))_closeChipPop();});
   window.addEventListener('scroll',(ev)=>{if(!_chipPop||!_chipPop.classList.contains('open'))return;if(_chipPop.contains(ev.target))return;if(_chipAnchor&&document.body.contains(_chipAnchor))_positionChipPop();else _closeChipPop();},true);
   window.addEventListener('resize',()=>{if(_chipPop&&_chipPop.classList.contains('open'))_closeChipPop();});
@@ -3529,7 +3616,11 @@ function openChipPop(anchor,opts){
       // lo toma como afuera y cierra el desplegable.
       if(esMulti){ ev.stopPropagation(); opts.onToggle&&opts.onToggle(v);
         const vs=valor()||[]; b.classList.toggle('on',vs.indexOf(v)>=0); return; }
+      const calcRow=anchor.closest('#clientesTbody tr[data-clid]');
+      const calcId=calcRow&&calcRow.dataset.clid;
+      const nextSelector=anchor.classList.contains('cl-segbtn')?'.cl-repbtn':anchor.classList.contains('cl-repbtn')?'.cl-zonabtn':anchor.classList.contains('cl-zonabtn')?'.cl-peso-inp':null;
       _closeChipPop();opts.onPick&&opts.onPick(v);
+      if(opts.keyboard&&calcId&&nextSelector)_calcFocusAfter(calcId,nextSelector);
     }));
     const dn=list.querySelector('[data-done]');if(dn)dn.addEventListener('click',()=>_closeChipPop());
     const addb=list.querySelector('[data-add]');if(addb)addb.addEventListener('click',()=>{const q2=(searchInp.value||'').trim();_closeChipPop();opts.onAdd&&opts.onAdd(q2);});
@@ -3541,23 +3632,24 @@ function openChipPop(anchor,opts){
   const up=_positionChipPop();
   p.classList.add('open');
   if(window.gsap)gsap.fromTo(p,{opacity:0,y:up?8:-8,scale:.97},{opacity:1,y:0,scale:1,duration:.24,ease:'back.out(1.6)',clearProps:'transform'});
-  if(opts.search)setTimeout(()=>searchInp.focus(),40);
+  if(opts.search){if(opts.keyboard&&anchor.closest('#clientesTbody'))searchInp.focus();else setTimeout(()=>searchInp.focus(),40);}
+  else if(opts.keyboard&&anchor.closest('#clientesTbody')){const selected=list.querySelector('.chip-pop__item.on')||list.querySelector('.chip-pop__item:not(.chip-pop__add)')||list.querySelector('.chip-pop__done');if(selected)selected.focus();}
 }
 /* Clic en los chips de Segmento / Repartidor → abre el popover */
 document.getElementById('clientesTbody').addEventListener('click',e=>{
   const segb=e.target.closest('.cl-segbtn');
   if(segb){const cl=currentReparto.clientes.find(c=>c.id===+segb.dataset.clid);if(!cl)return;
-    openChipPop(segb,{value:cl.seg||'local',options:[{v:'local',label:'Local',dot:'#0B5F8D'},{v:'interior',label:'Interior',dot:'#F97316'},{v:'servicios',label:'Servicios',dot:'#10B981'},{v:'transportadora',label:'Transportadora',dot:'#7c3aed'}],onPick:v=>{cl.seg=v;_setZonas(cl,_zonasDe(cl).filter(z=>_zonasFor(v).some(x=>x.n===z)),v);renderClientesTable();}});return;}
+    openChipPop(segb,{keyboard:e.detail===0,value:cl.seg||'local',options:[{v:'local',label:'Local',dot:'#0B5F8D'},{v:'interior',label:'Interior',dot:'#F97316'},{v:'servicios',label:'Servicios',dot:'#10B981'},{v:'transportadora',label:'Transportadora',dot:'#7c3aed'}],onPick:v=>{cl.seg=v;_setZonas(cl,_zonasDe(cl).filter(z=>_zonasFor(v).some(x=>x.n===z)),v);renderClientesTable();}});return;}
   const repb=e.target.closest('.cl-repbtn');
   if(repb){const cl=currentReparto.clientes.find(c=>c.id===+repb.dataset.clid);if(!cl)return;
-    openChipPop(repb,{value:cl.rep||'',search:true,addLabel:'Agregar repartidor nuevo',options:_repartidores.map(n=>({v:n,label:n})),onPick:v=>{cl.rep=v;renderClientesTable();},onAdd:()=>_openAddRepartidor(name=>{cl.rep=name;renderClientesTable();})});return;}
+    openChipPop(repb,{keyboard:e.detail===0,value:cl.rep||'',search:true,addLabel:'Agregar repartidor nuevo',options:_repartidores.map(n=>({v:n,label:n})),onPick:v=>{cl.rep=v;renderClientesTable();},onAdd:()=>_openAddRepartidor(name=>{cl.rep=name;renderClientesTable();})});return;}
   const zonb=e.target.closest('.cl-zonabtn');
   if(zonb){const cl=currentReparto.clientes.find(c=>c.id===+zonb.dataset.clid);if(!cl)return;
     _abrirZonas(zonb,cl,function(enVivo){
       if(enVivo){ const l=zonb.querySelector('.cl-chip__lbl'); const t=_zonaChip(cl);
         if(l){ l.textContent=t||'— Zona —'; l.classList.toggle('ph',!t); } return; }
       renderClientesTable();
-    },{del:false});return;}
+    },{del:false,keyboard:e.detail===0});return;}
 });
 
 // Modal para agregar un repartidor nuevo a la tabla `repartidores`
@@ -4054,9 +4146,24 @@ document.getElementById('btnGuardar').addEventListener('click',async()=>{
   const _gbOrig=_gb?_gb.innerHTML:'';
   if(_gb){_gb.dataset.saving='1';_gb.disabled=true;_gb.classList.add('is-loading');_gb.innerHTML='<span class="cf-spin"></span> Guardando…';}
   try{
-    const savedId=await dbSaveReparto(snap);
+    let savedId,recoveredAsNew=false;
+    try{savedId=await dbSaveReparto(snap);}
+    catch(err){
+      if(!err||err.code!=='REPARTO_NOT_FOUND')throw err;
+      const staleId=snap.id;
+      const{data:stillExists,error:checkError}=await sb.from('repartos').select('id').eq('id',staleId).maybeSingle();
+      if(checkError)throw checkError;
+      if(stillExists)throw new Error('La planilla sigue en la base, pero no se pudo actualizar. Revisá los permisos de actualización.');
+      // Otro usuario pudo borrar la planilla mientras esta pantalla seguía abierta.
+      // Recuperamos la carga como una planilla nueva y no heredamos facturas viejas.
+      snap.id=null;
+      snap.clientes=snap.clientes.map(cl=>({...cl,factura_id:null,factura_excluida:true}));
+      savedId=await dbSaveReparto(snap);
+      recoveredAsNew=true;
+      for(let i=repartos.length-1;i>=0;i--)if(String(repartos[i].id)===String(staleId))repartos.splice(i,1);
+    }
     snap.id=savedId;
-    if(!isNew){
+    if(!isNew&&!recoveredAsNew){
       const idx=repartos.findIndex(r=>r.id===currentReparto.id);
       if(idx>=0)repartos[idx]=snap;else repartos.push(snap);
     }else{
@@ -4075,9 +4182,9 @@ document.getElementById('btnGuardar').addEventListener('click',async()=>{
         renderCalendar();
       }
     }
-    _cfCheckBurst(isNew?'Reparto agregado':'Reparto actualizado',true);
+    _cfCheckBurst(recoveredAsNew?'Guardada como nueva':isNew?'Reparto agregado':'Reparto actualizado',true);
   }catch(err){
-    console.error('[guardar reparto]',err);showToast('Error al guardar reparto');
+    console.error('[guardar reparto]',err);showToast(err&&err.message?err.message:'Error al guardar reparto');
   }finally{
     if(_gb){_gb.dataset.saving='';_gb.disabled=false;_gb.classList.remove('is-loading');_gb.innerHTML=_gbOrig;}
   }
