@@ -5760,7 +5760,8 @@ function _calDiaResumenHTML(list){
   SEG.forEach(function(k){counts[k]=tsVisible.filter(function(x){return x.seg===k;}).reduce(function(n,x){return n+_cfCamCountVal(x.c);},0);});
   if(_calDaySegFilter!=='todos'&&!counts[_calDaySegFilter])_calDaySegFilter='todos';
   const visible=tsVisible.filter(function(x){return _calDaySegFilter==='todos'||x.seg===_calDaySegFilter;});
-  visible.sort(function(a,b){return a.tsName.localeCompare(b.tsName,'es')||SEG.indexOf(a.seg)-SEG.indexOf(b.seg)||String(a.c.trDesc||a.c.obs||'').localeCompare(String(b.c.trDesc||b.c.obs||''),'es')||String(a.r.id).localeCompare(String(b.r.id),'es');});
+  // El listado siempre queda agrupado alfabéticamente por la columna Transportadora.
+  visible.sort(function(a,b){return a.tsName.localeCompare(b.tsName,'es',{sensitivity:'base',numeric:true})||SEG.indexOf(a.seg)-SEG.indexOf(b.seg)||String(a.c.trDesc||a.c.obs||'').localeCompare(String(b.c.trDesc||b.c.obs||''),'es',{sensitivity:'base',numeric:true})||String(a.r.id).localeCompare(String(b.r.id),'es',{numeric:true});});
   const kMonto=visible.reduce(function(s,x){return s+(+x.c.monto||0);},0);
   const kFlete=visible.reduce(function(s,x){return s+(+(x.c.precio||x.c.gasto)||0);},0);
   const kUnits=visible.reduce(function(s,x){return s+_cfCamCountVal(x.c);},0);
@@ -8969,6 +8970,8 @@ function showSaveAnim(text){
   .cal-day-overview__table .cal-day-truck-chip__icon{display:grid;place-items:center;width:14px;height:14px;color:#fff}
   .cal-day-overview__table .cal-day-truck-chip__icon svg{display:block;width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
   .cal-day-overview__table .cal-day-truck-chip__name{display:block;min-width:0;overflow:hidden;text-align:center;text-overflow:ellipsis;white-space:nowrap}
+  .cal-day-overview.cal-rep--pro:not(.cal-rep--edit) .rrd-tbl:not(.rrd-tbl--edit) .rrd-service-chip,
+  .cal-day-overview.cal-rep--pro:not(.cal-rep--edit) .rrd-tbl:not(.rrd-tbl--edit) .rrd-segtag--servicios{border:1px solid rgba(255,255,255,.3);background:linear-gradient(135deg,#21a66a 0%,#12834f 62%,#0c6840 100%);color:#fff;box-shadow:0 3px 8px -3px rgba(12,104,64,.65),inset 0 1px 0 rgba(255,255,255,.18)}
 </style>
 <script>
 /* ════════ Helpers ════════ */
