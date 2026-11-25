@@ -1510,10 +1510,7 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .cal-day-overview__table{max-width:100%;overflow:auto;border-radius:12px}
 .cal-day-overview__table .rrd-tbl{min-width:1120px}
 .cal-day-overview__table .rrd-tbl td.rrd-grow{min-width:180px;white-space:normal}
-  .cal-day-tschip{display:inline-flex;align-items:center;gap:6px;max-width:240px;min-height:24px;padding:0 10px 0 7px;border:1px solid rgba(255,255,255,.22);border-radius:999px;background:linear-gradient(135deg,#1a86c8 0%,#0b5f8d 58%,#084b70 100%);color:#fff;font-size:10.5px;font-weight:850;letter-spacing:.2px;white-space:nowrap;box-shadow:0 3px 8px -3px rgba(8,75,112,.65),inset 0 1px 0 rgba(255,255,255,.18);vertical-align:middle}
-  .cal-day-tschip__ic{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;flex:0 0 16px;color:#fff}
-  .cal-day-tschip__ic svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-  .cal-day-tschip__name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .cal-day-tschip{display:inline-flex;align-items:center;justify-content:center;max-width:240px;min-height:24px;padding:0 10px;border:1px solid rgba(255,255,255,.22);border-radius:999px;background:linear-gradient(135deg,#1a86c8 0%,#0b5f8d 58%,#084b70 100%);color:#fff;font-size:10.5px;font-weight:850;letter-spacing:.2px;white-space:nowrap;box-shadow:0 3px 8px -3px rgba(8,75,112,.65),inset 0 1px 0 rgba(255,255,255,.18);vertical-align:middle}
 .cal-day-overview .rrd-ktile--inc.na::before,.cal-day-overview .rrd-ktile--obj.na::before{background:linear-gradient(90deg,#cbd5e1,#94a3b8)}
 .cal-day-overview .rrd-ktile--inc.na .rrd-ktile__tx b,.cal-day-overview .rrd-ktile--obj.na .rrd-ktile__tx b{color:#64748b}
 @media(max-width:900px){.cal-day-overview__filters{align-items:center;flex-direction:column}.cal-day-tsfilter{justify-content:center;max-width:100%;flex-wrap:wrap}.cal-day-tsfilter__trigger{min-width:min(250px,76vw)}.cal-day-edit-actions{width:min(100%,560px);justify-content:center;flex-wrap:wrap}}
@@ -5826,7 +5823,7 @@ function _calDiaResumenHTML(list){
     const hasInc=sk!=='servicios'&&(+c.monto||0)>0&&fl>0,incLine=hasInc?fl/(+c.monto)*100:null;
     const actions=seen.has(r.id)?'<span class="rrd-mut">—</span>':'<div class="cal-rep-actions"><button class="cal-rep-btn del" type="button" data-delr="'+r.id+'" title="Eliminar reparto">'+CAL_TRASH+'</button></div>';
     seen.add(r.id);
-    return '<tr><td><span class="cal-day-tschip" title="'+esc(x.tsName)+'"><span class="cal-day-tschip__ic">'+tsIcon+'</span><span class="cal-day-tschip__name">'+esc(x.tsName)+'</span></span></td><td class="rrd-cam">'+vehicle+'</td><td><span class="rrd-segtag rrd-segtag--'+sk+'">'+LABEL[sk]+'</span></td><td>'+person+'</td><td class="rrd-grow">'+zone+'</td>'+(hasKm?'<td class="r">'+km+'</td>':'')+'<td class="r">'+fmtGs(c.monto||0)+'</td><td class="r rrd-flete">'+fmtGs(fl)+'</td><td class="r crt-inc '+(hasInc?(incLine<3?'ok':'over'):'')+'">'+(hasInc?incLine.toFixed(2)+'%':'—')+'</td><td>'+actions+'</td></tr>';
+    return '<tr><td><span class="cal-day-tschip" title="'+esc(x.tsName)+'">'+esc(x.tsName)+'</span></td><td class="rrd-cam">'+vehicle+'</td><td><span class="rrd-segtag rrd-segtag--'+sk+'">'+LABEL[sk]+'</span></td><td>'+person+'</td><td class="rrd-grow">'+zone+'</td>'+(hasKm?'<td class="r">'+km+'</td>':'')+'<td class="r">'+fmtGs(c.monto||0)+'</td><td class="r rrd-flete">'+fmtGs(fl)+'</td><td class="r crt-inc '+(hasInc?(incLine<3?'ok':'over'):'')+'">'+(hasInc?incLine.toFixed(2)+'%':'—')+'</td><td>'+actions+'</td></tr>';
   }).join('');
   const emptyCols=9+(hasKm?1:0);
   const thead='<tr><th>Transportadora</th><th>Camión / Servicio</th><th>Segmento</th><th>Repartidor / Almacén</th><th>Zona / Detalle</th>'+(hasKm?'<th class="r">Km · Precio/km</th>':'')+'<th class="r">Monto</th><th class="r">Flete</th><th class="r">Incid.</th><th>Acciones</th></tr>';
@@ -8957,8 +8954,11 @@ function showSaveAnim(text){
   /* Escala compartida para etiquetas informativas: una altura y alineación en tablas.
      Los filtros y selectores conservan su tamaño de control para facilitar el uso. */
   :is(.cal-day-tschip,.rrd-cam__t,.rrd-service-chip,.rrd-alm,.rrd-chip,.rrd-segtag,.sal-chip,.sal-addmonto,.cf-chip,.ci-segchip,.rrv-chip,.sv-carrier-chip,.svr__chip,.fac-plan__seg){box-sizing:border-box;display:inline-flex;align-items:center;min-height:24px;max-width:100%;padding-top:0!important;padding-bottom:0!important;border-radius:999px;line-height:1.1;vertical-align:middle;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  :is(.rrd-cam__t,.rrd-service-chip,.rrd-alm,.rrd-chip,.rrd-segtag,.sal-chip,.sal-addmonto,.cf-chip,.ci-segchip,.rrv-chip,.sv-carrier-chip,.svr__chip,.fac-plan__seg){justify-content:center}
+  :is(.cal-day-tschip,.rrd-cam__t,.rrd-service-chip,.rrd-alm,.rrd-chip,.rrd-segtag,.sal-chip,.sal-addmonto,.cf-chip,.ci-segchip,.rrv-chip,.sv-carrier-chip,.svr__chip,.fac-plan__seg){justify-content:center}
   .rrd-tbl td .rrd-cam__t,.rrd-tbl td .rrd-service-chip,.rrd-tbl td .rrd-alm,.rrd-tbl td .rrd-chip,.rrd-tbl td .rrd-segtag{vertical-align:middle}
+  .cal-day-overview__table .rrd-tbl th:nth-child(-n+3),.cal-day-overview__table .rrd-tbl td:nth-child(-n+3){text-align:center}
+  .cal-day-overview__table .rrd-tbl td:has(.rrd-alm),.cal-day-overview__table .rrd-tbl td:has(.rrd-chip){text-align:center}
+  .cal-day-overview__table .rrd-tbl :is(.cal-day-tschip,.rrd-cam__t,.rrd-service-chip,.rrd-alm,.rrd-chip,.rrd-segtag){height:24px;min-height:24px;max-height:24px;padding-top:0!important;padding-bottom:0!important;font-size:10.5px!important;line-height:1}
 </style>
 <script>
 /* ════════ Helpers ════════ */
