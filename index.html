@@ -5811,8 +5811,8 @@ function _calDiaResumenHTML(list){
       else{const parsed=typeof _dashServicioCampos==='function'?_dashServicioCampos(c):null;service={name:(parsed&&parsed.servicio)||raw,detail:(parsed&&parsed.detalle)||''};}
     }
     const vehicle=service
-      ?(service.name?'<span class="rrd-service-chip">'+esc(service.name)+'</span>':'<span class="rrd-mut">—</span>')
-      :'<span class="rrd-cam__ic">'+TRUCK+'</span><span class="rrd-cam__t">'+esc(c.trDesc||c.nombre||(sk==='transportadora'?x.tsName:'—'))+'</span>';
+      ?(service.name?'<span class="rrd-service-chip" title="'+esc(service.name)+'">'+esc(service.name)+'</span>':'<span class="rrd-mut">—</span>')
+      :'<span class="rrd-cam__ic">'+TRUCK+'</span><span class="rrd-cam__t" title="'+esc(c.trDesc||c.nombre||(sk==='transportadora'?x.tsName:'—'))+'">'+esc(c.trDesc||c.nombre||(sk==='transportadora'?x.tsName:'—'))+'</span>';
     const person=service
       ?(c.almacen?'<span class="rrd-alm">'+esc(c.almacen)+'</span>':'<span class="rrd-mut">—</span>')
       :(c.rep?esc(c.rep):'<span class="rrd-mut">Tercerizado</span>');
@@ -8959,6 +8959,11 @@ function showSaveAnim(text){
   .cal-day-overview__table .rrd-tbl th:nth-child(-n+3),.cal-day-overview__table .rrd-tbl td:nth-child(-n+3){text-align:center}
   .cal-day-overview__table .rrd-tbl td:has(.rrd-alm),.cal-day-overview__table .rrd-tbl td:has(.rrd-chip){text-align:center}
   .cal-day-overview__table .rrd-tbl :is(.cal-day-tschip,.rrd-cam__t,.rrd-service-chip,.rrd-alm,.rrd-chip,.rrd-segtag){height:24px;min-height:24px;max-height:24px;padding-top:0!important;padding-bottom:0!important;font-size:10.5px!important;line-height:1}
+  /* Ancho parejo por columna: los chips cortos no quedan diminutos y los largos
+     se limitan con puntos suspensivos, manteniendo el nombre completo en title. */
+  .cal-day-overview__table .rrd-tbl td:nth-child(1) .cal-day-tschip{width:176px;max-width:100%}
+  .cal-day-overview__table .rrd-tbl td:nth-child(2) :is(.rrd-cam__t,.rrd-service-chip){width:224px;max-width:100%}
+  .cal-day-overview__table .rrd-tbl td:nth-child(3) .rrd-segtag{width:100px;max-width:100%}
 </style>
 <script>
 /* ════════ Helpers ════════ */
