@@ -1456,6 +1456,19 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .cal-kpi-val.over{color:#DC2626}
 /* Body */
 .cal-modal-body{padding:4px 2px 24px;display:flex;flex-direction:column;gap:16px;flex:0 0 auto}
+.cal-day-overview{width:100%;padding:14px}
+.cal-day-overview__filters{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:0 auto 12px;width:min(100%,1320px)}
+.cal-day-overview__filters .cal-seg-filter{margin:0;max-width:100%;overflow-x:auto}
+.cal-day-tsfilter{display:flex;align-items:center;gap:9px;flex:0 0 auto;color:var(--gray-400);font-size:9px;font-weight:900;letter-spacing:.07em;text-transform:uppercase}
+.cal-day-tsfilter select{width:min(300px,28vw);min-width:210px;height:38px;padding:0 34px 0 12px;border:1px solid #dbe5ee;border-radius:10px;background:#fff;color:var(--gray-700);font:inherit;font-size:12px;font-weight:750;letter-spacing:0;text-transform:none;outline:none;transition:border-color .18s,box-shadow .18s}
+.cal-day-tsfilter select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(11,95,141,.1)}
+.cal-day-overview__table{max-width:100%;overflow:auto}
+.cal-day-overview__table .rrd-tbl{min-width:1120px}
+.cal-day-overview__table .rrd-tbl td.rrd-grow{min-width:180px;white-space:normal}
+.cal-day-tschip{display:inline-flex;align-items:center;max-width:240px;padding:5px 10px;border:1px solid #dce8f1;border-radius:999px;background:#f1f6fa;color:#40566b;font-size:11px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cal-day-overview .rrd-ktile--inc.na::before,.cal-day-overview .rrd-ktile--obj.na::before{background:linear-gradient(90deg,#cbd5e1,#94a3b8)}
+.cal-day-overview .rrd-ktile--inc.na .rrd-ktile__tx b,.cal-day-overview .rrd-ktile--obj.na .rrd-ktile__tx b{color:#64748b}
+@media(max-width:900px){.cal-day-overview__filters{align-items:stretch;flex-direction:column}.cal-day-tsfilter{justify-content:space-between}.cal-day-tsfilter select{width:min(100%,420px)}}
 /* ── Reparto dentro del modal del día ── */
 .cal-rep{border:1.5px solid var(--gray-200);border-radius:16px;overflow:hidden;background:#fff;box-shadow:0 3px 14px rgba(15,23,42,.05)}
 .cal-rep-hd{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;background:linear-gradient(135deg,#f8fbff,#fff);border-bottom:1px solid var(--gray-100)}
@@ -5106,10 +5119,12 @@ function renderCalendar(){
 
 // Estado del detalle de día (inline, editable in-situ)
 let calDayIso=null, calEditRepId=null, calWork=null, _calUid=1;
+let _calDaySegFilter='todos',_calDayTsFilter='todos';
 function calDayRepartos(){return (typeof repByDate==='function'?(repByDate().get(calDayIso)||[]):[]);}
 
 async function openCalModal(iso){
   calDayIso=iso; calEditRepId=null; calWork=null;
+  _calDaySegFilter='todos';_calDayTsFilter='todos';
   document.getElementById('viewHist').classList.add('is-dayview');
   const wrap=document.getElementById('calDayWrap');
   // Si el día tiene varios repartos pendientes, se pueden unir. Los que ya tienen
@@ -5139,14 +5154,14 @@ function renderCalDay(anim){
   const wrapEl=document.getElementById('calDayWrap');if(wrapEl)wrapEl.classList.toggle('is-editing',editing);
   const eb=document.getElementById('calDayEditBadge');if(eb)eb.style.display=editing?'inline-flex':'none';
   const cb=document.getElementById('calModalBadge');if(cb)cb.style.display=editing?'none':'';
-  const totMonto=list.reduce((a,r)=>a+(r.totalMonto||0),0);
-  const totFlete=list.reduce((a,r)=>a+(r.totalFlete||0),0);
-  const incs=list.filter(r=>r.incTotal!==null&&r.incTotal!==undefined).map(r=>r.incTotal);
-  // KPIs del día ocultas: cada bloque de reparto ya muestra sus propios KPIs (Monto/Flete/Incidencia/Objetivo)
+  // El resumen consolidado y los filtros se muestran una sola vez en lectura.
+  // En edición se conserva la planilla individual para no mezclar cambios.
   const _kpiTop=document.getElementById('calModalKpis');if(_kpiTop){_kpiTop.innerHTML='';_kpiTop.style.display='none';}
   const body=document.getElementById('calModalBody');
   body.innerHTML=list.length
-    ? list.map(r=>(calEditRepId===r.id?calRepEditHTML(r):renderCalReparto(r))).join('')
+    ? (editing
+      ? list.map(r=>(calEditRepId===r.id?calRepEditHTML(r):renderCalReparto(r))).join('')
+      : _calDiaResumenHTML(list))
     : '<div class="cal-day-empty">Este día ya no tiene repartos.</div>';
   const g=window.gsap;
   if(!g||!anim)return;
@@ -5412,6 +5427,78 @@ function _calSegmentTabs(id,selected,counts,attr,includeEmpty){
     return '<button type="button" class="rrd-tab'+(selected===k?' on':'')+'" data-'+attr+'="'+id+':'+k+'" aria-pressed="'+(selected===k)+'" title="'+labels[k]+' · '+value+'"><span class="cal-seg-filter__ic">'+_CAL_SEG_FILTER_ICONS[k]+'</span><span class="cal-seg-filter__label">'+labels[k]+'</span><span class="rrd-tab__n">'+value+'</span></button>';
   }).join('')+'</div>';
 }
+function _calDiaResumenHTML(list){
+  const SEG=['local','interior','servicios','transportadora'];
+  const LABEL={local:'Local',interior:'Interior',servicios:'Servicios',transportadora:'Transportadora'};
+  const TRUCK='<svg viewBox="0 0 24 24"><rect x="2.5" y="7" width="11" height="8" rx="1"/><path d="M13.5 9.5H17l3.5 3.5V15h-7z"/><circle cx="7" cy="17.5" r="1.6"/><circle cx="17.5" cy="17.5" r="1.6"/></svg>';
+  const CLIP='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>';
+  const COINS='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.66 3.58 3 8 3s8-1.34 8-3V6M4 12v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/></svg>';
+  const PCT='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M19 5L5 19"/><circle cx="7.5" cy="7.5" r="2.4"/><circle cx="16.5" cy="16.5" r="2.4"/></svg>';
+  const STATS='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16"/><path d="M6.5 20v-6M12 20V8M17.5 20v-9.5"/></svg>';
+  const lines=[];
+  (list||[]).forEach(function(r){(r.clientes||[]).forEach(function(c){
+    const own=c.trId?tsOfTruck(c.trId):null;
+    const tsId=(own&&own.id)||c.tsId||r.tsId||null;
+    const tsObj=(own||(tsId!=null?(transportistas||[]).find(function(t){return String(t.id)===String(tsId);}):null));
+    const tsName=(tsObj&&tsObj.n)||c.tsNombre||r.tsNombre||'Sin transportadora';
+    const key=tsId!=null?'id:'+String(tsId):'name:'+String(tsName).trim().toLocaleUpperCase('es');
+    lines.push({r:r,c:c,seg:c.seg||'local',tsName:tsName,tsKey:key});
+  });});
+  const tsMap=new Map();lines.forEach(function(x){if(!tsMap.has(x.tsKey))tsMap.set(x.tsKey,{key:x.tsKey,name:x.tsName,count:0});tsMap.get(x.tsKey).count+=_cfCamCountVal(x.c);});
+  const tsList=Array.from(tsMap.values()).sort(function(a,b){return a.name.localeCompare(b.name,'es');});
+  if(_calDayTsFilter!=='todos'&&!tsMap.has(_calDayTsFilter))_calDayTsFilter='todos';
+  const tsVisible=lines.filter(function(x){return _calDayTsFilter==='todos'||x.tsKey===_calDayTsFilter;});
+  const counts={todos:tsVisible.reduce(function(n,x){return n+_cfCamCountVal(x.c);},0)};
+  SEG.forEach(function(k){counts[k]=tsVisible.filter(function(x){return x.seg===k;}).reduce(function(n,x){return n+_cfCamCountVal(x.c);},0);});
+  if(_calDaySegFilter!=='todos'&&!counts[_calDaySegFilter])_calDaySegFilter='todos';
+  const visible=tsVisible.filter(function(x){return _calDaySegFilter==='todos'||x.seg===_calDaySegFilter;});
+  visible.sort(function(a,b){return a.tsName.localeCompare(b.tsName,'es')||SEG.indexOf(a.seg)-SEG.indexOf(b.seg)||String(a.c.trDesc||a.c.obs||'').localeCompare(String(b.c.trDesc||b.c.obs||''),'es')||String(a.r.id).localeCompare(String(b.r.id),'es');});
+  const kMonto=visible.reduce(function(s,x){return s+(+x.c.monto||0);},0);
+  const kFlete=visible.reduce(function(s,x){return s+(+(x.c.precio||x.c.gasto)||0);},0);
+  const kUnits=visible.reduce(function(s,x){return s+_cfCamCountVal(x.c);},0);
+  const inc=kMonto>0?kFlete/kMonto*100:null,over=inc!==null&&inc>=3;
+  const onlyServices=visible.length>0&&visible.every(function(x){return x.seg==='servicios';});
+  const mixedServices=visible.some(function(x){return x.seg==='servicios';})&&!onlyServices;
+  const countLabel=onlyServices?'Servicios':(mixedServices?'Camiones / servicios':'Camiones');
+  const tile=function(cls,icon,label,value){return '<div class="rrd-ktile '+cls+'"><span class="rrd-ktile__ic">'+icon+'</span><div class="rrd-ktile__tx"><small>'+label+'</small><b>'+value+'</b></div></div>';};
+  const kpis='<div class="rrd-resumen-bar crd-kpis">'+
+    tile('rrd-ktile--cam',TRUCK,countLabel,_nnum(kUnits))+
+    tile('rrd-ktile--k-fac',CLIP,'Monto repartido',fmtGs(kMonto))+
+    tile('rrd-ktile--k-total',COINS,'Flete total',fmtGs(kFlete))+
+    tile('rrd-ktile--inc'+(inc===null?' na':(over?' over':' ok')),PCT,'Incidencia',inc===null?'—':inc.toFixed(2)+'%')+
+    '<div class="rrd-ktile rrd-ktile--obj crd-obj '+(inc===null?'na':(over?'over':'ok'))+'"><span class="rrd-ktile__ic">'+STATS+'</span><div class="rrd-ktile__tx"><b>'+(inc===null?'Sin base para objetivo':(over?'Sobre el objetivo (3%)':'Dentro del objetivo (3%)'))+'</b>'+(over?'<small class="crd-obj__d">+'+fmtGs(kFlete-kMonto*.03)+'</small>':'')+'</div></div>'+
+    '</div>';
+  const tsSelect='<label class="cal-day-tsfilter"><span>Transportadora</span><select data-caldayts aria-label="Filtrar por transportadora"><option value="todos">Todas las transportadoras · '+tsList.length+'</option>'+tsList.map(function(x){return '<option value="'+esc(x.key)+'"'+(x.key===_calDayTsFilter?' selected':'')+'>'+esc(x.name)+' · '+x.count+'</option>';}).join('')+'</select></label>';
+  const filters='<div class="cal-day-overview__filters">'+_calSegmentTabs('day',_calDaySegFilter,counts,'caldayseg',false)+tsSelect+'</div>';
+  const hasKm=visible.some(function(x){return x.seg==='interior'&&(+x.c.km||0)>0;});
+  const seen=new Set();
+  const rows=visible.map(function(x){
+    const r=x.r,c=x.c,sk=x.seg,fl=+(c.precio||c.gasto)||0;
+    let service=null;
+    if(sk==='servicios'){
+      const raw=String(c.obs||c.servicio||'').trim(),detail=String(c.detalle||'').trim();
+      if(detail)service={name:raw,detail:detail};
+      else{const parsed=typeof _dashServicioCampos==='function'?_dashServicioCampos(c):null;service={name:(parsed&&parsed.servicio)||raw,detail:(parsed&&parsed.detalle)||''};}
+    }
+    const vehicle=service
+      ?(service.name?'<span class="rrd-service-chip">'+esc(service.name)+'</span>':'<span class="rrd-mut">—</span>')
+      :'<span class="rrd-cam__ic">'+TRUCK+'</span><span class="rrd-cam__t">'+esc(c.trDesc||c.nombre||(sk==='transportadora'?x.tsName:'—'))+'</span>';
+    const person=service
+      ?(c.almacen?'<span class="rrd-alm">'+esc(c.almacen)+'</span>':'<span class="rrd-mut">—</span>')
+      :(c.rep?esc(c.rep):'<span class="rrd-mut">Tercerizado</span>');
+    const zone=service
+      ?(service.detail?esc(service.detail):'<span class="rrd-mut">—</span>')
+      :(c.zona?'<span class="rrd-chip">'+esc(c.zona)+'</span>':'<span class="rrd-mut">—</span>');
+    const km=(sk==='interior'&&+c.km>0)?_nnum(+c.km)+' km × '+fmtGs(+c.precioKm||0):'<span class="rrd-mut">—</span>';
+    const hasInc=sk!=='servicios'&&(+c.monto||0)>0&&fl>0,incLine=hasInc?fl/(+c.monto)*100:null;
+    const actions=seen.has(r.id)?'<span class="rrd-mut">—</span>':('<div class="cal-rep-actions"><button class="cal-rep-btn edit" type="button" data-editr="'+r.id+'" aria-label="Editar planilla"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="15" height="15"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828z"/></svg></button><button class="cal-rep-btn del" type="button" data-delr="'+r.id+'" title="Eliminar planilla">'+CAL_TRASH+'</button></div>');
+    seen.add(r.id);
+    return '<tr><td><span class="cal-day-tschip">'+esc(x.tsName)+'</span></td><td class="rrd-cam">'+vehicle+'</td><td><span class="rrd-segtag rrd-segtag--'+sk+'">'+LABEL[sk]+'</span></td><td>'+person+'</td><td class="rrd-grow">'+zone+'</td>'+(hasKm?'<td class="r">'+km+'</td>':'')+'<td class="r">'+fmtGs(c.monto||0)+'</td><td class="r rrd-flete">'+fmtGs(fl)+'</td><td class="r crt-inc '+(hasInc?(incLine<3?'ok':'over'):'')+'">'+(hasInc?incLine.toFixed(2)+'%':'—')+'</td><td>'+actions+'</td></tr>';
+  }).join('');
+  const emptyCols=9+(hasKm?1:0);
+  const thead='<tr><th>Transportadora</th><th>Camión / Servicio</th><th>Segmento</th><th>Repartidor / Almacén</th><th>Zona / Detalle</th>'+(hasKm?'<th class="r">Km · Precio/km</th>':'')+'<th class="r">Monto</th><th class="r">Flete</th><th class="r">Incid.</th><th>Acciones</th></tr>';
+  return '<div class="cal-rep cal-rep--pro cal-day-overview">'+kpis+filters+'<div class="rrd-tablewrap crd-tablewrap cal-day-overview__table"><table class="rrd-tbl"><thead>'+thead+'</thead><tbody>'+(rows||'<tr><td colspan="'+emptyCols+'" class="rrd-empty">No hay líneas con estos filtros.</td></tr>')+'</tbody></table></div></div>';
+}
 // Vista de reparto (lectura) con el MISMO estilo del detalle de Reporte de Repartos:
 // KPIs PRO (Monto / Flete / Incidencia), pestañas de segmento como filtro y tabla rrd.
 function renderCalReparto(r){
@@ -5519,6 +5606,8 @@ document.getElementById('calGrid').addEventListener('click',e=>{
 
 // Acciones del detalle de día (delegado): editar inline, añadir, guardar, borrar
 document.getElementById('calModalBody').addEventListener('click',async e=>{
+  const daySeg=e.target.closest('[data-caldayseg]');
+  if(daySeg){e.stopPropagation();const sk=daySeg.dataset.caldayseg.split(':')[1];if(_calDaySegFilter===sk)return;_calDaySegFilter=sk;renderCalDay('dayfilter');return;}
   const editBtn=e.target.closest('[data-editr]');
   const delBtn=e.target.closest('[data-delr]');
   const addBtn=e.target.closest('[data-cal-add]');
@@ -5565,6 +5654,8 @@ document.getElementById('calModalBody').addEventListener('input',e=>{
   else if(t.classList.contains('cal-e-zona'))w.zona=t.value;
 });
 document.getElementById('calModalBody').addEventListener('change',e=>{
+  const dayTs=e.target.closest('[data-caldayts]');
+  if(dayTs){_calDayTsFilter=dayTs.value||'todos';renderCalDay('dayfilter');return;}
   if(!calWork)return;const t=e.target;const w=calWork.find(x=>x.uid===+t.dataset.uid);if(!w)return;
   if(t.classList.contains('cal-e-tr')){const id=+t.value||null;w.trId=id;const r=calDayRepartos().find(x=>x.id===calEditRepId);const ts=(transportistas||[]).find(x=>r&&x.id===r.tsId);const tr=ts&&(ts.trucks||[]).find(x=>x.id===id);w.trDesc=tr?tr.d:w.trDesc;}
   else if(t.classList.contains('cal-e-seg')){w.seg=t.value;const wrap=t.closest('.cal-e-sel--seg');if(wrap)wrap.className='cal-e-sel cal-e-sel--seg cal-e-seg-'+t.value;}
