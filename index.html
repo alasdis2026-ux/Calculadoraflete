@@ -1475,6 +1475,7 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .cal-rep.cal-day-overview{width:100%;padding:14px;overflow:visible}
 .cal-day-overview__filters{position:relative;z-index:8;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:10px;margin:0 auto 12px;width:min(100%,1320px)}
 .cal-day-edit-actions{display:flex;align-items:center;gap:7px;flex:0 1 auto;min-width:0}
+.cal-day-edit-actions{position:relative}
 .cal-day-edit-actions__btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:40px;padding:0 15px;border:1px solid transparent;border-radius:11px;background:linear-gradient(135deg,#1687c7,#0b5f8d 72%);color:#fff;font:inherit;font-size:12px;font-weight:850;white-space:nowrap;box-shadow:0 5px 13px rgba(11,95,141,.24);cursor:pointer;transition:transform .16s,box-shadow .16s,filter .16s}
 .cal-day-edit-actions__btn:hover{transform:translateY(-1px);filter:brightness(1.04);box-shadow:0 8px 17px rgba(11,95,141,.3)}
 .cal-day-edit-actions__btn:focus-visible{outline:3px solid rgba(37,131,189,.32);outline-offset:2px}
@@ -1483,6 +1484,12 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .cal-day-edit-actions__state{font-size:10px;font-weight:800;color:#b45309;white-space:nowrap}
 .cal-day-edit-actions__state.is-info{color:#52718a}
 .cal-day-edit-actions__state[hidden]{display:none}
+.cal-day-edit-picker{position:absolute;top:calc(100% + 7px);right:0;z-index:45;display:grid;min-width:250px;max-width:min(360px,calc(100vw - 36px));max-height:280px;overflow:auto;padding:5px;border:1px solid #d8e6f0;border-radius:13px;background:#fff;box-shadow:0 14px 32px rgba(24,59,85,.18)}
+.cal-day-edit-picker[hidden]{display:none}
+.cal-day-edit-picker__item{display:flex;align-items:center;justify-content:space-between;gap:14px;width:100%;min-height:40px;padding:8px 10px;border:0;border-radius:9px;background:#fff;color:#23445f;text-align:left;font:inherit;font-size:11px;font-weight:800;cursor:pointer}
+.cal-day-edit-picker__item:hover,.cal-day-edit-picker__item:focus-visible{outline:0;background:#edf6fd;color:#0b5f8d}
+.cal-day-edit-picker__item span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cal-day-edit-picker__item small{flex:none;color:#8196a8;font-size:9px;font-weight:800}
 .cal-day-overview__filters .cal-seg-filter{display:flex;flex-wrap:nowrap;gap:2px;margin:0;padding:4px;max-width:100%;overflow-x:auto;border:1px solid #dce6ee;border-radius:14px;background:linear-gradient(180deg,#f8fafc,#f1f5f9);box-shadow:inset 0 1px 2px rgba(15,23,42,.035);scrollbar-width:none}
 .cal-day-overview__filters .cal-seg-filter::-webkit-scrollbar{display:none}
 .cal-day-overview__filters .cal-seg-filter .rrd-tab{flex:0 0 auto;gap:7px;min-height:38px;padding:6px 10px;border-radius:10px;white-space:nowrap;font-size:11.5px}
@@ -5390,7 +5397,6 @@ let _calDayTsOutsideBound=false;
 function calDayRepartos(){return (typeof repByDate==='function'?(repByDate().get(calDayIso)||[]):[]);}
 function calStartEdit(id){
   const r=calDayRepartos().find(x=>String(x.id)===String(id));if(!r)return;
-  if(_repTieneVinculoFactura(r)){showToast('Este reparto tiene una factura vinculada. Eliminá primero la factura para cambiar sus líneas.');return;}
   calEditRepId=r.id;calWork=calBuildWork(r);calWorkFecha=String(r.fechaISO||calDayIso||'').slice(0,10);renderCalDay('edit');
 }
 function _calDayTsReduceMotion(){try{return !!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);}catch(_){return false;}}
@@ -5677,7 +5683,6 @@ function calLiveTotals(){
 async function calSaveEdit(){
   const r=calDayRepartos().find(x=>x.id===calEditRepId);
   if(!r){calEditRepId=null;calWork=null;calWorkFecha='';renderCalDay('toggle');return;}
-  if(_repTieneVinculoFactura(r)){showToast('Este reparto tiene una factura vinculada. Eliminá primero la factura para cambiar sus líneas.');calEditRepId=null;calWork=null;calWorkFecha='';renderCalDay('toggle');return;}
   const rows=calWork.filter(w=>!w.del);
   const fechaDestino=String(calWorkFecha||r.fechaISO||calDayIso||'').slice(0,10);
   const fechaDestinoValida=/^\d{4}-\d{2}-\d{2}$/.test(fechaDestino)&&(()=>{const[y,m,d]=fechaDestino.split('-').map(Number),dt=new Date(y,m-1,d);return dt.getFullYear()===y&&dt.getMonth()===m-1&&dt.getDate()===d;})();
@@ -5788,17 +5793,22 @@ function _calDiaResumenHTML(list){
   }).join('');
   const tsSelect='<div class="cal-day-tsfilter"><button type="button" class="cal-day-tsfilter__trigger" data-caldayts-toggle aria-haspopup="listbox" aria-expanded="false" aria-controls="calDayTsPop" aria-label="Filtrar por transportadora: '+esc(tsCurrentName)+'"><span class="cal-day-tsfilter__icon">'+tsIcon+'</span><span class="cal-day-tsfilter__name">'+esc(tsCurrentName)+'</span><span class="cal-day-tsfilter__count">'+tsCurrentCount+'</span><svg class="cal-day-tsfilter__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button><div class="cal-day-tsfilter__pop" id="calDayTsPop" role="listbox" aria-label="Transportadoras disponibles" hidden>'+tsOptions+'</div></div>';
   const editPlans=new Map();
-  tsVisible.forEach(function(x){
+  visible.forEach(function(x){
     const key=String(x.r.id);
     if(!editPlans.has(key))editPlans.set(key,x.r);
   });
-  const editPlanList=Array.from(editPlans.values()).map(function(r){return{r:r,locked:_repTieneVinculoFactura(r)};})
+  const editPlanList=Array.from(editPlans.values())
     .sort(function(a,b){return String(a.r.tsNombre||'').localeCompare(String(b.r.tsNombre||''),'es')||String(a.r.id).localeCompare(String(b.r.id),'es');});
-  const editablePlans=editPlanList.filter(function(p){return !p.locked;});
-  const editTarget=editablePlans.length===1?editablePlans[0]:null;
-  const editHint=!editablePlans.length?'Factura vinculada: desvinculala para editar':(editablePlans.length>1?'Usá Editar en la fila que quieras cambiar':'');
+  const editTarget=editPlanList.length===1?editPlanList[0]:null;
+  const editChoices=editPlanList.map(function(r,i){
+    const name=String(r.tsNombre||'Sin transportadora'),key=name.trim().toLocaleUpperCase('es');
+    const same=editPlanList.filter(function(x){return String(x.tsNombre||'Sin transportadora').trim().toLocaleUpperCase('es')===key;});
+    const label=name+(same.length>1?' · Reparto '+(same.indexOf(r)+1):'');
+    const n=(r.clientes||[]).length;
+    return '<button type="button" role="menuitem" class="cal-day-edit-picker__item" data-cal-day-edit-choice="'+esc(r.id)+'"><span>'+esc(label)+'</span><small>'+n+' '+(n===1?'línea':'líneas')+'</small></button>';
+  }).join('');
   const editActions=editPlanList.length
-    ?'<div class="cal-day-edit-actions"><button type="button" class="cal-day-edit-actions__btn" data-cal-day-edit="'+(editTarget?esc(editTarget.r.id):'')+'"'+(!editTarget?' disabled':'')+' title="'+(editHint||'Editar el reparto')+'"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg><span>Editar</span></button><span class="cal-day-edit-actions__state'+(editablePlans.length>1?' is-info':'')+'"'+(editHint?'':' hidden')+'>'+esc(editHint)+'</span></div>'
+    ?'<div class="cal-day-edit-actions"><button type="button" class="cal-day-edit-actions__btn" data-cal-day-edit="'+(editTarget?esc(editTarget.id):'')+'"'+(editTarget?' title="Editar reparto"':' aria-haspopup="menu" aria-expanded="false" title="Elegir qué reparto editar"')+'><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg><span>Editar</span></button>'+(editTarget?'':'<div class="cal-day-edit-picker" role="menu" hidden>'+editChoices+'</div>')+'</div>'
     :'';
   const filters='<div class="cal-day-overview__filters">'+_calSegmentTabs('day',_calDaySegFilter,counts,'caldayseg',false)+tsSelect+editActions+'</div>';
   const hasKm=visible.some(function(x){return x.seg==='interior'&&(+x.c.km||0)>0;});
@@ -5938,6 +5948,8 @@ document.getElementById('calGrid').addEventListener('click',e=>{
 
 // Acciones del detalle de día (delegado): editar inline, añadir, guardar, borrar
 document.getElementById('calModalBody').addEventListener('click',async e=>{
+  const openEditPicker=document.querySelector('.cal-day-edit-picker:not([hidden])');
+  if(openEditPicker&&!e.target.closest('.cal-day-edit-actions')){openEditPicker.hidden=true;const b=document.querySelector('[data-cal-day-edit][aria-expanded="true"]');if(b)b.setAttribute('aria-expanded','false');}
   const daySeg=e.target.closest('[data-caldayseg]');
   if(daySeg){e.stopPropagation();const sk=daySeg.dataset.caldayseg.split(':')[1];if(_calDaySegFilter===sk)return;_calDaySegFilter=sk;renderCalDay('dayfilter');return;}
   const dayTsToggle=e.target.closest('[data-caldayts-toggle]');
@@ -5945,7 +5957,9 @@ document.getElementById('calModalBody').addEventListener('click',async e=>{
   const dayTsOption=e.target.closest('[data-caldayts-option]');
   if(dayTsOption){e.stopPropagation();_calDayTsFilter=dayTsOption.dataset.caldaytsOption||'todos';_calDayTsClose(true);renderCalDay('dayfilter');return;}
   const dayEdit=e.target.closest('[data-cal-day-edit]');
-  if(dayEdit){e.stopPropagation();if(!dayEdit.disabled)calStartEdit(dayEdit.dataset.calDayEdit);return;}
+  const dayEditChoice=e.target.closest('[data-cal-day-edit-choice]');
+  if(dayEditChoice){e.stopPropagation();calStartEdit(dayEditChoice.dataset.calDayEditChoice);return;}
+  if(dayEdit){e.stopPropagation();if(dayEdit.disabled)return;if(dayEdit.dataset.calDayEdit){calStartEdit(dayEdit.dataset.calDayEdit);return;}const picker=dayEdit.closest('.cal-day-edit-actions').querySelector('.cal-day-edit-picker');if(picker){picker.hidden=!picker.hidden;dayEdit.setAttribute('aria-expanded',String(!picker.hidden));}return;}
   const editBtn=e.target.closest('[data-editr]');
   const delBtn=e.target.closest('[data-delr]');
   const addBtn=e.target.closest('[data-cal-add]');
