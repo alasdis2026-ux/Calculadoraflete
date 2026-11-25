@@ -11953,6 +11953,7 @@ function _svReg(host){
   const tsel=_svDraft.tsId||_svUlt.tsId||'';
   _svDraft.tsId=tsel;
   const pend=_svPendientes().length, acciones=pend;
+  const guardadas=_svGuardadas().length;
   const CAL='<svg class="svr-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>';
   const selectedTs=ts.find(function(t){ return String(t.id)===tsel; });
   /* Primero se elige la transportadora a la que pertenecen los servicios. */
