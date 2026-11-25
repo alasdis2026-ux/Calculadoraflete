@@ -228,6 +228,7 @@ body{min-height:100vh;overflow:hidden;font-family:Inter,system-ui,-apple-system,
 /* Dos cifras, no un renglon: cuantos servicios y cuanto suman. Es el dato que
    se compara contra la factura, asi que se lee de lejos. */
 .sv-invoice__summary{display:grid;grid-template-columns:auto 1fr;gap:18px;padding:18px 20px;border:1px solid #e3edf3;border-radius:17px;background:linear-gradient(180deg,#f9fcfd,#f4f8fb)}
+.sv-invoice--freight .sv-invoice__summary{grid-template-columns:auto auto minmax(0,1fr);gap:14px}
 .sv-invoice__stat{min-width:0;display:flex;flex-direction:column;gap:4px}
 .sv-invoice__stat+.sv-invoice__stat{padding-left:18px;border-left:1px solid #e2ebf1;text-align:right}
 .sv-invoice__stat span{color:#7a8d9a;font-size:9.5px;font-weight:900;letter-spacing:.1em;text-transform:uppercase}
@@ -237,7 +238,7 @@ body{min-height:100vh;overflow:hidden;font-family:Inter,system-ui,-apple-system,
 .sv-invoice--freight .sv-invoice__fields{margin-top:18px}
 .sv-invoice--freight .sv-invoice__input input[readonly]{color:#15803d;font-weight:900;cursor:default;background:#f4fbf6}
 .sv-invoice--freight .sv-invoice__head .cf-fld label{font-size:9px}
-@media(max-width:520px){.sv-invoice--freight .sv-invoice__head.cf-fhead{flex-direction:row;align-items:center;flex-wrap:wrap}.sv-invoice--freight .cf-fhead__date{width:100%;margin-left:0}}
+@media(max-width:520px){.sv-invoice--freight .sv-invoice__head.cf-fhead{flex-direction:row;align-items:center;flex-wrap:wrap}.sv-invoice--freight .cf-fhead__date{width:100%;margin-left:0}.sv-invoice--freight .sv-invoice__summary{grid-template-columns:1fr 1fr;gap:10px}.sv-invoice--freight .sv-invoice__stat--tot{grid-column:1/-1;padding:10px 0 0!important;border-top:1px solid #e2ebf1;border-left:0!important}}
 .sv-invoice__fields .cf-fld{margin:0;min-width:0}
 .sv-invoice__fields .cf-fld label{margin-bottom:6px;color:#526b7c;font-size:11.5px;font-weight:800}
 .sv-invoice__input{display:flex;align-items:center;height:54px;overflow:hidden;border:1.5px solid #dbe5eb;border-radius:13px;background:#fff;transition:border-color .16s,box-shadow .16s}
@@ -8579,6 +8580,82 @@ function showSaveAnim(text){
     .sv-rrep .rr-detail .rrd-topresumen .rrd-ktile--total{grid-column:auto;width:100%}
     .sv-rrep .rr-detail .rrd-bar--center .rrm-filterbar{flex:1 1 100%;justify-content:center}
   }
+  /* ── Planillas y facturas: la vista nace de los repartos conciliados ── */
+  #factHost .fac-work{--fw-blue:#0b5f8d;--fw-blue2:#1686c4;--fw-ink:#173752;--fw-muted:#7890a5;--fw-line:#dce7ef;max-width:1440px;margin:0 auto;padding:2px 2px 24px}
+  #factHost .fac-work__head{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:16px 18px;margin-bottom:10px;border:1px solid #d7e7f2;border-radius:18px;background:linear-gradient(112deg,#fff 0%,#f1f9fe 100%);box-shadow:0 7px 20px rgba(18,62,94,.055)}
+  #factHost .fac-work__title{display:flex;align-items:center;gap:11px;min-width:0}
+  #factHost .fac-work__title>img{width:94px;height:auto;object-fit:contain}
+  #factHost .fac-work__title>div{min-width:0}
+  #factHost .fac-work__title span{display:block;margin-bottom:3px;color:#7993a8;font-size:8px;font-weight:900;letter-spacing:1px}
+  #factHost .fac-work__title h2{margin:0;color:var(--fw-ink);font-family:Sora,Inter,sans-serif;font-size:22px;font-weight:850;letter-spacing:-.65px}
+  #factHost .fac-work__title p{margin:3px 0 0;color:#668097;font-size:11px;font-weight:650;line-height:1.35}
+  #factHost .fac-work__new{display:inline-flex;align-items:center;justify-content:center;gap:8px;flex:none;min-height:40px;padding:0 14px;border:0;border-radius:11px;background:linear-gradient(135deg,#1686c4,#0b5f8d);box-shadow:0 6px 14px rgba(11,95,141,.22);color:#fff;font:inherit;font-size:11px;font-weight:850;cursor:pointer;transition:transform .16s,box-shadow .16s,filter .16s}
+  #factHost .fac-work__new svg{width:16px;height:16px}
+  #factHost .fac-work__new:hover{transform:translateY(-1px);filter:brightness(1.04);box-shadow:0 10px 20px rgba(11,95,141,.28)}
+  #factHost .fac-work__tools{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:7px 10px;margin-bottom:8px;border:1px solid #e0e9f1;border-radius:13px;background:#fff;box-shadow:0 2px 8px rgba(19,55,82,.035)}
+  #factHost .fac-work__tools .rr-mnav{margin:0;padding:2px 4px;border:1px solid #e2ebf3;border-radius:10px;background:#f7fafc}
+  #factHost .fac-work__tools .rr-mnav button{width:28px;height:28px;border-radius:8px}
+  #factHost .fac-work__tools .rr-mnav span{min-width:132px;color:#183f5c;font-size:12.5px}
+  #factHost .fac-work__tools .rr-mnav__today{width:auto!important;margin:0;padding:0 9px;font-size:9px;white-space:nowrap}
+  #factHost .fac-work__search{flex:0 1 300px;margin:0}
+  #factHost .fac-work__search input{min-height:34px;border-radius:9px;background:#f7fafc;font-size:11px}
+  #factHost .fac-work__period{display:flex;align-items:center;gap:11px;padding:8px 12px;margin-bottom:10px;border:1px solid #dbe7f0;border-radius:13px;background:linear-gradient(135deg,#f8fbfe,#fff 74%)}
+  #factHost .fac-work__period>span{flex:none;color:#7e96aa;font-size:8px;font-weight:900;letter-spacing:.78px}
+  #factHost .fac-work__weeks{display:flex;align-items:center;gap:6px;min-width:0;overflow-x:auto;scrollbar-width:none}
+  #factHost .fac-work__weeks::-webkit-scrollbar{display:none}
+  #factHost .fac-work__weeks .rr-chip{min-height:30px;padding:6px 10px;border:1px solid #dce7ef;border-radius:9px;background:#fff;color:#476077;font-size:10px;font-weight:800;white-space:nowrap;box-shadow:0 1px 3px rgba(24,62,91,.025)}
+  #factHost .fac-work__weeks .rr-chip.on{border-color:#0b6fa8;background:linear-gradient(135deg,#1686c4,#0b5f8d);box-shadow:0 5px 12px rgba(11,95,141,.2)}
+  #factHost .fac-work__kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin-bottom:11px}
+  #factHost .fac-work__kpi{position:relative;display:flex;align-items:center;gap:11px;min-width:0;min-height:71px;padding:11px 13px;border:1px solid #dfe8f0;border-radius:14px;background:#fff;box-shadow:0 3px 10px rgba(19,55,82,.04)}
+  #factHost .fac-work__kpi::before{position:absolute;top:10px;bottom:10px;left:0;width:3px;border-radius:0 3px 3px 0;background:#1686c4;content:""}
+  #factHost .fac-work__kpi>span{display:grid;place-items:center;width:34px;height:34px;flex:none;border:1px solid #cfe5f5;border-radius:11px;background:#eaf6fd;color:#0b6fa8}
+  #factHost .fac-work__kpi>span svg{width:17px;height:17px}
+  #factHost .fac-work__kpi>div{display:flex;flex-direction:column;min-width:0}
+  #factHost .fac-work__kpi small{color:#8497a9;font-size:8px;font-weight:900;letter-spacing:.65px;text-transform:uppercase}
+  #factHost .fac-work__kpi b{margin-top:3px;color:#193b58;font-family:Sora,Inter,sans-serif;font-size:18px;font-weight:850;letter-spacing:-.45px;white-space:nowrap}
+  #factHost .fac-work__kpi em{overflow:hidden;margin-top:1px;color:#71879a;font-size:9px;font-style:normal;font-weight:700;text-overflow:ellipsis;white-space:nowrap}
+  #factHost .fac-work__kpi.is-pending::before{background:#e59b25}#factHost .fac-work__kpi.is-pending>span{border-color:#f5deb1;background:#fff7e9;color:#b66e0c}#factHost .fac-work__kpi.is-ok::before{background:#12a266}#factHost .fac-work__kpi.is-ok>span{border-color:#caebda;background:#effaf4;color:#07804a}#factHost .fac-work__kpi.is-diff::before{background:#e45550}#factHost .fac-work__kpi.is-diff>span{border-color:#f4d1cf;background:#fff1f0;color:#c93d38}
+  #factHost .fac-work__board{border:1px solid #dce6ef;border-radius:18px;background:#f6f9fc;box-shadow:0 7px 22px rgba(19,55,82,.055);overflow:hidden}
+  #factHost .fac-work__boardhead{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 14px;border-bottom:1px solid #e2ebf2;background:#fff}
+  #factHost .fac-work__boardhead>div:first-child{display:flex;align-items:baseline;gap:8px}
+  #factHost .fac-work__boardhead>div:first-child span{color:#7d94a8;font-size:8px;font-weight:900;letter-spacing:.7px}
+  #factHost .fac-work__boardhead>div:first-child b{color:#1a3852;font-size:12px;font-weight:850}
+  #factHost .fac-work__tabs{display:flex;align-items:center;gap:3px;padding:3px;border:1px solid #dbe7ef;border-radius:10px;background:#f6f9fc}
+  #factHost .fac-work__tab{display:inline-flex;align-items:center;gap:6px;min-height:29px;padding:0 9px;border:0;border-radius:7px;background:transparent;color:#668095;font:inherit;font-size:10px;font-weight:800;cursor:pointer;transition:background .16s,color .16s,box-shadow .16s}
+  #factHost .fac-work__tab b{display:grid;place-items:center;min-width:17px;height:17px;padding:0 4px;border-radius:999px;background:#e6edf3;color:#688095;font-size:9px;font-weight:900}
+  #factHost .fac-work__tab.is-on{background:linear-gradient(135deg,#1686c4,#0b5f8d);box-shadow:0 4px 10px rgba(11,95,141,.2);color:#fff}
+  #factHost .fac-work__tab.is-on b{background:rgba(255,255,255,.2);color:#fff}
+  #factHost .fac-work__grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:11px}
+  #factHost .fac-plan{position:relative;min-width:0;overflow:hidden;border:1px solid #dce7ef;border-radius:15px;background:#fff;box-shadow:0 2px 8px rgba(20,59,87,.04);transition:transform .16s,border-color .16s,box-shadow .16s}
+  #factHost .fac-plan::before{position:absolute;top:13px;bottom:13px;left:0;width:4px;border-radius:0 4px 4px 0;background:#e6a12c;content:""}
+  #factHost .fac-plan--ok::before{background:#13a466}#factHost .fac-plan--diff::before,#factHost .fac-plan--sin::before{background:#e45651}
+  #factHost .fac-plan:hover{z-index:1;transform:translateY(-2px);border-color:#b7d6e8;box-shadow:0 10px 20px rgba(25,69,101,.1)}
+  #factHost .fac-plan__head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:13px 15px 10px 17px}
+  #factHost .fac-plan__status{display:inline-flex;align-items:center;gap:4px;color:#ae690c;font-size:9px;font-weight:900;letter-spacing:.3px;text-transform:uppercase}
+  #factHost .fac-plan--ok .fac-plan__status{color:#07804a}#factHost .fac-plan--diff .fac-plan__status,#factHost .fac-plan--sin .fac-plan__status{color:#ca3e38}
+  #factHost .fac-plan h3{overflow:hidden;margin:5px 0 1px;color:#193b58;font-family:Sora,Inter,sans-serif;font-size:15px;font-weight:850;letter-spacing:-.3px;text-overflow:ellipsis;white-space:nowrap}
+  #factHost .fac-plan p{margin:0;color:#778fa3;font-size:10px;font-weight:700}
+  #factHost .fac-plan__nro{display:inline-flex;align-items:center;gap:6px;max-width:48%;padding:6px 8px;border:1px solid #cfe5f5;border-radius:9px;background:#eaf6fd;color:#0b689d;white-space:nowrap}
+  #factHost .fac-plan__nro svg{width:14px;height:14px;flex:none}#factHost .fac-plan__nro b{overflow:hidden;font-size:10px;text-overflow:ellipsis}#factHost .fac-plan__nro--pending{border-color:#f4dfb8;background:#fff8eb;color:#af6a0c}
+  #factHost .fac-plan__metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));padding:9px 10px;border-block:1px solid #eef3f7;background:#fbfdff}
+  #factHost .fac-plan__metrics>div{min-width:0;padding:0 7px;border-right:1px solid #e7eef4}.fac-plan__metrics>div:last-child{border-right:0}
+  #factHost .fac-plan__metrics small{display:block;overflow:hidden;color:#8799aa;font-size:8px;font-weight:900;letter-spacing:.45px;text-overflow:ellipsis;text-transform:uppercase;white-space:nowrap}
+  #factHost .fac-plan__metrics b{display:block;overflow:hidden;margin-top:4px;color:#29465e;font-size:11px;font-weight:850;text-overflow:ellipsis;white-space:nowrap}
+  #factHost .fac-plan__metrics .is-ok b{color:#07804a}#factHost .fac-plan__metrics .is-diff b{color:#cf3c36}
+  #factHost .fac-plan__foot{display:flex;align-items:center;gap:6px;padding:10px 11px 10px 17px}
+  #factHost .fac-plan__primary,#factHost .fac-plan__ghost,#factHost .fac-plan__delete,#factHost .fac-plan__detail-btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;min-height:31px;border-radius:9px;font:inherit;font-size:10px;font-weight:850;cursor:pointer;transition:transform .14s,box-shadow .14s,background .14s,border-color .14s}
+  #factHost .fac-plan__primary{padding:0 10px;border:0;background:linear-gradient(135deg,#1686c4,#0b5f8d);box-shadow:0 4px 10px rgba(11,95,141,.18);color:#fff}#factHost .fac-plan__primary svg{width:13px;height:13px}#factHost .fac-plan__primary:hover{transform:translateY(-1px);box-shadow:0 7px 14px rgba(11,95,141,.27)}
+  #factHost .fac-plan__ghost{padding:0 9px;border:1px solid #d4e2ec;background:#fff;color:#0b669b}.fac-plan__ghost:hover{border-color:#9bc8e2;background:#eff8fd}
+  #factHost .fac-plan__detail-btn{margin-left:auto;padding:0 7px;border:0;background:transparent;color:#5f7a90}.fac-plan__detail-btn span{font-size:15px;transition:transform .18s}.fac-plan.is-open .fac-plan__detail-btn span{transform:rotate(180deg)}
+  #factHost .fac-plan__delete{width:31px;flex:none;padding:0;border:1px solid #f4cecb;background:#fff4f3;color:#d7433e;font-size:18px;line-height:1}.fac-plan__delete:hover{background:#fee9e7}
+  #factHost .fac-plan__detail{padding:0 12px 12px;background:#f7fbfe}.fac-plan__detail-head{display:flex;align-items:center;justify-content:space-between;padding:10px 3px 7px;color:#28445c;font-size:10px}.fac-plan__detail-head span{padding:3px 7px;border-radius:99px;background:#e6f2fa;color:#52728b;font-size:9px;font-weight:850}
+  #factHost .fac-plan__table{overflow:auto;border:1px solid #dce7ef;border-radius:10px;background:#fff}#factHost .fac-plan__table table{width:100%;border-collapse:collapse;font-size:10px}#factHost .fac-plan__table th{padding:8px 9px;background:#f2f7fb;color:#7e94a6;font-size:8px;font-weight:900;letter-spacing:.55px;text-align:left;text-transform:uppercase;white-space:nowrap}#factHost .fac-plan__table th.r,#factHost .fac-plan__table td.r{text-align:right}#factHost .fac-plan__table td{padding:8px 9px;border-top:1px solid #edf2f6;color:#526b80;white-space:nowrap}#factHost .fac-plan__table td b{display:block;color:#2b475e;font-size:10px}#factHost .fac-plan__table td small{display:block;overflow:hidden;max-width:230px;margin-top:2px;color:#8497a8;font-size:9px;text-overflow:ellipsis}.fac-plan__empty{text-align:center;color:#8497a8;font-weight:700}
+  #factHost .fac-plan__seg{display:inline-flex;padding:3px 7px;border-radius:99px;background:#eaf3fb;color:#0b679d;font-size:8px;font-weight:900;text-transform:uppercase}.fac-plan__seg--servicios{background:#e8f8ef;color:#097c4b}.fac-plan__seg--interior{background:#fff1df;color:#bd6104}.fac-plan__seg--transportadora{background:#f0ebff;color:#6e35c6}
+  #factHost .fac-work__empty{grid-column:1/-1;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:230px;padding:24px;text-align:center}.fac-work__empty>span{display:grid;place-items:center;width:48px;height:48px;margin-bottom:11px;border-radius:15px;background:#eaf4fb;color:#0b6ea6}.fac-work__empty>span svg{width:22px;height:22px}.fac-work__empty b{color:#314d64;font-size:14px}.fac-work__empty p{max-width:380px;margin:6px 0 0;color:#7790a4;font-size:11px;font-weight:650}
+  .fac-pick-grid{grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}.fac-pick-card{position:relative;display:flex;flex-direction:column;gap:5px;min-height:148px;padding:15px;border:1px solid #d9e6ef;border-radius:14px;background:linear-gradient(145deg,#fff,#f6fbff);box-shadow:0 3px 10px rgba(20,59,87,.04);transition:transform .16s,border-color .16s,box-shadow .16s}.fac-pick-card:hover{transform:translateY(-2px);border-color:#82bddc;box-shadow:0 10px 20px rgba(11,95,141,.12)}.fac-pick-card__top{display:flex;align-items:center;justify-content:space-between;gap:8px}.fac-pick-card__top span{color:#0b6a9f;font-size:9px;font-weight:900;letter-spacing:.65px}.fac-pick-card h4{overflow:hidden;margin:0;color:#1c3e5a;font-family:Sora,Inter,sans-serif;font-size:14px;text-overflow:ellipsis;white-space:nowrap}.fac-pick-card p{margin:0;color:#71889b;font-size:10.5px;font-weight:700}.fac-pick-card__stats{display:flex;gap:14px;margin-top:auto;padding-top:9px;border-top:1px solid #e7eff5}.fac-pick-card__stats span{display:flex;flex-direction:column;gap:2px}.fac-pick-card__stats small{color:#8195a6;font-size:8px;font-weight:900;letter-spacing:.5px;text-transform:uppercase}.fac-pick-card__stats b{color:#1c3e5a;font-size:11px}.fac-pick-card__go{position:absolute;right:13px;bottom:12px;display:grid;place-items:center;width:26px;height:26px;border-radius:8px;background:#0b6b9f;color:#fff;font-size:15px}
+  @media(max-width:1050px){#factHost .fac-work__grid{grid-template-columns:1fr}#factHost .fac-work__kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media(max-width:720px){#factHost .fac-work__head{align-items:flex-start;flex-direction:column;padding:14px}#factHost .fac-work__new{width:100%}#factHost .fac-work__tools{align-items:stretch;flex-direction:column}#factHost .fac-work__search{width:100%;flex:auto}#factHost .fac-work__period{align-items:flex-start;flex-direction:column}.fac-work__weeks{width:100%}#factHost .fac-work__boardhead{align-items:flex-start;flex-direction:column}#factHost .fac-work__tabs{max-width:100%;overflow:auto}.fac-work__tab{flex:none;white-space:nowrap}}
+  @media(max-width:520px){#factHost .fac-work__title>img{width:76px}#factHost .fac-work__title h2{font-size:19px}#factHost .fac-work__title p{display:none}#factHost .fac-work__kpis{grid-template-columns:1fr 1fr}#factHost .fac-work__kpi{min-height:68px;padding:10px}#factHost .fac-work__kpi>span{display:none}#factHost .fac-work__kpi b{font-size:15px}#factHost .fac-plan__head{flex-direction:column}#factHost .fac-plan__nro{max-width:100%}#factHost .fac-plan__metrics{grid-template-columns:1fr 1fr;gap:8px}#factHost .fac-plan__metrics>div:nth-child(2){border-right:0}#factHost .fac-plan__metrics>div:nth-child(n+3){padding-top:7px;border-top:1px solid #e7eef4}#factHost .fac-plan__foot{flex-wrap:wrap}.fac-plan__detail-btn{margin-left:0}}
 </style>
 <script>
 /* ════════ Helpers ════════ */
@@ -9825,10 +9902,123 @@ function _planillasDe(mes,weekDesde,mesCut,opts){
   return Object.values(groups).filter(g=>!opts.pendingOnly||g.lines.length>0).sort((a,b)=>b.flete-a.flete);
 }
 
+/* Facturación parte de las mismas planillas que Reporte de Repartos. La factura
+   no vuelve a agrupar por su cuenta: simplemente queda ligada a estas líneas. */
+let _facPlanMode='todos';
+function _facRefsDeLineas(lines){
+  return (lines||[]).map(function(x){
+    const repId=x.repId!=null?x.repId:x.repartoId;
+    const r=(repartos||[]).find(function(z){return String(z.id)===String(repId);});
+    const cl=x.cl;
+    const index=x.lineIndex!=null?x.lineIndex:(r&&Array.isArray(r.clientes)?r.clientes.indexOf(cl):-1);
+    return {id:cl&&cl.id,repId:repId,lineId:cl&&cl.id,lineIndex:index>=0?index:null,cl:cl,fechaISO:x.fecha||x.fechaISO||(r&&r.fechaISO)||'',flete:_cfFleteVal(cl)};
+  }).filter(function(x){return x.cl&&x.repId!=null&&x.lineIndex!=null;});
+}
+function _facPeriodoItems(facs){
+  const weeks=_weeksOfMonth(_facMes),weekSet={};weeks.forEach(function(w){weekSet[w.desde]=true;});
+  const visibles=(facs||[]).filter(function(f){const sd=_facSem(f);return !!sd&&(_facWeek?sd===_facWeek:!!weekSet[sd]);});
+  const facturadas=visibles.map(function(f){
+    const raw=_facLineas(f),refs=_facRefsDeLineas(raw),sd=_facSem(f),ts=f.transportadora_nombre||'Sin transportadora';
+    let flete=refs.reduce(function(s,x){return s+(+x.flete||0);},0);
+    if(!refs.length){const legacy=sd?_facLegacy(ts,sd,f.transportadora_id):null;flete=legacy&&String(legacy.id)===String(f.id)?_fleteDe(ts,sd,f.transportadora_id):0;}
+    const diff=Math.round((+f.monto||0)-flete),estado=!sd?'sin':(diff===0?'ok':'diff');
+    return {kind:'factura',key:'fac:'+f.id,fac:f,ts:ts,tsId:f.transportadora_id||null,semDesde:sd,semHasta:f.semana_hasta||(sd?_wkHasta(sd):''),refs:refs,flete:flete,monto:+f.monto||0,diff:diff,estado:estado};
+  });
+  const pendientes=_planillasDe(_facMes,_facWeek,null,{pendingOnly:true}).map(function(g){
+    const refs=_facRefsDeLineas(g.lines);
+    return {kind:'pendiente',key:'new:'+(g.tsId||_facNorm(g.ts))+'|'+g.semDesde,ts:g.ts,tsId:g.tsId||null,semDesde:g.semDesde,semHasta:g.semHasta,refs:refs,flete:+g.flete||0,monto:0,diff:null,estado:'pendiente'};
+  });
+  return pendientes.concat(facturadas).sort(function(a,b){
+    const order={pendiente:0,diff:1,sin:2,ok:3};
+    return (order[a.estado]-order[b.estado])||String(a.ts).localeCompare(String(b.ts),'es')||String(a.semDesde).localeCompare(String(b.semDesde));
+  });
+}
+function _facPlanReps(item){
+  const seen=new Set();
+  return (item.refs||[]).reduce(function(out,x){
+    const key=String(x.repId);if(seen.has(key))return out;seen.add(key);
+    out.push({id:x.repId,fechaISO:x.fechaISO,flete:0});return out;
+  },[]).map(function(r){r.flete=(item.refs||[]).filter(function(x){return String(x.repId)===String(r.id);}).reduce(function(s,x){return s+(+x.flete||0);},0);return r;});
+}
+function _facAbrirPlanilla(item){
+  if(!item)return;
+  if(item.fac){_cfAbrirFacturaEnReporte(item.fac.id);return;}
+  const lines=(item.refs||[]).map(function(x){x.cl._fecha=x.fechaISO||null;x.cl._repId=x.repId;return x.cl;});
+  if(!lines.length)return;
+  const reps=_facPlanReps(item).map(function(r){return {id:r.id,fechaISO:r.fechaISO,factura_id:null};});
+  const totals=_rrSumLines(lines),g={ts:item.ts,tsId:item.tsId,facturaId:null,semDesde:item.semDesde,semHasta:item.semHasta,perDesde:item.semDesde,perHasta:item.semHasta,lines:lines,reps:reps,monto:totals.monto,flete:totals.flete};
+  _rrHostId='rrepHost';_rrFijoSeg=null;_rrMes=(item.semDesde||_facMes).slice(0,7);_rrWeek=item.semDesde||null;_rrDay=null;_rrFac='todos';_rrQ='';
+  _rrBack={week:_rrWeek,day:_rrDay,fac:_rrFac,q:_rrQ,scroll:0};
+  showView('rrep');_rrOpenDetail(g,_dispD(item.semDesde)+' al '+_dispD(item.semHasta),{desde:item.semDesde,hasta:item.semHasta});
+}
+function _facCrearDesdePlanilla(item){
+  if(!item||!item.refs||!item.refs.length)return;
+  _cfOpenFacturaModal(null,{ts:item.ts,tsId:item.tsId,semDesde:item.semDesde,semHasta:item.semHasta,flete:item.flete,reps:item.refs,preselected:true,autoMonto:true,onRegistered:function(){renderFacturas();}});
+}
+function _facPlanDetalleHtml(item){
+  const SEG={local:'Local',interior:'Interior',servicios:'Servicios',transportadora:'Transportadora'};
+  const rows=(item.refs||[]).map(function(x){
+    const c=x.cl,sk=c.seg||'local',isService=sk==='servicios';
+    const principal=isService?(c.obs||c.servicio||'Servicio sin nombre'):(c.trDesc||c.nombre||'—');
+    const secundario=isService?(c.detalle||c.almacen||'—'):(c.zona||c.rep||'—');
+    return '<tr><td>'+_dmy(x.fechaISO)+'</td><td><b>'+_escp(principal)+'</b><small>'+_escp(secundario)+'</small></td><td><span class="fac-plan__seg fac-plan__seg--'+_escp(sk)+'">'+_escp(SEG[sk]||sk)+'</span></td><td class="r">'+_gs(x.flete)+'</td></tr>';
+  }).join('')||'<tr><td colspan="4" class="fac-plan__empty">No hay líneas vinculadas a esta planilla.</td></tr>';
+  return '<div class="fac-plan__detail"><div class="fac-plan__detail-head"><b>Líneas de la planilla</b><span>'+((item.refs||[]).length)+' líneas</span></div><div class="fac-plan__table"><table><thead><tr><th>Fecha</th><th>Camión / servicio</th><th>Segmento</th><th class="r">Flete</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
+}
+function _renderFacturasPlanillas(host,facs){
+  const items=_facPeriodoItems(facs),query=_facNorm(_facQ);
+  const byMode=function(item){return _facPlanMode==='todos'||item.estado===_facPlanMode||(_facPlanMode==='diff'&&item.estado==='sin');};
+  const byQuery=function(item){return !query||_facNorm(item.ts).indexOf(query)>=0||(item.fac&&_facNorm(item.fac.nro).indexOf(query)>=0);};
+  const view=items.filter(function(item){return byMode(item)&&byQuery(item);});
+  const pending=items.filter(function(x){return x.estado==='pendiente';}),ok=items.filter(function(x){return x.estado==='ok';}),diff=items.filter(function(x){return x.estado==='diff'||x.estado==='sin';});
+  const facturado=items.filter(function(x){return x.kind==='factura';}).reduce(function(s,x){return s+x.monto;},0);
+  const nav='<div class="rr-mnav"><button data-facm="-1" aria-label="Mes anterior">‹</button><span>'+_mesLbl(_facMes)+'</span><button data-facm="1" aria-label="Mes siguiente">›</button><button class="rr-mnav__today" data-factoday type="button">Semana actual</button></div>';
+  const weeks=_weeksOfMonth(_facMes),chips='<div class="fac-work__weeks"><button class="rr-chip'+(!_facWeek?' on':'')+'" data-facw="">Mes completo</button>'+weeks.map(function(w){return '<button class="rr-chip'+(_facWeek===w.desde?' on':'')+'" data-facw="'+w.desde+'">'+_shD(w.desde)+'–'+_shD(w.hasta)+'</button>';}).join('')+'</div>';
+  const iconDoc='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l5 5v13H7a2 2 0 01-2-2V5a2 2 0 012-2z"/><path d="M14 3v6h5M9 13h6M9 17h6"/></svg>';
+  const iconTruck='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h11v10H3zM14 10h4l3 4v3h-7z"/><circle cx="7" cy="19" r="1.5"/><circle cx="18" cy="19" r="1.5"/></svg>';
+  const tile=function(cls,label,value,sub){return '<div class="fac-work__kpi '+cls+'"><span>'+iconDoc+'</span><div><small>'+label+'</small><b>'+value+'</b><em>'+sub+'</em></div></div>';};
+  const kpis='<div class="fac-work__kpis">'+tile('is-total','Facturado',_gs(facturado),'facturas del período')+tile('is-pending','Por facturar',pending.length,_gs(pending.reduce(function(s,x){return s+x.flete;},0)))+tile('is-ok','Conciliadas',ok.length,'total calculado coincide')+tile('is-diff','A revisar',diff.length,diff.length?'tienen una diferencia':'sin diferencias')+'</div>';
+  const tabs=[['todos','Todas',items.length],['pendiente','Pendientes',pending.length],['ok','Conciliadas',ok.length],['diff','A revisar',diff.length]].map(function(x){return '<button type="button" class="fac-work__tab'+(_facPlanMode===x[0]?' is-on':'')+'" data-facplanmode="'+x[0]+'"><span>'+x[1]+'</span><b>'+x[2]+'</b></button>';}).join('');
+  const cards=view.map(function(item,i){
+    const isPending=item.estado==='pendiente',isOk=item.estado==='ok',isDiff=item.estado==='diff'||item.estado==='sin';
+    const state=isPending?'Pendiente de factura':(isOk?'Conciliada':(item.estado==='sin'?'Sin líneas vinculadas':'Con diferencia'));
+    const stateIcon=isOk?'✓':(isPending?'•':'!');
+    const number=item.fac?'<span class="fac-plan__nro">'+iconDoc+'<b>'+_escp(item.fac.nro||'Sin número')+'</b></span>':'<span class="fac-plan__nro fac-plan__nro--pending">'+iconDoc+'<b>Sin factura</b></span>';
+    const diffTxt=isPending?'—':(isOk?'Sin diferencia':(item.diff>0?'+':'−')+_gs(Math.abs(item.diff||0)));
+    const actions=isPending
+      ? '<button type="button" class="fac-plan__primary" data-fac-create="'+i+'">'+iconDoc+'Registrar factura</button><button type="button" class="fac-plan__ghost" data-fac-report="'+i+'">Ver planilla</button>'
+      : '<button type="button" class="fac-plan__primary" data-fac-report="'+i+'">'+iconTruck+'Abrir planilla</button><button type="button" class="fac-plan__ghost" data-editfac="'+item.fac.id+'">Editar</button><button type="button" class="fac-plan__delete" data-delfac="'+item.fac.id+'" aria-label="Eliminar factura">×</button>';
+    return '<article class="fac-plan fac-plan--'+item.estado+'" data-plan-key="'+_escp(item.key)+'" style="--i:'+Math.min(i,20)+'">'+
+      '<div class="fac-plan__head"><div><span class="fac-plan__status">'+stateIcon+' '+state+'</span><h3>'+_escp(item.ts)+'</h3><p>'+_dispD(item.semDesde)+' al '+_dispD(item.semHasta)+'</p></div>'+number+'</div>'+
+      '<div class="fac-plan__metrics"><div><small>Líneas</small><b>'+((item.refs||[]).length)+'</b></div><div><small>Flete calculado</small><b>'+_gs(item.flete)+'</b></div><div><small>Factura</small><b>'+(item.fac?_gs(item.monto):'Pendiente')+'</b></div><div class="'+(isOk?'is-ok':(isDiff?'is-diff':''))+'"><small>Diferencia</small><b>'+diffTxt+'</b></div></div>'+
+      '<div class="fac-plan__foot">'+actions+'<button type="button" class="fac-plan__detail-btn" data-fac-plan-detail="'+i+'">Ver líneas <span>⌄</span></button></div></article>';
+  }).join('')||'<div class="fac-work__empty"><span>'+iconDoc+'</span><b>No hay planillas en este filtro</b><p>Probá con otra semana o creá una planilla cuando haya repartos pendientes.</p></div>';
+  const search='<div class="cf-search fac-work__search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input type="text" id="facQ" placeholder="Buscar factura o transportadora…" autocomplete="off" value="'+_escp(_facQ)+'"><button type="button" class="cf-search__clr" id="facQClr" title="Limpiar"'+(_facQ?'':' hidden')+'>×</button></div>';
+  host.innerHTML='<div class="fac-work"><header class="fac-work__head"><div class="fac-work__title"><img src="logo-alas-s.a.png"><div><span>CONTROL DE FACTURACIÓN</span><h2>Planillas y facturas</h2><p>Elegí una planilla de repartos, registrá la factura y el sistema deja conciliadas sus líneas.</p></div></div><button type="button" class="fac-work__new" id="cfNewFac">'+iconDoc+'Crear planilla</button></header><div class="fac-work__tools">'+nav+search+'</div><div class="fac-work__period"><span>PERÍODO</span>'+chips+'</div>'+kpis+'<section class="fac-work__board"><div class="fac-work__boardhead"><div><span>PLANILLAS DEL PERÍODO</span><b>'+view.length+' '+(view.length===1?'planilla':'planillas')+'</b></div><div class="fac-work__tabs">'+tabs+'</div></div><div class="fac-work__grid">'+cards+'</div></section></div>';
+  host.querySelector('#cfNewFac').addEventListener('click',function(){_facPlanillaPicker(function(pick){_cfOpenFacturaModal(null,Object.assign(pick,{autoMonto:true,onRegistered:function(){renderFacturas();}}));});});
+  host.querySelectorAll('[data-facm]').forEach(function(b){b.addEventListener('click',function(){const a=_facMes.split('-').map(Number),d=new Date(a[0],a[1]-1+(+b.dataset.facm),1);_facMes=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');_facWeek=null;renderFacturas();});});
+  const today=host.querySelector('[data-factoday]');if(today)today.addEventListener('click',function(){const d=new Date();_facMes=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');_facWeek=null;renderFacturas();});
+  host.querySelectorAll('[data-facw]').forEach(function(b){b.addEventListener('click',function(){_facWeek=b.dataset.facw||null;renderFacturas();});});
+  host.querySelectorAll('[data-facplanmode]').forEach(function(b){b.addEventListener('click',function(){_facPlanMode=b.dataset.facplanmode||'todos';renderFacturas();});});
+  const fq=host.querySelector('#facQ'),clear=host.querySelector('#facQClr');if(fq){let timer;fq.addEventListener('input',function(){_facQ=fq.value;clearTimeout(timer);timer=setTimeout(renderFacturas,160);});}if(clear)clear.addEventListener('click',function(){_facQ='';renderFacturas();});
+  host.querySelectorAll('[data-fac-create]').forEach(function(b){b.addEventListener('click',function(){_facCrearDesdePlanilla(view[+b.dataset.facCreate]);});});
+  host.querySelectorAll('[data-fac-report]').forEach(function(b){b.addEventListener('click',function(){_facAbrirPlanilla(view[+b.dataset.facReport]);});});
+  host.querySelectorAll('[data-editfac]').forEach(function(b){b.addEventListener('click',function(){const f=_facById(+b.dataset.editfac);if(f)_cfOpenFacturaModal(f);});});
+  host.querySelectorAll('[data-delfac]').forEach(function(b){b.addEventListener('click',function(){_cfDeleteFactura(+b.dataset.delfac);});});
+  host.querySelectorAll('[data-fac-plan-detail]').forEach(function(b){b.addEventListener('click',function(){const item=view[+b.dataset.facPlanDetail],card=b.closest('.fac-plan');if(!item||!card)return;const current=card.querySelector('.fac-plan__detail');if(current){current.remove();card.classList.remove('is-open');return;}card.insertAdjacentHTML('beforeend',_facPlanDetalleHtml(item));card.classList.add('is-open');if(window.gsap){const d=card.querySelector('.fac-plan__detail');if(d)gsap.fromTo(d,{height:0,opacity:0},{height:'auto',opacity:1,duration:.28,ease:'power2.out',clearProps:'height,opacity'});}});});
+  if(window.gsap)requestAnimationFrame(function(){if(!host.isConnected)return;gsap.from(host.querySelectorAll('.fac-work__kpi'),{opacity:0,y:9,duration:.32,stagger:.04,ease:'power2.out',clearProps:'all'});gsap.from(host.querySelectorAll('.fac-plan'),{opacity:0,y:13,duration:.36,stagger:.035,ease:'power2.out',clearProps:'all'});});
+}
+
 async function renderFacturas(){
   const host=document.getElementById('factHost');if(!host)return;
   const facs=(await _cfGetFacturas()).slice().sort(function(a,b){return (+b.id||0)-(+a.id||0);});
   try{await _cfMigrateLegacyPerLine();}catch(e){console.error('[migración de facturas legacy]',e);showToast('No pude fijar algunos vínculos antiguos; revisá la conexión e intentá de nuevo.');}
+  return _renderFacturasPlanillas(host,facs);
+}
+
+/* Conservada como referencia de compatibilidad durante la transición de la lista
+   antigua. La pantalla activa usa _renderFacturasPlanillas, basada en líneas. */
+function _renderFacturasLegacy(host,facs){
   const weeks=_weeksOfMonth(_facMes);
   // "Mes completo" = cualquier semana del mes en vista (incluye la semana que arranca el mes anterior,
   // ej. 31/08–06/09 cuenta en septiembre), igual que los chips de semana. Evita que desaparezcan facturas.
@@ -10115,13 +10305,15 @@ function _cfOpenFacturaModal(existing,preset){
     '<div class="cf-fld" data-fld id="cf_motfld"><input id="cf_motnota" placeholder="Nota (opcional): contá en una línea qué pasó" autocomplete="off" maxlength="180"><span class="cf-fld__err"></span></div>'+
   '</div>'):'';
   const autoTotal=autoMonto?Math.round(repFlete()):0;
+  const autoLineas=autoMonto?(repsList||[]).length:0;
+  const autoRepartos=autoMonto?new Set((repsList||[]).map(function(r){return r.repId!=null?String(r.repId):(r.id!=null?String(r.id):'');}).filter(Boolean)).size:0;
   const modalHTML=autoMonto
     ? '<div class="cf-mbox cf-mbox--form sv-invoice sv-invoice--freight">'+
       '<div class="sv-invoice__head cf-fhead"><span class="sv-invoice__badge">'+_ic('doc')+'</span>'+
         '<div class="sv-invoice__headcopy"><span class="sv-invoice__eyebrow">Reporte de repartos</span><h3>Registrar factura</h3>'+
           '<p class="cf-msub">'+_escp(sel.ts)+' · '+_dispD(sel.semDesde)+' al '+_dispD(sel.semHasta)+'</p></div>'+
         '<div class="cf-fld cf-fhead__date"><label for="cf_ffecha">Fecha de registro</label><input id="cf_ffecha" type="date"></div></div>'+
-      '<div class="sv-invoice__summary"><div class="sv-invoice__stat"><span>Repartos incluidos</span><b>'+repsList.length+'</b></div>'+
+      '<div class="sv-invoice__summary"><div class="sv-invoice__stat"><span>Repartos incluidos</span><b>'+autoRepartos+'</b></div><div class="sv-invoice__stat"><span>Líneas incluidas</span><b>'+autoLineas+'</b></div>'+
         '<div class="sv-invoice__stat sv-invoice__stat--tot"><span>Total a facturar</span><b>'+_gs(autoTotal)+'</b></div></div>'+
       '<div class="sv-invoice__fields">'+
         '<div class="cf-fld" data-fld><label for="cf_fnro">Nº de factura</label><div class="sv-invoice__input"><span>N.º</span><input id="cf_fnro" placeholder="001-001-0000000" autocomplete="off"></div><span class="cf-fld__err"></span></div>'+
@@ -10268,7 +10460,7 @@ function _cfOpenFacturaModal(existing,preset){
 // Picker de planilla (grilla por transportista, estilo Reporte de Repartos)
 function _facPlanillaPicker(onPick){
   let pm=_facMes,pw=_facWeek;
-  const m=_cfModalOpen('<div class="cf-mbox cf-mbox--wide"><div class="rrm-hd"><div><h3 class="rrm-ts" style="font-size:20px">Elegí la planilla</h3><div class="rrm-pd">Transportista + semana a facturar</div></div><button class="rrm-x cancel" aria-label="Cerrar">&times;</button></div><div id="fp_body"></div></div>');
+  const m=_cfModalOpen('<div class="cf-mbox cf-mbox--wide"><div class="rrm-hd"><div><h3 class="rrm-ts" style="font-size:20px">Crear desde una planilla</h3><div class="rrm-pd">Elegí repartos pendientes: el flete se calcula automáticamente.</div></div><button class="rrm-x cancel" aria-label="Cerrar">&times;</button></div><div id="fp_body"></div></div>');
   function draw(){
     const weeks=_weeksOfMonth(pm);
     if(pw===undefined){const t=_isoD(new Date());const c=weeks.find(w=>t>=w.desde&&t<=w.hasta);pw=c?c.desde:(weeks[0]?weeks[0].desde:null);}
@@ -10277,12 +10469,12 @@ function _facPlanillaPicker(onPick){
     const groups=_planillasDe(pm,pw,null,{pendingOnly:true});
     let grid;
     if(!groups.length)grid='<div class="cf-empty" style="padding:30px"><b>Sin líneas pendientes para facturar</b><span>Las líneas ya facturadas no se vuelven a incluir.</span></div>';
-    else grid='<div class="fac-pick-grid">'+groups.map((g,i)=>'<button type="button" class="rr-card" data-pick="'+i+'" style="cursor:pointer;text-align:left;font:inherit;width:100%"><div class="rr-card__ts">'+_escp(g.ts)+'</div><div class="rr-card__pd">'+_dispD(g.semDesde)+' al '+_dispD(g.semHasta)+'</div><div class="rr-card__foot"><div><b>'+g.cam+'</b><span>Camiones</span></div><div style="text-align:right"><b>'+_gs(g.flete)+'</b><span>Flete</span></div></div></button>').join('')+'</div>';
+    else grid='<div class="fac-pick-grid">'+groups.map((g,i)=>'<button type="button" class="fac-pick-card" data-pick="'+i+'"><span class="fac-pick-card__top"><span>PLANILLA PENDIENTE</span><span>'+g.lines.length+' líneas</span></span><h4>'+_escp(g.ts)+'</h4><p>'+_dispD(g.semDesde)+' al '+_dispD(g.semHasta)+'</p><span class="fac-pick-card__stats"><span><small>Flete calculado</small><b>'+_gs(g.flete)+'</b></span><span><small>Repartos</small><b>'+new Set(g.lines.map(function(x){return String(x.repartoId||'');}).filter(Boolean)).size+'</b></span></span><i class="fac-pick-card__go" aria-hidden="true">→</i></button>').join('')+'</div>';
     m.$('#fp_body').innerHTML='<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">'+nav+'</div>'+chips+grid;
     m.$('#fp_body').querySelectorAll('[data-pm]').forEach(b=>b.addEventListener('click',()=>{const a=pm.split('-').map(Number),d=new Date(a[0],a[1]-1+(+b.dataset.pm),1);pm=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');pw=null;draw();}));
     m.$('#fp_body').querySelectorAll('[data-pw]').forEach(b=>b.addEventListener('click',()=>{pw=b.dataset.pw||null;draw();}));
     m.$('#fp_body').querySelectorAll('[data-pick]').forEach(b=>b.addEventListener('click',()=>{const g=groups[+b.dataset.pick];m.close();onPick({ts:g.ts,tsId:g.tsId,semDesde:g.semDesde,semHasta:g.semHasta,flete:g.flete,reps:g.lines.map(x=>({id:x.cl.id,repId:x.repartoId,lineIndex:x.lineIndex,cl:x.cl,fechaISO:x.fechaISO,flete:_cfFleteVal(x.cl)})),preselected:true});}));
-    if(window.gsap)gsap.from(m.$('#fp_body').querySelectorAll('.rr-card'),{opacity:0,y:12,duration:.34,stagger:.03,ease:'power2.out',clearProps:'all'});
+    if(window.gsap)gsap.from(m.$('#fp_body').querySelectorAll('.fac-pick-card'),{opacity:0,y:12,duration:.34,stagger:.03,ease:'power2.out',clearProps:'all'});
   }
   draw();
   m.$('.cancel').addEventListener('click',m.close);
