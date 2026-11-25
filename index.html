@@ -5391,7 +5391,7 @@ let _calDayTsOutsideBound=false;
 function calDayRepartos(){return (typeof repByDate==='function'?(repByDate().get(calDayIso)||[]):[]);}
 function calStartEdit(id){
   const r=calDayRepartos().find(x=>String(x.id)===String(id));if(!r)return;
-  if(_repTieneVinculoFactura(r)){showToast('Esta planilla tiene una factura vinculada. Eliminá primero la factura para cambiar sus líneas.');return;}
+  if(_repTieneVinculoFactura(r)){showToast('Este reparto tiene una factura vinculada. Eliminá primero la factura para cambiar sus líneas.');return;}
   calEditRepId=r.id;calWork=calBuildWork(r);calWorkFecha=String(r.fechaISO||calDayIso||'').slice(0,10);renderCalDay('edit');
 }
 function _calDayTsReduceMotion(){try{return !!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);}catch(_){return false;}}
@@ -5458,7 +5458,7 @@ function renderCalDay(anim){
   const body=document.getElementById('calModalBody');
   body.innerHTML=list.length
     ? (editing
-      ? (function(){const selected=list.find(r=>r.id===calEditRepId);if(!selected)return '';const others=list.length-1;return calRepEditHTML(selected)+(others?'<div class="cal-edit-context"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 11v5m0-8h.01"/></svg>Estás editando una planilla. Las otras '+others+' del día vuelven a mostrarse al guardar o cancelar.</div>':'');})()
+      ? (function(){const selected=list.find(r=>r.id===calEditRepId);if(!selected)return '';const others=list.length-1;return calRepEditHTML(selected)+(others?'<div class="cal-edit-context"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 11v5m0-8h.01"/></svg>Estás editando este reparto. Los otros '+others+' del día vuelven a mostrarse al guardar o cancelar.</div>':'');})()
       : _calDiaResumenHTML(list))
     : '<div class="cal-day-empty">Este día ya no tiene repartos.</div>';
   _calBindDayTsOutside();
@@ -5530,7 +5530,7 @@ function calRepEditHTML(r){
   const _difObj=Math.round(kFlete-0.03*kMonto),over=incVal!==null?!incOk:(_difObj>0);
   const editFecha=String(calWorkFecha||r.fechaISO||calDayIso||'').slice(0,10);
   const fechaCambiada=editFecha!==String(r.fechaISO||'').slice(0,10);
-  const datebar='<div class="cal-edit-datebar"><div class="cal-edit-datebar__copy"><b>Fecha del reparto</b><small>La fecha se aplica a las '+alive.length+' líneas de esta planilla.</small></div><div class="cal-edit-datebar__field"><span class="cal-edit-datebar__note'+(fechaCambiada?' is-changed':'')+'">'+(fechaCambiada?'Se moverá al guardar':'Fecha actual')+'</span><input type="date" class="cal-edit-date" value="'+esc(editFecha)+'" aria-label="Fecha del reparto"></div></div>';
+  const datebar='<div class="cal-edit-datebar"><div class="cal-edit-datebar__copy"><b>Fecha del reparto</b><small>La fecha se aplica a las '+alive.length+' líneas de este reparto.</small></div><div class="cal-edit-datebar__field"><span class="cal-edit-datebar__note'+(fechaCambiada?' is-changed':'')+'">'+(fechaCambiada?'Se moverá al guardar':'Fecha actual')+'</span><input type="date" class="cal-edit-date" value="'+esc(editFecha)+'" aria-label="Fecha del reparto"></div></div>';
   const kb=(cls,ic,lbl,vcls,val)=>'<div class="rrd-ktile '+cls+'"><span class="rrd-ktile__ic">'+ic+'</span><div class="rrd-ktile__tx"><small>'+lbl+'</small><b class="'+vcls+'">'+val+'</b></div></div>';
   const kpis='<div class="rrd-resumen-bar crd-kpis">'+
     kb('rrd-ktile--cam',TRUCK,'Camiones','cal-ek-cam',_nnum(kCam))+
@@ -5678,11 +5678,11 @@ function calLiveTotals(){
 async function calSaveEdit(){
   const r=calDayRepartos().find(x=>x.id===calEditRepId);
   if(!r){calEditRepId=null;calWork=null;calWorkFecha='';renderCalDay('toggle');return;}
-  if(_repTieneVinculoFactura(r)){showToast('Esta planilla tiene una factura vinculada. Eliminá primero la factura para cambiar sus líneas.');calEditRepId=null;calWork=null;calWorkFecha='';renderCalDay('toggle');return;}
+  if(_repTieneVinculoFactura(r)){showToast('Este reparto tiene una factura vinculada. Eliminá primero la factura para cambiar sus líneas.');calEditRepId=null;calWork=null;calWorkFecha='';renderCalDay('toggle');return;}
   const rows=calWork.filter(w=>!w.del);
   const fechaDestino=String(calWorkFecha||r.fechaISO||calDayIso||'').slice(0,10);
   const fechaDestinoValida=/^\d{4}-\d{2}-\d{2}$/.test(fechaDestino)&&(()=>{const[y,m,d]=fechaDestino.split('-').map(Number),dt=new Date(y,m-1,d);return dt.getFullYear()===y&&dt.getMonth()===m-1&&dt.getDate()===d;})();
-  if(rows.length&&!fechaDestinoValida){showToast('Elegí una fecha válida para la planilla.');return;}
+  if(rows.length&&!fechaDestinoValida){showToast('Elegí una fecha válida para el reparto.');return;}
   const cambioFecha=fechaDestino!==String(r.fechaISO||'').slice(0,10);
   // Servicios no lleva camion (es un gasto suelto) y Transportadora se mide por cantidad.
   for(const w of rows){const sg=w.seg||'local';
@@ -5795,7 +5795,7 @@ function _calDiaResumenHTML(list){
   });
   const editPlanList=Array.from(editPlans.values()).map(function(p){
     const names=Array.from(p.names).filter(Boolean).sort(function(a,b){return a.localeCompare(b,'es');});
-    const name=names.length?names.join(' / '):(p.r.tsNombre||'Planilla');
+    const name=names.length?names.join(' / '):(p.r.tsNombre||'Reparto');
     const date=String(p.r.fechaISO||calDayIso||'').slice(0,10).split('-').reverse().join('/')||'Sin fecha';
     return{r:p.r,count:p.count,name:name,date:date,locked:_repTieneVinculoFactura(p.r)};
   }).sort(function(a,b){return a.name.localeCompare(b.name,'es')||a.date.localeCompare(b.date,'es')||String(a.r.id).localeCompare(String(b.r.id),'es');});
@@ -5805,10 +5805,10 @@ function _calDiaResumenHTML(list){
   }
   const selectedEditPlan=editPlanList.find(function(p){return String(p.r.id)===String(_calDayEditTarget);})||null;
   const editTargetControl=editPlanList.length>1
-    ?'<select data-cal-edit-target aria-label="Elegir planilla para editar">'+editPlanList.map(function(p,i){return '<option value="'+esc(p.r.id)+'"'+(String(p.r.id)===String(_calDayEditTarget)?' selected':'')+'>Planilla '+(i+1)+' · '+esc(p.name)+' · '+p.count+' línea'+(p.count===1?'':'s')+(p.locked?' · Facturada':'')+'</option>';}).join('')+'</select>'
+    ?'<select data-cal-edit-target aria-label="Elegir reparto para editar">'+editPlanList.map(function(p,i){return '<option value="'+esc(p.r.id)+'"'+(String(p.r.id)===String(_calDayEditTarget)?' selected':'')+'>Reparto '+(i+1)+' · '+esc(p.name)+' · '+p.count+' línea'+(p.count===1?'':'s')+(p.locked?' · Factura vinculada':'')+'</option>';}).join('')+'</select>'
     :'';
   const editActions=editPlanList.length
-    ?'<div class="cal-day-edit-actions">'+editTargetControl+'<button type="button" class="cal-day-edit-actions__btn" data-cal-day-edit'+(!selectedEditPlan||selectedEditPlan.locked?' disabled':'')+' title="'+(selectedEditPlan&&selectedEditPlan.locked?'La planilla tiene una factura vinculada':'Editar la planilla seleccionada')+'"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg><span>Editar planilla</span></button><span class="cal-day-edit-actions__state"'+(selectedEditPlan&&selectedEditPlan.locked?'':' hidden')+'>Factura vinculada: desvinculala para editar</span></div>'
+    ?'<div class="cal-day-edit-actions">'+editTargetControl+'<button type="button" class="cal-day-edit-actions__btn" data-cal-day-edit'+(!selectedEditPlan||selectedEditPlan.locked?' disabled':'')+' title="'+(selectedEditPlan&&selectedEditPlan.locked?'El reparto tiene una factura vinculada':'Editar el reparto seleccionado')+'"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg><span>Editar reparto</span></button><span class="cal-day-edit-actions__state"'+(selectedEditPlan&&selectedEditPlan.locked?'':' hidden')+'>Factura vinculada: desvinculala para editar</span></div>'
     :'';
   const filters='<div class="cal-day-overview__filters">'+_calSegmentTabs('day',_calDaySegFilter,counts,'caldayseg',false)+tsSelect+editActions+'</div>';
   const hasKm=visible.some(function(x){return x.seg==='interior'&&(+x.c.km||0)>0;});
@@ -5832,7 +5832,7 @@ function _calDiaResumenHTML(list){
       :(c.zona?'<span class="rrd-chip">'+esc(c.zona)+'</span>':'<span class="rrd-mut">—</span>');
     const km=(sk==='interior'&&+c.km>0)?_nnum(+c.km)+' km × '+fmtGs(+c.precioKm||0):'<span class="rrd-mut">—</span>';
     const hasInc=sk!=='servicios'&&(+c.monto||0)>0&&fl>0,incLine=hasInc?fl/(+c.monto)*100:null;
-    const actions=seen.has(r.id)?'<span class="rrd-mut">—</span>':('<div class="cal-rep-actions"><button class="cal-rep-btn edit" type="button" data-editr="'+r.id+'" aria-label="Editar planilla"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="15" height="15"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828z"/></svg></button><button class="cal-rep-btn del" type="button" data-delr="'+r.id+'" title="Eliminar planilla">'+CAL_TRASH+'</button></div>');
+    const actions=seen.has(r.id)?'<span class="rrd-mut">—</span>':('<div class="cal-rep-actions"><button class="cal-rep-btn edit" type="button" data-editr="'+r.id+'" aria-label="Editar reparto"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="15" height="15"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828z"/></svg></button><button class="cal-rep-btn del" type="button" data-delr="'+r.id+'" title="Eliminar reparto">'+CAL_TRASH+'</button></div>');
     seen.add(r.id);
     return '<tr><td><span class="cal-day-tschip">'+esc(x.tsName)+'</span></td><td class="rrd-cam">'+vehicle+'</td><td><span class="rrd-segtag rrd-segtag--'+sk+'">'+LABEL[sk]+'</span></td><td>'+person+'</td><td class="rrd-grow">'+zone+'</td>'+(hasKm?'<td class="r">'+km+'</td>':'')+'<td class="r">'+fmtGs(c.monto||0)+'</td><td class="r rrd-flete">'+fmtGs(fl)+'</td><td class="r crt-inc '+(hasInc?(incLine<3?'ok':'over'):'')+'">'+(hasInc?incLine.toFixed(2)+'%':'—')+'</td><td>'+actions+'</td></tr>';
   }).join('');
@@ -5975,11 +5975,11 @@ document.getElementById('calModalBody').addEventListener('click',async e=>{
   if(saveBtn){await calSaveEdit();return;}
   if(delUid){if(!calWork)return;const w=calWork.find(x=>x.uid===+delUid.dataset.calDeluid);if(!w)return;
     const doDel=()=>{if(w.isNew)calWork=calWork.filter(x=>x!==w);else w.del=true;renderCalDay('rows');};
-    if(w.isNew)doDel();else _cfConfirm('¿Quitar el camión?','<b>'+esc(w.trDesc||'Este camión')+'</b> se va a quitar de la planilla.',doDel,'Sí, quitar');
+    if(w.isNew)doDel();else _cfConfirm('¿Quitar el camión?','<b>'+esc(w.trDesc||'Este camión')+'</b> se va a quitar del reparto.',doDel,'Sí, quitar');
     return;}
   if(delBtn){
     const id=+delBtn.dataset.delr;
-    const selected=calDayRepartos().find(r=>r.id===id);if(selected&&_repTieneVinculoFactura(selected)){showToast('Esta planilla tiene una factura vinculada. Eliminá primero la factura para borrar sus líneas.');return;}
+    const selected=calDayRepartos().find(r=>r.id===id);if(selected&&_repTieneVinculoFactura(selected)){showToast('Este reparto tiene una factura vinculada. Eliminá primero la factura para borrar sus líneas.');return;}
     if(confirm('¿Eliminar este reparto del historial?')){
       repartos=repartos.filter(r=>r.id!==id);
       dbDeleteReparto(id).catch(()=>showToast('Error al eliminar reparto'));
@@ -6031,7 +6031,7 @@ document.getElementById('calModalBody').addEventListener('change',e=>{
     const plan=calDayRepartos().find(function(r){return String(r.id)===String(_calDayEditTarget);});
     const locked=!!(plan&&_repTieneVinculoFactura(plan));
     const actions=e.target.closest('.cal-day-edit-actions'),btn=actions&&actions.querySelector('[data-cal-day-edit]'),state=actions&&actions.querySelector('.cal-day-edit-actions__state');
-    if(btn){btn.disabled=!plan||locked;btn.title=locked?'La planilla tiene una factura vinculada':'Editar la planilla seleccionada';}
+    if(btn){btn.disabled=!plan||locked;btn.title=locked?'El reparto tiene una factura vinculada':'Editar el reparto seleccionado';}
     if(state){state.hidden=!locked;}
     return;
   }
