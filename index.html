@@ -5798,7 +5798,7 @@ function _calDiaResumenHTML(list){
     if(!editPlans.has(key))editPlans.set(key,x.r);
   });
   const editPlanList=Array.from(editPlans.values())
-    .sort(function(a,b){return String(a.r.tsNombre||'').localeCompare(String(b.r.tsNombre||''),'es')||String(a.r.id).localeCompare(String(b.r.id),'es');});
+    .sort(function(a,b){return String(a.tsNombre||'').localeCompare(String(b.tsNombre||''),'es')||String(a.id).localeCompare(String(b.id),'es');});
   const editTarget=editPlanList.length===1?editPlanList[0]:null;
   const editChoices=editPlanList.map(function(r,i){
     const name=String(r.tsNombre||'Sin transportadora'),key=name.trim().toLocaleUpperCase('es');
