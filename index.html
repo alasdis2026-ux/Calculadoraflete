@@ -1185,7 +1185,9 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .chip-pop__search{padding:9px 10px;border-bottom:1px solid var(--gray-100,#f1f5f9)}
 .chip-pop__search input{width:100%;border:1.5px solid var(--gray-200,#e2e8f0);border-radius:9px;padding:8px 11px;font:inherit;font-size:13px;font-weight:600;outline:none}
 .chip-pop__search input:focus{border-color:var(--accent,#3B82F6)}
+.chip-pop__search input:focus-visible{box-shadow:0 0 0 3px rgba(59,130,246,.14)}
 .chip-pop__list{overflow:auto;max-height:290px;padding:5px}
+.chip-pop__list:focus{outline:none}
 .chip-pop__item{display:flex;align-items:center;gap:9px;width:100%;padding:9px 11px;border:0;background:transparent;border-radius:9px;font:inherit;font-size:13px;font-weight:600;color:var(--gray-800,#334155);cursor:pointer;text-align:left;transition:background .12s}
 /* Multi: casilla en vez de marcar la fila entera, y el desplegable no se cierra. */
 .chip-pop__hint{padding:7px 11px 9px;font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--gray-400,#94a3b8)}
@@ -1196,6 +1198,7 @@ tfoot .val{font-weight:800;color:var(--primary);font-variant-numeric:tabular-num
 .chip-pop__done{display:block;width:100%;margin-top:5px;padding:9px;border:0;border-top:1px solid var(--gray-100,#f1f5f9);background:transparent;font:inherit;font-size:12.5px;font-weight:800;color:var(--primary,#0B5F8D);cursor:pointer;transition:background .14s}
 .chip-pop__done:hover{background:#eaf3fb}
 .chip-pop__item:hover{background:var(--gray-50,#f8fafc)}
+.chip-pop__item:focus-visible{outline:2px solid #3b82f6;outline-offset:-2px;background:#eff6ff;color:#075985}
 .chip-pop__item.on{background:var(--accent-soft,#DBEAFE);color:var(--primary);font-weight:700}
 .chip-pop__item .dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
 .chip-pop__add{border-top:1px solid var(--gray-100,#f1f5f9);color:var(--primary);font-weight:800}
@@ -3187,7 +3190,7 @@ function renderClientesTable(){
         <button type="button" class="cl-chip cl-segbtn" data-clid="${cl.id}" aria-label="Segmento, fila ${i+1}"><span class="cl-chip__dot seg-${cl.seg||'local'}"></span><span class="cl-chip__lbl">${({local:'Local',interior:'Interior',servicios:'Servicios',transportadora:'Transportadora'}[cl.seg||'local'])}</span><svg class="cl-chip__arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg></button>
       </td>
       <td style="padding:6px 8px">
-        <button type="button" class="cl-chip cl-repbtn" data-clid="${cl.id}" aria-label="Repartidor, fila ${i+1}"><span class="cl-chip__lbl${cl.rep?'':' ph'}">${cl.rep?esc(cl.rep):'— Repartidor —'}</span><svg class="cl-chip__arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg></button>
+        <button type="button" class="cl-chip cl-repbtn" data-clid="${cl.id}" aria-label="Repartidor, fila ${i+1}" aria-haspopup="listbox" aria-expanded="false"><span class="cl-chip__lbl${cl.rep?'':' ph'}">${cl.rep?esc(cl.rep):'— Repartidor —'}</span><svg class="cl-chip__arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg></button>
       </td>
       <td style="padding:6px 8px">
         <button type="button" class="cl-chip cl-zonabtn" data-clid="${cl.id}" title="${esc(_zonaTxt(cl))}" aria-label="Zona, fila ${i+1}"><span class="cl-chip__lbl${_zonaChip(cl)?'':' ph'}">${_zonaChip(cl)?esc(_zonaChip(cl)):'— Zona —'}</span><svg class="cl-chip__arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg></button>
@@ -3224,6 +3227,19 @@ function _calcFocusAfter(clId,selector){
 }
 document.getElementById('clientesTbody').addEventListener('keydown',e=>{
   if(e.defaultPrevented||e.altKey||e.ctrlKey||e.metaKey)return;
+  const repTrigger=e.target.closest('.cl-repbtn');
+  if(repTrigger&&e.key==='ArrowDown'){
+    e.preventDefault();
+    const cl=currentReparto.clientes.find(c=>c.id===+repTrigger.dataset.clid);
+    if(cl)_openRepartidorPop(repTrigger,cl,true);
+    return;
+  }
+  if(repTrigger&&e.key.length===1&&e.key!==' '){
+    e.preventDefault();
+    const cl=currentReparto.clientes.find(c=>c.id===+repTrigger.dataset.clid);
+    if(cl)_openRepartidorPop(repTrigger,cl,true,e.key);
+    return;
+  }
   const el=e.target.closest(_calcGridControls);
   if(!el)return;
   const row=el.closest('tr[data-clid]');
@@ -3617,14 +3633,15 @@ document.getElementById('clientesTbody').addEventListener('input',e=>{
 });
 
 /* ── Popover animado genérico (chips Segmento / Repartidor) ── */
-let _chipPop=null,_chipAnchor=null;
+let _chipPop=null,_chipAnchor=null,_chipKeyboardUsed=false;
 function _ensureChipPop(){
   if(_chipPop)return _chipPop;
-  const p=document.createElement('div');p.className='chip-pop';
-  p.innerHTML='<div class="chip-pop__search" style="display:none"><input type="text" placeholder="Buscar…" autocomplete="off"></div><div class="chip-pop__list"></div>';
+  const p=document.createElement('div');p.className='chip-pop';p.setAttribute('role','dialog');p.setAttribute('aria-label','Opciones');
+  p.innerHTML='<div class="chip-pop__search" style="display:none"><input id="chipPopSearch" type="text" role="combobox" aria-autocomplete="list" aria-controls="chipPopList" aria-expanded="false" placeholder="Escribí para buscar…" autocomplete="off"></div><div class="chip-pop__list" id="chipPopList" role="listbox" aria-label="Opciones"></div>';
   document.body.appendChild(p);_chipPop=p;
   p.addEventListener('keydown',e=>{
     if(!_chipAnchor||!_chipAnchor.closest('#clientesTbody'))return;
+    _chipKeyboardUsed=true;
     if(e.key==='Escape'){
       e.preventDefault();e.stopPropagation();
       const anchor=_chipAnchor,clId=anchor.dataset.clid;
@@ -3642,6 +3659,8 @@ function _ensureChipPop(){
       const current=items.indexOf(document.activeElement);
       const next=current<0?(e.key==='ArrowDown'?0:items.length-1):Math.max(0,Math.min(items.length-1,current+(e.key==='ArrowDown'?1:-1)));
       items[next].focus();
+    }else if((e.key==='Home'||e.key==='End')&&document.activeElement!==search){
+      if(items.length){e.preventDefault();e.stopPropagation();items[e.key==='Home'?0:items.length-1].focus();}
     }else if(e.key==='Enter'&&document.activeElement===search){
       const first=list.querySelector('.chip-pop__item:not(.chip-pop__add)');
       if(first){e.preventDefault();e.stopPropagation();first.click();}
@@ -3654,7 +3673,8 @@ function _ensureChipPop(){
 }
 function _closeChipPop(){
   if(!_chipPop)return;const p=_chipPop;
-  if(_chipAnchor)_chipAnchor.classList.remove('is-open');_chipAnchor=null;
+  if(_chipAnchor){_chipAnchor.classList.remove('is-open');_chipAnchor.setAttribute('aria-expanded','false');}_chipAnchor=null;
+  const search=p.querySelector('.chip-pop__search input');if(search)search.setAttribute('aria-expanded','false');
   const cb=_chipOnClose;_chipOnClose=null;if(cb)try{cb();}catch(_){}
   if(window.gsap)gsap.to(p,{opacity:0,y:-6,scale:.98,duration:.14,ease:'power2.in',onComplete:()=>{p.classList.remove('open');gsap.set(p,{clearProps:'all'});}});
   else p.classList.remove('open');
@@ -3670,6 +3690,8 @@ function _positionChipPop(){
 let _chipOnClose=null;
 function openChipPop(anchor,opts){
   const p=_ensureChipPop();_chipAnchor=anchor;anchor.classList.add('is-open');
+  anchor.setAttribute('aria-expanded','true');
+  _chipKeyboardUsed=!!opts.keyboard;
   _chipOnClose=opts.onClose||null;
   const esMulti=!!opts.multi;
   const valor=()=>typeof opts.value==='function'?opts.value():opts.value;
@@ -3685,7 +3707,7 @@ function openChipPop(anchor,opts){
       const on=esMulti?(sel.indexOf(o.v)>=0):(o.v===valor());
       const inner=(esMulti?'<span class="chip-pop__ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>':'')+
         (o.dot?'<span class="dot" style="background:'+o.dot+'"></span>':'')+'<span class="chip-pop__lbl">'+esc(o.label)+'</span>';
-      const item='<button type="button" class="chip-pop__item'+(on?' on':'')+'" data-v="'+esc(o.v)+'">'+inner+'</button>';
+      const item='<button type="button" role="option" aria-selected="'+(on?'true':'false')+'" class="chip-pop__item'+(on?' on':'')+'" data-v="'+esc(o.v)+'">'+inner+'</button>';
       return (opts.onDelete&&o.del!==false)?'<div class="chip-pop__row">'+item+'<button type="button" class="chip-pop__del" data-del="'+esc(o.v)+'" title="Borrar">'+CHIP_TRASH+'</button></div>':item;
     }).join('');
     if(html===''||html===((esMulti&&opts.hint)?'<div class="chip-pop__hint">'+esc(opts.hint)+'</div>':''))html+='<div class="chip-pop__empty">Sin resultados</div>';
@@ -3700,11 +3722,12 @@ function openChipPop(anchor,opts){
       // lo toma como afuera y cierra el desplegable.
       if(esMulti){ ev.stopPropagation(); opts.onToggle&&opts.onToggle(v);
         const vs=valor()||[]; b.classList.toggle('on',vs.indexOf(v)>=0); return; }
+      const keyboardPick=!!(opts.keyboard||_chipKeyboardUsed);
       const calcRow=anchor.closest('#clientesTbody tr[data-clid]');
       const calcId=calcRow&&calcRow.dataset.clid;
       const nextSelector=anchor.classList.contains('cl-segbtn')?'.cl-repbtn':anchor.classList.contains('cl-repbtn')?'.cl-zonabtn':anchor.classList.contains('cl-zonabtn')?'.cl-peso-inp':null;
       _closeChipPop();opts.onPick&&opts.onPick(v);
-      if(opts.keyboard&&calcId&&nextSelector)_calcFocusAfter(calcId,nextSelector);
+      if(keyboardPick&&calcId&&nextSelector)_calcFocusAfter(calcId,nextSelector);
     }));
     const dn=list.querySelector('[data-done]');if(dn)dn.addEventListener('click',()=>_closeChipPop());
     const addb=list.querySelector('[data-add]');if(addb)addb.addEventListener('click',()=>{const q2=(searchInp.value||'').trim();_closeChipPop();opts.onAdd&&opts.onAdd(q2);});
@@ -3712,12 +3735,19 @@ function openChipPop(anchor,opts){
   }
   render('');
   if(opts.search)searchInp.oninput=()=>render(searchInp.value);
-  p.style.width=Math.max(anchor.getBoundingClientRect().width,opts.search?250:180)+'px';
+  p.style.width=Math.min(Math.max(anchor.getBoundingClientRect().width,opts.search?250:180),window.innerWidth-24)+'px';
   const up=_positionChipPop();
   p.classList.add('open');
   if(window.gsap)gsap.fromTo(p,{opacity:0,y:up?8:-8,scale:.97},{opacity:1,y:0,scale:1,duration:.24,ease:'back.out(1.6)',clearProps:'transform'});
-  if(opts.search){if(opts.keyboard&&anchor.closest('#clientesTbody'))searchInp.focus();else setTimeout(()=>searchInp.focus(),40);}
+  if(opts.search){searchInp.setAttribute('aria-expanded','true');requestAnimationFrame(()=>{if(_chipAnchor===anchor&&p.classList.contains('open'))searchInp.focus({preventScroll:true});});}
   else if(opts.keyboard&&anchor.closest('#clientesTbody')){const selected=list.querySelector('.chip-pop__item.on')||list.querySelector('.chip-pop__item:not(.chip-pop__add)')||list.querySelector('.chip-pop__done');if(selected)selected.focus();}
+}
+function _openRepartidorPop(anchor,cl,keyboard,initialQuery){
+  openChipPop(anchor,{keyboard:!!keyboard,value:cl.rep||'',search:true,addLabel:'Agregar repartidor nuevo',options:_repartidores.map(n=>({v:n,label:n})),onPick:v=>{cl.rep=v;renderClientesTable();},onAdd:()=>_openAddRepartidor(name=>{cl.rep=name;renderClientesTable();})});
+  if(initialQuery&&_chipPop){
+    const input=_chipPop.querySelector('.chip-pop__search input');
+    if(input){input.value=initialQuery;input.dispatchEvent(new Event('input',{bubbles:true}));}
+  }
 }
 /* Clic en los chips de Segmento / Repartidor → abre el popover */
 document.getElementById('clientesTbody').addEventListener('click',e=>{
@@ -3726,7 +3756,7 @@ document.getElementById('clientesTbody').addEventListener('click',e=>{
     openChipPop(segb,{keyboard:e.detail===0,value:cl.seg||'local',options:[{v:'local',label:'Local',dot:'#0B5F8D'},{v:'interior',label:'Interior',dot:'#F97316'},{v:'servicios',label:'Servicios',dot:'#10B981'},{v:'transportadora',label:'Transportadora',dot:'#7c3aed'}],onPick:v=>{cl.seg=v;_setZonas(cl,_zonasDe(cl).filter(z=>_zonasFor(v).some(x=>x.n===z)),v);renderClientesTable();}});return;}
   const repb=e.target.closest('.cl-repbtn');
   if(repb){const cl=currentReparto.clientes.find(c=>c.id===+repb.dataset.clid);if(!cl)return;
-    openChipPop(repb,{keyboard:e.detail===0,value:cl.rep||'',search:true,addLabel:'Agregar repartidor nuevo',options:_repartidores.map(n=>({v:n,label:n})),onPick:v=>{cl.rep=v;renderClientesTable();},onAdd:()=>_openAddRepartidor(name=>{cl.rep=name;renderClientesTable();})});return;}
+    _openRepartidorPop(repb,cl,e.detail===0);return;}
   const zonb=e.target.closest('.cl-zonabtn');
   if(zonb){const cl=currentReparto.clientes.find(c=>c.id===+zonb.dataset.clid);if(!cl)return;
     _abrirZonas(zonb,cl,function(enVivo){
