@@ -11573,6 +11573,20 @@ function _rrOpenDetail(g,periodLbl,wkObj){
   function _dashBlank(){const isTr=_dashSeg==='transportadora',isServ=_dashSeg==='servicios',tr=(trucks||[])[0]||null;return {k:_dashDK++,uid:null,isNew:true,seg:_dashSeg,trId:(isTr||isServ)?null:(tr?tr.id:null),trDesc:(isTr||isServ)?'':(tr?tr.d:''),tsId:tsObj?tsObj.id:g.tsId,tsNombre:g.ts,rep:'',zona:'',fecha:_defFecha(),km:0,precioKm:0,precio:0,obs:'',almacen:'',detalle:'',cant:1,del:false};}
   async function _dashEnterEdit(sk,autoAdd){const lock=_facDeGrupo(g);if(lock){showToast(lock._revision?'La factura de esta planilla necesita revisión antes de modificarla.':'Esta planilla ya está facturada · no se puede modificar');return;}if(sk==='servicios')await _svCatCargar();_dashAmountOnly=false;_dashSeg=sk;_dashDK=1;_dashSel.clear();_dashDraft=work.filter(w=>!w.del&&w.seg===sk).map(w=>{const sf=sk==='servicios'?_dashServicioCampos(w):null;return {k:_dashDK++,uid:w.uid,isNew:!!w.isNew,seg:w.seg||sk,trId:sk==='servicios'?null:w.trId,trDesc:sk==='servicios'?'':w.trDesc,tsId:w.tsId,tsNombre:w.tsNombre,rep:sk==='servicios'?'':(w.rep||''),zona:sk==='servicios'?'':(w.zona||''),fecha:w.fecha||null,km:+w.km||0,precioKm:+w.precioKm||0,precio:+w.precio||0,fleteManual:!!w.fleteManual,obs:sf?sf.servicio:(w.obs||w.zona||''),almacen:w.almacen||'',detalle:sf?sf.detalle:(w.detalle||''),cant:+w.cant||1,del:false};});_dashEdit=true;if(autoAdd)_dashDraft.push(_dashBlank());render('filter');}
   function _dashEnterAmountEdit(){const fac=_facDeGrupo(g);if(!fac||fac._revision){showToast('La factura de esta planilla necesita revisión antes de modificarla.');return;}_dashAmountOnly=true;_dashEdit=true;_dashSeg='todos';_dashDK=1;_dashSel.clear();_dashDraft=work.filter(w=>!w.del&&!w.isNew).map(w=>({k:_dashDK++,uid:w.uid,seg:w.seg,precio:+w.precio||0,zona:w.zona||'',del:false}));render('filter');}
+  function _dashRequestAmountEdit(){
+    const ov=document.createElement('div');ov.className='modal-bd is-open';ov.style.zIndex='9200';
+    ov.innerHTML='<form class="modal-box" role="dialog" aria-modal="true" aria-labelledby="_dashPinTitle" style="max-width:390px"><div class="modal-title" id="_dashPinTitle">Autorizar edición</div><div class="modal-sub">Ingresá la contraseña para cambiar montos y zonas de esta factura.</div><div class="modal-field"><label for="_dashEditPin">Contraseña</label><input class="modal-input" id="_dashEditPin" type="password" inputmode="numeric" autocomplete="new-password" maxlength="24" aria-describedby="_dashPinError" placeholder="Ingresá la contraseña"><span id="_dashPinError" role="alert" style="display:block;min-height:16px;font-size:11.5px;color:#c9505c;font-weight:700;margin-top:3px"></span></div><div class="modal-actions" style="display:flex;gap:10px;justify-content:flex-end;margin-top:14px"><button class="btn btn-ghost" type="button" data-pin-cancel>Cancelar</button><button class="btn btn-primary" type="submit">Continuar</button></div></form>';
+    document.body.appendChild(ov);
+    const form=ov.querySelector('form'),pin=ov.querySelector('#_dashEditPin'),err=ov.querySelector('#_dashPinError');
+    const close=()=>{document.removeEventListener('keydown',onKey);ov.remove();};
+    const onKey=e=>{if(e.key==='Escape')close();};
+    document.addEventListener('keydown',onKey);
+    ov.addEventListener('click',e=>{if(e.target===ov)close();});
+    ov.querySelector('[data-pin-cancel]').addEventListener('click',close);
+    form.addEventListener('submit',e=>{e.preventDefault();if(pin.value!=='121221'){err.textContent='La contraseña no es correcta.';pin.value='';pin.classList.add('is-err');pin.focus();return;}close();_dashEnterAmountEdit();});
+    pin.addEventListener('input',()=>{err.textContent='';pin.classList.remove('is-err');});
+    setTimeout(()=>pin.focus(),40);
+  }
   function _dashExitEdit(){_dashEdit=false;_dashAmountOnly=false;_dashDraft=null;_dashSel.clear();render('filter');}
   // Desde "Todos": si hay 1 segmento entra directo; si hay varios, muestra un modal PRO para elegir
   function _dashPickSeg(isAdd){const lock=_facDeGrupo(g);if(lock){showToast(lock._revision?'La factura de esta planilla necesita revisión antes de modificarla.':'Esta planilla ya está facturada · no se puede modificar');return;}const present=SEGL.filter(sk=>work.some(w=>!w.del&&w.seg===sk));if(present.length<=1){_dashEnterEdit(present[0]||'local',isAdd);return;}_openSegModal(present,isAdd);}
@@ -12027,7 +12041,7 @@ function _rrOpenDetail(g,periodLbl,wkObj){
     bd.querySelectorAll('[data-dashedit]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();_dashEnterEdit(b.dataset.dashedit);}));
     bd.querySelectorAll('[data-todosadd]').forEach(b=>b.addEventListener('click',()=>_dashPickSeg(true)));
     bd.querySelectorAll('[data-todosedit]').forEach(b=>b.addEventListener('click',()=>_dashPickSeg(false)));
-    bd.querySelectorAll('[data-dashamountedit]').forEach(b=>b.addEventListener('click',()=>_dashEnterAmountEdit()));
+    bd.querySelectorAll('[data-dashamountedit]').forEach(b=>b.addEventListener('click',()=>_dashRequestAmountEdit()));
     bd.querySelectorAll('[data-dashdel]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();const w=W(b.dataset.dashdel);if(w)confirmDelete(w);}));
     bd.querySelectorAll('[data-dashrow]').forEach(r=>r.addEventListener('click',e=>{if(e.target.closest('button')||e.target.closest('.rrd-facc'))return;if(_facMode){const w=W(r.dataset.dashrow);if(w)_facToggle(w.uid);return;}if(_facDeGrupo(g))return;_dashEnterEdit(_dashSeg);}));
     // Check verde→azul: confirmar que el reparto entra en la factura (con loader interno)
